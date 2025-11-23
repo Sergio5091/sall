@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-background-dark text-[#EAEAEA] font-body">
+  <div class="min-h-screen text-[#222222] font-body">
     <!-- TopNavBar -->
-    <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center bg-background-dark/80 backdrop-blur-sm shadow-sm">
+    <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center backdrop-blur-sm shadow-sm">
       <div class="flex items-center justify-between w-full max-w-7xl px-6 py-3">
         <div class="flex items-center gap-8">
           <div class="flex items-center gap-3 text-white">
@@ -15,20 +15,20 @@
         <div class="hidden md:flex flex-1 justify-center">
           <label class="flex flex-col w-full max-w-sm h-11">
             <div class="flex w-full flex-1 items-stretch rounded-full h-full">
-              <div class="text-[#9f9db9] flex bg-[#2a2839] items-center justify-center pl-4 rounded-l-full">
+              <div class="text-[#6b7280] flex bg-[#e5e7eb] items-center justify-center pl-4 rounded-l-full">
                 <span class="material-symbols-outlined">search</span>
               </div>
-              <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-white focus:outline-0 focus:ring-0 border-none bg-[#2a2839] h-full placeholder:text-[#9f9db9] px-4 rounded-r-full text-base font-normal leading-normal" placeholder="Rechercher une salle, un jeu..." v-model="searchQuery" @keyup.enter="searchRooms"/>
+              <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-black focus:outline-0 focus:ring-0 border-none bg-[#e5e7eb] h-full placeholder:text-[#6b7280] px-4 rounded-r-full text-base font-normal leading-normal" placeholder="Rechercher une salle, un jeu..." v-model="searchQuery" @keyup.enter="searchRooms"/>
             </div>
           </label>
         </div>
         <div class="flex items-center gap-3">
-          <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-[#2a2839] text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-[#3c3a50] transition-colors">
+          <Link :href="route('login')" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-[#e5e7eb] text-black text-sm font-bold leading-normal tracking-[0.015em] hover:bg-[#d1d5db] transition-colors">
             <span class="truncate">Connexion</span>
-          </button>
-          <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-accent-magenta text-white text-sm font-bold leading-normal tracking-[0.015em] hover:brightness-110 transition-all">
+          </Link>
+          <Link :href="route('register')" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-accent-magenta text-white text-sm font-bold leading-normal tracking-[0.015em] hover:brightness-110 transition-all">
             <span class="truncate">S'inscrire</span>
-          </button>
+          </Link>
         </div>
       </div>
     </header>
@@ -74,7 +74,7 @@
               <div class="flex flex-col flex-1 justify-between p-4 pt-0 gap-4">
                 <div>
                   <p class="text-white text-lg font-bold leading-normal">{{ item.title }}</p>
-                  <p class="text-[#9f9db9] text-sm font-normal leading-normal">{{ item.subtitle }}</p>
+                  <p class="text-white text-sm font-normal leading-normal">{{ item.subtitle }}</p>
                 </div>
               </div>
             </div>
@@ -87,7 +87,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-white text-3xl font-display font-bold leading-tight tracking-tight px-4 pb-6">Salles Populaires</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="(room, index) in popularRooms" :key="index" class="flex flex-col gap-4 rounded-lg bg-[#1c1c27] shadow-lg overflow-hidden group">
+          <div v-for="(room, index) in popularRooms" :key="index" class="flex flex-col gap-4 rounded-lg shadow-lg overflow-hidden group">
             <div class="w-full bg-center bg-no-repeat aspect-video bg-cover transition-transform duration-300 group-hover:scale-105" :style="'background-image: url(' + room.image + ')'"></div>
             <div class="flex flex-col p-4 pt-0 gap-3">
               <h3 class="text-white text-xl font-bold">{{ room.name }}</h3>
@@ -109,15 +109,15 @@
     </section>
 
     <!-- Comment ça marche Section -->
-    <section class="py-16 bg-background-dark">
+    <section class="py-16">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-white text-center text-3xl font-display font-bold leading-tight tracking-tight pb-12">Comment ça marche ?</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
           <div v-for="(step, index) in howItWorks" :key="index" class="flex flex-col items-center gap-4">
-            <div class="flex items-center justify-center w-24 h-24 rounded-full bg-[#1c1c27] border-2 mb-4" :class="step.borderColor">
-              <span class="material-symbols-outlined !text-5xl" :class="step.iconColor">{{ step.icon }}</span>
+            <div class="flex items-center justify-center w-24 h-24 rounded-full border-2 mb-4 bg-[#1c1c27]" :class="step.borderColor">
+              <span class="material-symbols-outlined !text-5xl" :class="step.iconColor" style="font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48">{{ step.icon }}</span>
             </div>
-            <h3 class="text-white text-xl font-bold font-display">{{ step.step }}. {{ step.title }}</h3>
+            <h3 class="text-white text-xl font-bold font-display">{{ step.title }}</h3>
             <p class="text-[#9f9db9]">{{ step.description }}</p>
           </div>
         </div>
@@ -125,7 +125,7 @@
     </section>
 
     <!-- Footer -->
-    <footer class="w-full border-t border-t-[#2a2839] mt-20 bg-background-dark">
+    <footer class="w-full border-t border-t-[#e5e7eb] mt-20">
       <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
         <div class="col-span-2 lg:col-span-1">
           <div class="flex items-center gap-3 text-white">
@@ -135,7 +135,7 @@
             </svg>
             <h2 class="text-white text-2xl font-display font-bold">GameOn</h2>
           </div>
-          <p class="text-[#9f9db9] mt-4 text-sm">La plus grande communauté de joueurs et de salles de jeux.</p>
+          <p class="text-[#6b7280] mt-4 text-sm">La plus grande communauté de joueurs et de salles de jeux.</p>
         </div>
         <div>
           <h4 class="font-display font-bold text-white mb-4">Navigation</h4>
@@ -162,8 +162,8 @@
           </ul>
         </div>
       </div>
-      <div class="max-w-7xl mx-auto px-6 py-6 border-t border-t-[#2a2839]">
-        <p class="text-center text-sm text-[#9f9db9]">© 2024 GameOn. Tous droits réservés.</p>
+      <div class="max-w-7xl mx-auto px-6 py-6 border-t border-t-[#e5e7eb]">
+        <p class="text-center text-sm text-[#6b7280]"> 2024 GameOn. Tous droits réservés.</p>
       </div>
     </footer>
   </div>
@@ -171,6 +171,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { Link } from '@inertiajs/vue3';
 
 // Data
 const searchQuery = ref('');
@@ -322,6 +323,13 @@ function viewRoom(id) {
   --accent-magenta: #FF00FF;
   --accent-cyan: #00FFFF;
   --accent-yellow: #FDFD00;
+  --accent-magenta-rgb: 255, 0, 255;
+  --accent-cyan-rgb: 0, 255, 255;
+  --accent-yellow-rgb: 253, 253, 0;
+}
+
+.dark {
+  color-scheme: dark;
 }
 
 .font-display {
