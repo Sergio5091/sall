@@ -29,6 +29,9 @@ Route::middleware(['auth'])->prefix('client')->name('client.')->group(function (
     Route::get('/dashboard', function () {
         return Inertia::render('Client/Dashboard');
     })->name('dashboard');
+    Route::get('/profile', function () {
+        return Inertia::render('Client/Profile');
+    })->name('profile');
 });
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
