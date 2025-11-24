@@ -1,5 +1,5 @@
 <script setup>
-import GuestLayout from '@/Layouts/GuestLayout.vue';
+import AuthLayout from '@/Layouts/AuthLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
@@ -11,6 +11,7 @@ const form = useForm({
     email: '',
     password: '',
     password_confirmation: '',
+    role: '', // Vide pour forcer la sélection
 });
 
 const submit = () => {
@@ -21,120 +22,148 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout>
+    <AuthLayout>
         <Head title="Inscription" />
 
-        <div class="min-h-screen flex flex-col md:flex-row">
+        <div class="relative flex min-h-screen w-full flex-col lg:flex-row">
             <!-- Côté gauche - Formulaire -->
-            <div class="w-full md:w-1/2 min-h-screen flex items-center justify-center p-8 bg-background-dark">
-                <div class="w-full max-w-md">
-                    <div class="text-center mb-8">
-                        <h1 class="text-3xl font-display font-bold text-white mb-2">Créer un compte</h1>
-                        <p class="text-[#9f9db9]">Rejoignez notre communauté de joueurs passionnés</p>
-                    </div>
+            <div class="flex flex-1 items-center justify-center p-4 lg:p-8">
+                <div class="w-full max-w-md space-y-8">
+                    <header>
+                        <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-white">Créer un compte</h1>
+                        <p class="mt-2 text-gray-400">Rejoignez notre communauté de joueurs passionnés</p>
+                    </header>
 
                     <form @submit.prevent="submit" class="space-y-6">
+                        <!-- Nom complet -->
                         <div>
-                            <InputLabel for="name" value="Nom complet" class="text-white mb-1" />
-                            <TextInput
-                                id="name"
-                                type="text"
-                                class="mt-1 block w-full"
-                                v-model="form.name"
-                                required
-                                autofocus
-                                autocomplete="name"
-                            />
-                            <InputError class="mt-2" :message="form.errors.name" />
+                            <label class="text-sm font-medium text-white" for="name">
+                                Nom complet<span class="text-red-500">*</span>
+                            </label>
+                            <div class="mt-2">
+                                <input
+                                    id="name"
+                                    type="text"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-[#1D2939] border border-gray-700 text-white placeholder:text-gray-500 focus:border-cyan focus:ring-cyan h-12 px-4 text-base transition-colors"
+                                    placeholder="John Doe"
+                                    v-model="form.name"
+                                    required
+                                    autofocus
+                                    autocomplete="name"
+                                />
+                                <InputError class="mt-1" :message="form.errors.name" />
+                            </div>
                         </div>
 
+                        <!-- Email -->
                         <div>
-                            <InputLabel for="email" value="Email" class="text-white mb-1" />
-                            <TextInput
-                                id="email"
-                                type="email"
-                                class="mt-1 block w-full"
-                                v-model="form.email"
-                                required
-                                autocomplete="username"
-                            />
-                            <InputError class="mt-2" :message="form.errors.email" />
+                            <label class="text-sm font-medium text-white" for="email">
+                                Email<span class="text-red-500">*</span>
+                            </label>
+                            <div class="mt-2">
+                                <input
+                                    id="email"
+                                    type="email"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-[#1D2939] border border-gray-700 text-white placeholder:text-gray-500 focus:border-cyan focus:ring-cyan h-12 px-4 text-base transition-colors"
+                                    placeholder="vous@exemple.com"
+                                    v-model="form.email"
+                                    required
+                                    autocomplete="username"
+                                />
+                                <InputError class="mt-1" :message="form.errors.email" />
+                            </div>
                         </div>
 
+                        <!-- Mot de passe -->
                         <div>
-                            <InputLabel for="password" value="Mot de passe" class="text-white mb-1" />
-                            <TextInput
-                                id="password"
-                                type="password"
-                                class="mt-1 block w-full"
-                                v-model="form.password"
-                                required
-                                autocomplete="new-password"
-                            />
-                            <InputError class="mt-2" :message="form.errors.password" />
+                            <label class="text-sm font-medium text-white" for="password">
+                                Mot de passe<span class="text-red-500">*</span>
+                            </label>
+                            <div class="mt-2">
+                                <input
+                                    id="password"
+                                    type="password"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-[#1D2939] border border-gray-700 text-white placeholder:text-gray-500 focus:border-cyan focus:ring-cyan h-12 px-4 text-base transition-colors"
+                                    placeholder="••••••••"
+                                    v-model="form.password"
+                                    required
+                                    autocomplete="new-password"
+                                />
+                                <InputError class="mt-1" :message="form.errors.password" />
+                            </div>
                         </div>
 
+                        <!-- Confirmation mot de passe -->
                         <div>
-                            <InputLabel for="password_confirmation" value="Confirmer le mot de passe" class="text-white mb-1" />
-                            <TextInput
-                                id="password_confirmation"
-                                type="password"
-                                class="mt-1 block w-full"
-                                v-model="form.password_confirmation"
-                                required
-                                autocomplete="new-password"
-                            />
-                            <InputError class="mt-2" :message="form.errors.password_confirmation" />
+                            <label class="text-sm font-medium text-white" for="password_confirmation">
+                                Confirmer le mot de passe<span class="text-red-500">*</span>
+                            </label>
+                            <div class="mt-2">
+                                <input
+                                    id="password_confirmation"
+                                    type="password"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-[#1D2939] border border-gray-700 text-white placeholder:text-gray-500 focus:border-cyan focus:ring-cyan h-12 px-4 text-base transition-colors"
+                                    placeholder="••••••••"
+                                    v-model="form.password_confirmation"
+                                    required
+                                    autocomplete="new-password"
+                                />
+                                <InputError class="mt-1" :message="form.errors.password_confirmation" />
+                            </div>
                         </div>
 
                         <!-- Sélection du rôle -->
-                        <div class="mt-6">
-                            <InputLabel value="Je m'inscris en tant que" class="text-white mb-3 block text-center" />
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <input
-                                        id="client"
+                        <div class="space-y-4 pt-2">
+                            <h3 class="text-center text-white">Je m'inscris en tant que</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="group relative cursor-pointer">
+                                    <input 
+                                        id="client" 
                                         v-model="form.role"
-                                        type="radio"
-                                        value="client"
-                                        class="hidden peer"
+                                        name="role" 
+                                        type="radio" 
+                                        value="client" 
+                                        class="sr-only" 
                                         required
                                     />
-                                    <label
+                                    <label 
                                         for="client"
-                                        class="flex flex-col items-center justify-center p-4 h-full border-2 border-gray-700 rounded-lg cursor-pointer transition-all duration-200 peer-checked:border-accent-cyan peer-checked:bg-accent-cyan/10 hover:bg-gray-800/50"
+                                        class="flex flex-col items-center justify-center p-4 border-2 border-gray-700 rounded-lg h-full transition-all group-hover:bg-cyan/10 group-hover:border-cyan peer-checked:border-cyan peer-checked:bg-cyan/10"
                                     >
-                                        <div class="text-3xl mb-2">👤</div>
-                                        <div class="font-medium text-white">Client</div>
-                                        <p class="text-sm text-gray-400 text-center mt-1">Je veux réserver des salles</p>
+                                        <span class="material-symbols-outlined text-4xl text-cyan">person</span>
+                                        <span class="mt-2 font-semibold text-white">Client</span>
+                                        <span class="text-sm text-gray-400 text-center">Je veux réserver des salles</span>
                                     </label>
                                 </div>
-                                <div>
-                                    <input
-                                        id="promoteur"
+                                <div class="group relative cursor-pointer">
+                                    <input 
+                                        id="promoteur" 
                                         v-model="form.role"
-                                        type="radio"
-                                        value="promoteur"
-                                        class="hidden peer"
+                                        name="role" 
+                                        type="radio" 
+                                        value="promoter" 
+                                        class="sr-only"
                                     />
-                                    <label
+                                    <label 
                                         for="promoteur"
-                                        class="flex flex-col items-center justify-center p-4 h-full border-2 border-gray-700 rounded-lg cursor-pointer transition-all duration-200 peer-checked:border-accent-cyan peer-checked:bg-accent-cyan/10 hover:bg-gray-800/50"
+                                        class="flex flex-col items-center justify-center p-4 border-2 border-gray-700 rounded-lg h-full transition-all group-hover:bg-cyan/10 group-hover:border-cyan peer-checked:border-cyan peer-checked:bg-cyan/10"
                                     >
-                                        <div class="text-3xl mb-2">🏢</div>
-                                        <div class="font-medium text-white">Promoteur</div>
-                                        <p class="text-sm text-gray-400 text-center mt-1">Je veux proposer des salles</p>
+                                        <span class="material-symbols-outlined text-4xl text-cyan">storefront</span>
+                                        <span class="mt-2 font-semibold text-white">Promoteur</span>
+                                        <span class="text-sm text-gray-400 text-center">Je veux proposer des salles</span>
                                     </label>
                                 </div>
                             </div>
-                            <InputError class="mt-2" :message="form.errors.role" />
+                            <InputError class="mt-1" :message="form.errors.role" />
                         </div>
 
-                        <div class="pt-2">
-                            <PrimaryButton
-                                class="w-full justify-center bg-accent-magenta hover:bg-accent-magenta/90 focus:ring-2 focus:ring-accent-magenta/50 focus:ring-offset-2 focus:ring-offset-background-dark"
-                                :class="{ 'opacity-70': form.processing }"
+                        <!-- Bouton de soumission -->
+                        <div>
+                            <button 
+                                type="submit" 
+                                class="flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-6 bg-magenta text-white text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-wait"
                                 :disabled="form.processing"
+                                :class="{ 'opacity-70': form.processing }"
                             >
                                 <span v-if="!form.processing">Créer mon compte</span>
                                 <span v-else class="flex items-center">
@@ -144,14 +173,14 @@ const submit = () => {
                                     </svg>
                                     Création en cours...
                                 </span>
-                            </PrimaryButton>
+                            </button>
                         </div>
                     </form>
 
-                    <div class="mt-6 text-center">
-                        <p class="text-sm text-[#9f9db9]">
-                            Vous avez déjà un compte ?
-                            <Link :href="route('login')" class="font-medium text-accent-cyan hover:text-accent-cyan/80">
+                    <div class="text-center">
+                        <p class="text-sm text-gray-400">
+                            Déjà inscrit ?
+                            <Link :href="route('login')" class="font-medium text-cyan hover:underline transition-colors">
                                 Se connecter
                             </Link>
                         </p>
@@ -160,15 +189,15 @@ const submit = () => {
             </div>
 
             <!-- Côté droit - Illustration -->
-            <div class="hidden md:flex md:w-1/2 min-h-screen bg-gradient-to-br from-accent-magenta/20 to-accent-cyan/20 items-center justify-center p-12">
-                <div class="max-w-md text-center">
-                    <div class="bg-[#1c1c27] p-8 rounded-2xl shadow-xl">
-                        <div class="text-white text-4xl mb-4">🎮</div>
-                        <h2 class="text-2xl font-display font-bold text-white mb-2">Rejoignez l'aventure</h2>
-                        <p class="text-[#9f9db9]">Créez votre compte pour réserver des salles, participer à des tournois et profiter d'offres exclusives.</p>
-                    </div>
+            <div class="relative hidden lg:flex flex-1 items-center justify-center bg-gray-900">
+                <div class="absolute inset-0 bg-cover bg-center opacity-20" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAfbf3N5fG_NjsjDLj2jYFOZI5GNmFUBz_GvuMpIESqw322JnueC1sAIWWxsXpcQZS6F0JFQI-HR7uMDhMm66bUrs0kNIOgOoWaK_YRW-3vsSlCVnZqgk8ypfIR4mYJsjiyCooww0c2ZWYwo8mBOcTyABCp8Zt8JpVTDI4ru4KayQjbfWGXUPHHAaFxsTSkyMclyJUC2IOmB89QgYlQ-YUENWzuwrUT_6t5z5lRe5LiSH1-axqWAvVZiU0IHWJSjrvZdmvs0AJ-qs8g')"></div>
+                <div class="relative z-10 max-w-md text-center p-8 space-y-4">
+                    <h2 class="text-4xl font-bold text-white">Rejoignez l'aventure</h2>
+                    <p class="text-gray-300">
+                        Entrez dans un monde de compétition et de fun. Connectez-vous avec d'autres joueurs, découvrez de nouveaux lieux et vivez votre passion pour le jeu.
+                    </p>
                 </div>
             </div>
         </div>
-    </GuestLayout>
+    </AuthLayout>
 </template>

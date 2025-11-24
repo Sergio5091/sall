@@ -27,23 +27,23 @@ public function run()
     ];
 
     foreach ($permissions as $permission) {
-        Permission::create(['name' => $permission]);
+        Permission::firstOrCreate(['name' => $permission]);
     }
 
     // Create roles and assign created permissions
-    $adminRole = Role::create(['name' => 'admin']);
-    $adminRole->givePermissionTo(Permission::all());
+    $adminRole = Role::firstOrCreate(['name' => 'admin']);
+    $adminRole->syncPermissions(Permission::all());
 
-    $promoterRole = Role::create(['name' => 'promoter']);
-    $promoterRole->givePermissionTo([
+    $promoterRole = Role::firstOrCreate(['name' => 'promoter']);
+    $promoterRole->syncPermissions([
         'manage salles',
         'manage events',
         'manage reservations',
         'view dashboard'
     ]);
 
-    $clientRole = Role::create(['name' => 'client']);
-    $clientRole->givePermissionTo([
+    $clientRole = Role::firstOrCreate(['name' => 'client']);
+    $clientRole->syncPermissions([
         'view dashboard'
     ]);
 }

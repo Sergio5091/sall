@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\Permission\Models\Role;
 
 class RegisteredUserController extends Controller
 {
@@ -20,7 +21,15 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Auth/Register');
+        // Récupérer les rôles disponibles (client et promoter)
+        $roles = [
+            'client' => 'Client',
+            'promoter' => 'Promoteur'
+        ];
+        
+        return Inertia::render('Auth/Register', [
+            'availableRoles' => $roles
+        ]);
     }
 
     /**
@@ -30,25 +39,35 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => 'required|in:client,promoter'
         ]);
 
+        // Créer l'utilisateur
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => $validated['role'], // Sauvegarder le rôle dans la colonne
         ]);
 
-        // Attribuer le rôle client par défaut
-        $user->assignRole('client');
+        // Si Spatie est installé et configuré, assigner le rôle
+        if (class_exists('\Spatie\Permission\Models\Role') && \Spatie\Permission\Models\Role::count() > 0) {
+            $user->assignRole($validated['role']);
+        }
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('client.dashboard', absolute: false));
+        // Redirection selon le rôle
+        return match($validated['role']) {
+            'promoter' => redirect()->route('promoter.dashboard'),
+            'client' => redirect()->route('client.dashboard'),
+            default => redirect()->route('dashboard'),
+        };
     }
 }

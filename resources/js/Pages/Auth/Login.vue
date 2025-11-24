@@ -1,167 +1,184 @@
 <template>
-    <div class="min-h-screen flex flex-col md:flex-row bg-gray-50 dark:bg-gray-900">
-        <!-- Côté gauche - Illustration -->
-        <div class="hidden md:flex md:w-1/2 bg-gradient-to-br from-purple-900 to-blue-800 items-center justify-center p-10 relative overflow-hidden">
-            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')] bg-cover bg-center opacity-10"></div>
-            <div class="w-full max-w-md text-center relative z-10">
-                <div class="bg-black/40 backdrop-blur-sm p-8 rounded-2xl shadow-xl">
-                    <div class="text-5xl mb-6">🎮</div>
-                    <h1 class="text-3xl font-bold text-white leading-tight mb-4">Votre univers de jeu connecté</h1>
-                    <p class="text-gray-200">Rejoignez une communauté de passionnés et découvrez les meilleures salles de jeux près de chez vous.</p>
-                </div>
-            </div>
+  <div class="min-h-screen bg-background-light dark:bg-background-dark">
+    <Navbar />
+    <div class="flex flex-col md:flex-row min-h-screen pt-16">
+      <!-- Visual Panel (Left) -->
+      <div class="hidden md:flex md:w-1/2 lg:w-2/5 bg-gradient-to-br from-[#4A1D96] to-[#2D3748] items-center justify-center p-10">
+        <div class="w-full max-w-md text-center relative z-10">
+          <img 
+            alt="Personnes jouant à des jeux vidéo dans une salle de jeu éclairée au néon" 
+            class="rounded-lg shadow-2xl mb-8 w-full h-auto object-cover" 
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvH2WTqOH4xdpVYNnE-AEFRRddj-EuRD0tnArJLb7oiAWvIp-Qtmwd-tR44tBYuIL9XkGjTu6hrz1fbv0sRpr-kX6GHHvDlqmEfeZBWWIDPjIxx5XICSthpyGGo6HnkD-KQJEARGM2QWfZFHPAL0LB_PlSt4ECuOTAZyeJGu2nfHkeKY5of2ezUggCSp6YWPhzFl6HDAxuJtpjpCG-DeCuElEFOfHRxYJ87yGW0NGnQggcGusH7isgz2z6G84Me6uB4dNF5ZG6uEKf"
+          />
+          <h1 class="text-3xl font-bold text-white leading-tight">Votre univers de jeu connecté</h1>
+          <p class="mt-4 text-lg text-gray-300">Rejoignez une communauté de passionnés et découvrez les meilleures salles de jeux près de chez vous.</p>
         </div>
+      </div>
+      
+      <!-- Form Panel (Right) -->
+      <div class="w-full md:w-1/2 lg:w-3/5 flex items-center justify-center p-6 sm:p-12 bg-[#1A202C] dark:bg-[#1A202C]">
+        <div class="w-full max-w-md space-y-6">
+          <!-- Header -->
+          <div class="text-center md:text-left">
+            <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight">Heureux de vous revoir !</h2>
+            <p class="mt-2 text-gray-300">Connectez-vous pour rejoindre votre univers de jeu.</p>
+          </div>
 
-        <!-- Côté droit - Formulaire -->
-        <div class="w-full md:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-white dark:bg-gray-800">
-            <div class="w-full max-w-md space-y-6">
-                <!-- En-tête -->
-                <div class="text-center md:text-left">
-                    <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">Heureux de vous revoir !</h2>
-                    <p class="mt-2 text-gray-600 dark:text-gray-300">Connectez-vous pour rejoindre votre univers de jeu.</p>
-                </div>
+          <!-- Social Login Buttons -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <button type="button" class="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-600 bg-white/5 px-4 py-3 text-sm font-medium text-white hover:bg-white/10 transition-colors">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              <span>Google</span>
+            </button>
+            <button type="button" class="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-600 bg-white/5 px-4 py-3 text-sm font-medium text-white hover:bg-white/10 transition-colors">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z" />
+                <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
+              </svg>
+              <span>Apple</span>
+            </button>
+          </div>
 
-                <div v-if="status" class="mb-6 p-4 bg-green-500/10 text-green-500 rounded-lg text-sm">
-                    {{ status }}
-                </div>
-
-                <!-- Boutons de connexion sociale -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <button type="button" class="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-200">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                            <g clip-path="url(#clip0_17_80)"><path d="M47.532 24.5528C47.532 22.9214 47.3997 21.2811 47.1175 19.6761H24.253v9.0909H37.3117C36.666 32.0433 34.3245 35.8237 30.6034 38.2206V44.22H39.2217C44.4913 39.3731 47.532 32.5458 47.532 24.5528Z" fill="#4285F4"></path><path d="M24.253 48.0001C30.9409 48.0001 36.5617 45.8392 40.2828 42.2207L32.6034 37.2206C30.3619 38.7103 27.5398 39.5668 24.253 39.5668C18.2522 39.5668 13.064 35.5337 11.2084 30.13H3.43262V36.2781C7.14486 43.3444 15.137 48.0001 24.253 48.0001Z" fill="#34A853"></path><path d="M11.2084 29.13C10.7493 27.709 10.4916 26.1952 10.4916 24.64C10.4916 23.0848 10.7493 21.571 11.2084 20.15H3.43262C1.84438 23.239 1.84438 26.8321 3.43262 29.92H11.2084V29.13Z" fill="#FBBC04"></path><path d="M24.253 9.43321C27.8821 9.43321 31.1118 10.6893 33.7259 13.204L40.4854 6.51614C36.5528 2.94913 30.9409 0.880005 24.253 0.880005C15.137 0.880005 7.14486 5.53572 3.43262 12.602L11.2084 18.15C13.064 13.4663 18.2522 9.43321 24.253 9.43321Z" fill="#EA4335"></path></g><defs><clipPath id="clip0_17_80"><rect fill="white" height="48" width="48"></rect></clipPath></defs>
-                        </svg>
-                        Continuer avec Google
-                    </button>
-                    <button type="button" class="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-200">
-                        <svg class="h-5 w-5 text-gray-800 dark:text-white" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14.227 21.522C13.54 21.82 13.1 22.518 13.137 23.292C13.175 24.065 13.78 24.631 14.512 24.631C15.244 24.631 16.53 24.25 17.752 23.477C18.974 22.704 20.375 21.503 21.416 19.883C21.892 19.146 22.25 18.337 22.486 17.458C21.05 16.507 19.9 14.86 19.9 12.87C19.9 10.704 21.286 8.995 23.102 8.121C22.915 7.206 22.564 6.328 22.062 5.523C20.407 2.949 17.844 1.258 15.014 1.157C12.086 1.041 9.438 2.905 8.169 5.51C6.444 6.757 5.234 8.931 5.234 11.439C5.234 14.587 7.022 16.942 9.387 18.15C9.423 18.166 9.46 18.181 9.496 18.196C8.52 21.164 9.172 24.615 9.273 24.819C9.362 25.023 9.187 25.211 8.96 25.195C6.017 24.974 3.785 23.239 2.296 20.916C1.936 20.363 1.218 20.198 0.665 20.558C0.111 20.918 0.019 21.636 0.307 22.189C2.123 25.174 4.918 27.11 8.239 27.38C11.56 27.65 14.474 25.952 15.936 23.199C15.53 22.613 14.914 21.222 14.227 21.522Z"></path></svg>
-                        Continuer avec Apple
-                    </button>
-                </div>
-
-                <!-- Séparateur -->
-                <div class="relative flex items-center py-2">
-                    <div class="flex-grow border-t border-gray-300 dark:border-gray-700"></div>
-                    <span class="flex-shrink mx-4 text-sm text-gray-500 dark:text-gray-400">ou connectez-vous avec</span>
-                    <div class="flex-grow border-t border-gray-300 dark:border-gray-700"></div>
-                </div>
-
-                <!-- Formulaire de connexion -->
-                <form @submit.prevent="submit" class="space-y-6">
-                    <!-- Email -->
-                    <div>
-                        <InputLabel for="email" value="Adresse e-mail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" />
-                        <div class="relative">
-                            <span class="material-symbols-outlined pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 dark:text-gray-400">mail</span>
-                            <TextInput
-                                id="email"
-                                type="email"
-                                class="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-700/50 py-3 pl-10 pr-3 transition-colors duration-200"
-                                v-model="form.email"
-                                required
-                                autofocus
-                                autocomplete="email"
-                                placeholder="email@example.com"
-                            />
-                        </div>
-                        <InputError class="mt-1 text-sm text-red-600 dark:text-red-400" :message="form.errors.email" />
-                    </div>
-
-                    <!-- Mot de passe -->
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <InputLabel for="password" value="Mot de passe" class="block text-sm font-medium text-gray-700 dark:text-gray-300" />
-                            <Link :href="route('password.request')" class="text-sm font-medium text-purple-600 hover:text-purple-500 dark:text-purple-400 dark:hover:text-purple-300 transition-colors duration-200">Mot de passe oublié ?</Link>
-                        </div>
-                        <div class="relative">
-                            <span class="material-symbols-outlined pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 dark:text-gray-400">lock</span>
-                            <TextInput
-                                id="password"
-                                type="password"
-                                class="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-700/50 py-3 pl-10 pr-10 transition-colors duration-200"
-                                v-model="form.password"
-                                required
-                                autocomplete="current-password"
-                                placeholder="••••••••"
-                            />
-                            <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-purple-500 dark:text-gray-400 dark:hover:text-purple-300 transition-colors duration-200">
-                                <span class="material-symbols-outlined text-lg">visibility</span>
-                            </button>
-                        </div>
-                        <InputError class="mt-1 text-sm text-red-600 dark:text-red-400" :message="form.errors.password" />
-                    </div>
-
-                    <!-- Se souvenir de moi -->
-                    <div class="flex items-center">
-                        <Checkbox 
-                            id="remember"
-                            name="remember" 
-                            v-model:checked="form.remember"
-                            class="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
-                        />
-                        <InputLabel for="remember" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                            Se souvenir de moi
-                        </InputLabel>
-                    </div>
-
-                    <!-- Bouton de soumission -->
-                    <div class="pt-2">
-                        <PrimaryButton 
-                            class="w-full justify-center bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-3 px-4 rounded-lg font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200" 
-                            :class="{ 'opacity-70 cursor-not-allowed': form.processing }" 
-                            :disabled="form.processing"
-                        >
-                            <span v-if="!form.processing" class="flex items-center justify-center">
-                                <span class="mr-2">Se connecter</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </span>
-                            <span v-else class="flex items-center justify-center">
-                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Connexion en cours...
-                            </span>
-                        </PrimaryButton>
-                    </div>
-                </form>
-
-                <!-- Lien vers l'inscription -->
-                <div class="text-center pt-4">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        Pas encore de compte ?
-                        <Link :href="route('register')" class="font-medium text-purple-600 hover:text-purple-500 dark:text-purple-400 dark:hover:text-purple-300 transition-colors duration-200 ml-1">S'inscrire</Link>
-                    </p>
-                </div>
+          <!-- Divider -->
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-600"></div>
             </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-2 bg-[#1A202C] text-gray-300">ou connectez-vous avec</span>
+            </div>
+          </div>
+
+          <!-- Status Message -->
+          <div v-if="status" class="mb-4 p-3 bg-green-500/10 text-green-500 text-sm rounded-lg">
+            {{ status }}
+          </div>
+
+          <!-- Login Form -->
+          <form @submit.prevent="submit" class="space-y-4">
+            <!-- Email Field -->
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Adresse e-mail</label>
+              <div class="relative">
+                <span class="material-symbols-outlined pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 dark:text-gray-500">mail</span>
+                <TextInput
+                  id="email"
+                  type="email"
+                  class="block w-full rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/50 py-3 pl-10 pr-3"
+                  v-model="form.email"
+                  required
+                  autofocus
+                  autocomplete="email"
+                  placeholder="email@example.com"
+                />
+              </div>
+              <InputError class="mt-1 text-sm text-red-500" :message="form.errors.email" />
+            </div>
+
+            <!-- Password Field -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Mot de passe</label>
+                <Link :href="route('password.request')" class="text-sm font-medium text-primary hover:text-primary/80">Mot de passe oublié ?</Link>
+              </div>
+              <div class="relative">
+                <span class="material-symbols-outlined pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 dark:text-gray-500">lock</span>
+                <TextInput
+                  id="password"
+                  :type="showPassword ? 'text' : 'password'"
+                  class="block w-full rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/50 py-3 pl-10 pr-10"
+                  v-model="form.password"
+                  required
+                  autocomplete="current-password"
+                  placeholder="••••••••"
+                />
+                <button 
+                  type="button" 
+                  class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
+                  @click="showPassword = !showPassword"
+                >
+                  <span class="material-symbols-outlined text-lg">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+                </button>
+              </div>
+              <InputError class="mt-1 text-sm text-red-500" :message="form.errors.password" />
+            </div>
+
+            <!-- Remember Me -->
+            <div class="flex items-center">
+              <Checkbox 
+                id="remember"
+                name="remember" 
+                v-model:checked="form.remember"
+                class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/50 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-900"
+              />
+              <label for="remember" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                Se souvenir de moi
+              </label>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-2">
+              <button 
+                type="submit"
+                class="group relative flex w-full justify-center rounded-lg border border-transparent bg-primary px-4 py-3 text-sm font-semibold text-white hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                :disabled="form.processing"
+              >
+                <span v-if="!form.processing" class="flex items-center">
+                  <span>Se connecter</span>
+                </span>
+                <span v-else class="flex items-center">
+                  <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Connexion...
+                </span>
+              </button>
+            </div>
+          </form>
+
+          <!-- Sign up Link -->
+          <p class="text-center text-sm text-gray-600 dark:text-gray-400">
+            Pas encore de compte ?
+            <Link :href="route('register')" class="font-medium text-primary hover:text-primary/80 ml-1">
+              S'inscrire
+            </Link>
+          </p>
         </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script setup>
-import GuestLayout from '@/Layouts/GuestLayout.vue';
+import { ref } from 'vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Checkbox from '@/Components/Checkbox.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import Navbar from '@/Components/Navbar.vue';
 
 defineProps({
-    status: String,
+  status: String,
 });
 
+const showPassword = ref(false);
+
 const form = useForm({
-    email: '',
-    password: '',
-    remember: false
+  email: '',
+  password: '',
+  remember: false
 });
 
 const submit = () => {
-    form.post(route('login'), {
-        onFinish: () => form.reset('password'),
-    });
+  form.post(route('login'), {
+    onFinish: () => form.reset('password'),
+  });
 };
 </script>

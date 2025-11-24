@@ -4,11 +4,8 @@
     <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center backdrop-blur-sm shadow-sm">
       <div class="flex items-center justify-between w-full max-w-7xl px-6 py-3">
         <div class="flex items-center gap-8">
-          <div class="flex items-center gap-3 text-white">
-            <svg class="w-7 h-7 text-accent-cyan" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-              <path clip-rule="evenodd" d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z" fill="currentColor" fill-rule="evenodd"></path>
-              <path clip-rule="evenodd" d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z" fill="currentColor" fill-rule="evenodd"></path>
-            </svg>
+          <div class="flex items-center gap-2 text-white">
+            <span class="material-icons-round text-3xl text-accent-cyan">sports_esports</span>
             <h2 class="text-white text-2xl font-display font-bold">GameOn</h2>
           </div>
         </div>
@@ -16,7 +13,7 @@
           <label class="flex flex-col w-full max-w-sm h-11">
             <div class="flex w-full flex-1 items-stretch rounded-full h-full">
               <div class="text-[#6b7280] flex bg-[#e5e7eb] items-center justify-center pl-4 rounded-l-full">
-                <span class="material-symbols-outlined">search</span>
+                <span class="material-symbols-outlined text-xl">search</span>
               </div>
               <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-black focus:outline-0 focus:ring-0 border-none bg-[#e5e7eb] h-full placeholder:text-[#6b7280] px-4 rounded-r-full text-base font-normal leading-normal" placeholder="Rechercher une salle, un jeu..." v-model="searchQuery" @keyup.enter="searchRooms"/>
             </div>
@@ -26,14 +23,14 @@
           <Link :href="route('login')" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-[#e5e7eb] text-black text-sm font-bold leading-normal tracking-[0.015em] hover:bg-[#d1d5db] transition-colors">
             <span class="truncate">Connexion</span>
           </Link>
-          <Link :href="route('register')" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-accent-magenta text-white text-sm font-bold leading-normal tracking-[0.015em] hover:brightness-110 transition-all">
+          <Link :href="route('register')" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:brightness-110 transition-all" style="background-color: #FF00FF;">
             <span class="truncate">S'inscrire</span>
           </Link>
         </div>
       </div>
     </header>
     <!-- HeroSection -->
-    <section class="relative flex min-h-[80vh] sm:min-h-screen flex-col gap-6 sm:gap-8 items-center justify-center text-center py-16 sm:py-20 -mx-4 sm:-mx-6">
+    <section class="relative flex min-h-[80vh] sm:min-h-screen flex-col gap-6 sm:gap-8 items-center justify-center text-center py-16 sm:py-20 w-full overflow-x-hidden">
       <div class="absolute inset-0 bg-cover bg-center bg-no-repeat z-0" style='background-image: linear-gradient(rgba(18, 17, 24, 0.8) 0%, rgba(18, 17, 24, 1) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuAvMkKqOU-KKBFEfq-XSqP8ERc3OcUD8c_cPSMVMQ51u7hagAf8c_kCEfAd86ta1yjbIE-5sLkK3wUnDLhWLOTh7SEnmUTk7eYbIG2ctck4ibodkjHwNZR2qQjYZjnEEW9bMiU8oTRROJKW5ErST-A-PlzGsUI-_7EzmG6n9rQEd02EfnEiJBNocXkEh4Q0lpRwJpxFjFSADix08DdbLqgv3LAEtZgVoQTgq8Fg9pcuOHKYf1A191jXTu07_i2G61JZjs70Bep8nXg5");'></div>
       <div class="relative z-10 flex flex-col gap-3 sm:gap-4 items-center w-full px-4 max-w-4xl">
         <h1 class="text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight tracking-tighter">
@@ -128,11 +125,8 @@
     <footer class="w-full border-t border-t-[#e5e7eb] mt-20">
       <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
         <div class="col-span-2 lg:col-span-1">
-          <div class="flex items-center gap-3 text-white">
-            <svg class="w-7 h-7 text-accent-cyan" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-              <path clip-rule="evenodd" d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z" fill="currentColor" fill-rule="evenodd"></path>
-              <path clip-rule="evenodd" d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z" fill="currentColor" fill-rule="evenodd"></path>
-            </svg>
+          <div class="flex items-center gap-2 text-white">
+            <span class="material-icons-round text-3xl text-accent-cyan">sports_esports</span>
             <h2 class="text-white text-2xl font-display font-bold">GameOn</h2>
           </div>
           <p class="text-[#6b7280] mt-4 text-sm">La plus grande communauté de joueurs et de salles de jeux.</p>

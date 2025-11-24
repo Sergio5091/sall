@@ -12,11 +12,30 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-});
+})->name('welcome');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+// Routes protégées par rôle (temporairement sans middleware de rôle pour tester)
+Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(function () {
+    Route::get('/dashboard', function () {
+        return Inertia::render('Promoter/Dashboard');
+    })->name('dashboard');
+});
+
+Route::middleware(['auth'])->prefix('client')->name('client.')->group(function () {
+    Route::get('/dashboard', function () {
+        return Inertia::render('Client/Dashboard');
+    })->name('dashboard');
+});
+
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', function () {
+        return Inertia::render('Admin/Dashboard');
+    })->name('dashboard');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
