@@ -1,218 +1,307 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import Sidebar from '../../Components/Promoter/Sidebar.vue';
 
 const props = defineProps({
-    events: Array,
-    filters: Object
+    events: {
+        type: Object,
+        default: () => ({ data: [] })
+    },
+    stats: {
+        type: Object,
+        default: () => ({
+            total: 0,
+            publies: 0,
+            brouillons: 0,
+            avenir: 0,
+            en_cours: 0,
+            passes: 0
+        })
+    }
 });
+
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+};
+
+const getStatutColor = (statut) => {
+    const colors = {
+        'brouillon': 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+        'publie': 'bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-300',
+        'annule': 'bg-red-100 text-red-800 dark:bg-red-800/30 dark:text-red-300',
+        'termine': 'bg-blue-100 text-blue-800 dark:bg-blue-800/30 dark:text-blue-300'
+    };
+    return colors[statut] || 'bg-gray-100 text-gray-800';
+};
+
+const getCategorieIcon = (categorie) => {
+    const icons = {
+        'tournoi': 'fas fa-trophy',
+        'soiree': 'fas fa-glass-cheers',
+        'atelier': 'fas fa-chalkboard-teacher',
+        'lancement': 'fas fa-rocket',
+        'festival': 'fas fa-music',
+        'conference': 'fas fa-microphone',
+        'formation': 'fas fa-graduation-cap',
+        'meetup': 'fas fa-users',
+        'competition': 'fas fa-medal',
+        'autre': 'fas fa-calendar'
+    };
+    return icons[categorie] || 'fas fa-calendar';
+};
+
+const getTypeIcon = (type) => {
+    const icons = {
+        'online': 'fas fa-laptop',
+        'offline': 'fas fa-map-marker-alt',
+        'hybride': 'fas fa-globe'
+    };
+    return icons[type] || 'fas fa-calendar';
+};
+
+const estPasse = (dateFin) => {
+    return dateFin ? new Date(dateFin) < new Date() : false;
+};
+
+const estEnCours = (dateDebut, dateFin) => {
+    if (!dateDebut || !dateFin) return false;
+    const now = new Date();
+    return new Date(dateDebut) <= now && new Date(dateFin) >= now;
+};
+
+// Helper pour accéder aux propriétés en toute sécurité
+const getEventProp = (event, prop, defaultValue = '') => {
+    return event && event[prop] !== undefined ? event[prop] : defaultValue;
+};
 </script>
 
 <template>
-  <Head title="Gestion des Événements" />
+  <Head title="Événements" />
   
   <!-- Add Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <div class="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark font-display">
-    <!-- SideNavBar -->
-    <aside class="flex flex-col w-64 p-4 bg-white dark:bg-[#111318] border-r border-gray-200 dark:border-gray-800 shrink-0">
-      <div class="flex flex-col gap-4">
-        <div class="flex items-center gap-3">
-          <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Arcade X Logo" style='background-image: url("https://picsum.photos/seed/arcade-logo/100/100.jpg");'></div>
-          <div class="flex flex-col">
-            <h1 class="text-gray-900 dark:text-white text-base font-medium leading-normal">Salle d'Arcade X</h1>
-            <p class="text-gray-500 dark:text-[#9da6b9] text-sm font-normal leading-normal">Promoteur</p>
-          </div>
-        </div>
-        <nav class="flex flex-col gap-2 mt-4">
-          <Link href="/promoter/dashboard" class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#282e39]">
-            <i class="fas fa-tachometer-alt"></i>
-            <p class="text-sm font-medium leading-normal">Dashboard</p>
-          </Link>
-          <Link href="/promoter/events" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 dark:bg-[#282e39] text-primary dark:text-white">
-            <i class="fas fa-calendar-alt"></i>
-            <p class="text-sm font-medium leading-normal">Événements</p>
-          </Link>
-          <Link href="#" class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#282e39]">
-            <i class="fas fa-users"></i>
-            <p class="text-sm font-medium leading-normal">Communauté</p>
-          </Link>
-          <Link href="#" class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#282e39]">
-            <i class="fas fa-chart-bar"></i>
-            <p class="text-sm font-medium leading-normal">Analyses</p>
-          </Link>
-          <Link href="#" class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#282e39]">
-            <i class="fas fa-cog"></i>
-            <p class="text-sm font-medium leading-normal">Paramètres</p>
-          </Link>
-        </nav>
-      </div>
-      <div class="mt-auto flex flex-col gap-4">
-        <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
-          <span class="truncate">Voir la page publique</span>
-        </button>
-        <div class="flex flex-col gap-1">
-          <Link href="#" class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#282e39]">
-            <i class="fas fa-question-circle"></i>
-            <p class="text-sm font-medium leading-normal">Aide</p>
-          </Link>
-          <Link href="#" class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#282e39]">
-            <i class="fas fa-sign-out-alt"></i>
-            <p class="text-sm font-medium leading-normal">Déconnexion</p>
-          </Link>
-        </div>
-      </div>
-    </aside>
+  <div class="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+    <!-- Sidebar Component -->
+    <Sidebar current-route="promoter.events" />
 
     <!-- Main Content -->
-    <main class="flex-1 p-6 lg:p-10">
-      <div class="max-w-7xl mx-auto">
-        <!-- PageHeading -->
-        <div class="flex flex-wrap items-start justify-between gap-4">
-          <div class="flex flex-col gap-2">
-            <h1 class="text-gray-900 dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">Gestion de vos Événements</h1>
-            <p class="text-gray-500 dark:text-[#9da6b9] text-base font-normal leading-normal">Créez, modifiez et suivez tous les événements de votre salle.</p>
+    <main class="flex-1 overflow-y-auto transition-all duration-300">
+      <div class="p-8">
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+          <div>
+            <p class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Événements</p>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Gérez vos événements et suivez leurs performances</p>
           </div>
-          <Link href="/promoter/events/create" class="flex items-center justify-center gap-2 min-w-[84px] cursor-pointer overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+          <Link href="/promoter/events/create" class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
             <i class="fas fa-plus-circle"></i>
-            <span class="truncate">Créer un nouvel événement</span>
+            <span>Créer un événement</span>
           </Link>
         </div>
 
-        <!-- Search and Filters -->
-        <div class="mt-8 flex flex-col md:flex-row gap-4">
-          <!-- SearchBar -->
-          <div class="flex-1">
-            <label class="flex flex-col h-12 w-full">
-              <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
-                <div class="text-[#9da6b9] flex bg-white dark:bg-[#282e39] items-center justify-center pl-4 rounded-l-lg border border-gray-200 dark:border-gray-700 border-r-0">
-                  <i class="fas fa-search"></i>
-                </div>
-                <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 bg-white dark:bg-[#282e39] border border-gray-200 dark:border-gray-700 h-full placeholder:text-[#9da6b9] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="Rechercher un événement par nom..." value=""/>
+        <!-- Statistiques -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                <i class="fas fa-calendar text-blue-600 dark:text-blue-400 text-xl"></i>
               </div>
-            </label>
+              <div>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total }}</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm">Total événements</p>
+              </div>
+            </div>
           </div>
-          <!-- Chips -->
-          <div class="flex items-center gap-2 overflow-x-auto pb-2">
-            <div class="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-300 px-4 border border-primary/20 dark:border-primary/30">
-              <p class="text-sm font-medium leading-normal">Tous</p>
+
+          <div class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
+                <i class="fas fa-eye text-green-600 dark:text-green-400 text-xl"></i>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.publies }}</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm">Publiés</p>
+              </div>
             </div>
-            <div class="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-[#282e39] px-4 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
-              <p class="text-gray-700 dark:text-white text-sm font-medium leading-normal">Publié</p>
+          </div>
+
+          <div class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center">
+                <i class="fas fa-clock text-orange-600 dark:text-orange-400 text-xl"></i>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.avenir }}</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm">À venir</p>
+              </div>
             </div>
-            <div class="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-[#282e39] px-4 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
-              <p class="text-gray-700 dark:text-white text-sm font-medium leading-normal">Brouillon</p>
-            </div>
-            <div class="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-[#282e39] px-4 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
-              <p class="text-gray-700 dark:text-white text-sm font-medium leading-normal">Terminé</p>
+          </div>
+
+          <div class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
+                <i class="fas fa-play-circle text-purple-600 dark:text-purple-400 text-xl"></i>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.en_cours }}</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm">En cours</p>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Table -->
-        <div class="mt-6 @container">
-          <div class="flex overflow-hidden rounded-lg border border-gray-200 dark:border-[#3b4354] bg-white dark:bg-[#1c1f27]">
-            <table class="w-full">
-              <thead class="bg-gray-50 dark:bg-[#1c1f27]">
-                <tr>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[35%]">Nom de l'événement</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[15%]">Date</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[15%]">Statut</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[15%]">Inscrits</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[20%] text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-200 dark:divide-[#3b4354]">
-                <tr class="hover:bg-gray-50 dark:hover:bg-[#282e39]/50">
-                  <td class="h-[72px] px-4 py-2 text-gray-900 dark:text-white text-sm font-medium">Tournoi Super Smash Bros.</td>
-                  <td class="h-[72px] px-4 py-2 text-gray-500 dark:text-[#9da6b9] text-sm">25 Oct. 2024</td>
-                  <td class="h-[72px] px-4 py-2 text-sm">
-                    <div class="inline-flex items-center gap-1.5 rounded-full bg-green-100 dark:bg-green-500/20 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-300">
-                      <span class="size-1.5 rounded-full bg-green-500"></span>Publié
+        <!-- Liste des événements -->
+        <div class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+          <div class="p-6 border-b border-gray-200 dark:border-gray-800">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Vos événements</h2>
+          </div>
+
+          <!-- État vide -->
+          <div v-if="!events.data || events.data.length === 0" class="p-12 text-center">
+            <div class="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-calendar-times text-gray-400 dark:text-gray-500 text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Aucun événement</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">Commencez par créer votre premier événement</p>
+            <Link href="/promoter/events/create" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              <i class="fas fa-plus-circle"></i>
+              Créer un événement
+            </Link>
+          </div>
+
+          <!-- Liste des événements -->
+          <div v-else class="divide-y divide-gray-200 dark:divide-gray-800">
+            <div v-for="event in events.data" :key="event.id" class="p-6 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+              <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <!-- Informations principales -->
+                <div class="flex-1">
+                  <div class="flex items-start gap-4">
+                    <!-- Image -->
+                    <div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-800">
+                      <img v-if="event.image_affiche" :src="`/storage/events/affiches/${event.image_affiche}`" :alt="event.titre" class="w-full h-full object-cover">
+                      <div v-else class="w-full h-full flex items-center justify-center">
+                        <i :class="getCategorieIcon(event.categorie)" class="text-gray-400 dark:text-gray-500 text-2xl"></i>
+                      </div>
                     </div>
-                  </td>
-                  <td class="h-[72px] px-4 py-2 text-sm">
-                    <div class="flex items-center gap-3">
-                      <p class="text-gray-900 dark:text-white text-sm font-medium">85 / 100</p>
-                      <div class="w-20 overflow-hidden rounded-full bg-gray-200 dark:bg-[#3b4354]"><div class="h-1.5 rounded-full bg-primary" style="width: 85%;"></div></div>
+
+                    <!-- Détails -->
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-3 mb-2">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white truncate">{{ getEventProp(event, 'titre', 'Sans titre') }}</h3>
+                        <span :class="getStatutColor(event.statut)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                          {{ getEventProp(event, 'statut_texte', event.statut || 'Inconnu') }}
+                        </span>
+                      </div>
+
+                      <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-2">
+                        <div class="flex items-center gap-1">
+                          <i :class="getCategorieIcon(event.categorie)" class="text-xs"></i>
+                          <span>{{ getEventProp(event, 'categorie_texte', event.categorie || 'Non défini') }}</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                          <i :class="getTypeIcon(event.type)" class="text-xs"></i>
+                          <span>{{ getEventProp(event, 'type_texte', event.type || 'Non défini') }}</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                          <i class="fas fa-map-marker-alt text-xs"></i>
+                          <span>{{ getEventProp(event, 'salle', {}).nom || 'Salle non définie' }}</span>
+                        </div>
+                      </div>
+
+                      <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                        <div class="flex items-center gap-1" v-if="event.date_debut">
+                          <i class="fas fa-calendar text-xs"></i>
+                          <span>{{ formatDate(event.date_debut) }}</span>
+                        </div>
+                        <div v-if="!event.gratuit && event.prix_formatte" class="flex items-center gap-1">
+                          <i class="fas fa-tag text-xs"></i>
+                          <span>{{ event.prix_formatte }}</span>
+                        </div>
+                        <div v-else class="flex items-center gap-1">
+                          <i class="fas fa-gift text-xs"></i>
+                          <span>Gratuit</span>
+                        </div>
+                      </div>
                     </div>
-                  </td>
-                  <td class="h-[72px] px-4 py-2 text-right">
-                    <div class="flex items-center justify-end gap-2">
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-edit text-base"></i></button>
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-eye text-base"></i></button>
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-copy text-base"></i></button>
-                    </div>
-                  </td>
-                </tr>
-                <tr class="hover:bg-gray-50 dark:hover:bg-[#282e39]/50">
-                  <td class="h-[72px] px-4 py-2 text-gray-900 dark:text-white text-sm font-medium">Soirée Rétro Gaming</td>
-                  <td class="h-[72px] px-4 py-2 text-gray-500 dark:text-[#9da6b9] text-sm">15 Nov. 2024</td>
-                  <td class="h-[72px] px-4 py-2 text-sm">
-                    <div class="inline-flex items-center gap-1.5 rounded-full bg-green-100 dark:bg-green-500/20 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-300">
-                      <span class="size-1.5 rounded-full bg-green-500"></span>Publié
-                    </div>
-                  </td>
-                  <td class="h-[72px] px-4 py-2 text-sm">
-                    <div class="flex items-center gap-3">
-                      <p class="text-gray-900 dark:text-white text-sm font-medium">45 / 80</p>
-                      <div class="w-20 overflow-hidden rounded-full bg-gray-200 dark:bg-[#3b4354]"><div class="h-1.5 rounded-full bg-yellow-500" style="width: 56.25%;"></div></div>
-                    </div>
-                  </td>
-                  <td class="h-[72px] px-4 py-2 text-right">
-                    <div class="flex items-center justify-end gap-2">
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-edit text-base"></i></button>
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-eye text-base"></i></button>
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-copy text-base"></i></button>
-                    </div>
-                  </td>
-                </tr>
-                <tr class="hover:bg-gray-50 dark:hover:bg-[#282e39]/50">
-                  <td class="h-[72px] px-4 py-2 text-gray-900 dark:text-white text-sm font-medium">Atelier Création de Jeu</td>
-                  <td class="h-[72px] px-4 py-2 text-gray-500 dark:text-[#9da6b9] text-sm">05 Déc. 2024</td>
-                  <td class="h-[72px] px-4 py-2 text-sm">
-                    <div class="inline-flex items-center gap-1.5 rounded-full bg-yellow-100 dark:bg-yellow-500/20 px-2 py-1 text-xs font-medium text-yellow-800 dark:text-yellow-300">
-                      <span class="size-1.5 rounded-full bg-yellow-500"></span>Brouillon
-                    </div>
-                  </td>
-                  <td class="h-[72px] px-4 py-2 text-sm">
-                    <div class="flex items-center gap-3">
-                      <p class="text-gray-900 dark:text-white text-sm font-medium">0 / 20</p>
-                      <div class="w-20 overflow-hidden rounded-full bg-gray-200 dark:bg-[#3b4354]"><div class="h-1.5 rounded-full bg-gray-400" style="width: 0%;"></div></div>
-                    </div>
-                  </td>
-                  <td class="h-[72px] px-4 py-2 text-right">
-                    <div class="flex items-center justify-end gap-2">
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-edit text-base"></i></button>
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-eye text-base"></i></button>
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-copy text-base"></i></button>
-                    </div>
-                  </td>
-                </tr>
-                <tr class="hover:bg-gray-50 dark:hover:bg-[#282e39]/50">
-                  <td class="h-[72px] px-4 py-2 text-gray-900 dark:text-white text-sm font-medium">Compétition e-sport FIFA</td>
-                  <td class="h-[72px] px-4 py-2 text-gray-500 dark:text-[#9da6b9] text-sm">30 Sept. 2024</td>
-                  <td class="h-[72px] px-4 py-2 text-sm">
-                    <div class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 dark:bg-gray-700/50 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-400">
-                      <span class="size-1.5 rounded-full bg-gray-400"></span>Terminé
-                    </div>
-                  </td>
-                  <td class="h-[72px] px-4 py-2 text-sm">
-                    <div class="flex items-center gap-3">
-                      <p class="text-gray-900 dark:text-white text-sm font-medium">128 / 128</p>
-                      <div class="w-20 overflow-hidden rounded-full bg-gray-200 dark:bg-[#3b4354]"><div class="h-1.5 rounded-full bg-green-500" style="width: 100%;"></div></div>
-                    </div>
-                  </td>
-                  <td class="h-[72px] px-4 py-2 text-right">
-                    <div class="flex items-center justify-end gap-2">
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-edit text-base"></i></button>
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-eye text-base"></i></button>
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-copy text-base"></i></button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-2">
+                  <Link :href="`/promoter/events/${event.id}`" class="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="Voir">
+                    <i class="fas fa-eye"></i>
+                  </Link>
+                  <Link :href="`/promoter/events/${event.id}/edit`" class="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="Modifier">
+                    <i class="fas fa-edit"></i>
+                  </Link>
+                  <button 
+                    v-if="event.statut === 'publie'"
+                    @click="confirmCancel(event)"
+                    class="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors" 
+                    title="Annuler"
+                  >
+                    <i class="fas fa-times-circle"></i>
+                  </button>
+                  <button 
+                    v-else-if="event.statut === 'brouillon'"
+                    @click="publish(event)"
+                    class="p-2 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors" 
+                    title="Publier"
+                  >
+                    <i class="fas fa-check-circle"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Indicateurs visuels -->
+              <div class="mt-4 flex flex-wrap gap-2">
+                <span v-if="estEnCours(event.date_debut, event.date_fin)" class="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 rounded text-xs">
+                  <i class="fas fa-play-circle text-xs"></i>
+                  En cours
+                </span>
+                <span v-else-if="estPasse(event.date_fin)" class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300 rounded text-xs">
+                  <i class="fas fa-check-circle text-xs"></i>
+                  Terminé
+                </span>
+                <span v-else class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded text-xs">
+                  <i class="fas fa-clock text-xs"></i>
+                  À venir
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div v-if="events.data && events.data.length > 0" class="p-6 border-t border-gray-200 dark:border-gray-800">
+            <div class="flex items-center justify-between">
+              <div class="text-sm text-gray-600 dark:text-gray-400">
+                Affichage de {{ events.from || 0 }} à {{ events.to || 0 }} sur {{ events.total || 0 }} événements
+              </div>
+              <div class="flex gap-2">
+                <Link 
+                  v-if="events.prev_page_url" 
+                  :href="events.prev_page_url" 
+                  class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-700 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  Précédent
+                </Link>
+                <Link 
+                  v-if="events.next_page_url" 
+                  :href="events.next_page_url" 
+                  class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-700 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  Suivant
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </div>

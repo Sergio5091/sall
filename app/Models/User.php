@@ -10,6 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 
 use Illuminate\Notifications\Notifiable;
+use App\Models\Salle;
 
 class User extends Authenticatable
 {
@@ -49,5 +50,21 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Relation avec les salles du promoteur
+     */
+    public function salles()
+    {
+        return $this->hasMany(Salle::class, 'promoter_id');
+    }
+
+    /**
+     * Obtenir la salle principale du promoteur
+     */
+    public function salle()
+    {
+        return $this->hasOne(Salle::class, 'promoter_id');
     }
 }

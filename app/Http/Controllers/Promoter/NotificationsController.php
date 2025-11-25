@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Promoter;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 
 class NotificationsController extends Controller
@@ -80,7 +81,9 @@ class NotificationsController extends Controller
             ]
         ];
 
-        return view('promoter.notifications.index', compact('notifications'));
+        return Inertia::render('Promoter/Notifications', [
+            'notifications' => $notifications
+        ]);
     }
 
     /**

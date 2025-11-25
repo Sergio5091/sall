@@ -18,6 +18,7 @@ public function run()
 {
     $this->call([
         RolePermissionSeeder::class,
+        SalleSeeder::class,
     ]);
 }
 }
