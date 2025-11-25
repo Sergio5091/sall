@@ -9,6 +9,9 @@ const props = defineProps({
 <template>
   <Head title="Edit Arcade Page" />
   
+  <!-- Add Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
   <div class="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
     <!-- Side Navigation -->
     <aside class="flex h-screen w-64 flex-col bg-white/5 border-r border-white/10 p-4 sticky top-0">
@@ -22,27 +25,27 @@ const props = defineProps({
         </div>
         <div class="flex flex-col gap-1 mt-4">
           <Link href="/promoter/dashboard" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-primary">
-            <span class="material-symbols-outlined text-xl">info</span>
+            <i class="fas fa-info-circle text-xl"></i>
             <p class="text-sm font-medium leading-normal">Informations Générales</p>
           </Link>
           <Link href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 transition-colors">
-            <span class="material-symbols-outlined text-xl">schedule</span>
+            <i class="fas fa-clock text-xl"></i>
             <p class="text-sm font-medium leading-normal">Horaires</p>
           </Link>
           <Link href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 transition-colors">
-            <span class="material-symbols-outlined text-xl">photo_library</span>
+            <i class="fas fa-images text-xl"></i>
             <p class="text-sm font-medium leading-normal">Galerie</p>
           </Link>
           <Link href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 transition-colors">
-            <span class="material-symbols-outlined text-xl">videogame_asset</span>
+            <i class="fas fa-gamepad text-xl"></i>
             <p class="text-sm font-medium leading-normal">Équipements</p>
           </Link>
           <Link href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 transition-colors">
-            <span class="material-symbols-outlined text-xl">sell</span>
+            <i class="fas fa-tag text-xl"></i>
             <p class="text-sm font-medium leading-normal">Tarification</p>
           </Link>
           <Link href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 transition-colors">
-            <span class="material-symbols-outlined text-xl">public</span>
+            <i class="fas fa-globe text-xl"></i>
             <p class="text-sm font-medium leading-normal">SEO & Visibilité</p>
           </Link>
         </div>
@@ -64,7 +67,7 @@ const props = defineProps({
           </div>
           <div class="flex items-center gap-3">
             <div class="flex items-center gap-2 text-gray-400 text-sm">
-              <span class="material-symbols-outlined text-base">check_circle</span>
+              <i class="fas fa-check-circle text-base"></i>
               <span>Sauvegardé</span>
             </div>
             <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-white/10 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-white/20 transition-colors">
@@ -161,7 +164,7 @@ const props = defineProps({
                 <div class="p-6">
                   <h1 class="text-white text-3xl font-black tracking-tighter mb-2">Arcade Invaders</h1>
                   <div class="flex items-center gap-2 text-primary text-sm mb-4">
-                    <span class="material-symbols-outlined text-base">location_on</span>
+                    <i class="fas fa-map-marker-alt text-base"></i>
                     <span>123 Rue du Pixel, 75001 Paris</span>
                   </div>
                   <p class="text-gray-300 leading-relaxed">

@@ -24,6 +24,9 @@ const submit = () => {
 <template>
     <AuthLayout>
         <Head title="Inscription" />
+        
+        <!-- Add Font Awesome -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
         <div class="relative flex min-h-screen w-full flex-col lg:flex-row">
             <!-- Côté gauche - Formulaire -->
@@ -130,7 +133,7 @@ const submit = () => {
                                         for="client"
                                         class="flex flex-col items-center justify-center p-4 border-2 border-gray-700 rounded-lg h-full transition-all group-hover:bg-cyan/10 group-hover:border-cyan peer-checked:border-cyan peer-checked:bg-cyan/10"
                                     >
-                                        <span class="material-symbols-outlined text-4xl text-cyan">person</span>
+                                        <i class="fas fa-user text-4xl text-cyan"></i>
                                         <span class="mt-2 font-semibold text-white">Client</span>
                                         <span class="text-sm text-gray-400 text-center">Je veux réserver des salles</span>
                                     </label>
@@ -148,7 +151,7 @@ const submit = () => {
                                         for="promoteur"
                                         class="flex flex-col items-center justify-center p-4 border-2 border-gray-700 rounded-lg h-full transition-all group-hover:bg-cyan/10 group-hover:border-cyan peer-checked:border-cyan peer-checked:bg-cyan/10"
                                     >
-                                        <span class="material-symbols-outlined text-4xl text-cyan">storefront</span>
+                                        <i class="fas fa-store text-4xl text-cyan"></i>
                                         <span class="mt-2 font-semibold text-white">Promoteur</span>
                                         <span class="text-sm text-gray-400 text-center">Je veux proposer des salles</span>
                                     </label>

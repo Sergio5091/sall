@@ -8,8 +8,8 @@ import Navbar from '@/Components/Navbar.vue';
   
   <!-- Add Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+  <!-- Add Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light font-display">
     <!-- Header - Same as Welcome page but with client navigation -->
@@ -18,7 +18,7 @@ import Navbar from '@/Components/Navbar.vue';
         <div class="flex items-center gap-8">
           <div class="flex items-center gap-2 text-black">
             <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <span class="material-icons-round text-3xl text-accent-cyan">sports_esports</span>
+              <i class="fas fa-gamepad text-3xl text-accent-cyan"></i>
               <h2 class="text-black text-2xl font-display font-bold">GameOn</h2>
             </a>
           </div>
@@ -35,7 +35,7 @@ import Navbar from '@/Components/Navbar.vue';
           <label class="flex flex-col w-full max-w-sm h-11">
             <div class="flex w-full flex-1 items-stretch rounded-full h-full">
               <div class="text-[#6b7280] flex bg-[#e5e7eb] items-center justify-center pl-4 rounded-l-full">
-                <span class="material-symbols-outlined text-xl">search</span>
+                <i class="fas fa-search text-xl"></i>
               </div>
               <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-black focus:outline-0 focus:ring-0 border-none bg-[#e5e7eb] h-full placeholder:text-[#6b7280] px-4 rounded-r-full text-base font-normal leading-normal" placeholder="Rechercher une salle, un jeu..."/>
             </div>
@@ -43,7 +43,7 @@ import Navbar from '@/Components/Navbar.vue';
         </div>
         <div class="flex items-center gap-3">
           <button class="flex relative cursor-pointer items-center justify-center overflow-hidden rounded-full size-10 bg-[#e5e7eb] text-black gap-2">
-            <span class="material-symbols-outlined">notifications</span>
+            <i class="fas fa-bell"></i>
             <span class="absolute top-1.5 right-1.5 flex h-2 w-2">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
@@ -63,15 +63,15 @@ import Navbar from '@/Components/Navbar.vue';
             <h1 class="text-4xl font-black leading-tight tracking-[-0.033em]">Bienvenue, Alex !</h1>
             <div class="flex items-center gap-2">
               <button class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold rounded-full bg-subtle-light hover:bg-border-light">
-                <span class="material-symbols-outlined text-lg">event</span>
+                <i class="fas fa-calendar text-lg"></i>
                 <span>Réserver une salle</span>
               </button>
               <button class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold rounded-full bg-subtle-light hover:bg-border-light">
-                <span class="material-symbols-outlined text-lg">person_add</span>
+                <i class="fas fa-user-plus text-lg"></i>
                 <span>Inviter des amis</span>
               </button>
               <button class="hidden md:flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold rounded-full bg-subtle-light hover:bg-border-light">
-                <span class="material-symbols-outlined text-lg">history</span>
+                <i class="fas fa-history text-lg"></i>
                 <span>Voir mon historique</span>
               </button>
             </div>
@@ -85,7 +85,7 @@ import Navbar from '@/Components/Navbar.vue';
                 <p class="tracking-light text-3xl font-bold mt-2">2</p>
               </div>
               <div class="text-xs text-text-light/60">
-                <span class="material-symbols-outlined text-sm">calendar_month</span>
+                <i class="fas fa-calendar-alt text-sm"></i>
               </div>
             </div>
             <div class="flex flex-col justify-between gap-2 rounded-lg p-6 bg-content-light border border-border-light min-h-[120px]">
@@ -94,7 +94,7 @@ import Navbar from '@/Components/Navbar.vue';
                 <p class="tracking-light text-3xl font-bold mt-2">3</p>
               </div>
               <div class="text-xs text-text-light/60">
-                <span class="material-symbols-outlined text-sm">person_add</span>
+                <i class="fas fa-user-plus text-sm"></i>
               </div>
             </div>
             <div class="flex flex-col justify-between gap-2 rounded-lg p-6 bg-content-light border border-border-light min-h-[120px]">
@@ -103,7 +103,7 @@ import Navbar from '@/Components/Navbar.vue';
                 <p class="tracking-light text-3xl font-bold mt-2">150</p>
               </div>
               <div class="text-xs text-text-light/60">
-                <span class="material-symbols-outlined text-sm">account_balance_wallet</span>
+                <i class="fas fa-wallet text-sm"></i>
               </div>
             </div>
           </div>
@@ -191,14 +191,14 @@ import Navbar from '@/Components/Navbar.vue';
                     value="gamecenter.com/invite/alex123"
                   />
                   <button class="absolute top-1/2 right-2 -translate-y-1/2 p-1.5 rounded-full bg-primary text-white">
-                    <span class="material-symbols-outlined text-sm">content_copy</span>
+                    <i class="fas fa-copy text-sm"></i>
                   </button>
                 </div>
                 <div class="flex justify-center gap-4 mt-4">
                   <button class="flex size-10 items-center justify-center rounded-full bg-subtle-light text-lg">f</button>
                   <button class="flex size-10 items-center justify-center rounded-full bg-subtle-light text-lg">X</button>
                   <button class="flex size-10 items-center justify-center rounded-full bg-subtle-light">
-                    <span class="material-symbols-outlined">forum</span>
+                    <i class="fas fa-comments"></i>
                   </button>
                 </div>
                 <div class="mt-4 text-center">

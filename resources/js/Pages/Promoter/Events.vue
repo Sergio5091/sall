@@ -10,6 +10,9 @@ const props = defineProps({
 <template>
   <Head title="Gestion des Événements" />
   
+  <!-- Add Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
   <div class="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark font-display">
     <!-- SideNavBar -->
     <aside class="flex flex-col w-64 p-4 bg-white dark:bg-[#111318] border-r border-gray-200 dark:border-gray-800 shrink-0">
@@ -23,23 +26,23 @@ const props = defineProps({
         </div>
         <nav class="flex flex-col gap-2 mt-4">
           <Link href="/promoter/dashboard" class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#282e39]">
-            <span class="material-symbols-outlined">dashboard</span>
+            <i class="fas fa-tachometer-alt"></i>
             <p class="text-sm font-medium leading-normal">Dashboard</p>
           </Link>
           <Link href="/promoter/events" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 dark:bg-[#282e39] text-primary dark:text-white">
-            <span class="material-symbols-outlined fill">calendar_month</span>
+            <i class="fas fa-calendar-alt"></i>
             <p class="text-sm font-medium leading-normal">Événements</p>
           </Link>
           <Link href="#" class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#282e39]">
-            <span class="material-symbols-outlined">groups</span>
+            <i class="fas fa-users"></i>
             <p class="text-sm font-medium leading-normal">Communauté</p>
           </Link>
           <Link href="#" class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#282e39]">
-            <span class="material-symbols-outlined">bar_chart</span>
+            <i class="fas fa-chart-bar"></i>
             <p class="text-sm font-medium leading-normal">Analyses</p>
           </Link>
           <Link href="#" class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#282e39]">
-            <span class="material-symbols-outlined">settings</span>
+            <i class="fas fa-cog"></i>
             <p class="text-sm font-medium leading-normal">Paramètres</p>
           </Link>
         </nav>
@@ -50,11 +53,11 @@ const props = defineProps({
         </button>
         <div class="flex flex-col gap-1">
           <Link href="#" class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#282e39]">
-            <span class="material-symbols-outlined">help</span>
+            <i class="fas fa-question-circle"></i>
             <p class="text-sm font-medium leading-normal">Aide</p>
           </Link>
           <Link href="#" class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-[#282e39]">
-            <span class="material-symbols-outlined">logout</span>
+            <i class="fas fa-sign-out-alt"></i>
             <p class="text-sm font-medium leading-normal">Déconnexion</p>
           </Link>
         </div>
@@ -71,7 +74,7 @@ const props = defineProps({
             <p class="text-gray-500 dark:text-[#9da6b9] text-base font-normal leading-normal">Créez, modifiez et suivez tous les événements de votre salle.</p>
           </div>
           <Link href="/promoter/events/create" class="flex items-center justify-center gap-2 min-w-[84px] cursor-pointer overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
-            <span class="material-symbols-outlined">add_circle</span>
+            <i class="fas fa-plus-circle"></i>
             <span class="truncate">Créer un nouvel événement</span>
           </Link>
         </div>
@@ -83,7 +86,7 @@ const props = defineProps({
             <label class="flex flex-col h-12 w-full">
               <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
                 <div class="text-[#9da6b9] flex bg-white dark:bg-[#282e39] items-center justify-center pl-4 rounded-l-lg border border-gray-200 dark:border-gray-700 border-r-0">
-                  <span class="material-symbols-outlined">search</span>
+                  <i class="fas fa-search"></i>
                 </div>
                 <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 bg-white dark:bg-[#282e39] border border-gray-200 dark:border-gray-700 h-full placeholder:text-[#9da6b9] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="Rechercher un événement par nom..." value=""/>
               </div>
@@ -136,9 +139,9 @@ const props = defineProps({
                   </td>
                   <td class="h-[72px] px-4 py-2 text-right">
                     <div class="flex items-center justify-end gap-2">
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-base">edit</span></button>
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-base">visibility</span></button>
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-base">content_copy</span></button>
+                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-edit text-base"></i></button>
+                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-eye text-base"></i></button>
+                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-copy text-base"></i></button>
                     </div>
                   </td>
                 </tr>
@@ -158,9 +161,9 @@ const props = defineProps({
                   </td>
                   <td class="h-[72px] px-4 py-2 text-right">
                     <div class="flex items-center justify-end gap-2">
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-base">edit</span></button>
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-base">visibility</span></button>
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-base">content_copy</span></button>
+                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-edit text-base"></i></button>
+                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-eye text-base"></i></button>
+                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-copy text-base"></i></button>
                     </div>
                   </td>
                 </tr>
@@ -180,9 +183,9 @@ const props = defineProps({
                   </td>
                   <td class="h-[72px] px-4 py-2 text-right">
                     <div class="flex items-center justify-end gap-2">
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-base">edit</span></button>
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-base">visibility</span></button>
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-base">content_copy</span></button>
+                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-edit text-base"></i></button>
+                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-eye text-base"></i></button>
+                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-copy text-base"></i></button>
                     </div>
                   </td>
                 </tr>
@@ -202,9 +205,9 @@ const props = defineProps({
                   </td>
                   <td class="h-[72px] px-4 py-2 text-right">
                     <div class="flex items-center justify-end gap-2">
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-base">edit</span></button>
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-base">visibility</span></button>
-                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-base">content_copy</span></button>
+                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-edit text-base"></i></button>
+                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-eye text-base"></i></button>
+                      <button class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="fas fa-copy text-base"></i></button>
                     </div>
                   </td>
                 </tr>

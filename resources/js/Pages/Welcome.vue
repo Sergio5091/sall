@@ -5,7 +5,7 @@
       <div class="flex items-center justify-between w-full max-w-7xl px-6 py-3">
         <div class="flex items-center gap-8">
           <div class="flex items-center gap-2 text-white">
-            <span class="material-icons-round text-3xl text-accent-cyan">sports_esports</span>
+            <i class="fas fa-gamepad text-3xl text-accent-cyan"></i>
             <h2 class="text-white text-2xl font-display font-bold">GameOn</h2>
           </div>
         </div>
@@ -13,7 +13,7 @@
           <label class="flex flex-col w-full max-w-sm h-11">
             <div class="flex w-full flex-1 items-stretch rounded-full h-full">
               <div class="text-[#6b7280] flex bg-[#e5e7eb] items-center justify-center pl-4 rounded-l-full">
-                <span class="material-symbols-outlined text-xl">search</span>
+                <i class="fas fa-search text-xl"></i>
               </div>
               <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-black focus:outline-0 focus:ring-0 border-none bg-[#e5e7eb] h-full placeholder:text-[#6b7280] px-4 rounded-r-full text-base font-normal leading-normal" placeholder="Rechercher une salle, un jeu..." v-model="searchQuery" @keyup.enter="searchRooms"/>
             </div>
@@ -44,7 +44,7 @@
         <label class="flex flex-col h-14 sm:h-16 w-full">
           <div class="flex w-full flex-1 items-stretch rounded-full h-full shadow-lg">
             <div class="text-[#9f9db9] flex border border-accent-cyan/50 bg-[#1c1c27] items-center justify-center pl-4 sm:pl-5 rounded-l-full border-r-0">
-              <span class="material-symbols-outlined text-xl sm:text-2xl">location_on</span>
+              <i class="fas fa-map-marker-alt text-xl sm:text-2xl"></i>
             </div>
             <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-white focus:outline-0 focus:ring-2 focus:ring-accent-cyan/80 border border-accent-cyan/50 bg-[#1c1c27] h-full placeholder:text-[#9f9db9] px-3 sm:px-4 rounded-none border-l-0 border-r-0 text-sm sm:text-base font-normal leading-normal" 
                    placeholder="Entrez une ville, une adresse..." 
@@ -90,7 +90,7 @@
               <h3 class="text-white text-xl font-bold">{{ room.name }}</h3>
               <div class="flex items-center justify-between text-sm text-[#9f9db9]">
                 <div class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-accent-yellow !text-xl" style="font-variation-settings: 'FILL' 1">star</span>
+                  <i class="fas fa-star text-accent-yellow !text-xl"></i>
                   <span class="font-bold text-white">{{ room.rating }}</span> ({{ room.reviews }} avis)
                 </div>
                 <span class="font-semibold">~ {{ room.distance }}</span>
@@ -112,7 +112,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
           <div v-for="(step, index) in howItWorks" :key="index" class="flex flex-col items-center gap-4">
             <div class="flex items-center justify-center w-24 h-24 rounded-full border-2 mb-4 bg-[#1c1c27]" :class="step.borderColor">
-              <span class="material-symbols-outlined !text-5xl" :class="step.iconColor" style="font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48">{{ step.icon }}</span>
+              <i class="fas" :class="step.iconClass" style="font-size: 3.125rem;"></i>
             </div>
             <h3 class="text-white text-xl font-bold font-display">{{ step.title }}</h3>
             <p class="text-[#9f9db9]">{{ step.description }}</p>
@@ -126,7 +126,7 @@
       <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
         <div class="col-span-2 lg:col-span-1">
           <div class="flex items-center gap-2 text-white">
-            <span class="material-icons-round text-3xl text-accent-cyan">sports_esports</span>
+            <i class="fas fa-gamepad text-3xl text-accent-cyan"></i>
             <h2 class="text-white text-2xl font-display font-bold">GameOn</h2>
           </div>
           <p class="text-[#6b7280] mt-4 text-sm">La plus grande communauté de joueurs et de salles de jeux.</p>
@@ -237,25 +237,22 @@ const howItWorks = ref([
     step: 1,
     title: 'Trouvez',
     description: 'Utilisez notre recherche intelligente pour découvrir les meilleures salles de jeux près de chez vous.',
-    icon: 'search',
-    borderColor: 'border-accent-magenta',
-    iconColor: 'text-accent-magenta'
+    iconClass: 'fa-search text-accent-magenta',
+    borderColor: 'border-accent-magenta'
   },
   {
     step: 2,
     title: 'Réservez',
     description: 'Sécurisez votre place en quelques clics, choisissez votre créneau et votre équipement.',
-    icon: 'calendar_add_on',
-    borderColor: 'border-accent-cyan',
-    iconColor: 'text-accent-cyan'
+    iconClass: 'fa-calendar-plus text-accent-cyan',
+    borderColor: 'border-accent-cyan'
   },
   {
     step: 3,
     title: 'Jouez',
     description: 'Présentez-vous à la salle et plongez dans l\'action. Profitez de l\'expérience !',
-    icon: 'stadia_controller',
-    borderColor: 'border-accent-yellow',
-    iconColor: 'text-accent-yellow'
+    iconClass: 'fa-gamepad text-accent-yellow',
+    borderColor: 'border-accent-yellow'
   }
 ]);
 

@@ -12,35 +12,38 @@ const props = defineProps({
 <template>
   <Head title="Dashboard Promoteur" />
   
+  <!-- Add Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
   <div class="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
     <!-- Sidebar -->
     <aside class="flex w-64 flex-col bg-white dark:bg-[#19202e] border-r border-gray-200 dark:border-gray-800">
       <div class="flex h-full flex-col justify-between p-4">
         <div class="flex flex-col gap-4">
           <div class="flex items-center gap-3 p-2">
-            <span class="material-symbols-outlined text-brand-red text-3xl">stadia_controller</span>
+            <i class="fas fa-gamepad text-3xl text-brand-red"></i>
             <h1 class="text-xl font-bold text-gray-900 dark:text-white">GameOn</h1>
           </div>
           <div class="flex flex-col gap-1 mt-4">
             <Link href="/promoter/dashboard" class="flex items-center gap-3 rounded-lg bg-primary/10 px-3 py-2 text-primary dark:bg-primary/20">
-              <span class="material-symbols-outlined">dashboard</span>
+              <i class="fas fa-tachometer-alt"></i>
               <p class="text-sm font-semibold">Dashboard</p>
             </Link>
             <Link href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5">
-              <span class="material-symbols-outlined">storefront</span>
+              <i class="fas fa-store"></i>
               <p class="text-sm font-medium">Salles</p>
             </Link>
             <Link href="/promoter/events" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5">
-              <span class="material-symbols-outlined">calendar_month</span>
+              <i class="fas fa-calendar-alt"></i>
               <p class="text-sm font-medium">Événements</p>
             </Link>
-            <Link href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5">
-              <span class="material-symbols-outlined">chat_bubble</span>
+            <Link href="/promoter/notifications" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5">
+              <i class="fas fa-comment"></i>
               <p class="text-sm font-medium">Messages</p>
               <span class="ml-auto text-xs font-bold bg-brand-red text-white rounded-full px-2 py-0.5">3</span>
             </Link>
             <Link href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5">
-              <span class="material-symbols-outlined">group</span>
+              <i class="fas fa-users"></i>
               <p class="text-sm font-medium">Admins</p>
             </Link>
           </div>
@@ -48,7 +51,7 @@ const props = defineProps({
         <div class="flex flex-col gap-4">
           <div class="flex flex-col gap-1 border-t border-gray-200 dark:border-gray-800 pt-4">
             <Link href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5">
-              <span class="material-symbols-outlined">settings</span>
+              <i class="fas fa-cog"></i>
               <p class="text-sm font-medium">Paramètres</p>
             </Link>
           </div>
@@ -59,7 +62,7 @@ const props = defineProps({
               <p class="text-gray-500 dark:text-gray-400 text-xs font-normal leading-normal">Promoteur</p>
             </div>
             <button class="ml-auto text-gray-500 dark:text-gray-400">
-              <span class="material-symbols-outlined">logout</span>
+              <i class="fas fa-sign-out-alt"></i>
             </button>
           </div>
         </div>
@@ -74,7 +77,7 @@ const props = defineProps({
           <p class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Dashboard Promoteur</p>
           <div class="flex items-center gap-2">
             <div class="relative">
-              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">calendar_today</span>
+              <i class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"></i>
               <select class="pl-10 pr-4 py-2 text-sm font-medium bg-white dark:bg-background-dark border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 focus:ring-brand-blue focus:border-brand-blue">
                 <option>30 derniers jours</option>
                 <option>7 derniers jours</option>
@@ -83,10 +86,10 @@ const props = defineProps({
               </select>
             </div>
             <button class="p-2.5 text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5">
-              <span class="material-symbols-outlined text-base">file_upload</span>
+              <i class="fas fa-upload text-base"></i>
             </button>
             <Link href="/promoter/events/create" class="flex items-center justify-center rounded-lg h-10 bg-brand-red text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] px-4 hover:bg-brand-red/90 transition-colors">
-              <span class="material-symbols-outlined text-base font-bold">add</span>
+              <i class="fas fa-plus text-base font-bold"></i>
               <span class="truncate">Créer un événement</span>
             </Link>
           </div>
@@ -121,14 +124,14 @@ const props = defineProps({
         </div>
 
         <!-- Main Content Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-          <div class="lg:col-span-2 flex flex-col gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <div class="flex flex-col gap-6">
             <!-- Venue Info -->
             <div class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl p-6">
               <div class="flex justify-between items-center mb-4">
                 <h2 class="text-gray-900 dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]">Gestion des Informations de la Salle</h2>
                 <button class="flex items-center justify-center rounded-lg h-9 bg-primary text-white gap-2 text-sm font-bold leading-normal px-3 hover:bg-primary/90 transition-colors">
-                  <span class="material-symbols-outlined text-base">edit</span>
+                  <i class="fas fa-edit text-base"></i>
                   <span class="truncate">Modifier</span>
                 </button>
               </div>
@@ -221,48 +224,6 @@ const props = defineProps({
                   </tbody>
                 </table>
               </div>
-            </div>
-          </div>
-
-          <!-- Notifications -->
-          <div class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl p-6 flex flex-col">
-            <h2 class="text-gray-900 dark:text-white text-xl font-bold leading-tight tracking-[-0.015em] mb-4">Notifications</h2>
-            <div class="flex flex-col gap-4 flex-1">
-              <div class="flex gap-3 items-start p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5">
-                <div class="mt-1 flex-shrink-0"><span class="material-symbols-outlined text-red-500">error</span></div>
-                <div class="flex-1">
-                  <p class="font-semibold text-sm text-gray-900 dark:text-white">Alerte Admin</p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">Votre salle "Pixel Palace" a été désactivée pour informations incomplètes. Veuillez mettre à jour votre profil.</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Il y a 15 minutes</p>
-                </div>
-              </div>
-              <div class="flex gap-3 items-start p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5">
-                <div class="mt-1 flex-shrink-0"><span class="material-symbols-outlined text-blue-500">chat_bubble</span></div>
-                <div class="flex-1">
-                  <p class="font-semibold text-sm text-gray-900 dark:text-white">Nouveau message</p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">Alice Martin vous a envoyé un message concernant "CyberZone Arena".</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Il y a 2 heures</p>
-                </div>
-              </div>
-              <div class="flex gap-3 items-start p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5">
-                <div class="mt-1 flex-shrink-0"><span class="material-symbols-outlined text-green-500">confirmation_ticket</span></div>
-                <div class="flex-1">
-                  <p class="font-semibold text-sm text-gray-900 dark:text-white">Réservation récente</p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">Nouvelle réservation pour "Tournoi Super Smash" par Bob Johnson.</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Hier</p>
-                </div>
-              </div>
-              <div class="flex gap-3 items-start p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5">
-                <div class="mt-1 flex-shrink-0"><span class="material-symbols-outlined text-yellow-500">comment</span></div>
-                <div class="flex-1">
-                  <p class="font-semibold text-sm text-gray-900 dark:text-white">Nouveau commentaire</p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">Charlie Brown a commenté votre événement "Soirée Découverte VR".</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Il y a 3 jours</p>
-                </div>
-              </div>
-            </div>
-            <div class="mt-auto pt-4">
-              <button class="w-full text-center font-medium text-brand-blue text-sm hover:underline">Voir toutes les notifications</button>
             </div>
           </div>
         </div>

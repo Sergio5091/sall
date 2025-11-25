@@ -20,6 +20,7 @@ Route::get('/dashboard', function () {
 
 // Routes protégées par rôle (temporairement sans middleware de rôle pour tester)
 use App\Http\Controllers\Promoter\DashboardController;
+use App\Http\Controllers\Promoter\NotificationsController;
 
 Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -32,6 +33,11 @@ Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(functi
     Route::get('/events/create', function () {
         return Inertia::render('Promoter/CreateEvent');
     })->name('events.create');
+    Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications');
+    Route::post('/notifications/{id}/read', [NotificationsController::class, 'markAsRead'])->name('notifications.read');
+    Route::delete('/notifications/{id}', [NotificationsController::class, 'delete'])->name('notifications.delete');
+    Route::post('/notifications/read-all', [NotificationsController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::delete('/notifications/delete-all', [NotificationsController::class, 'deleteAll'])->name('notifications.delete-all');
 });
 
 Route::middleware(['auth'])->prefix('client')->name('client.')->group(function () {

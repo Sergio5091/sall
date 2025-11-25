@@ -1,5 +1,7 @@
 <template>
   <div class="min-h-screen bg-background-light dark:bg-background-dark">
+    <!-- Add Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <Navbar />
     <div class="flex flex-col md:flex-row min-h-screen pt-16">
       <!-- Visual Panel (Left) -->
@@ -65,7 +67,7 @@
             <div>
               <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Adresse e-mail</label>
               <div class="relative">
-                <span class="material-symbols-outlined pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 dark:text-gray-500">mail</span>
+                <i class="fas fa-envelope pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 dark:text-gray-500"></i>
                 <TextInput
                   id="email"
                   type="email"
@@ -87,7 +89,7 @@
                 <Link :href="route('password.request')" class="text-sm font-medium text-primary hover:text-primary/80">Mot de passe oublié ?</Link>
               </div>
               <div class="relative">
-                <span class="material-symbols-outlined pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 dark:text-gray-500">lock</span>
+                <i class="fas fa-lock pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 dark:text-gray-500"></i>
                 <TextInput
                   id="password"
                   :type="showPassword ? 'text' : 'password'"
@@ -102,7 +104,7 @@
                   class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
                   @click="showPassword = !showPassword"
                 >
-                  <span class="material-symbols-outlined text-lg">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+                  <i class="fas text-lg" :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
                 </button>
               </div>
               <InputError class="mt-1 text-sm text-red-500" :message="form.errors.password" />

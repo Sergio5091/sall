@@ -8,8 +8,8 @@ import { ref } from 'vue';
   
   <!-- Add Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+  <!-- Add Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light font-display">
     <!-- Header - Same as Welcome page but with client navigation -->
@@ -18,7 +18,7 @@ import { ref } from 'vue';
         <div class="flex items-center gap-8">
           <div class="flex items-center gap-2 text-black">
             <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <span class="material-icons-round text-3xl text-accent-cyan">sports_esports</span>
+              <i class="fas fa-gamepad text-3xl text-accent-cyan"></i>
               <h2 class="text-black text-2xl font-display font-bold">GameOn</h2>
             </a>
           </div>
@@ -35,7 +35,7 @@ import { ref } from 'vue';
           <label class="flex flex-col w-full max-w-sm h-11">
             <div class="flex w-full flex-1 items-stretch rounded-full h-full">
               <div class="text-[#6b7280] flex bg-[#e5e7eb] items-center justify-center pl-4 rounded-l-full">
-                <span class="material-symbols-outlined text-xl">search</span>
+                <i class="fas fa-search text-xl"></i>
               </div>
               <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-black focus:outline-0 focus:ring-0 border-none bg-[#e5e7eb] h-full placeholder:text-[#6b7280] px-4 rounded-r-full text-base font-normal leading-normal" placeholder="Rechercher une salle, un jeu..."/>
             </div>
@@ -43,7 +43,7 @@ import { ref } from 'vue';
         </div>
         <div class="flex items-center gap-3">
           <button class="flex relative cursor-pointer items-center justify-center overflow-hidden rounded-full size-10 bg-[#e5e7eb] text-black gap-2">
-            <span class="material-symbols-outlined">notifications</span>
+            <i class="fas fa-bell"></i>
             <span class="absolute top-1.5 right-1.5 flex h-2 w-2">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
@@ -163,7 +163,7 @@ import { ref } from 'vue';
                 <div class="space-y-4">
                   <div class="flex items-center justify-between p-4 border border-border-light rounded-lg">
                     <div class="flex items-center gap-3">
-                      <span class="material-symbols-outlined text-primary">password</span>
+                      <i class="fas fa-lock text-primary"></i>
                       <div>
                         <p class="font-medium">Mot de passe</p>
                         <p class="text-sm text-text-light/70">Dernière modification : il y a 30 jours</p>
@@ -175,7 +175,7 @@ import { ref } from 'vue';
                   </div>
                   <div class="flex items-center justify-between p-4 border border-border-light rounded-lg">
                     <div class="flex items-center gap-3">
-                      <span class="material-symbols-outlined text-primary">smartphone</span>
+                      <i class="fas fa-mobile-alt text-primary"></i>
                       <div>
                         <p class="font-medium">Authentification à deux facteurs</p>
                         <p class="text-sm text-text-light/70">Non configurée</p>
@@ -219,15 +219,15 @@ import { ref } from 'vue';
                 <h3 class="text-xl font-bold mb-4">Actions Rapides</h3>
                 <div class="space-y-3">
                   <button class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-full bg-primary text-white">
-                    <span class="material-symbols-outlined">download</span>
+                    <i class="fas fa-download"></i>
                     <span>Télécharger mes données</span>
                   </button>
                   <button class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-full bg-subtle-light hover:bg-border-light">
-                    <span class="material-symbols-outlined">share</span>
+                    <i class="fas fa-share"></i>
                     <span>Partager mon profil</span>
                   </button>
                   <button class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-full border border-red-500 text-red-500 hover:bg-red-50">
-                    <span class="material-symbols-outlined">logout</span>
+                    <i class="fas fa-sign-out-alt"></i>
                     <span>Se déconnecter</span>
                   </button>
                 </div>

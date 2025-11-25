@@ -6,6 +6,9 @@ import Navbar from '@/Components/Navbar.vue';
 <template>
   <Head title="Tableau de bord Admin" />
   
+  <!-- Add Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
   <Navbar />
   
   <div class="pt-16 min-h-screen bg-purple-50">
