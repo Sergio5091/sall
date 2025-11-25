@@ -19,10 +19,19 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Routes protégées par rôle (temporairement sans middleware de rôle pour tester)
+use App\Http\Controllers\Promoter\DashboardController;
+
 Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Promoter/Dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/events', function () {
+        return Inertia::render('Promoter/Events');
+    })->name('events');
+    Route::get('/venue/edit', function () {
+        return Inertia::render('Promoter/EditVenue');
+    })->name('venue.edit');
+    Route::get('/events/create', function () {
+        return Inertia::render('Promoter/CreateEvent');
+    })->name('events.create');
 });
 
 Route::middleware(['auth'])->prefix('client')->name('client.')->group(function () {
