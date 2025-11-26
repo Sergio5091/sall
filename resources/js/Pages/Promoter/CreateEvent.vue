@@ -106,15 +106,95 @@ const programmeItem = ref({ titre: '', heure: '', description: '' });
 const activiteItem = ref({ nom: '', description: '', duree: '' });
 const motCleInput = ref('');
 
-const submitForm = () => {
-    // Validation basique
-    if (!formData.titre || !formData.description) {
-        alert('Veuillez remplir le titre et la description');
-        return;
-    }
+const errors = ref({});
 
-    if (!formData.date_debut || !formData.date_fin) {
-        alert('Veuillez définir les dates de début et de fin');
+const validateForm = () => {
+    const newErrors = {};
+    
+    // Validation titre
+    if (!formData.titre.trim()) {
+        newErrors.titre = 'Le titre est obligatoire';
+    } else if (formData.titre.length < 3) {
+        newErrors.titre = 'Le titre doit contenir au moins 3 caractères';
+    }
+    
+    // Validation description
+    if (!formData.description.trim()) {
+        newErrors.description = 'La description est obligatoire';
+    } else if (formData.description.length < 10) {
+        newErrors.description = 'La description doit contenir au moins 10 caractères';
+    }
+    
+    // Validation dates
+    if (!formData.date_debut) {
+        newErrors.date_debut = 'La date de début est obligatoire';
+    }
+    
+    if (!formData.date_fin) {
+        newErrors.date_fin = 'La date de fin est obligatoire';
+    } else if (formData.date_debut && formData.date_fin && new Date(formData.date_fin) <= new Date(formData.date_debut)) {
+        newErrors.date_fin = 'La date de fin doit être après la date de début';
+    }
+    
+    // Validation date limite d'inscription
+    if (formData.date_limite_inscription && formData.date_debut) {
+        const dateLimite = new Date(formData.date_limite_inscription);
+        const dateDebut = new Date(formData.date_debut);
+        if (dateLimite > dateDebut) {
+            newErrors.date_limite_inscription = 'La date limite d\'inscription doit être avant ou égale à la date de début';
+        }
+    }
+    
+    // Validation prix
+    if (!formData.gratuit && (!formData.prix_base || formData.prix_base < 0)) {
+        newErrors.prix_base = 'Le prix de base est obligatoire et doit être positif';
+    }
+    
+    // Validation devise
+    if (!formData.devise) {
+        newErrors.devise = 'La devise est obligatoire';
+    }
+    
+    // Validation catégorie
+    if (!formData.categorie) {
+        newErrors.categorie = 'La catégorie est obligatoire';
+    }
+    
+    // Validation type
+    if (!formData.type) {
+        newErrors.type = 'Le type est obligatoire';
+    }
+    
+    // Validation visibilité
+    if (!formData.visibilite) {
+        newErrors.visibilite = 'La visibilité est obligatoire';
+    }
+    
+    errors.value = newErrors;
+    
+    // Afficher les erreurs dans la console pour débogage
+    if (Object.keys(newErrors).length > 0) {
+        console.log('Erreurs de validation client:', newErrors);
+        const errorMessages = Object.values(newErrors);
+        const errorMessage = errorMessages.join(', ');
+        alert(`Veuillez corriger les erreurs suivantes:\n\n${errorMessage}`);
+        
+        // Scroller vers le premier champ en erreur
+        setTimeout(() => {
+            const firstErrorField = document.querySelector('.border-red-500');
+            if (firstErrorField) {
+                firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstErrorField.focus();
+            }
+        }, 100);
+    }
+    
+    return Object.keys(newErrors).length === 0;
+};
+
+const submitForm = () => {
+    // Validation côté client
+    if (!validateForm()) {
         return;
     }
 
@@ -139,9 +219,29 @@ const submitForm = () => {
         onSuccess: () => {
             // Redirection automatique gérée par Inertia
         },
-        onError: (errors) => {
-            console.error('Erreurs de validation:', errors);
-            alert('Erreur lors de la création de l\'événement. Veuillez vérifier les champs.');
+        onError: (serverErrors) => {
+            console.error('Erreurs de validation:', serverErrors);
+            // Convertir les erreurs serveur en format client
+            const formattedErrors = {};
+            Object.keys(serverErrors).forEach(key => {
+                formattedErrors[key] = Array.isArray(serverErrors[key]) ? serverErrors[key][0] : serverErrors[key];
+            });
+            errors.value = formattedErrors;
+            
+            // Afficher un message d'erreur détaillé
+            const errorCount = Object.keys(formattedErrors).length;
+            const errorMessages = Object.values(formattedErrors);
+            const errorMessage = errorMessages.join(', ');
+            
+            console.log('Détail des erreurs:', formattedErrors);
+            alert(`Erreur lors de la création de l'événement. ${errorCount} champ(s) à vérifier:\n\n${errorMessage}`);
+            
+            // Scroller vers le premier champ en erreur
+            const firstErrorField = document.querySelector('.border-red-500');
+            if (firstErrorField) {
+                firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstErrorField.focus();
+            }
         }
     });
 };
@@ -254,9 +354,11 @@ unwatchDescription.value = watch(() => formData.description, updateSeoFields);
                 <input 
                   v-model="formData.titre" 
                   type="text" 
-                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary" 
+                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                  :class="{ 'border-red-500 dark:border-red-500': errors.titre }"
                   placeholder="Tournoi de FIFA 23 - CyberZone Arena"
                 >
+                <p v-if="errors.titre" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.titre }}</p>
               </div>
 
               <div>
@@ -264,23 +366,35 @@ unwatchDescription.value = watch(() => formData.description, updateSeoFields);
                 <textarea 
                   v-model="formData.description" 
                   rows="4" 
-                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary" 
+                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                  :class="{ 'border-red-500 dark:border-red-500': errors.description }"
                   placeholder="Décrivez votre événement, les règles, les prix, les participants attendus..."
                 ></textarea>
+                <p v-if="errors.description" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.description }}</p>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Catégorie *</label>
-                  <select v-model="formData.categorie" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                  <select 
+                    v-model="formData.categorie" 
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                    :class="{ 'border-red-500 dark:border-red-500': errors.categorie }"
+                  >
                     <option v-for="(nom, code) in props.categories" :key="code" :value="code">{{ nom }}</option>
                   </select>
+                  <p v-if="errors.categorie" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.categorie }}</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type *</label>
-                  <select v-model="formData.type" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                  <select 
+                    v-model="formData.type" 
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                    :class="{ 'border-red-500 dark:border-red-500': errors.type }"
+                  >
                     <option v-for="(nom, code) in props.types" :key="code" :value="code">{{ nom }}</option>
                   </select>
+                  <p v-if="errors.type" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.type }}</p>
                 </div>
               </div>
 
@@ -324,7 +438,9 @@ unwatchDescription.value = watch(() => formData.description, updateSeoFields);
                   v-model="formData.date_debut" 
                   type="datetime-local" 
                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                  :class="{ 'border-red-500 dark:border-red-500': errors.date_debut }"
                 >
+                <p v-if="errors.date_debut" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.date_debut }}</p>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date et heure de fin *</label>
@@ -332,7 +448,9 @@ unwatchDescription.value = watch(() => formData.description, updateSeoFields);
                   v-model="formData.date_fin" 
                   type="datetime-local" 
                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                  :class="{ 'border-red-500 dark:border-red-500': errors.date_fin }"
                 >
+                <p v-if="errors.date_fin" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.date_fin }}</p>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date limite d'inscription</label>
@@ -340,8 +458,10 @@ unwatchDescription.value = watch(() => formData.description, updateSeoFields);
                   v-model="formData.date_limite_inscription" 
                   type="date" 
                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                  :class="{ 'border-red-500 dark:border-red-500': errors.date_limite_inscription }"
                 >
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Laissez vide pour ne pas limiter les inscriptions</p>
+                <p v-if="errors.date_limite_inscription" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.date_limite_inscription }}</p>
               </div>
             </div>
           </section>
@@ -371,9 +491,11 @@ unwatchDescription.value = watch(() => formData.description, updateSeoFields);
                     type="number" 
                     step="0.01"
                     min="0"
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary" 
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                    :class="{ 'border-red-500 dark:border-red-500': errors.prix_base }"
                     placeholder="5000"
                   >
+                  <p v-if="errors.prix_base" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.prix_base }}</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prix VIP</label>

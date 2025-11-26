@@ -84,7 +84,7 @@ class EventController extends Controller
             // Dates
             'date_debut' => 'required|date',
             'date_fin' => 'required|date|after:date_debut',
-            'date_limite_inscription' => 'nullable|date|before:date_debut',
+            'date_limite_inscription' => 'nullable|date|before_or_equal:date_debut',
             
             // Tarifs
             'prix_base' => 'required|numeric|min:0',
@@ -174,59 +174,59 @@ class EventController extends Controller
             // Dates
             'date_debut' => $validated['date_debut'],
             'date_fin' => $validated['date_fin'],
-            'date_limite_inscription' => $validated['date_limite_inscription'],
+            'date_limite_inscription' => $validated['date_limite_inscription'] ?? null,
             
             // Tarifs
             'prix_base' => $validated['prix_base'],
-            'prix_vip' => $validated['prix_vip'],
-            'prix_groupe' => $validated['prix_groupe'],
+            'prix_vip' => $validated['prix_vip'] ?? null,
+            'prix_groupe' => $validated['prix_groupe'] ?? null,
             'devise' => $validated['devise'],
-            'gratuit' => $validated['gratuit'],
+            'gratuit' => $validated['gratuit'] ?? false,
             
             // Capacité
-            'capacite_max' => $validated['capacite_max'],
-            'places_disponibles' => $validated['limite_inscription'] ? $validated['capacite_max'] : null,
-            'limite_inscription' => $validated['limite_inscription'],
+            'capacite_max' => $validated['capacite_max'] ?? null,
+            'places_disponibles' => ($validated['limite_inscription'] ?? false) ? ($validated['capacite_max'] ?? null) : null,
+            'limite_inscription' => $validated['limite_inscription'] ?? false,
             
             // Catégorie et type
             'categorie' => $validated['categorie'],
             'type' => $validated['type'],
-            'tags' => $validated['tags'],
+            'tags' => $validated['tags'] ?? [],
             
             // Public cible
-            'public_cible' => $validated['public_cible'],
-            'age_minimum' => $validated['age_minimum'],
+            'public_cible' => $validated['public_cible'] ?? null,
+            'age_minimum' => $validated['age_minimum'] ?? null,
             
             // Programme et activités
-            'programme' => $validated['programme'],
-            'activites' => $validated['activites'],
+            'programme' => $validated['programme'] ?? [],
+            'activites' => $validated['activites'] ?? [],
             
             // Contact
-            'contact_email' => $validated['contact_email'],
-            'contact_telephone' => $validated['contact_telephone'],
-            'contact_whatsapp' => $validated['contact_whatsapp'],
-            'reseaux_sociaux' => $validated['reseaux_sociaux'],
+            'contact_email' => $validated['contact_email'] ?? null,
+            'contact_telephone' => $validated['contact_telephone'] ?? null,
+            'contact_whatsapp' => $validated['contact_whatsapp'] ?? null,
+            'reseaux_sociaux' => $validated['reseaux_sociaux'] ?? [],
             
             // Configuration
-            'inscription_obligatoire' => $validated['inscription_obligatoire'],
-            'paiement_en_ligne' => $validated['paiement_en_ligne'],
-            'certificat_participation' => $validated['certificat_participation'],
-            'streaming' => $validated['streaming'],
-            'url_streaming' => $validated['url_streaming'],
+            'inscription_obligatoire' => $validated['inscription_obligatoire'] ?? true,
+            'paiement_en_ligne' => $validated['paiement_en_ligne'] ?? false,
+            'certificat_participation' => $validated['certificat_participation'] ?? false,
+            'streaming' => $validated['streaming'] ?? false,
+            'url_streaming' => $validated['url_streaming'] ?? null,
             
             // Visibilité
             'visibilite' => $validated['visibilite'],
             
             // SEO
-            'meta_titre' => $validated['meta_titre'],
-            'meta_description' => $validated['meta_description'],
-            'mots_cles' => $validated['mots_cles'],
+            'meta_titre' => $validated['meta_titre'] ?? null,
+            'meta_description' => $validated['meta_description'] ?? null,
+            'mots_cles' => $validated['mots_cles'] ?? [],
             
             // Statut
             'statut' => 'brouillon',
         ]);
 
-        return redirect()->route('promoter.events.index')
+        return redirect()->route('promoter.events')
             ->with('success', 'Événement créé avec succès ! Il est maintenant en brouillon.');
     }
 
