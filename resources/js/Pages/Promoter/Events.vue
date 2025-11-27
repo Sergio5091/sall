@@ -179,27 +179,42 @@ const getEventProp = (event, prop, defaultValue = '') => {
 
           <!-- Liste des événements -->
           <div v-else class="divide-y divide-gray-200 dark:divide-gray-800">
-            <div v-for="event in events.data" :key="event.id" class="p-6 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-              <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                <!-- Informations principales -->
-                <div class="flex-1">
-                  <div class="flex items-start gap-4">
-                    <!-- Image -->
-                    <div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-800">
-                      <img v-if="event.image_affiche" :src="`/storage/events/affiches/${event.image_affiche}`" :alt="event.titre" class="w-full h-full object-cover">
-                      <div v-else class="w-full h-full flex items-center justify-center">
-                        <i :class="getCategorieIcon(event.categorie)" class="text-gray-400 dark:text-gray-500 text-2xl"></i>
+            <div v-for="event in events.data" :key="event.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+              <!-- Bannière de l'événement -->
+              <div v-if="event.image_banniere_url" class="h-48 bg-cover bg-center relative" :style="`background-image: url('${event.image_banniere_url}')`">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                <div class="absolute bottom-4 left-6 right-6">
+                  <div class="flex items-center gap-3">
+                    <h3 class="text-2xl font-bold text-white truncate">{{ getEventProp(event, 'titre', 'Sans titre') }}</h3>
+                    <span :class="getStatutColor(event.statut)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                      {{ getEventProp(event, 'statut_texte', event.statut || 'Inconnu') }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="p-6" :class="{ 'pt-4': event.image_banniere_url }">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                  <!-- Informations principales -->
+                  <div class="flex-1">
+                    <div class="flex items-start gap-4">
+                      <!-- Image (affichée seulement si pas de bannière) -->
+                      <div v-if="!event.image_banniere_url" class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-800">
+                        <img v-if="event.image_affiche_url" :src="event.image_affiche_url" :alt="event.titre" class="w-full h-full object-cover">
+                        <div v-else class="w-full h-full flex items-center justify-center">
+                          <i :class="getCategorieIcon(event.categorie)" class="text-gray-400 dark:text-gray-500 text-2xl"></i>
+                        </div>
                       </div>
-                    </div>
 
-                    <!-- Détails -->
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-3 mb-2">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white truncate">{{ getEventProp(event, 'titre', 'Sans titre') }}</h3>
-                        <span :class="getStatutColor(event.statut)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-                          {{ getEventProp(event, 'statut_texte', event.statut || 'Inconnu') }}
-                        </span>
-                      </div>
+                      <!-- Détails -->
+                      <div class="flex-1 min-w-0">
+                        <!-- Titre et statut (affichés seulement si pas de bannière) -->
+                        <div v-if="!event.image_banniere_url" class="flex items-center gap-3 mb-2">
+                          <h3 class="text-lg font-semibold text-gray-900 dark:text-white truncate">{{ getEventProp(event, 'titre', 'Sans titre') }}</h3>
+                          <span :class="getStatutColor(event.statut)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                            {{ getEventProp(event, 'statut_texte', event.statut || 'Inconnu') }}
+                          </span>
+                        </div>
 
                       <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-2">
                         <div class="flex items-center gap-1">
@@ -278,8 +293,9 @@ const getEventProp = (event, prop, defaultValue = '') => {
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Pagination -->
+        <!-- Pagination -->
           <div v-if="events.data && events.data.length > 0" class="p-6 border-t border-gray-200 dark:border-gray-800">
             <div class="flex items-center justify-between">
               <div class="text-sm text-gray-600 dark:text-gray-400">

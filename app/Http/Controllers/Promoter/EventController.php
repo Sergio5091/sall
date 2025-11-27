@@ -21,10 +21,18 @@ class EventController extends Controller
     {
         $user = Auth::user();
         
+        // Récupérer les événements du promoteur avec leurs URLs d'images
         $events = Event::where('promoter_id', $user->id)
             ->with('salle')
-            ->orderBy('date_debut', 'desc')
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
+        
+        // Ajouter les URLs complètes des images
+        $events->getCollection()->transform(function ($event) {
+            $event->image_affiche_url = $event->image_affiche ? asset('storage/events/affiches/' . $event->image_affiche) : null;
+            $event->image_banniere_url = $event->image_banniere ? asset('storage/events/bannieres/' . $event->image_banniere) : null;
+            return $event;
+        });
 
         // Statistiques
         $stats = [
@@ -136,6 +144,14 @@ class EventController extends Controller
             'image_banniere' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
         ]);
 
+        // Gérer les checkboxes qui ne sont pas envoyées quand non cochées
+        $validated['gratuit'] = $request->has('gratuit') ? filter_var($request->input('gratuit'), FILTER_VALIDATE_BOOLEAN) : false;
+        $validated['limite_inscription'] = $request->has('limite_inscription') ? filter_var($request->input('limite_inscription'), FILTER_VALIDATE_BOOLEAN) : false;
+        $validated['inscription_obligatoire'] = $request->has('inscription_obligatoire') ? filter_var($request->input('inscription_obligatoire'), FILTER_VALIDATE_BOOLEAN) : true;
+        $validated['paiement_en_ligne'] = $request->has('paiement_en_ligne') ? filter_var($request->input('paiement_en_ligne'), FILTER_VALIDATE_BOOLEAN) : false;
+        $validated['certificat_participation'] = $request->has('certificat_participation') ? filter_var($request->input('certificat_participation'), FILTER_VALIDATE_BOOLEAN) : false;
+        $validated['streaming'] = $request->has('streaming') ? filter_var($request->input('streaming'), FILTER_VALIDATE_BOOLEAN) : false;
+
         // Récupérer la salle du promoteur
         $salle = Salle::where('promoter_id', $user->id)->first();
         
@@ -181,12 +197,12 @@ class EventController extends Controller
             'prix_vip' => $validated['prix_vip'] ?? null,
             'prix_groupe' => $validated['prix_groupe'] ?? null,
             'devise' => $validated['devise'],
-            'gratuit' => $validated['gratuit'] ?? false,
+            'gratuit' => $validated['gratuit'],
             
             // Capacité
             'capacite_max' => $validated['capacite_max'] ?? null,
-            'places_disponibles' => ($validated['limite_inscription'] ?? false) ? ($validated['capacite_max'] ?? null) : null,
-            'limite_inscription' => $validated['limite_inscription'] ?? false,
+            'places_disponibles' => $validated['limite_inscription'] ? ($validated['capacite_max'] ?? null) : null,
+            'limite_inscription' => $validated['limite_inscription'],
             
             // Catégorie et type
             'categorie' => $validated['categorie'],
@@ -208,10 +224,10 @@ class EventController extends Controller
             'reseaux_sociaux' => $validated['reseaux_sociaux'] ?? [],
             
             // Configuration
-            'inscription_obligatoire' => $validated['inscription_obligatoire'] ?? true,
-            'paiement_en_ligne' => $validated['paiement_en_ligne'] ?? false,
-            'certificat_participation' => $validated['certificat_participation'] ?? false,
-            'streaming' => $validated['streaming'] ?? false,
+            'inscription_obligatoire' => $validated['inscription_obligatoire'],
+            'paiement_en_ligne' => $validated['paiement_en_ligne'],
+            'certificat_participation' => $validated['certificat_participation'],
+            'streaming' => $validated['streaming'],
             'url_streaming' => $validated['url_streaming'] ?? null,
             
             // Visibilité
@@ -292,25 +308,24 @@ class EventController extends Controller
             abort(403);
         }
 
-        // Validation (similaire à store mais avec quelques différences)
+        // Validation (plus flexible pour la modification)
         $validated = $request->validate([
             'titre' => 'required|string|max:255',
             'description' => 'required|string',
             'date_debut' => 'required|date',
             'date_fin' => 'required|date|after:date_debut',
-            'date_limite_inscription' => 'nullable|date|before:date_debut',
+            'date_limite_inscription' => 'nullable|date|before_or_equal:date_debut',
             'prix_base' => 'required|numeric|min:0',
             'prix_vip' => 'nullable|numeric|min:0',
             'prix_groupe' => 'nullable|numeric|min:0',
-            'devise' => 'required|string|in:XOF,EUR,USD,GBP,CAD',
+            'devise' => 'required|string',
             'gratuit' => 'boolean',
             'capacite_max' => 'nullable|integer|min:1',
             'limite_inscription' => 'boolean',
-            'categorie' => 'required|string|in:' . implode(',', array_keys(Event::categories())),
-            'type' => 'required|string|in:' . implode(',', array_keys(Event::types())),
+            'categorie' => 'required|string',
+            'type' => 'required|string',
             'tags' => 'nullable|array',
-            'tags.*' => 'string|max:50',
-            'public_cible' => 'nullable|string|in:' . implode(',', array_keys(Event::publicsCibles())),
+            'public_cible' => 'nullable|string',
             'age_minimum' => 'nullable|integer|min:0|max:100',
             'programme' => 'nullable|array',
             'activites' => 'nullable|array',
@@ -322,17 +337,37 @@ class EventController extends Controller
             'paiement_en_ligne' => 'boolean',
             'certificat_participation' => 'boolean',
             'streaming' => 'boolean',
-            'url_streaming' => 'nullable|url|required_if:streaming,true',
-            'statut' => 'required|string|in:' . implode(',', array_keys(Event::statuts())),
-            'visibilite' => 'required|string|in:' . implode(',', array_keys(Event::visibilites())),
+            'url_streaming' => 'nullable|url',
+            'statut' => 'required|string',
+            'visibilite' => 'required|string',
             'mis_en_avant' => 'boolean',
             'meta_titre' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
             'mots_cles' => 'nullable|array',
-            'mots_cles.*' => 'string|max:50',
             'image_affiche' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'image_banniere' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
+        ], [
+            // Messages personnalisés pour la modification
+            'titre.required' => 'Le titre est obligatoire',
+            'description.required' => 'La description est obligatoire',
+            'date_debut.required' => 'La date de début est obligatoire',
+            'date_fin.required' => 'La date de fin est obligatoire',
+            'prix_base.required' => 'Le prix de base est obligatoire',
+            'devise.required' => 'La devise est obligatoire',
+            'categorie.required' => 'La catégorie est obligatoire',
+            'type.required' => 'Le type est obligatoire',
+            'statut.required' => 'Le statut est obligatoire',
+            'visibilite.required' => 'La visibilité est obligatoire',
         ]);
+
+        // Gérer les checkboxes qui ne sont pas envoyées quand non cochées
+        $validated['gratuit'] = $request->has('gratuit') ? filter_var($request->input('gratuit'), FILTER_VALIDATE_BOOLEAN) : false;
+        $validated['limite_inscription'] = $request->has('limite_inscription') ? filter_var($request->input('limite_inscription'), FILTER_VALIDATE_BOOLEAN) : false;
+        $validated['inscription_obligatoire'] = $request->has('inscription_obligatoire') ? filter_var($request->input('inscription_obligatoire'), FILTER_VALIDATE_BOOLEAN) : true;
+        $validated['paiement_en_ligne'] = $request->has('paiement_en_ligne') ? filter_var($request->input('paiement_en_ligne'), FILTER_VALIDATE_BOOLEAN) : false;
+        $validated['certificat_participation'] = $request->has('certificat_participation') ? filter_var($request->input('certificat_participation'), FILTER_VALIDATE_BOOLEAN) : false;
+        $validated['streaming'] = $request->has('streaming') ? filter_var($request->input('streaming'), FILTER_VALIDATE_BOOLEAN) : false;
+        $validated['mis_en_avant'] = $request->has('mis_en_avant') ? filter_var($request->input('mis_en_avant'), FILTER_VALIDATE_BOOLEAN) : false;
 
         // Gérer les images
         if ($request->hasFile('image_affiche')) {

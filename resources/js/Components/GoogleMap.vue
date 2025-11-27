@@ -33,8 +33,9 @@ const isLoading = ref(true);
 const hasError = ref(false);
 const errorMessage = ref('');
 
-// Clé Google Maps API
+// Clé Google Maps API (optionnelle - utilise OpenStreetMap en secours)
 const API_KEY = 'AIzaSyC5ZH8Ysj0RhqMJEBbQgub-yUbtKX77_z4';
+const USE_OPENSTREETMAP = true; // Forcer OpenStreetMap par défaut
 
 // Nettoyer les callbacks précédents
 const cleanup = () => {
@@ -48,12 +49,312 @@ const cleanup = () => {
 
 onMounted(() => {
   cleanup();
-  loadGoogleMaps();
+  if (USE_OPENSTREETMAP) {
+    initOpenStreetMap();
+  } else {
+    loadGoogleMaps();
+  }
 });
 
 onUnmounted(() => {
   cleanup();
 });
+
+const initOpenStreetMap = () => {
+  isLoading.value = true;
+  hasError.value = false;
+  errorMessage.value = '';
+
+  console.log('Tentative de chargement OpenStreetMap...');
+
+  // Vérifier si Leaflet est déjà chargé
+  if (window.L) {
+    console.log('Leaflet déjà chargé, initialisation...');
+    initializeOpenStreetMap();
+    return;
+  }
+
+  console.log('Chargement des dépendances Leaflet...');
+
+  // Charger Leaflet CSS
+  const leafletCSS = document.createElement('link');
+  leafletCSS.rel = 'stylesheet';
+  leafletCSS.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+  leafletCSS.onload = () => console.log('CSS Leaflet chargé');
+  leafletCSS.onerror = () => console.error('Erreur chargement CSS Leaflet');
+  document.head.appendChild(leafletCSS);
+
+  // Charger Leaflet JS
+  const script = document.createElement('script');
+  script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+  script.onload = () => {
+    console.log('JS Leaflet chargé avec succès');
+    // Attendre un peu pour que Leaflet soit complètement initialisé
+    setTimeout(() => {
+      if (window.L) {
+        initializeOpenStreetMap();
+      } else {
+        console.error('Leaflet non disponible après chargement');
+        hasError.value = true;
+        errorMessage.value = 'Erreur lors du chargement de Leaflet.';
+        isLoading.value = false;
+      }
+    }, 500);
+  };
+  script.onerror = (error) => {
+    console.error('Erreur de chargement Leaflet JS:', error);
+    hasError.value = true;
+    errorMessage.value = 'Impossible de charger OpenStreetMap (Leaflet).';
+    isLoading.value = false;
+  };
+  
+  // Timeout plus long pour éviter les faux négatifs
+  const timeout = setTimeout(() => {
+    if (isLoading.value) {
+      console.log('Timeout OpenStreetMap, vérification de Leaflet...');
+      if (window.L) {
+        console.log('Leaflet disponible malgré timeout, initialisation...');
+        initializeOpenStreetMap();
+      } else {
+        console.error('Leaflet toujours indisponible après timeout');
+        hasError.value = true;
+        errorMessage.value = 'OpenStreetMap met trop de temps à charger.';
+        isLoading.value = false;
+      }
+    }
+  }, 10000); // 10 secondes
+
+  document.head.appendChild(script);
+};
+
+const initializeOpenStreetMap = () => {
+  console.log('Initialisation OpenStreetMap...');
+  
+  if (!mapContainer.value) {
+    console.error('Conteneur de carte non trouvé');
+    hasError.value = true;
+    errorMessage.value = 'Conteneur de carte non trouvé.';
+    isLoading.value = false;
+    return;
+  }
+
+  if (!window.L) {
+    console.error('Leaflet non disponible');
+    hasError.value = true;
+    errorMessage.value = 'Leaflet (OpenStreetMap) n\'est pas disponible.';
+    isLoading.value = false;
+    return;
+  }
+
+  try {
+    console.log('Création de la carte OpenStreetMap...');
+    console.log('Position initiale:', selectedLocation.value);
+    
+    // Initialiser la carte OpenStreetMap
+    map.value = window.L.map(mapContainer.value).setView([selectedLocation.value.lat, selectedLocation.value.lng], 15);
+    console.log('Carte créée avec succès');
+
+    // Ajouter les tuiles OpenStreetMap
+    const tileLayer = window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19
+    });
+    
+    tileLayer.addTo(map.value);
+    console.log('Tuiles OpenStreetMap ajoutées');
+
+    // Créer le marqueur initial
+    const customIcon = window.L.divIcon({
+      html: '<div style="background-color: #3B82F6; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+      popupAnchor: [0, -15],
+      className: 'custom-marker'
+    });
+
+    marker.value = window.L.marker([selectedLocation.value.lat, selectedLocation.value.lng], {
+      icon: customIcon,
+      draggable: !props.readonly,
+      title: 'Position de votre salle'
+    }).addTo(map.value);
+    console.log('Marqueur créé et ajouté');
+
+    // Ajouter un popup
+    marker.value.bindPopup('Position de votre salle').openPopup();
+
+    // Ajouter la recherche d'adresse
+    if (!props.readonly) {
+      console.log('Ajout de la recherche d\'adresse...');
+      addOpenStreetMapSearch();
+    }
+
+    // Si la carte n'est pas en lecture seule, ajouter les événements
+    if (!props.readonly) {
+      console.log('Ajout des événements de pointage...');
+      // Événement de clic sur la carte
+      map.value.on('click', (e) => {
+        console.log('Clic sur la carte:', e.latlng);
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        updateLocation(lat, lng);
+      });
+
+      // Événement de déplacement du marqueur
+      marker.value.on('dragend', (e) => {
+        console.log('Marqueur déplacé:', e.target.getLatLng());
+        const position = e.target.getLatLng();
+        updateLocation(position.lat, position.lng);
+      });
+    }
+
+    isLoading.value = false;
+    hasError.value = false;
+    console.log('OpenStreetMap initialisé avec succès');
+    
+  } catch (error) {
+    console.error('Erreur lors de l\'initialisation OpenStreetMap:', error);
+    hasError.value = true;
+    errorMessage.value = `Erreur d'initialisation: ${error.message}`;
+    isLoading.value = false;
+  }
+};
+
+const addOpenStreetMapSearch = () => {
+  // Créer un conteneur pour la recherche
+  const searchContainer = window.L.DomUtil.create('div', 'leaflet-search-container');
+  searchContainer.style.cssText = `
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    padding: 8px;
+    min-width: 250px;
+  `;
+
+  // Créer le champ de recherche
+  const searchInput = window.L.DomUtil.create('input', 'leaflet-search-input');
+  searchInput.type = 'text';
+  searchInput.placeholder = 'Rechercher une adresse...';
+  searchInput.style.cssText = `
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+    outline: none;
+  `;
+
+  // Créer la liste de résultats
+  const resultsList = window.L.DomUtil.create('div', 'leaflet-search-results');
+  resultsList.style.cssText = `
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 4px;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: none;
+  `;
+
+  searchContainer.appendChild(searchInput);
+  searchContainer.appendChild(resultsList);
+  mapContainer.value.appendChild(searchContainer);
+
+  // Variable pour le debounce
+  let searchTimeout;
+
+  // Gérer la recherche
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    const query = e.target.value.trim();
+    
+    if (query.length < 3) {
+      resultsList.style.display = 'none';
+      return;
+    }
+
+    searchTimeout = setTimeout(async () => {
+      try {
+        const results = await searchOpenStreetMap(query);
+        displaySearchResults(results, resultsList);
+      } catch (error) {
+        console.error('Erreur de recherche:', error);
+      }
+    }, 300);
+  });
+
+  // Empêcher la propagation des clics
+  window.L.DomEvent.disableClickPropagation(searchContainer);
+  window.L.DomEvent.disableScrollPropagation(searchContainer);
+};
+
+const searchOpenStreetMap = async (query) => {
+  const response = await fetch(
+    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`
+  );
+  
+  if (!response.ok) {
+    throw new Error('Erreur de recherche');
+  }
+  
+  return response.json();
+};
+
+const displaySearchResults = (results, resultsList) => {
+  resultsList.innerHTML = '';
+  
+  if (results.length === 0) {
+    resultsList.style.display = 'none';
+    return;
+  }
+
+  results.forEach(result => {
+    const item = window.L.DomUtil.create('div', 'search-result-item');
+    item.style.cssText = `
+      padding: 8px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    `;
+    
+    const displayName = result.display_name || `${result.name}, ${result.address?.city || ''}`;
+    item.textContent = displayName;
+    
+    item.addEventListener('mouseenter', () => {
+      item.style.backgroundColor = '#f5f5f5';
+    });
+    
+    item.addEventListener('mouseleave', () => {
+      item.style.backgroundColor = 'white';
+    });
+    
+    item.addEventListener('click', () => {
+      const lat = parseFloat(result.lat);
+      const lng = parseFloat(result.lon);
+      
+      // Centrer la carte sur le résultat
+      map.value.setView([lat, lng], 16);
+      
+      // Déplacer le marqueur
+      updateLocation(lat, lng);
+      
+      // Masquer les résultats
+      resultsList.style.display = 'none';
+      
+      // Vider le champ
+      document.querySelector('.leaflet-search-input').value = '';
+    });
+    
+    resultsList.appendChild(item);
+  });
+  
+  resultsList.style.display = 'block';
+};
 
 const loadGoogleMaps = () => {
   isLoading.value = true;
@@ -405,14 +706,115 @@ const setLocation = (lat, lng) => {
 
 const retryLoading = () => {
   cleanup();
-  loadGoogleMaps();
+  if (USE_OPENSTREETMAP) {
+    initOpenStreetMap();
+  } else {
+    loadGoogleMaps();
+  }
+};
+
+const runDiagnostics = () => {
+  console.log('=== DIAGNOSTIC OPENSTREETMAP ===');
+  
+  const diagnostics = {
+    browser: navigator.userAgent,
+    leafletLoaded: !!window.L,
+    leafletVersion: window.L ? window.L.version : 'Non chargé',
+    mapContainer: !!mapContainer.value,
+    mapLoaded: !!map.value,
+    markerLoaded: !!marker.value,
+    currentPosition: selectedLocation.value,
+    networkStatus: navigator.onLine ? 'En ligne' : 'Hors ligne',
+    errors: []
+  };
+
+  // Vérifier les dépendances
+  if (!window.L) {
+    diagnostics.errors.push('Leaflet non chargé');
+  }
+  
+  if (!mapContainer.value) {
+    diagnostics.errors.push('Conteneur de carte non trouvé');
+  }
+
+  // Vérifier le réseau
+  fetch('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', { method: 'HEAD' })
+    .then(response => {
+      diagnostics.networkAccess = response.ok ? 'OK' : 'Erreur';
+      console.log('Diagnostic complet:', diagnostics);
+      
+      // Afficher un rapport à l'utilisateur
+      const report = `
+=== RAPPORT DE DIAGNOSTIC ===
+Navigateur: ${diagnostics.browser}
+Réseau: ${diagnostics.networkStatus}
+Accès CDN: ${diagnostics.networkAccess}
+Leaflet: ${diagnostics.leafletLoaded ? '✅' : '❌'} ${diagnostics.leafletVersion}
+Conteneur: ${diagnostics.mapContainer ? '✅' : '❌'}
+Carte: ${diagnostics.mapLoaded ? '✅' : '❌'}
+Marqueur: ${diagnostics.markerLoaded ? '✅' : '❌'}
+Position: ${diagnostics.currentPosition.lat}, ${diagnostics.currentPosition.lng}
+Erreurs: ${diagnostics.errors.length > 0 ? diagnostics.errors.join(', ') : 'Aucune'}
+      `;
+      
+      alert(report);
+    })
+    .catch(error => {
+      diagnostics.networkAccess = 'Erreur réseau';
+      diagnostics.errors.push('Problème réseau: ' + error.message);
+      console.log('Diagnostic avec erreur réseau:', diagnostics);
+      alert('Problème réseau détecté. Vérifiez votre connexion internet.');
+    });
+};
+
+const tryAlternativeCDN = () => {
+  console.log('Tentative avec CDN alternatif...');
+  isLoading.value = true;
+  hasError.value = false;
+  errorMessage.value = '';
+
+  // Nettoyer les scripts précédents
+  cleanup();
+
+  // Essayer avec jsDelivr (alternative à unpkg)
+  const leafletCSS = document.createElement('link');
+  leafletCSS.rel = 'stylesheet';
+  leafletCSS.href = 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css';
+  leafletCSS.onload = () => console.log('CSS Leaflet (jsDelivr) chargé');
+  leafletCSS.onerror = () => console.error('Erreur chargement CSS Leaflet (jsDelivr)');
+  document.head.appendChild(leafletCSS);
+
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js';
+  script.onload = () => {
+    console.log('JS Leaflet (jsDelivr) chargé avec succès');
+    setTimeout(() => {
+      if (window.L) {
+        initializeOpenStreetMap();
+      } else {
+        hasError.value = true;
+        errorMessage.value = 'Leaflet non disponible même avec CDN alternatif.';
+        isLoading.value = false;
+      }
+    }, 500);
+  };
+  script.onerror = (error) => {
+    console.error('Erreur de chargement Leaflet JS (jsDelivr):', error);
+    hasError.value = true;
+    errorMessage.value = 'Impossible de charger OpenStreetMap avec les CDN disponibles.';
+    isLoading.value = false;
+  };
+
+  document.head.appendChild(script);
 };
 
 // Exposer les méthodes
 defineExpose({
   getCurrentLocation,
   setLocation,
-  retryLoading
+  retryLoading,
+  runDiagnostics,
+  tryAlternativeCDN
 });
 </script>
 
@@ -422,7 +824,7 @@ defineExpose({
     <div v-if="isLoading" class="google-map-loading" :style="{ height: height }">
       <div class="flex flex-col items-center justify-center h-full">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-        <p class="text-gray-600 dark:text-gray-400">Chargement de Google Maps...</p>
+        <p class="text-gray-600 dark:text-gray-400">Chargement de la carte...</p>
       </div>
     </div>
 
@@ -433,15 +835,25 @@ defineExpose({
           <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-2xl"></i>
         </div>
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Erreur de chargement</h3>
-        <p class="text-gray-600 dark:text-gray-400 text-center mb-4">{{ errorMessage }}</p>
-        <button @click="retryLoading" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-          <i class="fas fa-redo mr-2"></i>
-          Réessayer
-        </button>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">{{ errorMessage || 'La carte n\'est pas disponible.' }}</p>
+        <div class="flex gap-3 flex-wrap">
+          <button @click="retryLoading" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <i class="fas fa-redo mr-2"></i>Réessayer
+          </button>
+          <button @click="initFallbackMap" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+            <i class="fas fa-map-marked-alt mr-2"></i>Coordonnées manuelles
+          </button>
+          <button @click="runDiagnostics" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+            <i class="fas fa-stethoscope mr-2"></i>Diagnostic
+          </button>
+          <button @click="tryAlternativeCDN" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
+            <i class="fas fa-server mr-2"></i>Autre CDN
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Carte Google Maps -->
+    <!-- Carte (OpenStreetMap ou Google Maps) -->
     <div 
       v-else
       ref="mapContainer" 
@@ -451,25 +863,18 @@ defineExpose({
     
     <!-- Coordonnées actuelles -->
     <div v-if="!readonly" class="coordinates-display">
-      <div class="coord-item">
-        <label>Latitude:</label>
-        <input 
-          type="number" 
-          :value="selectedLocation.lat.toFixed(8)" 
-          @input="setLocation(parseFloat($event.target.value), selectedLocation.lng)"
-          step="0.00000001"
-          class="coord-input"
-        >
-      </div>
-      <div class="coord-item">
-        <label>Longitude:</label>
-        <input 
-          type="number" 
-          :value="selectedLocation.lng.toFixed(8)" 
-          @input="setLocation(selectedLocation.lat, parseFloat($event.target.value))"
-          step="0.00000001"
-          class="coord-input"
-        >
+      <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+        <span>
+          <i class="fas fa-map-pin mr-1"></i>
+          Latitude: {{ selectedLocation.lat.toFixed(6) }}
+        </span>
+        <span>
+          <i class="fas fa-map-pin mr-1"></i>
+          Longitude: {{ selectedLocation.lng.toFixed(6) }}
+        </span>
+        <button @click="retryLoading" class="text-blue-600 hover:text-blue-700">
+          <i class="fas fa-sync-alt mr-1"></i>Recharger
+        </button>
       </div>
     </div>
   </div>
