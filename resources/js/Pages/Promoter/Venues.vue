@@ -11,71 +11,23 @@ const props = defineProps({
 const handleLocationSelected = (location) => {
     console.log('Nouvelle position sélectionnée:', location);
     
-    // Mettre à jour les coordonnées de la salle via une requête PUT
+    // Envoyer uniquement les coordonnées pour éviter les erreurs de validation
     const form = useForm({
         latitude: location.lat,
         longitude: location.lng,
-        // Conserver toutes les autres valeurs existantes
-        nom: props.salle.nom,
-        description: props.salle.description,
-        type: props.salle.type,
-        categorie: props.salle.categorie,
-        adresse: props.salle.adresse,
-        code_postal: props.salle.code_postal,
-        ville: props.salle.ville,
-        pays: props.salle.pays,
-        region: props.salle.region,
-        departement: props.salle.departement,
-        quartier: props.salle.quartier,
-        telephone: props.salle.telephone,
-        whatsapp: props.salle.whatsapp,
-        email: props.salle.email,
-        site_web: props.salle.site_web,
-        reseaux_sociaux: props.salle.reseaux_sociaux || {},
-        capacite: props.salle.capacite,
-        surface_area: props.salle.surface_area,
-        machines_arcade: props.salle.machines_arcade,
-        casques_vr: props.salle.casques_vr,
-        flippers: props.salle.flippers,
-        consoles_retro: props.salle.consoles_retro,
-        pc_gaming: props.salle.pc_gaming,
-        tables_bowling: props.salle.tables_bowling,
-        tables_billard: props.salle.tables_billard,
-        wifi_gratuit: props.salle.wifi_gratuit,
-        parking: props.salle.parking,
-        climatisation: props.salle.climatisation,
-        accessibilite_pmr: props.salle.accessibilite_pmr,
-        surveillance_24h: props.salle.surveillance_24h,
-        bar_restaurant: props.salle.bar_restaurant,
-        sonorisation: props.salle.sonorisation,
-        eclairage_scene: props.salle.eclairage_scene,
-        stockage_jeux: props.salle.stockage_jeux,
-        espace_detente: props.salle.espace_detente,
-        zone_fumeurs: props.salle.zone_fumeurs,
-        vestiaires: props.salle.vestiaires,
-        heures_ouverture: props.salle.heures_ouverture,
-        prix_entree: props.salle.prix_entree,
-        reservation_obligatoire: props.salle.reservation_obligatoire,
-        age_minimum: props.salle.age_minimum,
-        reglement_interieur: props.salle.reglement_interieur,
-        services_additionnels: props.salle.services_additionnels || {},
-        photos: props.salle.photos || [],
-        videos: props.salle.videos || [],
-        virtuel: props.salle.virtuel,
-        url_visite_virtuelle: props.salle.url_visite_virtuelle,
-        actif: props.salle.actif,
-        certifie: props.salle.certifie,
     });
 
-    // Envoyer la mise à jour
-    form.put('/promoter/venues', {
-        onSuccess: () => {
-            // Rafraîchir la page pour voir les nouvelles coordonnées
+    // Envoyer la mise à jour avec PATCH pour ne modifier que les coordonnées
+    form.patch('/promoter/venues/coordinates', {
+        onSuccess: (page) => {
+            console.log('Coordonnées mises à jour avec succès');
+            // Le message de succès est automatiquement affiché par Inertia
+            // Optionnel : rafraîchir les coordonnées affichées
             window.location.reload();
         },
         onError: (errors) => {
             console.error('Erreur lors de la mise à jour des coordonnées:', errors);
-            alert('Erreur lors de la mise à jour des coordonnées. Veuillez réessayer.');
+            // Les messages d'erreur sont automatiquement affichés par Inertia
         }
     });
 };

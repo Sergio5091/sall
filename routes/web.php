@@ -33,6 +33,7 @@ Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(functi
     Route::post('/venues', [SalleController::class, 'store'])->name('venues.store');
     Route::get('/venues/edit', [SalleController::class, 'edit'])->name('venues.edit');
     Route::put('/venues', [SalleController::class, 'update'])->name('venues.update');
+    Route::patch('/venues/coordinates', [SalleController::class, 'updateCoordinates'])->name('venues.coordinates.update');
     Route::delete('/venues', [SalleController::class, 'destroy'])->name('venues.destroy');
     
     // Routes pour la gestion des événements

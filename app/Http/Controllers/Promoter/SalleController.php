@@ -288,6 +288,37 @@ class SalleController extends Controller
     }
 
     /**
+     * Mettre à jour uniquement les coordonnées de la salle
+     */
+    public function updateCoordinates(Request $request)
+    {
+        $user = Auth::user();
+        $salle = $user->salle;
+
+        if (!$salle) {
+            return back()->with('error', 'Aucune salle trouvée');
+        }
+
+        // Validation simple pour les coordonnées
+        $validated = $request->validate([
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+        ]);
+
+        try {
+            // Mettre à jour uniquement les coordonnées
+            $salle->update([
+                'latitude' => $validated['latitude'],
+                'longitude' => $validated['longitude'],
+            ]);
+
+            return back()->with('success', 'Coordonnées mises à jour avec succès');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Erreur lors de la mise à jour des coordonnées: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Supprimer la salle
      */
     public function destroy()
