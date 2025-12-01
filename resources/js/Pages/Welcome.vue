@@ -5,33 +5,26 @@
       <div class="flex items-center justify-between w-full max-w-7xl px-6 py-3">
         <div class="flex items-center gap-8">
           <div class="flex items-center gap-2 text-white">
-            <i class="fas fa-gamepad text-3xl text-accent-cyan"></i>
+            <i class="fas fa-gamepad text-3xl text-gray-400"></i>
             <h2 class="text-white text-2xl font-display font-bold">GameOn</h2>
           </div>
         </div>
-        <div class="hidden md:flex flex-1 justify-center">
-          <label class="flex flex-col w-full max-w-sm h-11">
-            <div class="flex w-full flex-1 items-stretch rounded-full h-full">
-              <div class="text-[#6b7280] flex bg-[#e5e7eb] items-center justify-center pl-4 rounded-l-full">
-                <i class="fas fa-search text-xl"></i>
-              </div>
-              <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-black focus:outline-0 focus:ring-0 border-none bg-[#e5e7eb] h-full placeholder:text-[#6b7280] px-4 rounded-r-full text-base font-normal leading-normal" placeholder="Rechercher une salle, un jeu..." v-model="searchQuery" @keyup.enter="searchRooms"/>
-            </div>
-          </label>
-        </div>
         <div class="flex items-center gap-3">
-          <Link :href="route('login')" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-[#e5e7eb] text-black text-sm font-bold leading-normal tracking-[0.015em] hover:bg-[#d1d5db] transition-colors">
+          <a href="/login" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-600 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-500 transition-colors">
             <span class="truncate">Connexion</span>
-          </Link>
-          <Link :href="route('register')" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:brightness-110 transition-all" style="background-color: #FF00FF;">
+          </a>
+          <a href="/register" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-700 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-600 transition-all">
             <span class="truncate">S'inscrire</span>
-          </Link>
+          </a>
         </div>
       </div>
     </header>
     <!-- HeroSection -->
     <section class="relative flex min-h-[80vh] sm:min-h-screen flex-col gap-6 sm:gap-8 items-center justify-center text-center py-16 sm:py-20 w-full overflow-x-hidden">
-      <div class="absolute inset-0 bg-cover bg-center bg-no-repeat z-0" style='background-image: linear-gradient(rgba(18, 17, 24, 0.8) 0%, rgba(18, 17, 24, 1) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuAvMkKqOU-KKBFEfq-XSqP8ERc3OcUD8c_cPSMVMQ51u7hagAf8c_kCEfAd86ta1yjbIE-5sLkK3wUnDLhWLOTh7SEnmUTk7eYbIG2ctck4ibodkjHwNZR2qQjYZjnEEW9bMiU8oTRROJKW5ErST-A-PlzGsUI-_7EzmG6n9rQEd02EfnEiJBNocXkEh4Q0lpRwJpxFjFSADix08DdbLqgv3LAEtZgVoQTgq8Fg9pcuOHKYf1A191jXTu07_i2G61JZjs70Bep8nXg5");'></div>
+      <!-- Animation 3D Background -->
+      <Background3D />
+      <!-- Overlay gradient pour la lisibilité -->
+      <div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/60 z-5"></div>
       <div class="relative z-10 flex flex-col gap-3 sm:gap-4 items-center w-full px-4 max-w-4xl">
         <h1 class="text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight tracking-tighter">
           Votre Prochaine Partie Commence Ici.
@@ -41,36 +34,29 @@
         </h2>
       </div>
       <div class="relative z-10 w-full max-w-2xl px-4">
-        <label class="flex flex-col h-14 sm:h-16 w-full">
-          <div class="flex w-full flex-1 items-stretch rounded-full h-full shadow-lg">
-            <div class="text-[#9f9db9] flex border border-accent-cyan/50 bg-[#1c1c27] items-center justify-center pl-4 sm:pl-5 rounded-l-full border-r-0">
-              <i class="fas fa-map-marker-alt text-xl sm:text-2xl"></i>
-            </div>
-            <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-white focus:outline-0 focus:ring-2 focus:ring-accent-cyan/80 border border-accent-cyan/50 bg-[#1c1c27] h-full placeholder:text-[#9f9db9] px-3 sm:px-4 rounded-none border-l-0 border-r-0 text-sm sm:text-base font-normal leading-normal" 
-                   placeholder="Entrez une ville, une adresse..." 
-                   v-model="location"/>
-            <div class="flex items-center justify-center rounded-r-full border-l-0 border border-accent-cyan/50 bg-[#1c1c27] pr-1 sm:pr-2">
-              <button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 sm:h-12 px-4 sm:px-6 bg-accent-cyan text-black text-sm sm:text-base font-bold leading-normal tracking-[0.015em] hover:brightness-110 transition-all" 
-                      @click="searchLocation">
-                <span class="truncate">Trouver une salle</span>
-              </button>
-            </div>
-          </div>
-        </label>
+        <a href="/search/rooms" class="flex w-full items-center justify-center overflow-hidden rounded-full h-14 sm:h-16 shadow-lg bg-gradient-to-r from-gray-600 to-gray-500 text-white text-lg sm:text-xl font-bold leading-normal tracking-[0.015em] hover:from-gray-500 hover:to-gray-400 transition-all duration-300 transform hover:scale-105">
+          <i class="fas fa-search mr-3"></i>
+          <span>Trouver une salle</span>
+        </a>
       </div>
     </section>
 
     <!-- Nouveautés Section -->
-    <section class="pt-8 pb-16 bg-background-dark">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-white text-2xl sm:text-3xl font-display font-bold leading-tight tracking-tight px-4 pb-6">Nouveautés</h2>
+    <section class="pt-8 pb-16 bg-background-dark relative overflow-hidden">
+      <!-- Éléments décoratifs 3D -->
+      <div class="absolute inset-0 opacity-20">
+        <div class="absolute top-10 left-10 w-32 h-32 bg-accent-magenta rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-10 right-10 w-48 h-48 bg-accent-cyan rounded-full blur-3xl animate-pulse delay-1000"></div>
+      </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <h2 class="text-white text-2xl sm:text-3xl font-display font-bold leading-tight tracking-tight px-4 pb-6 transform hover:scale-105 transition-transform duration-300">Nouveautés</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <div v-for="(item, index) in newItems" :key="index" class="w-full">
-            <div class="flex flex-col h-full gap-4 rounded-lg bg-[#1c1c27] shadow-lg transform hover:-translate-y-1 transition-transform duration-300">
-              <div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-t-lg" :style="'background-image: url(' + item.image + ')'"></div>
+          <div v-for="(item, index) in newItems" :key="index" class="w-full group">
+            <div class="flex flex-col h-full gap-4 rounded-lg bg-[#1c1c27] shadow-lg transform hover:-translate-y-2 hover:rotate-1 transition-all duration-500 hover:shadow-2xl hover:shadow-accent-cyan/20">
+              <div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-t-lg transform group-hover:scale-110 transition-transform duration-700" :style="'background-image: url(' + item.image + ')'"></div>
               <div class="flex flex-col flex-1 justify-between p-4 pt-0 gap-4">
                 <div>
-                  <p class="text-white text-lg font-bold leading-normal">{{ item.title }}</p>
+                  <p class="text-white text-lg font-bold leading-normal transform group-hover:translate-x-1 transition-transform duration-300">{{ item.title }}</p>
                   <p class="text-white text-sm font-normal leading-normal">{{ item.subtitle }}</p>
                 </div>
               </div>
@@ -80,23 +66,28 @@
       </div>
     </section>
     <!-- Salles Populaires Section -->
-    <section class="py-16 bg-background-dark">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-white text-3xl font-display font-bold leading-tight tracking-tight px-4 pb-6">Salles Populaires</h2>
+    <section class="py-16 bg-background-dark relative overflow-hidden">
+      <!-- Éléments décoratifs 3D -->
+      <div class="absolute inset-0 opacity-15">
+        <div class="absolute top-1/4 right-20 w-40 h-40 bg-accent-yellow rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div class="absolute bottom-1/4 left-20 w-36 h-36 bg-accent-magenta rounded-full blur-3xl animate-pulse delay-1500"></div>
+      </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <h2 class="text-white text-3xl font-display font-bold leading-tight tracking-tight px-4 pb-6 transform hover:scale-105 transition-transform duration-300">Salles Populaires</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="(room, index) in popularRooms" :key="index" class="flex flex-col gap-4 rounded-lg shadow-lg overflow-hidden group">
-            <div class="w-full bg-center bg-no-repeat aspect-video bg-cover transition-transform duration-300 group-hover:scale-105" :style="'background-image: url(' + room.image + ')'"></div>
+          <div v-for="(room, index) in popularRooms" :key="index" class="flex flex-col gap-4 rounded-lg shadow-lg overflow-hidden group transform hover:-translate-y-3 transition-all duration-500">
+            <div class="w-full bg-center bg-no-repeat aspect-video bg-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110" :style="'background-image: url(' + room.image + ')'"></div>
             <div class="flex flex-col p-4 pt-0 gap-3">
-              <h3 class="text-white text-xl font-bold">{{ room.name }}</h3>
+              <h3 class="text-white text-xl font-bold transform group-hover:translate-x-2 transition-transform duration-300">{{ room.name }}</h3>
               <div class="flex items-center justify-between text-sm text-[#9f9db9]">
                 <div class="flex items-center gap-1">
-                  <i class="fas fa-star text-accent-yellow !text-xl"></i>
+                  <i class="fas fa-star text-accent-yellow !text-xl transform group-hover:rotate-12 transition-transform duration-300"></i>
                   <span class="font-bold text-white">{{ room.rating }}</span> ({{ room.reviews }} avis)
                 </div>
                 <span class="font-semibold">~ {{ room.distance }}</span>
               </div>
-              <p class="text-sm text-white">À partir de <span class="font-bold text-lg text-accent-cyan">{{ room.price }}/h</span></p>
-              <button class="w-full mt-2 flex cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-5" :class="room.featured ? 'bg-accent-magenta' : 'bg-[#2a2839] hover:bg-accent-magenta'" @click="viewRoom(room.id)">
+              <p class="text-sm text-white">À partir de <span class="font-bold text-lg text-gray-400">{{ room.price }}/h</span></p>
+              <button class="w-full mt-2 flex cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-5 transform hover:scale-105 transition-all duration-300" :class="room.featured ? 'bg-accent-magenta hover:bg-accent-magenta/90' : 'bg-[#2a2839] hover:bg-accent-magenta'" @click="viewRoom(room.id)">
                 <span class="truncate">Voir la salle</span>
               </button>
             </div>
@@ -106,16 +97,21 @@
     </section>
 
     <!-- Comment ça marche Section -->
-    <section class="py-16">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-white text-center text-3xl font-display font-bold leading-tight tracking-tight pb-12">Comment ça marche ?</h2>
+    <section class="py-16 relative overflow-hidden">
+      <!-- Éléments décoratifs 3D -->
+      <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-1/3 left-1/4 w-44 h-44 bg-gradient-to-r from-accent-cyan to-accent-magenta rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-1/3 right-1/4 w-52 h-52 bg-gradient-to-r from-accent-magenta to-accent-yellow rounded-full blur-3xl animate-pulse delay-700"></div>
+      </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <h2 class="text-white text-center text-3xl font-display font-bold leading-tight tracking-tight pb-12 transform hover:scale-105 transition-transform duration-300">Comment ça marche ?</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-          <div v-for="(step, index) in howItWorks" :key="index" class="flex flex-col items-center gap-4">
-            <div class="flex items-center justify-center w-24 h-24 rounded-full border-2 mb-4 bg-[#1c1c27]" :class="step.borderColor">
+          <div v-for="(step, index) in howItWorks" :key="index" class="flex flex-col items-center gap-4 group transform hover:-translate-y-2 transition-all duration-500">
+            <div class="flex items-center justify-center w-24 h-24 rounded-full border-2 mb-4 bg-[#1c1c27] transform group-hover:rotate-6 group-hover:scale-110 transition-all duration-500" :class="step.borderColor">
               <i class="fas" :class="step.iconClass" style="font-size: 3.125rem;"></i>
             </div>
-            <h3 class="text-white text-xl font-bold font-display">{{ step.title }}</h3>
-            <p class="text-[#9f9db9]">{{ step.description }}</p>
+            <h3 class="text-white text-xl font-bold font-display transform group-hover:scale-105 transition-transform duration-300">{{ step.title }}</h3>
+            <p class="text-[#9f9db9] transform group-hover:translate-y-1 transition-transform duration-300">{{ step.description }}</p>
           </div>
         </div>
       </div>
@@ -126,7 +122,7 @@
       <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
         <div class="col-span-2 lg:col-span-1">
           <div class="flex items-center gap-2 text-white">
-            <i class="fas fa-gamepad text-3xl text-accent-cyan"></i>
+            <i class="fas fa-gamepad text-3xl text-gray-400"></i>
             <h2 class="text-white text-2xl font-display font-bold">GameOn</h2>
           </div>
           <p class="text-[#6b7280] mt-4 text-sm">La plus grande communauté de joueurs et de salles de jeux.</p>
@@ -165,7 +161,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import Background3D from '@/Components/Background3D.vue';
 
 // Data
 const searchQuery = ref('');
@@ -244,7 +240,7 @@ const howItWorks = ref([
     step: 2,
     title: 'Réservez',
     description: 'Sécurisez votre place en quelques clics, choisissez votre créneau et votre équipement.',
-    iconClass: 'fa-calendar-plus text-accent-cyan',
+    iconClass: 'fa-calendar-plus text-gray-400',
     borderColor: 'border-accent-cyan'
   },
   {
@@ -339,4 +335,63 @@ html, body {
 }
 
 /* Custom styles can be added here if needed */
+
+/* Animations personnalisées */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(255, 0, 255, 0.5),
+                0 0 40px rgba(0, 255, 255, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(255, 0, 255, 0.8),
+                0 0 60px rgba(0, 255, 255, 0.5);
+  }
+}
+
+/* Classes d'animation */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+/* Effet de parallaxe subtil */
+.parallax-slow {
+  will-change: transform;
+  transition: transform 0.3s ease-out;
+}
+
+/* Amélioration des transitions */
+.group:hover .group-hover\:scale-110 {
+  transform: scale(1.1);
+}
+
+.group:hover .group-hover\:rotate-12 {
+  transform: rotate(12deg);
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1c1c27;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #FF00FF, #00FFFF);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, #FF00FF, #FDFD00);
+}
 </style>

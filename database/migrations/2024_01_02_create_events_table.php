@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             
             // Relations
-            $table->foreignId('salle_id')->constrained()->onDelete('cascade');
+            $table->foreignId('salle_id')->constrained('salles')->onDelete('cascade');
             $table->foreignId('promoter_id')->constrained('users')->onDelete('cascade');
             
             // Informations de base

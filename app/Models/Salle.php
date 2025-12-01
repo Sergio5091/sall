@@ -15,19 +15,13 @@ class Salle extends Model
         // Informations de base
         'promoter_id',
         'nom',
-        'slug',
         'description',
-        'type',
-        'categorie',
         
-        // Adresse complète
+        // Adresse
         'adresse',
         'code_postal',
         'ville',
         'pays',
-        'region',
-        'departement',
-        'quartier',
         
         // Coordonnées GPS
         'latitude',
@@ -35,100 +29,42 @@ class Salle extends Model
         
         // Contact
         'telephone',
-        'whatsapp',
         'email',
         'site_web',
-        'reseaux_sociaux',
         
-        // Capacité et équipements
-        'capacite',
-        'surface_area',
-        'nombre_etalages',
-        'machines_arcade',
-        'casques_vr',
-        'flippers',
-        'consoles_retro',
-        'pc_gaming',
-        'tables_bowling',
-        'tables_billard',
+        // Capacité et surface
+        'capacite_max',
+        'surface',
         
         // Équipements et services
-        'wifi_gratuit',
-        'parking',
-        'climatisation',
-        'accessibilite_pmr',
-        'surveillance_24h',
-        'snack_bar',
-        'restaurant',
-        'bar',
-        'terrasse',
-        'espace_fumeur',
-        'vestiaires',
+        'equipements',
+        'services',
         
-        // Horaires
-        'horaires_ouverture',
-        'jours_fermes',
+        // Tarifs
+        'prix_heure',
+        'prix_journee',
         
         // Médias
-        'image_couverture',
-        'images_galerie',
-        'video_presentation',
-        'images_360',
+        'image_url',
+        'images',
         
-        // SEO
-        'meta_titre',
-        'meta_description',
-        'mots_cles',
+        // Horaires
+        'horaires',
         
         // Statut
         'statut',
-        'valide_par_admin',
-        'date_validation',
-        'motif_rejet',
-        
-        // Tarifs
-        'tarifs',
-        'reservation_en_ligne',
-        'paiement_en_ligne',
-        
-        // Évaluation
-        'note_moyenne',
-        'nombre_avis',
-        'nombre_vues',
-        'nombre_favoris',
-        
-        // Géolocalisation
-        'rayon_action_km',
-        'zones_couvertes',
-        'point_repere',
+        'valide',
     ];
 
     protected $casts = [
-        'reseaux_sociaux' => 'array',
-        'horaires_ouverture' => 'array',
-        'jours_fermes' => 'array',
-        'images_galerie' => 'array',
-        'images_360' => 'array',
-        'mots_cles' => 'array',
-        'tarifs' => 'array',
-        'zones_couvertes' => 'array',
-        'wifi_gratuit' => 'boolean',
-        'parking' => 'boolean',
-        'climatisation' => 'boolean',
-        'accessibilite_pmr' => 'boolean',
-        'surveillance_24h' => 'boolean',
-        'snack_bar' => 'boolean',
-        'restaurant' => 'boolean',
-        'bar' => 'boolean',
-        'terrasse' => 'boolean',
-        'espace_fumeur' => 'boolean',
-        'vestiaires' => 'boolean',
-        'valide_par_admin' => 'boolean',
-        'reservation_en_ligne' => 'boolean',
-        'paiement_en_ligne' => 'boolean',
-        'date_validation' => 'datetime',
+        'equipements' => 'array',
+        'services' => 'array',
+        'horaires' => 'array',
+        'images' => 'array',
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
+        'prix_heure' => 'decimal:2',
+        'prix_journee' => 'decimal:2',
     ];
 
     // Relations
@@ -168,7 +104,7 @@ class Salle extends Model
 
     public function getMainImageAttribute(): string
     {
-        return $this->image_couverture ?? 'https://picsum.photos/seed/salle/800/600.jpg';
+        return $this->image_url ?? 'https://picsum.photos/seed/salle/800/600.jpg';
     }
 
     public function getStatusBadgeAttribute(): array
@@ -176,8 +112,7 @@ class Salle extends Model
         $badges = [
             'actif' => ['color' => 'green', 'text' => 'Active'],
             'inactif' => ['color' => 'red', 'text' => 'Inactive'],
-            'en_attente' => ['color' => 'yellow', 'text' => 'En attente'],
-            'suspendu' => ['color' => 'red', 'text' => 'Suspendu']
+            'maintenance' => ['color' => 'yellow', 'text' => 'Maintenance']
         ];
 
         return $badges[$this->statut] ?? ['color' => 'gray', 'text' => 'Inconnu'];
@@ -186,7 +121,7 @@ class Salle extends Model
     // Scopes
     public function scopeActif($query)
     {
-        return $query->where('statut', 'actif')->where('valide_par_admin', true);
+        return $query->where('statut', 'actif')->where('valide', true);
     }
 
     public function scopeByCountry($query, $country)
@@ -194,19 +129,9 @@ class Salle extends Model
         return $query->where('pays', $country);
     }
 
-    public function scopeByRegion($query, $region)
-    {
-        return $query->where('region', $region);
-    }
-
     public function scopeByCity($query, $city)
     {
         return $query->where('ville', $city);
-    }
-
-    public function scopeByType($query, $type)
-    {
-        return $query->where('type', $type);
     }
 
     // Méthodes de géolocalisation
@@ -233,33 +158,14 @@ class Salle extends Model
         return $this->calculateDistanceFrom($latitude, $longitude) <= $radiusKm;
     }
 
-    // Génération du slug unique
-    public static function generateUniqueSlug($nom): string
-    {
-        $slug = \Str::slug($nom);
-        $count = static::where('slug', 'LIKE', "{$slug}%")->count();
-        
-        return $count > 0 ? "{$slug}-{$count}" : $slug;
-    }
-
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($salle) {
-            if (empty($salle->slug)) {
-                $salle->slug = static::generateUniqueSlug($salle->nom);
-            }
-            
             // Définir le pays par défaut si non spécifié
             if (empty($salle->pays)) {
                 $salle->pays = 'Sénégal';
-            }
-        });
-
-        static::updating(function ($salle) {
-            if ($salle->isDirty('nom') && empty($salle->slug)) {
-                $salle->slug = static::generateUniqueSlug($salle->nom);
             }
         });
     }

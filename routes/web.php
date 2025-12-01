@@ -14,6 +14,10 @@ Route::get('/', function () {
     ]);
 })->name('welcome');
 
+Route::get('/search/rooms', function () {
+    return Inertia::render('Search/Rooms');
+})->name('search.rooms');
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
