@@ -15,6 +15,7 @@ class Salle extends Model
         // Informations de base
         'promoter_id',
         'nom',
+        'slug',
         'description',
         
         // Adresse
@@ -158,14 +159,34 @@ class Salle extends Model
         return $this->calculateDistanceFrom($latitude, $longitude) <= $radiusKm;
     }
 
+    // Génération de slug unique
+    public static function generateUniqueSlug($nom)
+    {
+        $slug = \Str::slug($nom);
+        $originalSlug = $slug;
+        $counter = 1;
+
+        while (self::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
+    }
+
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($salle) {
+            // Générer un slug unique si non spécifié
+            if (empty($salle->slug)) {
+                $salle->slug = self::generateUniqueSlug($salle->nom);
+            }
+            
             // Définir le pays par défaut si non spécifié
             if (empty($salle->pays)) {
-                $salle->pays = 'Sénégal';
+                $salle->pays = 'Bénin';
             }
         });
     }

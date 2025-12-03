@@ -21,8 +21,8 @@ return new class extends Migration
             $table->string('quartier')->nullable()->after('departement');
             $table->string('whatsapp')->nullable()->after('telephone');
             $table->json('reseaux_sociaux')->nullable()->after('site_web');
-            $table->integer('capacite')->default(0)->change(); // Renommer capacite_max en capacite
-            $table->decimal('surface_area', 8, 2)->nullable()->after('capacite');
+            $table->integer('capacite_max')->default(0)->change(); // Renommer capacite_max en capacite
+            $table->decimal('surface_area', 8, 2)->nullable()->after('capacite_max');
             $table->integer('machines_arcade')->default(0)->after('surface_area');
             $table->integer('casques_vr')->default(0)->after('machines_arcade');
             $table->integer('flippers')->default(0)->after('casques_vr');

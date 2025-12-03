@@ -4,10 +4,6 @@
     <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center backdrop-blur-sm shadow-sm">
       <div class="flex items-center justify-between w-full max-w-7xl px-6 py-3">
         <div class="flex items-center gap-8">
-          <a href="/" class="flex items-center gap-2 text-white">
-            <i class="fas fa-arrow-left text-xl"></i>
-            <span class="text-lg">Retour</span>
-          </a>
           <div class="flex items-center gap-2 text-white">
             <i class="fas fa-gamepad text-3xl text-gray-400"></i>
             <h2 class="text-white text-2xl font-display font-bold">GameOn</h2>
@@ -32,15 +28,25 @@
       <div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/60 z-5"></div>
       
       <div class="relative z-10 max-w-4xl mx-auto px-4 py-12">
-        <!-- Search Header -->
-        <div class="text-center mb-8">
-          <h1 class="text-white text-3xl sm:text-4xl md:text-5xl font-display font-bold leading-tight tracking-tighter mb-4">
-            Trouver une salle près de chez vous
-          </h1>
-          <p class="text-white/80 text-lg font-normal leading-normal">
-            Entrez votre localisation pour découvrir les salles de jeux disponibles
-          </p>
-        </div>
+          <!-- Bouton Retour -->
+          <div class="mb-6">
+            <a href="/" class="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors group">
+              <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
+              </svg>
+              <span class="text-lg">Retour à l'accueil</span>
+            </a>
+          </div>
+
+          <!-- Search Header -->
+          <div class="text-center mb-8">
+            <h1 class="text-white text-3xl sm:text-4xl md:text-5xl font-display font-bold leading-tight tracking-tighter mb-4">
+              Trouver une salle près de chez vous
+            </h1>
+            <p class="text-white/80 text-lg font-normal leading-normal">
+              Entrez votre localisation pour découvrir les salles de jeux disponibles
+            </p>
+          </div>
 
         <!-- Search Form -->
         <div class="bg-[#1c1c27]/90 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-600/20">
@@ -48,7 +54,9 @@
             <!-- Location Input -->
             <div>
               <label class="block text-white text-sm font-medium mb-2">
-                <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
+                <svg class="w-4 h-4 mr-2 inline text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                </svg>
                 Votre localisation
               </label>
               <div class="flex gap-3">
@@ -66,7 +74,9 @@
                   class="px-4 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-500 transition-all duration-300 transform hover:scale-105"
                   title="Utiliser ma position actuelle"
                 >
-                  <i class="fas fa-location-crosshairs"></i>
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                  </svg>
                 </button>
               </div>
             </div>
@@ -74,9 +84,11 @@
             <!-- Search Button -->
             <button 
               @click="searchRooms"
-              class="w-full py-4 bg-gradient-to-r from-gray-600 to-gray-500 text-white text-lg font-bold rounded-xl hover:from-gray-500 hover:to-gray-400 transition-all duration-300 transform hover:scale-105 shadow-lg"
+              class="w-full py-4 bg-gradient-to-r from-gray-600 to-gray-500 text-white text-lg font-bold rounded-xl hover:from-gray-500 hover:to-gray-400 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center"
             >
-              <i class="fas fa-search mr-3"></i>
+              <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+              </svg>
               Rechercher des salles
             </button>
           </div>

@@ -81,9 +81,15 @@ class EventController extends Controller
             'titre' => 'required|string|max:255',
             'description' => 'required|string',
             
+            // Lieu et localisation
+            'lieu' => 'required|string|max:255',
+            'adresse' => 'required|string|max:500',
+            'ville' => 'required|string|max:100',
+            'pays' => 'required|string|max:100',
+            
             // Dates
             'date_debut' => 'required|date',
-            'date_fin' => 'required|date|after:date_debut',
+            'date_fin' => 'required|date|after_or_equal:date_debut',
             'date_limite_inscription' => 'nullable|date|before_or_equal:date_debut',
             
             // Tarifs
@@ -111,10 +117,11 @@ class EventController extends Controller
             'activites' => 'nullable|array',
             
             // Contact
-            'contact_email' => 'nullable|email',
+            'contact_email' => 'required|email',
             'contact_telephone' => 'nullable|string|max:20',
             'contact_whatsapp' => 'nullable|string|max:20',
             'reseaux_sociaux' => 'nullable|array',
+            'site_web' => 'nullable|url',
             
             // Configuration
             'inscription_obligatoire' => 'boolean',
@@ -147,16 +154,24 @@ class EventController extends Controller
         $imageAffichePath = null;
         $imageBannierePath = null;
 
+        // Logs pour débogage
+        \Log::info('Fichiers reçus:', $request->allFiles());
+        \Log::info('image_banniere présente:', $request->hasFile('image_banniere'));
+
         if ($request->hasFile('image_affiche')) {
             $imageAffiche = $request->file('image_affiche');
             $imageAffichePath = time() . '_' . Str::random(10) . '.' . $imageAffiche->getClientOriginalExtension();
             $imageAffiche->storeAs('events/affiches', $imageAffichePath, 'public');
+            \Log::info('image_affiche sauvegardée:', $imageAffichePath);
         }
 
         if ($request->hasFile('image_banniere')) {
             $imageBanniere = $request->file('image_banniere');
             $imageBannierePath = time() . '_' . Str::random(10) . '.' . $imageBanniere->getClientOriginalExtension();
             $imageBanniere->storeAs('events/bannieres', $imageBannierePath, 'public');
+            \Log::info('image_banniere sauvegardée:', $imageBannierePath);
+        } else {
+            \Log::info('image_banniere NON trouvée');
         }
 
         // Créer l'événement
@@ -170,6 +185,15 @@ class EventController extends Controller
             'slug' => Str::slug($validated['titre']) . '-' . time(),
             'image_affiche' => $imageAffichePath,
             'image_banniere' => $imageBannierePath,
+            
+            // Lieu et localisation
+            'lieu' => $validated['lieu'] ?? null,
+            'adresse' => $validated['adresse'] ?? null,
+            'code_postal' => $validated['code_postal'] ?? null,
+            'ville' => $validated['ville'] ?? null,
+            'pays' => $validated['pays'] ?? null,
+            'latitude' => $validated['latitude'] ?? null,
+            'longitude' => $validated['longitude'] ?? null,
             
             // Dates
             'date_debut' => $validated['date_debut'],
@@ -206,6 +230,7 @@ class EventController extends Controller
             'contact_telephone' => $validated['contact_telephone'] ?? null,
             'contact_whatsapp' => $validated['contact_whatsapp'] ?? null,
             'reseaux_sociaux' => $validated['reseaux_sociaux'] ?? [],
+            'site_web' => $validated['site_web'] ?? null,
             
             // Configuration
             'inscription_obligatoire' => $validated['inscription_obligatoire'] ?? true,

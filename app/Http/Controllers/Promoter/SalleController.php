@@ -20,17 +20,13 @@ class SalleController extends Controller
         $user = Auth::user();
         $salle = Salle::where('promoter_id', $user->id)->first();
 
-        if (!$salle) {
-            // Rediriger vers la page de création si aucune salle n'existe
-            return Inertia::render('Promoter/CreateSalle');
-        }
-
+        // Toujours afficher Venues.vue avec les données appropriées
         return Inertia::render('Promoter/Venues', [
             'salle' => $salle,
-            'coordinates' => [
+            'coordinates' => $salle ? [
                 'lat' => (float) $salle->latitude,
                 'lng' => (float) $salle->longitude
-            ]
+            ] : null
         ]);
     }
 
@@ -75,16 +71,14 @@ class SalleController extends Controller
             // Informations de base
             'nom' => 'required|string|max:255',
             'description' => 'required|string|max:2000',
-            'type' => 'required|string|in:' . implode(',', array_keys($this->getVenueTypes())),
-            'categorie' => 'required|string|in:' . implode(',', array_keys($this->getVenueCategories())),
+            'type' => 'required|string',
+            'categorie' => 'required|string',
             
             // Adresse
             'adresse' => 'required|string|max:255',
-            'code_postal' => 'required|string|max:20',
+            'code_postal' => 'nullable|string|max:20',
             'ville' => 'required|string|max:100',
             'pays' => 'required|string|max:100',
-            'region' => 'nullable|string|max:100',
-            'departement' => 'nullable|string|max:100',
             'quartier' => 'nullable|string|max:100',
             
             // Coordonnées GPS
@@ -96,64 +90,76 @@ class SalleController extends Controller
             'whatsapp' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'site_web' => 'nullable|url|max:255',
-            'reseaux_sociaux' => 'nullable|array',
-            'reseaux_sociaux.facebook' => 'nullable|url|max:255',
-            'reseaux_sociaux.instagram' => 'nullable|url|max:255',
-            'reseaux_sociaux.twitter' => 'nullable|url|max:255',
-            'reseaux_sociaux.tiktok' => 'nullable|url|max:255',
+            'facebook' => 'nullable|string|max:255',
+            'instagram' => 'nullable|string|max:255',
             
             // Capacité
             'capacite' => 'required|integer|min:1',
-            'surface_area' => 'nullable|integer|min:1',
             
-            // Équipements
-            'machines_arcade' => 'nullable|integer|min:0',
-            'casques_vr' => 'nullable|integer|min:0',
-            'flippers' => 'nullable|integer|min:0',
-            'consoles_retro' => 'nullable|integer|min:0',
-            'pc_gaming' => 'nullable|integer|min:0',
-            'tables_bowling' => 'nullable|integer|min:0',
-            'tables_billard' => 'nullable|integer|min:0',
-            
-            // Services (booléens)
-            'wifi_gratuit' => 'boolean',
-            'parking' => 'boolean',
-            'climatisation' => 'boolean',
-            'accessibilite_pmr' => 'boolean',
-            'surveillance_24h' => 'boolean',
-            'snack_bar' => 'boolean',
-            'restaurant' => 'boolean',
-            'bar' => 'boolean',
-            'terrasse' => 'boolean',
-            'espace_fumeur' => 'boolean',
-            'vestiaires' => 'boolean',
+            // Tarifs
+            'prix_heure' => 'nullable|numeric|min:0',
+            'prix_journee' => 'nullable|numeric|min:0',
             
             // Horaires
-            'horaires_ouverture' => 'nullable|array',
-            'jours_fermes' => 'nullable|array',
+            'horaires' => 'nullable|string',
+            
+            // Services
+            'services' => 'nullable|string',
             
             // Médias
-            'image_couverture' => 'nullable|string|max:500',
-            'images_galerie' => 'nullable|array',
-            'images_galerie.*' => 'string|max:500',
-            'video_presentation' => 'nullable|url|max:500',
-            
-            // SEO
-            'meta_titre' => 'nullable|string|max:60',
-            'meta_description' => 'nullable|string|max:160',
-            'mots_cles' => 'nullable|array',
-            'mots_cles.*' => 'string|max:50',
-            
-            // Point de repère
-            'point_repere' => 'nullable|string|max:255',
+            'image_url' => 'nullable|string|max:255',
+            'images' => 'nullable|array',
+            'logo' => 'nullable|string|max:255',
         ]);
+
+        // Gérer les fichiers uploadés
+        if ($request->hasFile('banniere_file')) {
+            $bannierePath = $request->file('banniere_file')->store('salles/bannieres', 'public');
+            $validated['image_url'] = $bannierePath;
+        }
+        
+        if ($request->hasFile('logo_file')) {
+            $logoPath = $request->file('logo_file')->store('salles/logos', 'public');
+            $validated['logo'] = $logoPath;
+        }
+        
+        // Gérer les images de la galerie
+        $galerieImages = [];
+        if ($request->hasFile('galerie_files')) {
+            foreach ($request->file('galerie_files') as $index => $file) {
+                if ($file) {
+                    $imagePath = $file->store('salles/galerie', 'public');
+                    $galerieImages[] = $imagePath;
+                }
+            }
+            $validated['images'] = $galerieImages;
+        }
+
+        // Gérer les objets JSON
+        if ($request->has('horaires')) {
+            $horaires = $request->input('horaires');
+            if (is_string($horaires)) {
+                $validated['horaires'] = json_decode($horaires, true);
+            } else {
+                $validated['horaires'] = $horaires;
+            }
+        }
+        
+        if ($request->has('services')) {
+            $services = $request->input('services');
+            if (is_string($services)) {
+                $validated['services'] = json_decode($services, true);
+            } else {
+                $validated['services'] = $services;
+            }
+        }
 
         // Générer le slug
         $validated['slug'] = Salle::generateUniqueSlug($validated['nom']);
-        $validated['user_id'] = $user->id;
+        $validated['promoter_id'] = $user->id;
         
         // Valeurs par défaut
-        $validated['statut'] = 'en_attente';
+        $validated['statut'] = 'actif';
         $validated['valide_par_admin'] = false;
         $validated['nombre_vues'] = 0;
         $validated['nombre_favoris'] = 0;
@@ -195,30 +201,33 @@ class SalleController extends Controller
     /**
      * Mettre à jour la salle
      */
-    public function update(Request $request)
+    public function update(Request $request, Salle $salle)
     {
         $user = Auth::user();
-        $salle = $user->salle;
-
-        if (!$salle) {
-            return redirect()->route('promoter.venues.create')
-                ->with('error', 'Vous n\'avez pas encore de salle.');
+        
+        if ($salle->promoter_id !== $user->id) {
+            return redirect()->route('promoter.venues')
+                ->with('error', 'Vous n\'êtes pas autorisé à modifier cette salle.');
         }
+
+        // Debug: voir ce que Laravel reçoit
+        \Log::info('Update request data', $request->all());
+        \Log::info('Files', $request->allFiles());
+        \Log::info('Logo file exists', ['has_file' => $request->hasFile('logo_file')]);
+        \Log::info('Logo field', ['logo' => $request->input('logo')]);
 
         $validated = $request->validate([
             // Informations de base
             'nom' => 'required|string|max:255',
             'description' => 'required|string|max:2000',
-            'type' => 'required|string|in:' . implode(',', array_keys($this->getVenueTypes())),
-            'categorie' => 'required|string|in:' . implode(',', array_keys($this->getVenueCategories())),
+            'type' => 'required|string',
+            'categorie' => 'required|string',
             
             // Adresse
             'adresse' => 'required|string|max:255',
-            'code_postal' => 'required|string|max:20',
+            'code_postal' => 'nullable|string|max:20',
             'ville' => 'required|string|max:100',
             'pays' => 'required|string|max:100',
-            'region' => 'nullable|string|max:100',
-            'departement' => 'nullable|string|max:100',
             'quartier' => 'nullable|string|max:100',
             
             // Coordonnées GPS
@@ -230,55 +239,73 @@ class SalleController extends Controller
             'whatsapp' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'site_web' => 'nullable|url|max:255',
-            'reseaux_sociaux' => 'nullable|array',
+            'facebook' => 'nullable|string|max:255',
+            'instagram' => 'nullable|string|max:255',
             
             // Capacité
             'capacite' => 'required|integer|min:1',
-            'surface_area' => 'nullable|integer|min:1',
             
-            // Équipements
-            'machines_arcade' => 'nullable|integer|min:0',
-            'casques_vr' => 'nullable|integer|min:0',
-            'flippers' => 'nullable|integer|min:0',
-            'consoles_retro' => 'nullable|integer|min:0',
-            'pc_gaming' => 'nullable|integer|min:0',
-            'tables_bowling' => 'nullable|integer|min:0',
-            'tables_billard' => 'nullable|integer|min:0',
-            
-            // Services (booléens)
-            'wifi_gratuit' => 'boolean',
-            'parking' => 'boolean',
-            'climatisation' => 'boolean',
-            'accessibilite_pmr' => 'boolean',
-            'surveillance_24h' => 'boolean',
-            'snack_bar' => 'boolean',
-            'restaurant' => 'boolean',
-            'bar' => 'boolean',
-            'terrasse' => 'boolean',
-            'espace_fumeur' => 'boolean',
-            'vestiaires' => 'boolean',
+            // Tarifs
+            'prix_heure' => 'nullable|numeric|min:0',
+            'prix_journee' => 'nullable|numeric|min:0',
             
             // Horaires
-            'horaires_ouverture' => 'nullable|array',
-            'jours_fermes' => 'nullable|array',
+            'horaires' => 'nullable|string',
+            
+            // Services
+            'services' => 'nullable|string',
             
             // Médias
-            'image_couverture' => 'nullable|string|max:500',
-            'images_galerie' => 'nullable|array',
-            'video_presentation' => 'nullable|url|max:500',
-            
-            // SEO
-            'meta_titre' => 'nullable|string|max:60',
-            'meta_description' => 'nullable|string|max:160',
-            'mots_cles' => 'nullable|array',
-            
-            // Point de repère
-            'point_repere' => 'nullable|string|max:255',
+            'image_url' => 'nullable|string|max:255',
+            'images' => 'nullable|array',
+            'logo' => 'nullable|string|max:255',
         ]);
 
-        // Si le nom change, régénérer le slug
-        if ($salle->nom !== $validated['nom']) {
-            $validated['slug'] = Salle::generateUniqueSlug($validated['nom']);
+        // Gérer les fichiers uploadés
+        if ($request->hasFile('banniere_file')) {
+            $bannierePath = $request->file('banniere_file')->store('salles/bannieres', 'public');
+            $validated['image_url'] = $bannierePath;
+        }
+        
+        if ($request->hasFile('logo_file')) {
+            $logoPath = $request->file('logo_file')->store('salles/logos', 'public');
+            $validated['logo'] = $logoPath;
+        }
+        
+        // Gérer les images de la galerie
+        $galerieImages = [];
+        if ($request->hasFile('galerie_files')) {
+            foreach ($request->file('galerie_files') as $index => $file) {
+                if ($file) {
+                    $imagePath = $file->store('salles/galerie', 'public');
+                    $galerieImages[] = $imagePath;
+                }
+            }
+            // Conserver les images existantes si aucune nouvelle image n'est uploadée
+if (empty($galerieImages)) {
+    $validated['images'] = $salle->images ?? [];
+} else {
+    $validated['images'] = $galerieImages;
+}
+        }
+
+        // Gérer les objets JSON
+        if ($request->has('horaires')) {
+            $horaires = $request->input('horaires');
+            if (is_string($horaires)) {
+                $validated['horaires'] = json_decode($horaires, true);
+            } else {
+                $validated['horaires'] = $horaires;
+            }
+        }
+        
+        if ($request->has('services')) {
+            $services = $request->input('services');
+            if (is_string($services)) {
+                $validated['services'] = json_decode($services, true);
+            } else {
+                $validated['services'] = $services;
+            }
         }
 
         $salle->update($validated);

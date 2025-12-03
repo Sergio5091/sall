@@ -131,7 +131,12 @@ const submit = () => {
                                     />
                                     <label 
                                         for="client"
-                                        class="flex flex-col items-center justify-center p-4 border-2 border-gray-700 rounded-lg h-full transition-all group-hover:bg-cyan/10 group-hover:border-cyan peer-checked:border-cyan peer-checked:bg-cyan/10"
+                                        :class="[
+                                            'flex flex-col items-center justify-center p-4 border-2 rounded-lg h-full transition-all',
+                                            form.role === 'client' 
+                                                ? 'border-cyan bg-cyan/10' 
+                                                : 'border-gray-700 group-hover:border-cyan group-hover:bg-cyan/10'
+                                        ]"
                                     >
                                         <i class="fas fa-user text-4xl text-cyan"></i>
                                         <span class="mt-2 font-semibold text-white">Client</span>
@@ -149,7 +154,12 @@ const submit = () => {
                                     />
                                     <label 
                                         for="promoteur"
-                                        class="flex flex-col items-center justify-center p-4 border-2 border-gray-700 rounded-lg h-full transition-all group-hover:bg-cyan/10 group-hover:border-cyan peer-checked:border-cyan peer-checked:bg-cyan/10"
+                                        :class="[
+                                            'flex flex-col items-center justify-center p-4 border-2 rounded-lg h-full transition-all',
+                                            form.role === 'promoter' 
+                                                ? 'border-cyan bg-cyan/10' 
+                                                : 'border-gray-700 group-hover:border-cyan group-hover:bg-cyan/10'
+                                        ]"
                                     >
                                         <i class="fas fa-store text-4xl text-cyan"></i>
                                         <span class="mt-2 font-semibold text-white">Promoteur</span>
@@ -164,7 +174,7 @@ const submit = () => {
                         <div>
                             <button 
                                 type="submit" 
-                                class="flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-6 bg-magenta text-white text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-wait"
+                                class="flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-6 bg-gradient-to-r from-gray-600 to-gray-500 text-white text-base font-bold leading-normal tracking-[0.015em] hover:from-gray-500 hover:to-gray-400 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-wait disabled:transform-none"
                                 :disabled="form.processing"
                                 :class="{ 'opacity-70': form.processing }"
                             >

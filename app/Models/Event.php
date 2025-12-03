@@ -24,6 +24,15 @@ class Event extends Model
         'image_affiche',
         'image_banniere',
         
+        // Lieu et localisation
+        'lieu',
+        'adresse',
+        'code_postal',
+        'ville',
+        'pays',
+        'latitude',
+        'longitude',
+        
         // Dates et heures
         'date_debut',
         'date_fin',
@@ -60,6 +69,7 @@ class Event extends Model
         'contact_telephone',
         'contact_whatsapp',
         'reseaux_sociaux',
+        'site_web',
         
         // Configuration
         'inscription_obligatoire',
