@@ -1,5 +1,6 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import { Head, Link, router } from '@inertiajs/vue3';
 import Sidebar from '../../Components/Promoter/Sidebar.vue';
 
 const props = defineProps({
@@ -83,6 +84,40 @@ const getEventProp = (event, prop, defaultValue = '') => {
 // Navigation vers la création d'événement
 const goToCreateEvent = () => {
     router.get('/promoter/events/create');
+};
+
+// Supprimer un événement
+const deleteEvent = (event) => {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer l'événement "${event.titre}" ?`)) {
+        router.delete(`/promoter/events/${event.id}`, {
+            onSuccess: () => {
+                console.log('Événement supprimé avec succès!');
+                // Recharger la page pour voir les changements
+                window.location.reload();
+            },
+            onError: (errors) => {
+                console.error('Erreur lors de la suppression:', errors);
+            }
+        });
+    }
+};
+
+// Publier un événement
+const publishEvent = (event) => {
+    console.log('Tentative de publication pour l\'événement:', event.id);
+    
+    if (confirm(`Êtes-vous sûr de vouloir publier l'événement "${event.titre}" ?`)) {
+        router.post(`/promoter/events/${event.id}/publish`, {}, {
+            onSuccess: () => {
+                alert('Événement publié avec succès!');
+                window.location.reload();
+            },
+            onError: (errors) => {
+                console.error('Erreur lors de la publication:', errors);
+                alert('Erreur lors de la publication: ' + JSON.stringify(errors));
+            }
+        });
+    }
 };
 </script>
 
@@ -214,7 +249,15 @@ const goToCreateEvent = () => {
 
               <!-- Actions -->
               <div class="flex gap-2">
-                <Link :href="`/promoter/events/${event.id}/edit`" class="flex-1 bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors text-center text-sm font-medium">
+                <button 
+                  v-if="event.statut === 'brouillon'" 
+                  @click="publishEvent(event)" 
+                  class="flex-1 bg-green-50 text-green-600 px-4 py-2 rounded-lg hover:bg-green-100 transition-colors text-center text-sm font-medium">
+                  <i class="fas fa-eye mr-2"></i>Publier
+                </button>
+                <Link 
+                  :href="`/promoter/events/${event.id}/edit`" 
+                  class="flex-1 bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors text-center text-sm font-medium">
                   <i class="fas fa-edit mr-2"></i>Modifier
                 </Link>
                 <button @click="deleteEvent(event)" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium">

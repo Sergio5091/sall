@@ -84,6 +84,11 @@ class Salle extends Model
         return $this->hasMany(Avis::class);
     }
 
+    public function reservations(): HasMany
+    {
+        return $this->hasMany(Reservation::class);
+    }
+
     // Accesseurs
     public function getFullAddressAttribute(): string
     {

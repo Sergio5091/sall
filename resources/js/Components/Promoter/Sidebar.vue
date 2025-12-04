@@ -8,6 +8,7 @@ const props = defineProps({
 
 const page = usePage();
 const notifications = computed(() => page.props.notifications || []);
+const user = computed(() => page.props.auth?.user);
 
 const menuItems = [
     {
@@ -96,29 +97,32 @@ const handleNavigation = () => {
         </nav>
       </div>
 
-      <!-- Bottom Section -->
-      <div class="flex flex-col gap-4">
-        <!-- Settings -->
-        <div class="flex flex-col gap-1 border-t border-gray-200 dark:border-gray-800 pt-4">
-          <Link href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5 transition-all duration-300 hover:translate-x-1">
-            <i class="fas fa-cog transition-transform duration-300 hover:rotate-90"></i>
-            <p class="text-sm font-medium">Paramètres</p>
-          </Link>
+      <!-- User Profile & Logout -->
+      <div class="flex flex-col gap-3 border-t border-gray-200 dark:border-gray-700 pt-4">
+        <!-- User Info -->
+        <div class="flex items-center gap-3 px-3 py-2">
+          <div class="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary dark:bg-primary/20">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+              {{ user?.name || 'Utilisateur' }}
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+              {{ user?.email || '' }}
+            </p>
+          </div>
         </div>
         
-        <!-- Profile -->
-        <div class="flex items-center gap-3 border-t border-gray-200 dark:border-gray-800 pt-4">
-          <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 transition-transform duration-300 hover:scale-110" 
-               data-alt="Profile picture of Jean Dupont" 
-               style='background-image: url("https://picsum.photos/seed/promoter/100/100.jpg");'></div>
-          <div class="flex flex-col">
-            <h1 class="text-gray-900 dark:text-white text-sm font-medium leading-normal">Jean Dupont</h1>
-            <p class="text-gray-500 dark:text-gray-400 text-xs font-normal leading-normal">Promoteur</p>
-          </div>
-          <button class="ml-auto text-gray-500 dark:text-gray-400 transition-all duration-300 hover:text-red-500 hover:rotate-12">
-            <i class="fas fa-sign-out-alt"></i>
-          </button>
-        </div>
+        <!-- Logout Button -->
+        <Link 
+          href="/logout"
+          method="post"
+          class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300 hover:translate-x-1"
+        >
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Déconnexion</span>
+        </Link>
       </div>
     </div>
   </aside>

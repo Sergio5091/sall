@@ -8,6 +8,21 @@ const props = defineProps({
     events: Array,
     notifications: Array
 });
+
+// Formater les nombres
+const formatNumber = (num) => {
+    return new Intl.NumberFormat('fr-FR').format(num);
+};
+
+// Formater les dates
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+};
 </script>
 
 <template>
@@ -49,28 +64,28 @@ const props = defineProps({
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mt-8">
           <div class="flex flex-col gap-2 rounded-xl p-4 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
-            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Visiteurs (page salle)</p>
-            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">1,230</p>
-          </div>
-          <div class="flex flex-col gap-2 rounded-xl p-4 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
-            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Réservations (mois)</p>
-            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">85</p>
+            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Total événements</p>
+            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">{{ formatNumber(stats.total || 0) }}</p>
           </div>
           <div class="flex flex-col gap-2 rounded-xl p-4 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
             <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Événements publiés</p>
-            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">12</p>
+            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">{{ formatNumber(stats.publies || 0) }}</p>
           </div>
           <div class="flex flex-col gap-2 rounded-xl p-4 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
-            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Messages reçus</p>
-            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">28</p>
+            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Brouillons</p>
+            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">{{ formatNumber(stats.brouillons || 0) }}</p>
           </div>
           <div class="flex flex-col gap-2 rounded-xl p-4 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
-            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Recommandations</p>
-            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">42</p>
+            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">À venir</p>
+            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">{{ formatNumber(stats.avenir || 0) }}</p>
           </div>
           <div class="flex flex-col gap-2 rounded-xl p-4 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
-            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Taux de remplissage</p>
-            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">78%</p>
+            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">En cours</p>
+            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">{{ formatNumber(stats.en_cours || 0) }}</p>
+          </div>
+          <div class="flex flex-col gap-2 rounded-xl p-4 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
+            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Passés</p>
+            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">{{ formatNumber(stats.passes || 0) }}</p>
           </div>
         </div>
 

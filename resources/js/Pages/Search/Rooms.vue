@@ -94,71 +94,156 @@
           </div>
         </div>
 
-        <!-- Loading State -->
-        <div v-if="isLoading" class="mt-8 text-center">
-          <div class="inline-flex items-center gap-3 text-white">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
-            <span>Recherche en cours...</span>
+        <!-- Filtres -->
+        <div class="bg-[#1c1c27]/90 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-600/20 mb-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-white text-sm font-medium mb-2">
+                Recherche
+              </label>
+              <input 
+                v-model="form.search" 
+                type="text" 
+                placeholder="Nom, ville, description..." 
+                class="w-full px-3 py-2 bg-[#2a2a3a] border border-gray-600/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-gray-500"
+              >
+            </div>
+            
+            <div>
+              <label class="block text-white text-sm font-medium mb-2">
+                Ville
+              </label>
+              <select v-model="form.ville" class="w-full px-3 py-2 bg-[#2a2a3a] border border-gray-600/30 rounded-lg text-white focus:outline-none focus:border-gray-500">
+                <option value="">Toutes les villes</option>
+                <option v-for="ville in villes" :key="ville" :value="ville">
+                  {{ ville }}
+                </option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-white text-sm font-medium mb-2">
+                Capacité min
+              </label>
+              <input 
+                v-model="form.capacite_min" 
+                type="number" 
+                placeholder="Ex: 50" 
+                class="w-full px-3 py-2 bg-[#2a2a3a] border border-gray-600/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-gray-500"
+              >
+            </div>
           </div>
         </div>
 
         <!-- Results -->
-        <div v-if="searchResults.length > 0 && !isLoading" class="mt-8 space-y-4">
-          <h2 class="text-white text-2xl font-bold mb-4">
-            {{ searchResults.length }} salles trouvées
+        <div v-if="salles.data.length > 0" class="mt-8">
+          <h2 class="text-white text-2xl font-bold mb-6">
+            {{ salles.total }} salle{{ salles.total > 1 ? 's' : '' }} disponible{{ salles.total > 1 ? 's' : '' }}
           </h2>
           
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div 
-              v-for="room in searchResults" 
-              :key="room.id"
+              v-for="salle in salles.data" 
+              :key="salle.id"
               class="bg-[#1c1c27]/90 backdrop-blur-sm rounded-xl p-6 border border-gray-600/20 hover:border-gray-500/40 transition-all duration-300 transform hover:scale-105 group"
             >
-              <div class="flex gap-4">
+              <!-- Image -->
+              <div class="h-48 bg-gradient-to-br from-gray-600 to-gray-700 rounded-lg mb-4 overflow-hidden">
                 <img 
-                  :src="room.image" 
-                  :alt="room.name"
-                  class="w-24 h-24 rounded-lg object-cover"
-                />
-                <div class="flex-1">
-                  <h3 class="text-white text-lg font-bold mb-1 group-hover:text-gray-400 transition-colors">
-                    {{ room.name }}
-                  </h3>
-                  <div class="flex items-center gap-2 text-sm text-gray-300 mb-2">
-                    <i class="fas fa-star text-yellow-500"></i>
-                    <span>{{ room.rating }}</span>
-                    <span>({{ room.reviews }} avis)</span>
-                  </div>
-                  <div class="flex items-center gap-4 text-sm text-gray-300">
-                    <span class="flex items-center gap-1">
-                      <i class="fas fa-map-marker-alt text-gray-400"></i>
-                      {{ room.distance }}
-                    </span>
-                    <span class="flex items-center gap-1">
-                      <i class="fas fa-euro-sign text-gray-400"></i>
-                      {{ room.price }}/h
-                    </span>
-                  </div>
+                  v-if="salle.image_url"
+                  :src="salle.image_url.startsWith('http') ? salle.image_url : `/storage/${salle.image_url}`" 
+                  :alt="salle.nom"
+                  class="w-full h-full object-cover"
+                >
+                <div v-else class="w-full h-full flex items-center justify-center">
+                  <i class="fas fa-gamepad text-4xl text-gray-400"></i>
                 </div>
               </div>
-              <div class="mt-4 flex gap-3">
-                <button class="flex-1 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors">
-                  Réserver
-                </button>
-                <button class="flex-1 py-2 border border-gray-500 text-gray-400 rounded-lg hover:bg-gray-500/10 transition-colors">
-                  Détails
-                </button>
+
+              <div class="space-y-3">
+                <h3 class="text-white text-lg font-bold group-hover:text-gray-400 transition-colors">
+                  {{ salle.nom }}
+                </h3>
+                
+                <div class="flex items-center gap-2 text-sm text-gray-300">
+                  <i class="fas fa-map-marker-alt text-gray-400"></i>
+                  <span>{{ salle.ville }}, {{ salle.pays }}</span>
+                </div>
+
+                <div class="flex items-center justify-between">
+                  <span class="text-xl font-bold text-green-400">
+                    {{ formatPrice(salle.prix_heure) }}
+                  </span>
+                  <span class="text-sm text-gray-400">/heure</span>
+                </div>
+
+                <div class="grid grid-cols-1 gap-2 text-sm text-gray-300">
+                  <div class="flex items-center gap-1">
+                    <i class="fas fa-users text-gray-400"></i>
+                    <span>{{ formatCapacity(salle.capacite_max) }} places</span>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <i class="fas fa-wifi text-gray-400"></i>
+                    <span>WiFi disponible</span>
+                  </div>
+                </div>
+
+                <p class="text-gray-400 text-sm line-clamp-2">
+                  {{ salle.description || 'Salle de gaming moderne équipée du meilleur matériel.' }}
+                </p>
+
+                <div class="flex gap-2 pt-2">
+                  <Link 
+                    :href="`/salles/${salle.id}`"
+                    class="flex-1 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors text-center"
+                  >
+                    Voir détails
+                  </Link>
+                  <Link 
+                    href="/login"
+                    class="flex-1 py-2 border border-gray-500 text-gray-400 rounded-lg hover:bg-gray-500/10 transition-colors text-center"
+                  >
+                    Réserver
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div v-if="salles.links && salles.links.length > 3" class="mt-8">
+            <div class="flex justify-center">
+              <div class="flex gap-2">
+                <template v-for="link in salles.links" :key="link.label">
+                  <Link 
+                    v-if="link.url && link.label !== '...' "
+                    :href="link.url"
+                    v-html="link.label"
+                    :class="[
+                      'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                      link.active 
+                        ? 'bg-gray-600 text-white' 
+                        : 'bg-[#1c1c27] text-gray-300 hover:bg-gray-600 border border-gray-600'
+                    ]"
+                  />
+                  <span 
+                    v-else-if="link.label === '...'"
+                    class="px-4 py-2 text-gray-500"
+                  >
+                    ...
+                  </span>
+                </template>
               </div>
             </div>
           </div>
         </div>
 
         <!-- No Results -->
-        <div v-if="searchResults.length === 0 && !isLoading && hasSearched" class="mt-8 text-center py-12">
+        <div v-else class="mt-8 text-center py-12">
           <i class="fas fa-search text-6xl text-gray-500 mb-4"></i>
           <h3 class="text-white text-xl font-bold mb-2">Aucune salle trouvée</h3>
           <p class="text-gray-400">
-            Essayez d'élargir votre recherche ou de modifier les filtres
+            Essayez de modifier vos critères de recherche
           </p>
         </div>
       </div>
@@ -167,88 +252,66 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import Background3D from '../../Components/Background3D.vue';
+import { Head, Link } from '@inertiajs/vue3';
+import { ref, watch } from 'vue';
 
-// Data
-const searchQuery = ref('');
-const isLoading = ref(false);
-const hasSearched = ref(false);
-const searchResults = ref([]);
+const props = defineProps({
+    salles: Object,
+    villes: Array,
+    filters: Object
+});
 
-// Mock data for demonstration
-const mockRooms = [
-  {
-    id: 1,
-    name: 'Cyber Arena Pro',
-    rating: 4.8,
-    reviews: 156,
-    distance: '1.2 km',
-    price: '15€',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDZk-K3kdE3ajUoJvzYE-P5V9EppOKL8LPxzcGNhBBEFNBXC7F5jYXrYrwDrW0P4VKmutq7EmadaTVN_b9AVhEasTSc4KYfjGVTFn0s903IJxUxwFXFS_K1QsZ4gFcXhPRD0FaretJixko9EAwJGx96RTLdxrfXwfeugzGsGp-jYct8KgevHhFT-0FSU6WxM0SZ5Phpkqu5Q6RHdudPx25ttQcImu_6BD-CPUjTWe7VC8fHQDsTcVJp58dXTQnjEpHJh_Ba6CrOPUsD'
-  },
-  {
-    id: 2,
-    name: 'VR Experience Center',
-    rating: 4.9,
-    reviews: 89,
-    distance: '2.5 km',
-    price: '25€',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCYHh5IqU9m7sGzI6nN-2TOY3cjqw6LvCPwENSrv1VEvphNaLlp8oKX_ChHWzDiAi9cQHqZzYOB5KUtfhaLcjJW_UOgoH9tS0xJuEpB9hPjC-ug8sBblwZq9yB1nXRMBDpKZy9x-ckdOciw7G1dgP5bJQflmdbedf6-LEwhU_rUgZPWNclac2ejM5-wf7h7ZqLDxaZ26KdjbR7S9QmN2aHgH3b6Wrcxc1LAK-t53YktCKAWh_nWLzRxSqobo14Awculpec_FS2SU2pt'
-  },
-  {
-    id: 3,
-    name: 'Retro Game Paradise',
-    rating: 4.7,
-    reviews: 234,
-    distance: '3.8 km',
-    price: '12€',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDimTmosVRtitqU9V2oDIOQw50iGnF5QW3_KIKBaqu9WSJ6grhZy_x9Ae_lduBc_pSW7n6n0fdslfekYXLqoiES9JL0QHnKTOhiuS0amxXj43wWxYzVYUBCmQu2VSKPJVPWu7LoNMIQI1myV_R0FkUiHFHXNPfCG-wSmSlJgDp7jtXCr5fTgDvAynUYwM1PHaumBxDPSfTTJ40KvLX01F4PWrPOpTz6IGey33XXIKdUJHkgz2V0gqb2kltAbruyvqecqYp37qlscfYo'
-  },
-  {
-    id: 4,
-    name: 'Esports Training Zone',
-    rating: 4.6,
-    reviews: 178,
-    distance: '4.1 km',
-    price: '18€',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAFHU-O26YCVGb8nn72fw_t3zCT0ekH-nFV7acoJIzDsxjIR-Lc_K7kG27Cdlw2y9G6cjOtbMeCCTpb6fpvIprI0mmn5ex2yb-BXmD0L6KlPW5rU6p-lXc__1mF2es4ZEWq3q4ApJbjtDkC2TSC7mq-_NE0vXwbHX6WGf4RibZubgcspYf4t8fKul0l8KUZrUNKhCv41euF-GtVhgfA3ESe3VG4R69TUjr3MK0L6Mo_FiYuXRADPqlhMa6yL4JRSgTFG6wPWKvxjCOM'
-  }
-];
+const form = ref({
+    search: props.filters.search || '',
+    ville: props.filters.ville || '',
+    capacite_min: props.filters.capacite_min || ''
+});
 
-// Methods
-const getCurrentLocation = () => {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        // In a real app, you would convert coordinates to address
-        searchQuery.value = 'Position actuelle';
-      },
-      (error) => {
-        console.error('Error getting location:', error);
-        alert('Impossible d\'obtenir votre position. Veuillez entrer votre localisation manuellement.');
-      }
-    );
-  } else {
-    alert('La géolocalisation n\'est pas supportée par votre navigateur.');
-  }
+// Formater le prix
+const formatPrice = (prix) => {
+    return new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: 'XOF',
+        minimumFractionDigits: 0
+    }).format(prix);
 };
 
-const searchRooms = async () => {
-  if (!searchQuery.value.trim()) {
-    alert('Veuillez entrer une localisation');
-    return;
-  }
+// Formater la capacité
+const formatCapacity = (capacite) => {
+    return new Intl.NumberFormat('fr-FR').format(capacite);
+};
 
-  isLoading.value = true;
-  hasSearched.value = true;
+// Watch pour les changements de filtres
+watch(form, (newFilters) => {
+    const params = new URLSearchParams();
+    
+    if (newFilters.search) params.append('search', newFilters.search);
+    if (newFilters.ville) params.append('ville', newFilters.ville);
+    if (newFilters.capacite_min) params.append('capacite_min', newFilters.capacite_min);
+    
+    window.location.href = `/search/rooms?${params.toString()}`;
+}, { deep: true });
 
-  // Simulate API call
-  setTimeout(() => {
-    // Return all mock rooms (no filtering needed)
-    searchResults.value = mockRooms;
-    isLoading.value = false;
-  }, 1500);
+// Fonctions existantes pour la compatibilité
+const searchQuery = ref('');
+const isLoading = ref(false);
+const searchResults = ref([]);
+
+const getCurrentLocation = () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                console.log('Position obtenue:', position.coords);
+            },
+            (error) => {
+                console.error('Erreur de géolocalisation:', error);
+            }
+        );
+    }
+};
+
+const searchRooms = () => {
+    console.log('Recherche de salles pour:', searchQuery.value);
 };
 </script>
 

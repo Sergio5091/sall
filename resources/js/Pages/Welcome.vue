@@ -8,6 +8,11 @@
             <i class="fas fa-gamepad text-3xl text-gray-400"></i>
             <h2 class="text-white text-2xl font-display font-bold">GameOn</h2>
           </div>
+          <nav class="hidden md:flex space-x-8">
+            <a href="/" class="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium">Accueil</a>
+            <a href="/salles" class="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium">Salles</a>
+            <a href="#" class="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium">Événements</a>
+          </nav>
         </div>
         <div class="flex items-center gap-3">
           <a href="/login" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-600 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-500 transition-colors">
@@ -254,8 +259,8 @@ const howItWorks = ref([
 
 const footerLinks = ref({
   navigation: [
-    { label: 'Accueil', href: '#' },
-    { label: 'Salles', href: '#' },
+    { label: 'Accueil', href: '/' },
+    { label: 'Salles', href: '/salles' },
     { label: 'Événements', href: '#' },
     { label: 'Blog', href: '#' }
   ],

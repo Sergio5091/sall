@@ -64,6 +64,11 @@ Route::middleware(['auth'])->prefix('client')->name('client.')->group(function (
     Route::get('/profile', function () {
         return Inertia::render('Client/Profile');
     })->name('profile');
+    
+    // Routes pour les salles (clients)
+    Route::get('/salles', [App\Http\Controllers\Client\SalleController::class, 'index'])->name('salles');
+    Route::get('/salles/{salle}', [App\Http\Controllers\Client\SalleController::class, 'show'])->name('salles.show');
+    Route::post('/salles/{salle}/reserver', [App\Http\Controllers\Client\SalleController::class, 'reserver'])->name('salles.reserver');
 });
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
@@ -77,5 +82,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Routes publiques pour les salles
+Route::get('/salles', [App\Http\Controllers\Public\SalleController::class, 'index'])->name('public.salles');
+Route::get('/salles/{salle}', [App\Http\Controllers\Public\SalleController::class, 'show'])->name('public.salles.show');
+
+// Routes pour la recherche de salles
+Route::get('/search/rooms', [App\Http\Controllers\Search\RoomController::class, 'index'])->name('search.rooms');
 
 require __DIR__.'/auth.php';

@@ -25,7 +25,7 @@ import Navbar from '@/Components/Navbar.vue';
           <!-- Client Navigation -->
           <nav class="hidden md:flex items-center gap-6">
             <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/dashboard">Dashboard</a>
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="#">Salles</a>
+            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/salles">Salles</a>
             <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="#">Événements</a>
             <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="#">Mes Réservations</a>
             <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/profile">Profil</a>

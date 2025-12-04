@@ -67,4 +67,12 @@ class User extends Authenticatable
     {
         return $this->hasOne(Salle::class, 'promoter_id');
     }
+
+    /**
+     * Relation avec les réservations du client
+     */
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
+    }
 }
