@@ -27,6 +27,12 @@ class EventController extends Controller
             ->orderBy('date_debut', 'desc')
             ->paginate(10);
 
+        // Ajouter les URLs des images aux événements
+        $events->getCollection()->transform(function ($event) {
+            $event->url_image_affiche = $event->url_image_affiche;
+            return $event;
+        });
+
         // Statistiques
         $stats = [
             'total' => $events->count(),

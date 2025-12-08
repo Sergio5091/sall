@@ -83,6 +83,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Routes publiques pour les événements
+Route::get('/events', [App\Http\Controllers\Public\EventController::class, 'index'])->name('events');
+Route::get('/events/{event}', [App\Http\Controllers\Public\EventController::class, 'show'])->name('events.show');
+
 // Routes publiques pour les salles
 Route::get('/salles', [App\Http\Controllers\Public\SalleController::class, 'index'])->name('public.salles');
 Route::get('/salles/{salle}', [App\Http\Controllers\Public\SalleController::class, 'show'])->name('public.salles.show');

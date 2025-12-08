@@ -1,128 +1,52 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import Sidebar from '../../Components/Promoter/Sidebar.vue';
 
 const props = defineProps({
-    events: {
-        type: Object,
-        default: () => ({ data: [] })
-    },
-    stats: {
-        type: Object,
-        default: () => ({
-            total: 0,
-            publies: 0,
-            brouillons: 0,
-            avenir: 0,
-            en_cours: 0,
-            passes: 0
-        })
-    }
+    events: Object,
+    stats: Object
 });
 
+// Formater les nombres
+const formatNumber = (num) => {
+    return new Intl.NumberFormat('fr-FR').format(num);
+};
+
+// Formater les dates
 const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('fr-FR', {
         day: 'numeric',
         month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+        year: 'numeric'
     });
 };
 
-const getStatutColor = (statut) => {
-    const colors = {
-        'brouillon': 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
-        'publie': 'bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-300',
-        'annule': 'bg-red-100 text-red-800 dark:bg-red-800/30 dark:text-red-300',
-        'termine': 'bg-blue-100 text-blue-800 dark:bg-blue-800/30 dark:text-blue-300'
-    };
-    return colors[statut] || 'bg-gray-100 text-gray-800';
-};
-
-const getCategorieIcon = (categorie) => {
-    const icons = {
-        'jeux_video': 'fas fa-gamepad',
-        'musique': 'fas fa-music',
-        'sport': 'fas fa-football-ball',
-        'conference': 'fas fa-microphone',
-        'festival': 'fas fa-music',
-        'tournament': 'fas fa-trophy',
-        'lan_party': 'fas fa-desktop',
-        'showmatch': 'fas fa-tv',
-        'casual_gaming': 'fas fa-gamepad'
-    };
-    return icons[categorie] || 'fas fa-calendar';
-};
-
-const getTypeIcon = (type) => {
-    const icons = {
-        'online': 'fas fa-laptop',
-        'offline': 'fas fa-map-marker-alt',
-        'hybride': 'fas fa-globe'
-    };
-    return icons[type] || 'fas fa-calendar';
-};
-
-const estPasse = (dateFin) => {
-    return dateFin ? new Date(dateFin) < new Date() : false;
-};
-
-const estEnCours = (dateDebut, dateFin) => {
-    if (!dateDebut || !dateFin) return false;
-    const now = new Date();
-    return new Date(dateDebut) <= now && new Date(dateFin) >= now;
-};
-
-// Helper pour accéder aux propriétés en toute sécurité
-const getEventProp = (event, prop, defaultValue = '') => {
-    return event && event[prop] !== undefined ? event[prop] : defaultValue;
-};
-
-// Navigation vers la création d'événement
-const goToCreateEvent = () => {
-    router.get('/promoter/events/create');
-};
-
-// Supprimer un événement
-const deleteEvent = (event) => {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer l'événement "${event.titre}" ?`)) {
-        router.delete(`/promoter/events/${event.id}`, {
-            onSuccess: () => {
-                console.log('Événement supprimé avec succès!');
-                // Recharger la page pour voir les changements
-                window.location.reload();
-            },
-            onError: (errors) => {
-                console.error('Erreur lors de la suppression:', errors);
-            }
-        });
+// Obtenir la couleur du statut
+const getStatusColor = (status) => {
+    switch (status) {
+        case 'publie': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+        case 'brouillon': return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+        case 'annule': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+        case 'termine': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+        default: return 'bg-gray-100 text-gray-800';
     }
 };
 
-// Publier un événement
-const publishEvent = (event) => {
-    console.log('Tentative de publication pour l\'événement:', event.id);
-    
-    if (confirm(`Êtes-vous sûr de vouloir publier l'événement "${event.titre}" ?`)) {
-        router.post(`/promoter/events/${event.id}/publish`, {}, {
-            onSuccess: () => {
-                alert('Événement publié avec succès!');
-                window.location.reload();
-            },
-            onError: (errors) => {
-                console.error('Erreur lors de la publication:', errors);
-                alert('Erreur lors de la publication: ' + JSON.stringify(errors));
-            }
-        });
+// Obtenir le texte du statut
+const getStatusText = (status) => {
+    switch (status) {
+        case 'publie': return 'Publié';
+        case 'brouillon': return 'Brouillon';
+        case 'annule': return 'Annulé';
+        case 'termine': return 'Terminé';
+        default: return status;
     }
 };
 </script>
 
 <template>
-  <Head title="Événements" />
+  <Head title="Mes Événements" />
   
   <!-- Add Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -130,157 +54,167 @@ const publishEvent = (event) => {
   <div class="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
     <!-- Sidebar Component -->
     <Sidebar current-route="promoter.events" />
-    
+
     <!-- Main Content -->
     <main class="flex-1 overflow-y-auto transition-all duration-300">
       <div class="p-8">
         <!-- Header -->
-        <div class="flex items-center justify-between mb-8">
-          <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Mes Événements</h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">Gérez vos événements et suivez leurs performances</p>
-          </div>
-          <Link href="/promoter/events/create" class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-            <i class="fas fa-plus-circle"></i>
-            <span>Créer un événement</span>
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <p class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Mes Événements</p>
+          <Link href="/promoter/events/create" class="flex items-center justify-center rounded-lg h-10 bg-brand-red text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] px-4 hover:bg-brand-red/90 transition-colors">
+            <i class="fas fa-plus text-base font-bold"></i>
+            <span class="truncate">Créer un événement</span>
           </Link>
         </div>
 
-        <!-- Statistiques -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl p-6">
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
-                <i class="fas fa-calendar text-blue-600 dark:text-blue-400 text-xl"></i>
-              </div>
-              <div>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total }}</h3>
-                <p class="text-gray-600 dark:text-gray-400 text-sm">Total événements</p>
-              </div>
-            </div>
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mt-8">
+          <div class="flex flex-col gap-2 rounded-xl p-4 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
+            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Total événements</p>
+            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">{{ formatNumber(stats.total || 0) }}</p>
           </div>
-
-          <div class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl p-6">
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
-                <i class="fas fa-eye text-green-600 dark:text-green-400 text-xl"></i>
-              </div>
-              <div>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.publies }}</h3>
-                <p class="text-gray-600 dark:text-gray-400 text-sm">Publiés</p>
-              </div>
-            </div>
+          <div class="flex flex-col gap-2 rounded-xl p-4 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
+            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Événements publiés</p>
+            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">{{ formatNumber(stats.publies || 0) }}</p>
           </div>
-
-          <div class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl p-6">
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center">
-                <i class="fas fa-clock text-orange-600 dark:text-orange-400 text-xl"></i>
-              </div>
-              <div>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.avenir }}</h3>
-                <p class="text-gray-600 dark:text-gray-400 text-sm">À venir</p>
-              </div>
-            </div>
+          <div class="flex flex-col gap-2 rounded-xl p-4 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
+            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Brouillons</p>
+            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">{{ formatNumber(stats.brouillons || 0) }}</p>
           </div>
-
-          <div class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl p-6">
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
-                <i class="fas fa-play-circle text-purple-600 dark:text-purple-400 text-xl"></i>
-              </div>
-              <div>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.en_cours }}</h3>
-                <p class="text-gray-600 dark:text-gray-400 text-sm">En cours</p>
-              </div>
-            </div>
+          <div class="flex flex-col gap-2 rounded-xl p-4 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
+            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">À venir</p>
+            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">{{ formatNumber(stats.avenir || 0) }}</p>
+          </div>
+          <div class="flex flex-col gap-2 rounded-xl p-4 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
+            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">En cours</p>
+            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">{{ formatNumber(stats.en_cours || 0) }}</p>
+          </div>
+          <div class="flex flex-col gap-2 rounded-xl p-4 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
+            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Passés</p>
+            <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold">{{ formatNumber(stats.passes || 0) }}</p>
           </div>
         </div>
 
-        <!-- Liste des événements -->
-        <div v-if="props.events.data && props.events.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="event in props.events.data" :key="event.id" class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300">
-            <!-- Image header -->
-            <div class="h-48 bg-gradient-to-br from-blue-500 to-purple-600 relative">
-              <img 
-                v-if="event.image_banniere" 
-                :src="`/storage/events/bannieres/${event.image_banniere}`"
-                :alt="event.titre"
-                class="w-full h-full object-cover"
-                @error="$event.target.style.display='none'"
-              >
-              <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center" :class="{ 'bg-opacity-0': event.image_banniere }">
-                <i :class="[getCategorieIcon(event.categorie), 'text-white text-4xl', { 'opacity-50': !event.image_banniere, 'opacity-0': event.image_banniere }]"></i>
+        <!-- Events Grid -->
+        <div class="mt-8">
+          <div v-if="events.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div 
+              v-for="event in events.data" 
+              :key="event.id"
+              class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300"
+            >
+              <!-- Event Image -->
+              <div class="relative h-48 overflow-hidden">
+                <img 
+                  :src="event.url_image_affiche || '/images/default-event.jpg'" 
+                  :alt="event.titre"
+                  class="w-full h-full object-cover"
+                >
+                <div class="absolute top-4 right-4">
+                  <span 
+                    :class="[
+                      'px-3 py-1 rounded-full text-xs font-bold',
+                      getStatusColor(event.statut)
+                    ]"
+                  >
+                    {{ getStatusText(event.statut) }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Event Details -->
+              <div class="p-6">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">{{ event.titre }}</h3>
+                
+                <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-3">
+                  {{ event.description }}
+                </p>
+
+                <div class="space-y-2 text-sm">
+                  <!-- Date -->
+                  <div class="flex items-center text-gray-600 dark:text-gray-400">
+                    <i class="fas fa-calendar-alt mr-2 text-blue-500"></i>
+                    <span>{{ formatDate(event.date_debut) }}</span>
+                  </div>
+                  
+                  <!-- Location -->
+                  <div class="flex items-center text-gray-600 dark:text-gray-400">
+                    <i class="fas fa-map-marker-alt mr-2 text-red-500"></i>
+                    <span>{{ event.salle?.nom || 'Lieu à définir' }}</span>
+                  </div>
+
+                  <!-- Price -->
+                  <div class="flex items-center text-gray-600 dark:text-gray-400">
+                    <i class="fas fa-tag mr-2 text-green-500"></i>
+                    <span v-if="event.gratuit">Gratuit</span>
+                    <span v-else>{{ event.prix_base }} {{ event.devise }}</span>
+                  </div>
+
+                  <!-- Capacity -->
+                  <div class="flex items-center text-gray-600 dark:text-gray-400">
+                    <i class="fas fa-users mr-2 text-purple-500"></i>
+                    <span v-if="event.capacite_max">{{ event.places_disponibles || 0 }}/{{ event.capacite_max }} places</span>
+                    <span v-else>Illimité</span>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="mt-6 flex gap-2">
+                  <Link 
+                    :href="`/promoter/events/${event.id}`"
+                    class="flex-1 text-center px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Voir
+                  </Link>
+                  <Link 
+                    :href="`/promoter/events/${event.id}/edit`"
+                    class="flex-1 text-center px-3 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
+                  >
+                    Modifier
+                  </Link>
+                </div>
               </div>
             </div>
+          </div>
 
-            <!-- Content -->
-            <div class="p-6">
-              <!-- Header -->
-              <div class="flex items-start justify-between mb-4">
-                <div class="flex-1">
-                  <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">{{ event.titre }}</h3>
-                  <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">{{ event.description }}</p>
-                </div>
-                <span :class="getStatutColor(event.statut)" class="px-3 py-1 rounded-full text-xs font-medium">
-                  {{ event.statut }}
-                </span>
-              </div>
-
-              <!-- Info grid -->
-              <div class="grid grid-cols-1 gap-4 mb-4">
-                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                  <i class="fas fa-calendar"></i>
-                  <span>Début: {{ formatDate(event.date_debut) }}</span>
-                </div>
-                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                  <i class="fas fa-calendar-check"></i>
-                  <span>Fin: {{ formatDate(event.date_fin) }}</span>
-                </div>
-                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                  <i class="fas fa-map-marker-alt"></i>
-                  <span>{{ event.lieu }}</span>
-                </div>
-                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                  <i class="fas fa-users"></i>
-                  <span>{{ event.capacite_max }} places</span>
-                </div>
-              </div>
-
-              <!-- Actions -->
-              <div class="flex gap-2">
-                <button 
-                  v-if="event.statut === 'brouillon'" 
-                  @click="publishEvent(event)" 
-                  class="flex-1 bg-green-50 text-green-600 px-4 py-2 rounded-lg hover:bg-green-100 transition-colors text-center text-sm font-medium">
-                  <i class="fas fa-eye mr-2"></i>Publier
-                </button>
-                <Link 
-                  :href="`/promoter/events/${event.id}/edit`" 
-                  class="flex-1 bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors text-center text-sm font-medium">
-                  <i class="fas fa-edit mr-2"></i>Modifier
-                </Link>
-                <button @click="deleteEvent(event)" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </div>
+          <!-- Empty State -->
+          <div v-else class="text-center py-12">
+            <i class="fas fa-calendar-times text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Aucun événement</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">Vous n'avez pas encore créé d'événement.</p>
+            <Link 
+              href="/promoter/events/create"
+              class="inline-flex items-center px-4 py-2 bg-brand-red text-white font-medium rounded-lg hover:bg-brand-red/90 transition-colors"
+            >
+              <i class="fas fa-plus mr-2"></i>
+              Créer votre premier événement
+            </Link>
           </div>
         </div>
 
-        <!-- Empty state -->
-        <div v-else class="text-center py-20">
-          <div class="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-            <i class="fas fa-calendar text-gray-400 text-4xl"></i>
+        <!-- Pagination -->
+        <div v-if="events.data.length > 0" class="mt-8 flex justify-center">
+          <div class="flex gap-2">
+            <Link 
+              v-if="events.prev_page_url"
+              :href="events.prev_page_url"
+              class="px-3 py-2 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </Link>
+            
+            <span class="px-3 py-2 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-lg">
+              {{ events.current_page }} / {{ events.last_page }}
+            </span>
+            
+            <Link 
+              v-if="events.next_page_url"
+              :href="events.next_page_url"
+              class="px-3 py-2 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </Link>
           </div>
-          <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Aucun événement créé</h3>
-          <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
-            Commencez par créer votre premier événement pour commencer à organiser vos activités.
-          </p>
-          <Link href="/promoter/events/create" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-            <i class="fas fa-plus-circle"></i>
-            <span>Créer mon premier événement</span>
-          </Link>
         </div>
       </div>
     </main>
@@ -288,9 +222,9 @@ const publishEvent = (event) => {
 </template>
 
 <style scoped>
-.line-clamp-2 {
+.line-clamp-3 {
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

@@ -321,16 +321,18 @@ class Event extends Model
     public function getUrlImageAfficheAttribute()
     {
         if ($this->image_affiche) {
-            return asset('storage/events/affiches/' . $this->image_affiche);
+            // Utiliser une URL relative pour éviter les problèmes avec APP_URL
+            return '/storage/events/affiches/' . $this->image_affiche;
         }
 
-        return asset('images/default-event.jpg');
+        return '/images/default-event.jpg';
     }
 
     public function getUrlImageBanniereAttribute()
     {
         if ($this->image_banniere) {
-            return asset('storage/events/bannieres/' . $this->image_banniere);
+            // Utiliser une URL relative pour éviter les problèmes avec APP_URL
+            return '/storage/events/bannieres/' . $this->image_banniere;
         }
 
         return $this->url_image_affiche;

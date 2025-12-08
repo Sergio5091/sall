@@ -1,45 +1,43 @@
 <template>
-  <div class="min-h-screen text-[#222222] font-body">
+  <div class="min-h-screen text-gray-800 font-body">
     <!-- TopNavBar -->
-    <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center backdrop-blur-sm shadow-sm">
+    <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center backdrop-blur-sm shadow-sm bg-white/90">
       <div class="flex items-center justify-between w-full max-w-7xl px-6 py-3">
         <div class="flex items-center gap-8">
-          <div class="flex items-center gap-2 text-white">
+          <div class="flex items-center gap-2 text-gray-800">
             <i class="fas fa-gamepad text-3xl text-gray-400"></i>
-            <h2 class="text-white text-2xl font-display font-bold">GameOn</h2>
+            <h2 class="text-gray-800 text-2xl font-display font-bold">GameOn</h2>
           </div>
           <nav class="hidden md:flex space-x-8">
-            <a href="/" class="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium">Accueil</a>
-            <a href="/salles" class="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium">Salles</a>
-            <a href="#" class="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium">Événements</a>
+            <a href="/" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Accueil</a>
+            <a href="/salles" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Salles</a>
+            <a href="/events" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Événements</a>
           </nav>
         </div>
         <div class="flex items-center gap-3">
-          <a href="/login" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-600 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-500 transition-colors">
+          <a href="/login" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-200 text-gray-800 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 transition-colors">
             <span class="truncate">Connexion</span>
           </a>
-          <a href="/register" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-700 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-600 transition-all">
+          <a href="/register" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-800 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-700 transition-all">
             <span class="truncate">S'inscrire</span>
           </a>
         </div>
       </div>
     </header>
     <!-- HeroSection -->
-    <section class="relative flex min-h-[80vh] sm:min-h-screen flex-col gap-6 sm:gap-8 items-center justify-center text-center py-16 sm:py-20 w-full overflow-x-hidden">
-      <!-- Animation 3D Background -->
-      <Background3D />
+    <section class="relative flex min-h-[80vh] sm:min-h-screen flex-col gap-6 sm:gap-8 items-center justify-center text-center py-16 sm:py-20 w-full overflow-x-hidden bg-gradient-to-br from-gray-50 to-gray-100">
       <!-- Overlay gradient pour la lisibilité -->
-      <div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/60 z-5"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-white/60 z-5"></div>
       <div class="relative z-10 flex flex-col gap-3 sm:gap-4 items-center w-full px-4 max-w-4xl">
-        <h1 class="text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight tracking-tighter">
+        <h1 class="text-gray-800 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight tracking-tighter">
           Votre Prochaine Partie Commence Ici.
         </h1>
-        <h2 class="text-white/80 text-base sm:text-lg md:text-xl font-normal leading-normal max-w-3xl px-2">
+        <h2 class="text-gray-600 text-base sm:text-lg md:text-xl font-normal leading-normal max-w-3xl px-2">
           Découvrez et réservez des milliers de salles de jeux et d'expériences près de chez vous.
         </h2>
       </div>
       <div class="relative z-10 w-full max-w-2xl px-4">
-        <a href="/search/rooms" class="flex w-full items-center justify-center overflow-hidden rounded-full h-14 sm:h-16 shadow-lg bg-gradient-to-r from-gray-600 to-gray-500 text-white text-lg sm:text-xl font-bold leading-normal tracking-[0.015em] hover:from-gray-500 hover:to-gray-400 transition-all duration-300 transform hover:scale-105">
+        <a href="/search/rooms" class="flex w-full items-center justify-center overflow-hidden rounded-full h-14 sm:h-16 shadow-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white text-lg sm:text-xl font-bold leading-normal tracking-[0.015em] hover:from-blue-500 hover:to-blue-400 transition-all duration-300">
           <i class="fas fa-search mr-3"></i>
           <span>Trouver une salle</span>
         </a>
@@ -47,22 +45,22 @@
     </section>
 
     <!-- Nouveautés Section -->
-    <section class="pt-8 pb-16 bg-background-dark relative overflow-hidden">
+    <section class="pt-8 pb-16 bg-white relative overflow-hidden">
       <!-- Éléments décoratifs 3D -->
       <div class="absolute inset-0 opacity-20">
-        <div class="absolute top-10 left-10 w-32 h-32 bg-accent-magenta rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-10 right-10 w-48 h-48 bg-accent-cyan rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div class="absolute top-10 left-10 w-32 h-32 bg-accent-magenta rounded-full blur-3xl"></div>
+        <div class="absolute bottom-10 right-10 w-48 h-48 bg-accent-cyan rounded-full blur-3xl"></div>
       </div>
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <h2 class="text-white text-2xl sm:text-3xl font-display font-bold leading-tight tracking-tight px-4 pb-6 transform hover:scale-105 transition-transform duration-300">Nouveautés</h2>
+        <h2 class="text-gray-800 text-2xl sm:text-3xl font-display font-bold leading-tight tracking-tight px-4 pb-6">Nouveautés</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <div v-for="(item, index) in newItems" :key="index" class="w-full group">
-            <div class="flex flex-col h-full gap-4 rounded-lg bg-[#1c1c27] shadow-lg transform hover:-translate-y-2 hover:rotate-1 transition-all duration-500 hover:shadow-2xl hover:shadow-accent-cyan/20">
-              <div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-t-lg transform group-hover:scale-110 transition-transform duration-700" :style="'background-image: url(' + item.image + ')'"></div>
+            <div class="flex flex-col h-full gap-4 rounded-lg bg-gray-50 shadow-lg hover:shadow-2xl hover:shadow-blue-200/20 border border-gray-200">
+              <div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-t-lg" :style="'background-image: url(' + item.image + ')'"></div>
               <div class="flex flex-col flex-1 justify-between p-4 pt-0 gap-4">
                 <div>
-                  <p class="text-white text-lg font-bold leading-normal transform group-hover:translate-x-1 transition-transform duration-300">{{ item.title }}</p>
-                  <p class="text-white text-sm font-normal leading-normal">{{ item.subtitle }}</p>
+                  <p class="text-gray-800 text-lg font-bold leading-normal">{{ item.title }}</p>
+                  <p class="text-gray-600 text-sm font-normal leading-normal">{{ item.subtitle }}</p>
                 </div>
               </div>
             </div>
@@ -71,28 +69,28 @@
       </div>
     </section>
     <!-- Salles Populaires Section -->
-    <section class="py-16 bg-background-dark relative overflow-hidden">
+    <section class="py-16 bg-gray-50 relative overflow-hidden">
       <!-- Éléments décoratifs 3D -->
       <div class="absolute inset-0 opacity-15">
-        <div class="absolute top-1/4 right-20 w-40 h-40 bg-accent-yellow rounded-full blur-3xl animate-pulse delay-500"></div>
-        <div class="absolute bottom-1/4 left-20 w-36 h-36 bg-accent-magenta rounded-full blur-3xl animate-pulse delay-1500"></div>
+        <div class="absolute top-1/4 right-20 w-40 h-40 bg-accent-yellow rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/4 left-20 w-36 h-36 bg-accent-magenta rounded-full blur-3xl"></div>
       </div>
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <h2 class="text-white text-3xl font-display font-bold leading-tight tracking-tight px-4 pb-6 transform hover:scale-105 transition-transform duration-300">Salles Populaires</h2>
+        <h2 class="text-gray-800 text-3xl font-display font-bold leading-tight tracking-tight px-4 pb-6">Salles Populaires</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="(room, index) in popularRooms" :key="index" class="flex flex-col gap-4 rounded-lg shadow-lg overflow-hidden group transform hover:-translate-y-3 transition-all duration-500">
-            <div class="w-full bg-center bg-no-repeat aspect-video bg-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110" :style="'background-image: url(' + room.image + ')'"></div>
+          <div v-for="(room, index) in popularRooms" :key="index" class="flex flex-col gap-4 rounded-lg shadow-lg overflow-hidden group bg-white border border-gray-200">
+            <div class="w-full bg-center bg-no-repeat aspect-video bg-cover group-hover:brightness-110" :style="'background-image: url(' + room.image + ')'""></div>
             <div class="flex flex-col p-4 pt-0 gap-3">
-              <h3 class="text-white text-xl font-bold transform group-hover:translate-x-2 transition-transform duration-300">{{ room.name }}</h3>
-              <div class="flex items-center justify-between text-sm text-[#9f9db9]">
+              <h3 class="text-gray-800 text-xl font-bold">{{ room.name }}</h3>
+              <div class="flex items-center justify-between text-sm text-gray-600">
                 <div class="flex items-center gap-1">
-                  <i class="fas fa-star text-accent-yellow !text-xl transform group-hover:rotate-12 transition-transform duration-300"></i>
-                  <span class="font-bold text-white">{{ room.rating }}</span> ({{ room.reviews }} avis)
+                  <i class="fas fa-star text-accent-yellow !text-xl"></i>
+                  <span class="font-bold text-gray-800">{{ room.rating }}</span> ({{ room.reviews }} avis)
                 </div>
                 <span class="font-semibold">~ {{ room.distance }}</span>
               </div>
-              <p class="text-sm text-white">À partir de <span class="font-bold text-lg text-gray-400">{{ room.price }}/h</span></p>
-              <button class="w-full mt-2 flex cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-5 transform hover:scale-105 transition-all duration-300" :class="room.featured ? 'bg-accent-magenta hover:bg-accent-magenta/90' : 'bg-[#2a2839] hover:bg-accent-magenta'" @click="viewRoom(room.id)">
+              <p class="text-sm text-gray-600">À partir de <span class="font-bold text-lg text-blue-600">{{ room.price }}/h</span></p>
+              <button class="w-full mt-2 flex cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-5" :class="room.featured ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-200 hover:bg-blue-600 hover:text-white text-gray-800'" @click="viewRoom(room.id)">
                 <span class="truncate">Voir la salle</span>
               </button>
             </div>
@@ -102,63 +100,63 @@
     </section>
 
     <!-- Comment ça marche Section -->
-    <section class="py-16 relative overflow-hidden">
+    <section class="py-16 bg-white relative overflow-hidden">
       <!-- Éléments décoratifs 3D -->
       <div class="absolute inset-0 opacity-10">
-        <div class="absolute top-1/3 left-1/4 w-44 h-44 bg-gradient-to-r from-accent-cyan to-accent-magenta rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-1/3 right-1/4 w-52 h-52 bg-gradient-to-r from-accent-magenta to-accent-yellow rounded-full blur-3xl animate-pulse delay-700"></div>
+        <div class="absolute top-1/3 left-1/4 w-44 h-44 bg-gradient-to-r from-accent-cyan to-accent-magenta rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/3 right-1/4 w-52 h-52 bg-gradient-to-r from-accent-magenta to-accent-yellow rounded-full blur-3xl"></div>
       </div>
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <h2 class="text-white text-center text-3xl font-display font-bold leading-tight tracking-tight pb-12 transform hover:scale-105 transition-transform duration-300">Comment ça marche ?</h2>
+        <h2 class="text-gray-800 text-center text-3xl font-display font-bold leading-tight tracking-tight pb-12">Comment ça marche ?</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-          <div v-for="(step, index) in howItWorks" :key="index" class="flex flex-col items-center gap-4 group transform hover:-translate-y-2 transition-all duration-500">
-            <div class="flex items-center justify-center w-24 h-24 rounded-full border-2 mb-4 bg-[#1c1c27] transform group-hover:rotate-6 group-hover:scale-110 transition-all duration-500" :class="step.borderColor">
+          <div v-for="(step, index) in howItWorks" :key="index" class="flex flex-col items-center gap-4 group">
+            <div class="flex items-center justify-center w-24 h-24 rounded-full border-2 mb-4 bg-gray-50" :class="step.borderColor">
               <i class="fas" :class="step.iconClass" style="font-size: 3.125rem;"></i>
             </div>
-            <h3 class="text-white text-xl font-bold font-display transform group-hover:scale-105 transition-transform duration-300">{{ step.title }}</h3>
-            <p class="text-[#9f9db9] transform group-hover:translate-y-1 transition-transform duration-300">{{ step.description }}</p>
+            <h3 class="text-gray-800 text-xl font-bold font-display">{{ step.title }}</h3>
+            <p class="text-gray-600">{{ step.description }}</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Footer -->
-    <footer class="w-full border-t border-t-[#e5e7eb] mt-20">
+    <footer class="w-full border-t border-t-gray-200 mt-20 bg-gray-50">
       <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
         <div class="col-span-2 lg:col-span-1">
-          <div class="flex items-center gap-2 text-white">
+          <div class="flex items-center gap-2 text-gray-800">
             <i class="fas fa-gamepad text-3xl text-gray-400"></i>
-            <h2 class="text-white text-2xl font-display font-bold">GameOn</h2>
+            <h2 class="text-gray-800 text-2xl font-display font-bold">GameOn</h2>
           </div>
-          <p class="text-[#6b7280] mt-4 text-sm">La plus grande communauté de joueurs et de salles de jeux.</p>
+          <p class="text-gray-600 mt-4 text-sm">La plus grande communauté de joueurs et de salles de jeux.</p>
         </div>
         <div>
-          <h4 class="font-display font-bold text-white mb-4">Navigation</h4>
+          <h4 class="font-display font-bold text-gray-800 mb-4">Navigation</h4>
           <ul class="space-y-3">
             <li v-for="(link, index) in footerLinks.navigation" :key="index">
-              <a :href="link.href" class="text-[#9f9db9] hover:text-white transition-colors">{{ link.label }}</a>
+              <a :href="link.href" class="text-gray-600 hover:text-gray-900 transition-colors">{{ link.label }}</a>
             </li>
           </ul>
         </div>
         <div>
-          <h4 class="font-display font-bold text-white mb-4">Aide</h4>
+          <h4 class="font-display font-bold text-gray-800 mb-4">Aide</h4>
           <ul class="space-y-3">
             <li v-for="(link, index) in footerLinks.help" :key="index">
-              <a :href="link.href" class="text-[#9f9db9] hover:text-white transition-colors">{{ link.label }}</a>
+              <a :href="link.href" class="text-gray-600 hover:text-gray-800 transition-colors">{{ link.label }}</a>
             </li>
           </ul>
         </div>
         <div>
-          <h4 class="font-display font-bold text-white mb-4">Légal</h4>
+          <h4 class="font-display font-bold text-gray-800 mb-4">Légal</h4>
           <ul class="space-y-3">
             <li v-for="(link, index) in footerLinks.legal" :key="index">
-              <a :href="link.href" class="text-[#9f9db9] hover:text-white transition-colors">{{ link.label }}</a>
+              <a :href="link.href" class="text-gray-600 hover:text-gray-800 transition-colors">{{ link.label }}</a>
             </li>
           </ul>
         </div>
       </div>
-      <div class="max-w-7xl mx-auto px-6 py-6 border-t border-t-[#e5e7eb]">
-        <p class="text-center text-sm text-[#6b7280]"> 2024 GameOn. Tous droits réservés.</p>
+      <div class="max-w-7xl mx-auto px-6 py-6 border-t border-t-gray-200">
+        <p class="text-center text-sm text-gray-600"> 2024 GameOn. Tous droits réservés.</p>
       </div>
     </footer>
   </div>
@@ -166,7 +164,6 @@
 
 <script setup>
 import { ref } from 'vue';
-import Background3D from '@/Components/Background3D.vue';
 
 // Data
 const searchQuery = ref('');
@@ -311,7 +308,7 @@ function viewRoom(id) {
 :root {
   --primary: #3b2bee;
   --background-light: #f6f6f8;
-  --background-dark: #121118;
+  --background-dark: #ffffff;
   --accent-magenta: #FF00FF;
   --accent-cyan: #00FFFF;
   --accent-yellow: #FDFD00;
@@ -341,46 +338,6 @@ html, body {
 
 /* Custom styles can be added here if needed */
 
-/* Animations personnalisées */
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-}
-
-@keyframes glow {
-  0%, 100% { 
-    box-shadow: 0 0 20px rgba(255, 0, 255, 0.5),
-                0 0 40px rgba(0, 255, 255, 0.3);
-  }
-  50% { 
-    box-shadow: 0 0 30px rgba(255, 0, 255, 0.8),
-                0 0 60px rgba(0, 255, 255, 0.5);
-  }
-}
-
-/* Classes d'animation */
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-glow {
-  animation: glow 2s ease-in-out infinite alternate;
-}
-
-/* Effet de parallaxe subtil */
-.parallax-slow {
-  will-change: transform;
-  transition: transform 0.3s ease-out;
-}
-
-/* Amélioration des transitions */
-.group:hover .group-hover\:scale-110 {
-  transform: scale(1.1);
-}
-
-.group:hover .group-hover\:rotate-12 {
-  transform: rotate(12deg);
-}
 
 /* Scrollbar personnalisée */
 ::-webkit-scrollbar {
@@ -388,7 +345,7 @@ html, body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #1c1c27;
+  background: #f0f0f0;
 }
 
 ::-webkit-scrollbar-thumb {

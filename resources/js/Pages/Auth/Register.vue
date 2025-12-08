@@ -5,6 +5,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import MainNavbar from '@/Components/MainNavbar.vue';
 
 const form = useForm({
     name: '',
@@ -27,27 +28,28 @@ const submit = () => {
         
         <!-- Add Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <MainNavbar />
 
         <div class="relative flex min-h-screen w-full flex-col lg:flex-row">
             <!-- Côté gauche - Formulaire -->
             <div class="flex flex-1 items-center justify-center p-4 lg:p-8">
                 <div class="w-full max-w-md space-y-8">
                     <header>
-                        <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-white">Créer un compte</h1>
-                        <p class="mt-2 text-gray-400">Rejoignez notre communauté de joueurs passionnés</p>
+                        <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-gray-800">Créer un compte</h1>
+                        <p class="mt-2 text-gray-600">Rejoignez notre communauté de joueurs passionnés</p>
                     </header>
 
                     <form @submit.prevent="submit" class="space-y-6">
                         <!-- Nom complet -->
                         <div>
-                            <label class="text-sm font-medium text-white" for="name">
+                            <label class="text-sm font-medium text-gray-800" for="name">
                                 Nom complet<span class="text-red-500">*</span>
                             </label>
                             <div class="mt-2">
                                 <input
                                     id="name"
                                     type="text"
-                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-[#1D2939] border border-gray-700 text-white placeholder:text-gray-500 focus:border-cyan focus:ring-cyan h-12 px-4 text-base transition-colors"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-white border border-gray-300 text-gray-800 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 h-12 px-4 text-base transition-colors"
                                     placeholder="John Doe"
                                     v-model="form.name"
                                     required
@@ -60,14 +62,14 @@ const submit = () => {
 
                         <!-- Email -->
                         <div>
-                            <label class="text-sm font-medium text-white" for="email">
+                            <label class="text-sm font-medium text-gray-800" for="email">
                                 Email<span class="text-red-500">*</span>
                             </label>
                             <div class="mt-2">
                                 <input
                                     id="email"
                                     type="email"
-                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-[#1D2939] border border-gray-700 text-white placeholder:text-gray-500 focus:border-cyan focus:ring-cyan h-12 px-4 text-base transition-colors"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-white border border-gray-300 text-gray-800 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 h-12 px-4 text-base transition-colors"
                                     placeholder="vous@exemple.com"
                                     v-model="form.email"
                                     required
@@ -79,14 +81,14 @@ const submit = () => {
 
                         <!-- Mot de passe -->
                         <div>
-                            <label class="text-sm font-medium text-white" for="password">
+                            <label class="text-sm font-medium text-gray-800" for="password">
                                 Mot de passe<span class="text-red-500">*</span>
                             </label>
                             <div class="mt-2">
                                 <input
                                     id="password"
                                     type="password"
-                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-[#1D2939] border border-gray-700 text-white placeholder:text-gray-500 focus:border-cyan focus:ring-cyan h-12 px-4 text-base transition-colors"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-white border border-gray-300 text-gray-800 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 h-12 px-4 text-base transition-colors"
                                     placeholder="••••••••"
                                     v-model="form.password"
                                     required
@@ -98,14 +100,14 @@ const submit = () => {
 
                         <!-- Confirmation mot de passe -->
                         <div>
-                            <label class="text-sm font-medium text-white" for="password_confirmation">
+                            <label class="text-sm font-medium text-gray-800" for="password_confirmation">
                                 Confirmer le mot de passe<span class="text-red-500">*</span>
                             </label>
                             <div class="mt-2">
                                 <input
                                     id="password_confirmation"
                                     type="password"
-                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-[#1D2939] border border-gray-700 text-white placeholder:text-gray-500 focus:border-cyan focus:ring-cyan h-12 px-4 text-base transition-colors"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-white border border-gray-300 text-gray-800 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 h-12 px-4 text-base transition-colors"
                                     placeholder="••••••••"
                                     v-model="form.password_confirmation"
                                     required
@@ -117,7 +119,7 @@ const submit = () => {
 
                         <!-- Sélection du rôle -->
                         <div class="space-y-4 pt-2">
-                            <h3 class="text-center text-white">Je m'inscris en tant que</h3>
+                            <h3 class="text-center text-gray-800">Je m'inscris en tant que</h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div class="group relative cursor-pointer">
                                     <input 
@@ -134,13 +136,13 @@ const submit = () => {
                                         :class="[
                                             'flex flex-col items-center justify-center p-4 border-2 rounded-lg h-full transition-all',
                                             form.role === 'client' 
-                                                ? 'border-cyan bg-cyan/10' 
-                                                : 'border-gray-700 group-hover:border-cyan group-hover:bg-cyan/10'
+                                                ? 'border-blue-500 bg-blue-50' 
+                                                : 'border-gray-300 group-hover:border-blue-500 group-hover:bg-blue-50'
                                         ]"
                                     >
-                                        <i class="fas fa-user text-4xl text-cyan"></i>
-                                        <span class="mt-2 font-semibold text-white">Client</span>
-                                        <span class="text-sm text-gray-400 text-center">Je veux réserver des salles</span>
+                                        <i class="fas fa-user text-4xl text-blue-500"></i>
+                                        <span class="mt-2 font-semibold text-gray-800">Client</span>
+                                        <span class="text-sm text-gray-600 text-center">Je veux réserver des salles</span>
                                     </label>
                                 </div>
                                 <div class="group relative cursor-pointer">
@@ -157,13 +159,13 @@ const submit = () => {
                                         :class="[
                                             'flex flex-col items-center justify-center p-4 border-2 rounded-lg h-full transition-all',
                                             form.role === 'promoter' 
-                                                ? 'border-cyan bg-cyan/10' 
-                                                : 'border-gray-700 group-hover:border-cyan group-hover:bg-cyan/10'
+                                                ? 'border-blue-500 bg-blue-50' 
+                                                : 'border-gray-300 group-hover:border-blue-500 group-hover:bg-blue-50'
                                         ]"
                                     >
-                                        <i class="fas fa-store text-4xl text-cyan"></i>
-                                        <span class="mt-2 font-semibold text-white">Promoteur</span>
-                                        <span class="text-sm text-gray-400 text-center">Je veux proposer des salles</span>
+                                        <i class="fas fa-store text-4xl text-blue-500"></i>
+                                        <span class="mt-2 font-semibold text-gray-800">Promoteur</span>
+                                        <span class="text-sm text-gray-600 text-center">Je veux proposer des salles</span>
                                     </label>
                                 </div>
                             </div>
@@ -174,7 +176,7 @@ const submit = () => {
                         <div>
                             <button 
                                 type="submit" 
-                                class="flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-6 bg-gradient-to-r from-gray-600 to-gray-500 text-white text-base font-bold leading-normal tracking-[0.015em] hover:from-gray-500 hover:to-gray-400 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-wait disabled:transform-none"
+                                class="flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-6 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-base font-bold leading-normal tracking-[0.015em] hover:from-blue-500 hover:to-blue-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-wait disabled:transform-none"
                                 :disabled="form.processing"
                                 :class="{ 'opacity-70': form.processing }"
                             >
@@ -191,9 +193,9 @@ const submit = () => {
                     </form>
 
                     <div class="text-center">
-                        <p class="text-sm text-gray-400">
+                        <p class="text-sm text-gray-600">
                             Déjà inscrit ?
-                            <Link :href="route('login')" class="font-medium text-cyan hover:underline transition-colors">
+                            <Link :href="route('login')" class="font-medium text-blue-600 hover:underline transition-colors">
                                 Se connecter
                             </Link>
                         </p>
@@ -202,11 +204,11 @@ const submit = () => {
             </div>
 
             <!-- Côté droit - Illustration -->
-            <div class="relative hidden lg:flex flex-1 items-center justify-center bg-gray-900">
+            <div class="relative hidden lg:flex flex-1 items-center justify-center bg-gradient-to-br from-blue-100 to-gray-100">
                 <div class="absolute inset-0 bg-cover bg-center opacity-20" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAfbf3N5fG_NjsjDLj2jYFOZI5GNmFUBz_GvuMpIESqw322JnueC1sAIWWxsXpcQZS6F0JFQI-HR7uMDhMm66bUrs0kNIOgOoWaK_YRW-3vsSlCVnZqgk8ypfIR4mYJsjiyCooww0c2ZWYwo8mBOcTyABCp8Zt8JpVTDI4ru4KayQjbfWGXUPHHAaFxsTSkyMclyJUC2IOmB89QgYlQ-YUENWzuwrUT_6t5z5lRe5LiSH1-axqWAvVZiU0IHWJSjrvZdmvs0AJ-qs8g')"></div>
                 <div class="relative z-10 max-w-md text-center p-8 space-y-4">
-                    <h2 class="text-4xl font-bold text-white">Rejoignez l'aventure</h2>
-                    <p class="text-gray-300">
+                    <h2 class="text-4xl font-bold text-gray-800">Rejoignez l'aventure</h2>
+                    <p class="text-gray-600">
                         Entrez dans un monde de compétition et de fun. Connectez-vous avec d'autres joueurs, découvrez de nouveaux lieux et vivez votre passion pour le jeu.
                     </p>
                 </div>
