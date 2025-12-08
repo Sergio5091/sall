@@ -1,4 +1,7 @@
 <template>
+  <!-- Add Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
   <div class="min-h-screen text-gray-800 font-body">
     <!-- TopNavBar -->
     <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center backdrop-blur-sm shadow-sm bg-white/90">
@@ -10,7 +13,7 @@
           </div>
           <nav class="hidden md:flex space-x-8">
             <a href="/" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Accueil</a>
-            <a href="/salles" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Salles</a>
+            <a href="/search/rooms" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Salles</a>
             <a href="/events" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Événements</a>
           </nav>
         </div>
@@ -25,19 +28,23 @@
       </div>
     </header>
     <!-- HeroSection -->
-    <section class="relative flex min-h-[80vh] sm:min-h-screen flex-col gap-6 sm:gap-8 items-center justify-center text-center py-16 sm:py-20 w-full overflow-x-hidden bg-gradient-to-br from-gray-50 to-gray-100">
-      <!-- Overlay gradient pour la lisibilité -->
-      <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-white/60 z-5"></div>
+    <section class="relative flex min-h-[80vh] sm:min-h-screen flex-col gap-6 sm:gap-8 items-center justify-center text-center py-16 sm:py-20 w-full overflow-x-hidden">
+      <!-- Simple Background -->
+      <div class="absolute inset-0 z-0 bg-gradient-to-br from-gray-50 to-gray-100">
+      </div>
+      
+      <!-- Light Overlay -->
+      <div class="absolute inset-0 bg-white/40 backdrop-blur-sm z-5"></div>
       <div class="relative z-10 flex flex-col gap-3 sm:gap-4 items-center w-full px-4 max-w-4xl">
-        <h1 class="text-gray-800 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight tracking-tighter">
+        <h1 class="text-gray-800 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight tracking-tighter animate-fade-in-up">
           Votre Prochaine Partie Commence Ici.
         </h1>
-        <h2 class="text-gray-600 text-base sm:text-lg md:text-xl font-normal leading-normal max-w-3xl px-2">
+        <h2 class="text-gray-600 text-base sm:text-lg md:text-xl font-normal leading-normal max-w-3xl px-2 animate-fade-in-up delay-300">
           Découvrez et réservez des milliers de salles de jeux et d'expériences près de chez vous.
         </h2>
       </div>
       <div class="relative z-10 w-full max-w-2xl px-4">
-        <a href="/search/rooms" class="flex w-full items-center justify-center overflow-hidden rounded-full h-14 sm:h-16 shadow-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white text-lg sm:text-xl font-bold leading-normal tracking-[0.015em] hover:from-blue-500 hover:to-blue-400 transition-all duration-300">
+        <a href="/search/rooms" class="flex w-full items-center justify-center overflow-hidden rounded-full h-14 sm:h-16 shadow-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white text-lg sm:text-xl font-bold leading-normal tracking-[0.015em] hover:from-blue-500 hover:to-blue-400 transition-all duration-300 animate-fade-in-up delay-500">
           <i class="fas fa-search mr-3"></i>
           <span>Trouver une salle</span>
         </a>
@@ -121,42 +128,42 @@
     </section>
 
     <!-- Footer -->
-    <footer class="w-full border-t border-t-gray-200 mt-20 bg-gray-50">
+    <footer class="w-full border-t border-t-gray-700 mt-20 bg-gray-900">
       <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
         <div class="col-span-2 lg:col-span-1">
-          <div class="flex items-center gap-2 text-gray-800">
-            <i class="fas fa-gamepad text-3xl text-gray-400"></i>
-            <h2 class="text-gray-800 text-2xl font-display font-bold">GameOn</h2>
+          <div class="flex items-center gap-2 text-white">
+            <i class="fas fa-gamepad text-3xl text-blue-400"></i>
+            <h2 class="text-white text-2xl font-display font-bold">GameOn</h2>
           </div>
-          <p class="text-gray-600 mt-4 text-sm">La plus grande communauté de joueurs et de salles de jeux.</p>
+          <p class="text-gray-300 mt-4 text-sm">La plus grande communauté de joueurs et de salles de jeux.</p>
         </div>
         <div>
-          <h4 class="font-display font-bold text-gray-800 mb-4">Navigation</h4>
+          <h4 class="font-display font-bold text-white mb-4">Navigation</h4>
           <ul class="space-y-3">
             <li v-for="(link, index) in footerLinks.navigation" :key="index">
-              <a :href="link.href" class="text-gray-600 hover:text-gray-900 transition-colors">{{ link.label }}</a>
+              <a :href="link.href" class="text-gray-300 hover:text-white transition-colors">{{ link.label }}</a>
             </li>
           </ul>
         </div>
         <div>
-          <h4 class="font-display font-bold text-gray-800 mb-4">Aide</h4>
+          <h4 class="font-display font-bold text-white mb-4">Aide</h4>
           <ul class="space-y-3">
             <li v-for="(link, index) in footerLinks.help" :key="index">
-              <a :href="link.href" class="text-gray-600 hover:text-gray-800 transition-colors">{{ link.label }}</a>
+              <a :href="link.href" class="text-gray-300 hover:text-white transition-colors">{{ link.label }}</a>
             </li>
           </ul>
         </div>
         <div>
-          <h4 class="font-display font-bold text-gray-800 mb-4">Légal</h4>
+          <h4 class="font-display font-bold text-white mb-4">Légal</h4>
           <ul class="space-y-3">
             <li v-for="(link, index) in footerLinks.legal" :key="index">
-              <a :href="link.href" class="text-gray-600 hover:text-gray-800 transition-colors">{{ link.label }}</a>
+              <a :href="link.href" class="text-gray-300 hover:text-white transition-colors">{{ link.label }}</a>
             </li>
           </ul>
         </div>
       </div>
-      <div class="max-w-7xl mx-auto px-6 py-6 border-t border-t-gray-200">
-        <p class="text-center text-sm text-gray-600"> 2024 GameOn. Tous droits réservés.</p>
+      <div class="max-w-7xl mx-auto px-6 py-6 border-t border-t-gray-700">
+        <p class="text-center text-sm text-gray-500"> 2024 GameOn. Tous droits réservés.</p>
       </div>
     </footer>
   </div>
@@ -356,4 +363,25 @@ html, body {
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(45deg, #FF00FF, #FDFD00);
 }
+
+/* Text Animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.delay-300 { animation-delay: 0.3s; }
+.delay-500 { animation-delay: 0.5s; }
+
 </style>

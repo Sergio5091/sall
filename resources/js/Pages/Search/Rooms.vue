@@ -1,21 +1,51 @@
 <template>
   <div class="min-h-screen text-gray-800 font-body">
     <!-- TopNavBar -->
-    <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center backdrop-blur-sm shadow-sm bg-white/90">
-      <div class="flex items-center justify-between w-full max-w-7xl px-6 py-3">
-        <div class="flex items-center gap-8">
-          <div class="flex items-center gap-2 text-gray-800">
-            <i class="fas fa-gamepad text-3xl text-gray-400"></i>
-            <h2 class="text-gray-800 text-2xl font-display font-bold">GameOn</h2>
+    <header class="fixed top-0 left-0 right-0 z-50 backdrop-blur-sm shadow-sm bg-white/90">
+      <div class="flex items-center justify-between w-full max-w-7xl px-4 sm:px-6 py-3">
+        <!-- Logo -->
+        <div class="flex items-center gap-2">
+          <i class="fas fa-gamepad text-2xl sm:text-3xl text-gray-400"></i>
+          <h2 class="text-gray-800 text-xl sm:text-2xl font-display font-bold">GameOn</h2>
+        </div>
+
+        <!-- Desktop nav - hidden on mobile -->
+        <div class="hidden md:flex items-center gap-8">
+          <a href="/" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Accueil</a>
+          <a href="/search/rooms" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Salles</a>
+          <a href="/events" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Événements</a>
+          <div class="flex items-center gap-3">
+            <a href="/login" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-200 text-gray-800 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 transition-colors">
+              <span class="truncate">Connexion</span>
+            </a>
+            <a href="/register" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-800 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-700 transition-all">
+              <span class="truncate">S'inscrire</span>
+            </a>
           </div>
         </div>
-        <div class="flex items-center gap-3">
-          <a href="/login" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-200 text-gray-800 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 transition-colors">
-            <span class="truncate">Connexion</span>
-          </a>
-          <a href="/register" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-800 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-700 transition-all">
-            <span class="truncate">S'inscrire</span>
-          </a>
+
+        <!-- Mobile menu button - visible only on mobile -->
+        <button 
+          @click="mobileMenuOpen = !mobileMenuOpen"
+          class="flex md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+        >
+          <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mobile menu -->
+      <div v-if="mobileMenuOpen" class="md:hidden bg-white border-t border-gray-200">
+        <div class="px-4 py-3 space-y-1">
+          <a href="/" class="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg text-sm font-medium">Accueil</a>
+          <a href="/search/rooms" class="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg text-sm font-medium">Salles</a>
+          <a href="/events" class="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg text-sm font-medium">Événements</a>
+          <div class="pt-2 border-t border-gray-200">
+            <a href="/login" class="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg text-sm font-medium">Connexion</a>
+            <a href="/register" class="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg text-sm font-medium">S'inscrire</a>
+          </div>
         </div>
       </div>
     </header>
@@ -92,48 +122,102 @@
           </div>
         </div>
 
-        <!-- Filtres -->
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-600/20 mb-6">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-gray-800 text-sm font-medium mb-2">
-                Recherche
-              </label>
-              <input 
-                v-model="form.search" 
-                type="text" 
-                placeholder="Nom, ville, description..." 
-                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:border-blue-500"
-              >
-            </div>
-            
-            <div>
-              <label class="block text-gray-800 text-sm font-medium mb-2">
-                Ville
-              </label>
-              <select v-model="form.ville" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:border-blue-500">
-                <option value="">Toutes les villes</option>
-                <option v-for="ville in villes" :key="ville" :value="ville">
-                  {{ ville }}
-                </option>
-              </select>
-            </div>
-            
-            <div>
-              <label class="block text-gray-800 text-sm font-medium mb-2">
-                Capacité min
-              </label>
-              <input 
-                v-model="form.capacite_min" 
-                type="number" 
-                placeholder="Ex: 50" 
-                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:border-blue-500"
-              >
+        
+        <!-- Results -->
+        <!-- Results from geolocation -->
+        <div class="mt-8">
+          <h2 class="text-gray-800 text-2xl font-bold mb-6">
+            {{ searchResults.length }} salle{{ searchResults.length > 1 ? 's' : '' }} trouvée{{ searchResults.length > 1 ? 's' : '' }} près de vous
+          </h2>
+          
+          <div v-if="searchResults.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div 
+              v-for="salle in searchResults" 
+              :key="salle.id"
+              class="bg-white/90 backdrop-blur-sm rounded-xl p-6 border border-gray-200 hover:border-gray-300 transition-all duration-300 group"
+            >
+              <!-- Image -->
+              <div class="h-48 bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg mb-4 overflow-hidden">
+                <img 
+                  v-if="salle.image_url"
+                  :src="salle.image_url" 
+                  :alt="salle.nom"
+                  class="w-full h-full object-cover"
+                >
+                <div v-else class="w-full h-full flex items-center justify-center text-gray-500">
+                  <i class="fas fa-gamepad text-4xl text-gray-400"></i>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-gray-800 text-lg font-bold">{{ salle.nom }}</h3>
+                  <div v-if="salle.distance" class="flex items-center gap-1 bg-blue-100 px-2 py-1 rounded-full">
+                    <i class="fas fa-location-dot text-blue-600 text-xs"></i>
+                    <span class="text-blue-600 text-sm font-semibold">{{ salle.distance }} km</span>
+                  </div>
+                </div>
+                
+                <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                  <i class="fas fa-map-marker-alt text-gray-400"></i>
+                  <span class="text-gray-800">{{ salle.adresse }}</span>
+                </div>
+
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-lg font-bold text-blue-600">{{ formatPrice(salle.prix_heure) }}</p>
+                  <span class="text-sm text-gray-600">/heure</span>
+                </div>
+
+                <div class="grid grid-cols-1 gap-2 text-sm text-gray-600">
+                  <div class="flex items-center gap-1">
+                    <i class="fas fa-users text-gray-400"></i>
+                    <span class="font-semibold text-gray-800">{{ salle.capacite }} personnes</span>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <i class="fas fa-wifi text-gray-400"></i>
+                    <span>WiFi disponible</span>
+                  </div>
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                  <Link 
+                    :href="`/salles/${salle.id}`"
+                    class="flex-1 py-2 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors text-center"
+                  >
+                    Voir détails
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Results -->
+        <!-- Empty state -->
+        <div v-if="!isLoading && searchResults.length === 0" class="mt-8 text-center">
+          <div class="bg-white/90 backdrop-blur-sm rounded-xl p-8 border border-gray-200">
+            <i class="fas fa-map-location-dot text-4xl text-gray-400 mb-4"></i>
+            <h3 class="text-gray-800 text-lg font-bold mb-2">Aucune salle trouvée</h3>
+            <p class="text-gray-600 mb-4">Cliquez sur le bouton de localisation pour trouver les salles près de vous</p>
+            <button 
+              @click="getCurrentLocation"
+              class="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
+            >
+              <i class="fas fa-location-crosshairs"></i>
+              <span>DéTECTER MA POSITION</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading state -->
+        <div v-if="isLoading" class="mt-8 text-center">
+          <div class="bg-white/90 backdrop-blur-sm rounded-xl p-8 border border-gray-200">
+            <i class="fas fa-spinner fa-spin text-3xl text-blue-600 mb-4"></i>
+            <h3 class="text-gray-800 text-lg font-bold mb-2">Recherche en cours...</h3>
+            <p class="text-gray-600">Détection de votre position et recherche des salles nearby</p>
+          </div>
+        </div>
+
+        <!-- Original Results -->
         <div v-if="salles.data.length > 0" class="mt-8">
           <h2 class="text-gray-800 text-2xl font-bold mb-6">
             {{ salles.total }} salle{{ salles.total > 1 ? 's' : '' }} disponible{{ salles.total > 1 ? 's' : '' }}
@@ -159,11 +243,17 @@
               </div>
 
               <div class="space-y-3">
-                <h3 class="text-gray-800 text-lg font-bold">{{ salle.nom }}</h3>
+                <div class="flex items-center justify-between">
+                  <h3 class="text-gray-800 text-lg font-bold">{{ salle.nom }}</h3>
+                  <div v-if="salle.distance" class="flex items-center gap-1 bg-blue-100 px-2 py-1 rounded-full">
+                    <i class="fas fa-location-dot text-blue-600 text-xs"></i>
+                    <span class="text-blue-600 text-sm font-semibold">{{ salle.distance }} km</span>
+                  </div>
+                </div>
                 
                 <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
                   <i class="fas fa-map-marker-alt text-gray-400"></i>
-                  <span class="text-gray-800">{{ salle.ville }}, {{ salle.pays }}</span>
+                  <span class="text-gray-800">{{ salle.adresse || salle.ville }}</span>
                 </div>
 
                 <div class="flex items-center justify-between mb-2">
@@ -259,6 +349,8 @@ const form = ref({
     capacite_min: props.filters.capacite_min || ''
 });
 
+const mobileMenuOpen = ref(false);
+
 // Formater le prix
 const formatPrice = (prix) => {
     return new Intl.NumberFormat('fr-FR', {
@@ -294,16 +386,98 @@ const getCurrentLocation = () => {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 console.log('Position obtenue:', position.coords);
+                searchQuery.value = `${position.coords.latitude}, ${position.coords.longitude}`;
+                searchNearbyRooms(position.coords.latitude, position.coords.longitude);
             },
             (error) => {
                 console.error('Erreur de géolocalisation:', error);
+                alert('Impossible d\'obtenir votre position. Veuillez entrer votre adresse manuellement.');
             }
         );
+    } else {
+        alert('La géolocalisation n\'est pas supportée par votre navigateur.');
     }
 };
 
+const searchNearbyRooms = (lat, lng) => {
+    isLoading.value = true;
+    
+    // Simuler une recherche de salles avec distances
+    const mockRooms = [
+        {
+            id: 1,
+            nom: 'Gaming Arena Pro',
+            ville: 'Paris',
+            adresse: '15 Rue de la Paix',
+            latitude: 48.8566,
+            longitude: 2.3522,
+            capacite: 50,
+            prix_heure: 5000,
+            image_url: 'https://images.unsplash.com/photo-1511514623271-aeb3ec8a3f3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
+        },
+        {
+            id: 2,
+            nom: 'ESport Center',
+            ville: 'Paris',
+            adresse: '25 Avenue des Champs-Élysées',
+            latitude: 48.8708,
+            longitude: 2.3125,
+            capacite: 30,
+            prix_heure: 4000,
+            image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
+        },
+        {
+            id: 3,
+            nom: 'LAN Paradise',
+            ville: 'Paris',
+            adresse: '8 Boulevard Saint-Germain',
+            latitude: 48.8530,
+            longitude: 2.3499,
+            capacite: 25,
+            prix_heure: 3500,
+            image_url: 'https://images.unsplash.com/photo-1608178398316-48f4d9b6d6db?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
+        }
+    ];
+    
+    // Calculer les distances
+    const roomsWithDistance = mockRooms.map(room => {
+        const distance = calculateDistance(lat, lng, room.latitude, room.longitude);
+        return { ...room, distance };
+    });
+    
+    // Trier par distance
+    roomsWithDistance.sort((a, b) => a.distance - b.distance);
+    
+    searchResults.value = roomsWithDistance;
+    isLoading.value = false;
+};
+
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Rayon de la Terre en km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c;
+    
+    return Math.round(distance * 10) / 10; // Arrondir à 1 décimale
+};
+
 const searchRooms = () => {
-    console.log('Recherche de salles pour:', searchQuery.value);
+    if (searchQuery.value) {
+        // Si la requête contient des coordonnées (lat, lng)
+        const coords = searchQuery.value.split(',').map(s => s.trim());
+        if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+            searchNearbyRooms(parseFloat(coords[0]), parseFloat(coords[1]));
+        } else {
+            // Sinon, recherche par texte
+            console.log('Recherche de salles pour:', searchQuery.value);
+            // Ici vous pourriez faire un appel API pour rechercher par nom de ville
+        }
+    }
 };
 </script>
 

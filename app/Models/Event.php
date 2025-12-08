@@ -331,8 +331,7 @@ class Event extends Model
     public function getUrlImageBanniereAttribute()
     {
         if ($this->image_banniere) {
-            // Utiliser une URL relative pour éviter les problèmes avec APP_URL
-            return '/storage/events/bannieres/' . $this->image_banniere;
+            return asset('storage/events/bannieres/' . $this->image_banniere);
         }
 
         return $this->url_image_affiche;
