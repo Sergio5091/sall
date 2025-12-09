@@ -1,51 +1,26 @@
 <template>
   <div class="min-h-screen text-gray-800 font-body">
     <!-- TopNavBar -->
-    <header class="fixed top-0 left-0 right-0 z-50 backdrop-blur-sm shadow-sm bg-white/90">
-      <div class="flex items-center justify-between w-full max-w-7xl px-4 sm:px-6 py-3">
-        <!-- Logo -->
-        <div class="flex items-center gap-2">
-          <i class="fas fa-gamepad text-2xl sm:text-3xl text-gray-400"></i>
-          <h2 class="text-gray-800 text-xl sm:text-2xl font-display font-bold">GameOn</h2>
-        </div>
-
-        <!-- Desktop nav - hidden on mobile -->
-        <div class="hidden md:flex items-center gap-8">
-          <a href="/" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Accueil</a>
-          <a href="/search/rooms" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Salles</a>
-          <a href="/events" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Événements</a>
-          <div class="flex items-center gap-3">
-            <a href="/login" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-200 text-gray-800 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 transition-colors">
-              <span class="truncate">Connexion</span>
-            </a>
-            <a href="/register" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-800 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-700 transition-all">
-              <span class="truncate">S'inscrire</span>
-            </a>
+    <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center backdrop-blur-sm shadow-sm bg-white/90">
+      <div class="flex items-center justify-between w-full max-w-7xl px-6 py-3">
+        <div class="flex items-center gap-8">
+          <div class="flex items-center gap-2 text-gray-800">
+            <i class="fas fa-gamepad text-3xl text-gray-400"></i>
+            <h2 class="text-gray-800 text-2xl font-display font-bold">GameOn</h2>
           </div>
+          <nav class="hidden md:flex space-x-8">
+            <a href="/" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Accueil</a>
+            <a href="/search/rooms" class="text-blue-600 hover:text-blue-700 px-3 py-2 text-sm font-medium border-b-2 border-blue-600">Salles</a>
+            <a href="/events" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Événements</a>
+          </nav>
         </div>
-
-        <!-- Mobile menu button - visible only on mobile -->
-        <button 
-          @click="mobileMenuOpen = !mobileMenuOpen"
-          class="flex md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-            <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Mobile menu -->
-      <div v-if="mobileMenuOpen" class="md:hidden bg-white border-t border-gray-200">
-        <div class="px-4 py-3 space-y-1">
-          <a href="/" class="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg text-sm font-medium">Accueil</a>
-          <a href="/search/rooms" class="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg text-sm font-medium">Salles</a>
-          <a href="/events" class="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg text-sm font-medium">Événements</a>
-          <div class="pt-2 border-t border-gray-200">
-            <a href="/login" class="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg text-sm font-medium">Connexion</a>
-            <a href="/register" class="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg text-sm font-medium">S'inscrire</a>
-          </div>
+        <div class="flex items-center gap-3">
+          <a href="/login" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-200 text-gray-800 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 transition-colors">
+            <span class="truncate">Connexion</span>
+          </a>
+          <a href="/register" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-800 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-700 transition-all">
+            <span class="truncate">S'inscrire</span>
+          </a>
         </div>
       </div>
     </header>
@@ -67,7 +42,7 @@
           </div>
 
           <!-- Search Header -->
-          <div class="text-center mb-8">
+          <div class="text-center mb-8 animate-fade-in-up">
             <h1 class="text-gray-800 text-3xl sm:text-4xl md:text-5xl font-display font-bold leading-tight tracking-tighter mb-4">
               Trouver une salle près de chez vous
             </h1>
@@ -77,7 +52,7 @@
           </div>
 
         <!-- Search Form -->
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-600/20">
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-600/20 animate-fade-in-up delay-200">
           <div class="space-y-6">
             <!-- Location Input -->
             <div>
@@ -125,7 +100,7 @@
         
         <!-- Results -->
         <!-- Results from geolocation -->
-        <div class="mt-8">
+        <div class="mt-8 animate-fade-in-up delay-400">
           <h2 class="text-gray-800 text-2xl font-bold mb-6">
             {{ searchResults.length }} salle{{ searchResults.length > 1 ? 's' : '' }} trouvée{{ searchResults.length > 1 ? 's' : '' }} près de vous
           </h2>
@@ -333,6 +308,59 @@
   </div>
 </template>
 
+<style scoped>
+/* Page Animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.delay-200 { animation-delay: 0.2s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-600 { animation-delay: 0.6s; }
+</style>
+
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
@@ -349,7 +377,6 @@ const form = ref({
     capacite_min: props.filters.capacite_min || ''
 });
 
-const mobileMenuOpen = ref(false);
 
 // Formater le prix
 const formatPrice = (prix) => {

@@ -1,12 +1,34 @@
 <template>
   <div class="min-h-screen text-gray-800 font-body">
-    <!-- MainNavbar -->
-    <MainNavbar />
+    <!-- TopNavBar -->
+    <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center backdrop-blur-sm shadow-sm bg-white/90">
+      <div class="flex items-center justify-between w-full max-w-7xl px-6 py-3">
+        <div class="flex items-center gap-8">
+          <div class="flex items-center gap-2 text-gray-800">
+            <i class="fas fa-gamepad text-3xl text-gray-400"></i>
+            <h2 class="text-gray-800 text-2xl font-display font-bold">GameOn</h2>
+          </div>
+          <nav class="hidden md:flex space-x-8">
+            <a href="/" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Accueil</a>
+            <a href="/search/rooms" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Salles</a>
+            <a href="/events" class="text-blue-600 hover:text-blue-700 px-3 py-2 text-sm font-medium border-b-2 border-blue-600">Événements</a>
+          </nav>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="/login" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-200 text-gray-800 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 transition-colors">
+            <span class="truncate">Connexion</span>
+          </a>
+          <a href="/register" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-800 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-700 transition-all">
+            <span class="truncate">S'inscrire</span>
+          </a>
+        </div>
+      </div>
+    </header>
     
     <!-- Hero Section -->
     <section class="relative pt-24 pb-16 bg-gradient-to-br from-blue-50 to-gray-100">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center">
+        <div class="text-center animate-fade-in-up">
           <h1 class="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-gray-800 leading-tight mb-6">
             Événements Gaming
           </h1>
@@ -18,7 +40,7 @@
     </section>
 
     <!-- Filters Section -->
-    <section class="py-8 bg-white sticky top-16 z-40 border-b border-gray-200">
+    <section class="py-8 bg-white sticky top-16 z-40 border-b border-gray-200 animate-fade-in-up delay-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-wrap gap-4 items-center justify-between">
           <div class="flex flex-wrap gap-3">
@@ -62,7 +84,7 @@
     </section>
 
     <!-- Events Grid -->
-    <section class="py-12 bg-gray-50">
+    <section class="py-12 bg-gray-50 animate-fade-in-up delay-400">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div v-if="filteredEvents.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <div 
@@ -165,6 +187,59 @@
     </section>
   </div>
 </template>
+
+<style scoped>
+/* Page Animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.delay-200 { animation-delay: 0.2s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-600 { animation-delay: 0.6s; }
+</style>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
@@ -272,5 +347,14 @@ onMounted(() => {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  
+  /* Standard properties for compatibility */
+  display: box;
+  line-clamp: 3;
+  box-orient: vertical;
+  
+  /* Fallback for older browsers */
+  max-height: 4.5em; /* Approximate 3 lines */
+  text-overflow: ellipsis;
 }
 </style>
