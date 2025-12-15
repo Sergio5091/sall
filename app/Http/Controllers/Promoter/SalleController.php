@@ -404,16 +404,16 @@ if (empty($galerieImages)) {
     private function getVenueTypes(): array
     {
         return [
-            'arcade' => 'Salle d\'arcade',
+            'arcade' => "Salle d'arcade",
             'vr' => 'Centre VR',
-            'retro' => 'Retro gaming',
-            'esports' => 'E-sport',
-            'mixed' => 'Mixte',
+            'retro' => 'Rétro gaming',
+            'esports' => 'Arène e-sport',
+            'pc_gaming' => 'PC gaming',
+            'simulateur' => 'Simulateur',
             'bowling' => 'Bowling',
-            'billard' => 'Billard',
-            'laser' => 'Laser game',
             'escape' => 'Escape game',
-            'karaoke' => 'Karaoke',
+            'karaoke' => 'Karaoké',
+            'barcade' => 'Barcade',
         ];
     }
 
@@ -423,15 +423,17 @@ if (empty($galerieImages)) {
     private function getVenueCategories(): array
     {
         return [
-            'bar' => 'Bar',
-            'restaurant' => 'Restaurant',
-            'club' => 'Club',
-            'centre_commercial' => 'Centre commercial',
-            'hotel' => 'Hôtel',
-            'complexe_sportif' => 'Complexe sportif',
-            'espace_jeux' => 'Espace de jeux',
-            'loisir' => 'Centre de loisirs',
-            'autre' => 'Autre',
+            'action' => 'Action',
+            'aventure' => 'Aventure',
+            'rpg' => 'Jeu de rôle (RPG)',
+            'puzzle' => 'Réflexion / Puzzle',
+            'simulation' => 'Simulation','strategie' => 'Stratégie',
+            'sport_course' => 'Sport et Course',
+            'horreur' => 'Horreur',
+            'jeux_societe' => 'Jeux de société',
+            'jeux_cartes' => 'Jeux de cartes',
+            'rpg_papier' => 'Jeux de rôle (papier)',
+            'jeux_traditionnels' => 'Jeux traditionnels',
         ];
     }
 }

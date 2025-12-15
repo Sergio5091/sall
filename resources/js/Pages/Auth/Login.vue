@@ -90,7 +90,7 @@
             <div>
               <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Adresse e-mail</label>
               <div class="relative">
-                <i class="fas fa-envelope pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"></i>
+                <i class="mt-[17px] fas fa-envelope pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"></i>
                 <TextInput
                   id="email"
                   type="email"
@@ -112,7 +112,7 @@
                 <Link :href="route('password.request')" class="text-sm font-medium text-blue-600 hover:text-blue-500">Mot de passe oublié ?</Link>
               </div>
               <div class="relative">
-                <i class="fas fa-lock pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"></i>
+                <i class="mt-[17px] fas fa-lock pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"></i>
                 <TextInput
                   id="password"
                   :type="showPassword ? 'text' : 'password'"

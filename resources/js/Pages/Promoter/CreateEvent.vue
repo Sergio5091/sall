@@ -36,17 +36,8 @@ const newEvent = ref({
     email: '',
     site_web: '',
     
-    // Services jeux vidéo
-    services: {
-        console_gaming: false,
-        pc_gaming: false,
-        mobile_gaming: false,
-        vr_gaming: false,
-        streaming: false,
-        commentateur: false,
-        prizes: false,
-        refreshments: false
-    },
+    // Services jeux vidéo (customisés par le promoteur)
+    services: {},
     
     // Fichiers
     banniere_file: null,
@@ -79,19 +70,34 @@ const stepValidation = computed(() => {
     }
 });
 
-// Labels pour les services gaming
+// Labels pour les services gaming (legacy)
 const getServiceLabel = (key) => {
-    const labels = {
-        console_gaming: 'Console Gaming',
-        pc_gaming: 'PC Gaming',
-        mobile_gaming: 'Mobile Gaming',
-        vr_gaming: 'VR Gaming',
-        streaming: 'Streaming',
-        commentateur: 'Commentateur',
-        prizes: 'Prix/Gains',
-        refreshments: 'Rafraîchements'
-    };
-    return labels[key] || key;
+  const labels = {
+    console_gaming: 'Console Gaming',
+    pc_gaming: 'PC Gaming',
+    mobile_gaming: 'Mobile Gaming',
+    vr_gaming: 'VR Gaming',
+    streaming: 'Streaming',
+    commentateur: 'Commentateur',
+    prizes: 'Prix/Gains',
+    refreshments: 'Rafraîchements'
+  };
+  return labels[key] || key;
+};
+
+// Services personnalisés ajoutés par le promoteur
+const customServices = ref([]); // { name, active }
+const newServiceName = ref('');
+
+const addCustomService = () => {
+  const name = (newServiceName.value || '').trim();
+  if (!name) return;
+  customServices.value.push({ name, active: true });
+  newServiceName.value = '';
+};
+
+const removeCustomService = (index) => {
+  customServices.value.splice(index, 1);
 };
 
 // Navigation entre étapes
@@ -136,7 +142,7 @@ const handleGalerieUpload = (index, event) => {
 
 // Créer l'événement
 const createEvent = () => {
-    alert('Fonction createEvent appelée !');
+  // small UX: remove alert and rely on console for debugging
     
     // Créer FormData
     const formData = new FormData();
@@ -161,7 +167,8 @@ const createEvent = () => {
         contact_email: newEvent.value.email,
         contact_telephone: newEvent.value.telephone || null,
         site_web: newEvent.value.site_web || null,
-        services: newEvent.value.services,
+        // envoyer les services personnalisés ajoutés par le promoteur
+        services: { custom: customServices.value.filter(s => s.active).map(s => s.name) },
         statut: 'actif',
         valide_par_admin: false
     };
@@ -171,8 +178,7 @@ const createEvent = () => {
     console.log('eventData:', eventData);
     console.log('newEvent.value:', newEvent.value);
     
-    // Afficher dans un alert pour débogage
-    alert(`Titre: ${eventData.titre}\nLieu: ${eventData.lieu}\nEmail: ${eventData.contact_email}\nTéléphone: ${eventData.contact_telephone}`);
+    // (debug) summary available in console
     
     Object.keys(eventData).forEach(key => {
         if (key !== 'services' && typeof eventData[key] !== 'object') {
@@ -344,15 +350,26 @@ const cancel = () => {
               </label>
             </div>
 
-            <!-- Services gaming -->
+            <!-- Services gaming (personnalisables par le promoteur) -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Services et équipements</label>
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <label v-for="(value, key) in newEvent.services" :key="key" class="flex items-center space-x-2 cursor-pointer">
-                  <input type="checkbox" v-model="newEvent.services[key]" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                  <span class="text-sm text-gray-700 dark:text-gray-300">{{ getServiceLabel(key) }}</span>
+
+              <div class="flex items-center gap-2 mb-4">
+                <input v-model="newServiceName" type="text" placeholder="Ajouter un service (ex: PC + écran)" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#1a1f2e]" />
+                <button type="button" @click="addCustomService" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Ajouter</button>
+              </div>
+
+              <div v-if="customServices.length" class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <label v-for="(s, idx) in customServices" :key="idx" class="flex items-center justify-between p-2 bg-white dark:bg-[#0f1724] border border-gray-200 dark:border-gray-700 rounded-lg">
+                  <div class="flex items-center gap-3">
+                    <input type="checkbox" v-model="s.active" class="w-4 h-4 text-blue-600 border-gray-300 rounded" />
+                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ s.name }}</span>
+                  </div>
+                  <button type="button" @click="removeCustomService(idx)" class="text-red-500 hover:text-red-600">Supprimer</button>
                 </label>
               </div>
+
+              <p v-else class="text-sm text-gray-500">Aucun service ajouté — ajoutez les services/équipements fournis pour cet événement.</p>
             </div>
           </div>
 

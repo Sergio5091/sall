@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import Sidebar from '../../Components/Promoter/Sidebar.vue';
 
 const props = defineProps({
@@ -42,6 +42,59 @@ const getStatusText = (status) => {
         case 'termine': return 'Terminé';
         default: return status;
     }
+};
+
+// Publier un événement directement depuis la liste
+const publishEvent = (evt) => {
+  if (!confirm(`Publier l'événement "${evt.titre}" ?`)) return;
+
+  const formData = new FormData();
+  formData.append('_method', 'PUT');
+
+  // Map basic fields required by update validation
+  formData.append('titre', evt.titre || '');
+  formData.append('description', evt.description || '');
+  formData.append('date_debut', evt.date_debut || '');
+  formData.append('date_fin', evt.date_fin || '');
+  formData.append('prix_base', evt.prix_base ?? '0');
+  formData.append('devise', evt.devise || 'XOF');
+  formData.append('categorie', evt.categorie || 'autre');
+  formData.append('type', evt.type || 'offline');
+  formData.append('capacite_max', evt.capacite_max ?? '0');
+  formData.append('gratuit', evt.gratuit ? '1' : '0');
+  formData.append('limite_inscription', evt.limite_inscription ? '1' : '0');
+  formData.append('visibilite', evt.visibilite || 'public');
+  formData.append('contact_email', evt.contact_email || '');
+  formData.append('contact_telephone', evt.contact_telephone || '');
+  formData.append('site_web', evt.site_web || '');
+  formData.append('statut', 'publie');
+
+  // Submit update
+  router.post(`/promoter/events/${evt.id}`, formData, {
+    onSuccess: () => {
+      // reload the list
+      router.visit('/promoter/events');
+    },
+    onError: (errors) => {
+      console.error('Erreur de publication:', errors);
+      alert('La publication a échoué. Vérifiez la console pour plus d\'infos.');
+    }
+  });
+};
+
+// Supprimer un événement
+const deleteEvent = (evt) => {
+  if (!confirm(`Supprimer définitivement l'événement "${evt.titre}" ?`)) return;
+
+  router.delete(`/promoter/events/${evt.id}`, {
+    onSuccess: () => {
+      router.visit('/promoter/events');
+    },
+    onError: (errors) => {
+      console.error('Erreur suppression:', errors);
+      alert('La suppression a échoué. Voir la console pour détails.');
+    }
+  });
 };
 </script>
 
@@ -160,7 +213,15 @@ const getStatusText = (status) => {
 
                 <!-- Actions -->
                 <div class="mt-6 flex gap-2">
-                  <Link 
+                  <button
+                    v-if="event.statut !== 'publie'"
+                    @click.prevent="publishEvent(event)"
+                    class="flex-1 text-center px-3 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    Publier
+                  </button>
+                  <Link
+                    v-else
                     :href="`/promoter/events/${event.id}`"
                     class="flex-1 text-center px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                   >
@@ -172,6 +233,12 @@ const getStatusText = (status) => {
                   >
                     Modifier
                   </Link>
+                  <button
+                    @click.prevent="deleteEvent(event)"
+                    class="flex-1 text-center px-3 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    Supprimer
+                  </button>
                 </div>
               </div>
             </div>

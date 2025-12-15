@@ -181,6 +181,17 @@ class EventController extends Controller
             \Log::info('image_banniere NON trouvée', []);
         }
 
+        // If no affiche was uploaded but a bannière was, copy bannière to affiches so listing shows an image
+        if (!$imageAffichePath && $imageBannierePath) {
+            try {
+                Storage::disk('public')->copy('events/bannieres/' . $imageBannierePath, 'events/affiches/' . $imageBannierePath);
+                $imageAffichePath = $imageBannierePath;
+                \Log::info('Copied image_banniere to image_affiche:', ['path' => $imageAffichePath]);
+            } catch (\Exception $e) {
+                \Log::error('Failed to copy bannière to affiche: ' . $e->getMessage());
+            }
+        }
+
         // Créer l'événement
         $event = Event::create([
             'salle_id' => $salle->id,
@@ -389,6 +400,17 @@ class EventController extends Controller
             $imageBannierePath = time() . '_' . Str::random(10) . '.' . $imageBanniere->getClientOriginalExtension();
             $imageBanniere->storeAs('events/bannieres', $imageBannierePath, 'public');
             $validated['image_banniere'] = $imageBannierePath;
+        }
+
+        // If no affiche uploaded during update but a new bannière was uploaded, copy bannière to affiches
+        if ((empty($validated['image_affiche']) || !$validated['image_affiche']) && !empty($validated['image_banniere'])) {
+            try {
+                Storage::disk('public')->copy('events/bannieres/' . $validated['image_banniere'], 'events/affiches/' . $validated['image_banniere']);
+                $validated['image_affiche'] = $validated['image_banniere'];
+                \Log::info('Copied updated image_banniere to image_affiche during update:', ['path' => $validated['image_affiche']]);
+            } catch (\Exception $e) {
+                \Log::error('Failed to copy updated bannière to affiche: ' . $e->getMessage());
+            }
         }
 
         // Mettre à jour les places disponibles si la capacité a changé

@@ -25,50 +25,65 @@ watch(showImagesModal, (newValue) => {
 });
 
 const newVenue = ref({
-    nom: '',
-    description: '',
-    categorie: '',
-    type_salle: '',
-    pays: '',
-    ville: '',
-    quartier: '',
-    rue: '',
-    latitude: '',
-    longitude: '',
-    heure_ouverture: '',
-    heure_fermeture: '',
-    jours_ouverture: {
-        lundi: false,
-        mardi: false,
-        mercredi: false,
-        jeudi: false,
-        vendredi: false,
-        samedi: false,
-        dimanche: false
-    },
-    telephone: '',
-    email: '',
-    whatsapp: '',
-    facebook: '',
-    instagram: '',
-    site_web: '',
-    tarif_minimum: '',
-    tarif_maximum: '',
-    services: {
-        playstation_4: false,
-        playstation_5: false,
-        pc_gaming: false,
-        simulateur_voiture: false,
-        vr: false,
-        billard: false,
-        baby_foot: false,
-        jeux_societe: false,
-        tournois_evenements: false
-    },
-    banniere_file: null,
-    galerie_files: [null, null, null, null, null],
-    logo_file: null
+  nom: '',
+  description: '',
+  categorie: '',
+  type_salle: '',
+  pays: '',
+  ville: '',
+  quartier: '',
+  rue: '',
+  latitude: '',
+  longitude: '',
+  jours_ouverture: {
+    lundi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+    mardi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+    mercredi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+    jeudi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+    vendredi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+    samedi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+    dimanche: { active: false, ouverture: '09:00', fermeture: '18:00' }
+  },
+  telephone: '',
+  email: '',
+  whatsapp: '',
+  facebook: '',
+  instagram: '',
+  site_web: '',
+  tarif_minimum: '',
+  tarif_maximum: '',
+  services: {
+    playstation_4: false,
+    playstation_5: false,
+    pc_gaming: false,
+    simulateur_voiture: false,
+    vr: false,
+    billard: false,
+    baby_foot: false,
+    jeux_societe: false,
+    tournois_evenements: false
+  },
+  banniere_file: null,
+  galerie_files: [null, null, null, null, null],
+  logo_file: null
 });
+
+// Services personnalisés ajoutés par l'utilisateur (objet { name, active })
+const customServices = ref([]);
+const newServiceName = ref('');
+
+const addCustomService = () => {
+  const name = newServiceName.value && newServiceName.value.trim();
+  if (!name) return;
+  if (!customServices.value.some(s => s.name.toLowerCase() === name.toLowerCase())) {
+    customServices.value.push({ name, active: true });
+  }
+  newServiceName.value = '';
+};
+
+const removeCustomService = (index) => {
+  customServices.value.splice(index, 1);
+};
 
 // Validation des étapes
 const validateStep = (step) => {
@@ -79,8 +94,10 @@ const validateStep = (step) => {
         case 2:
             return newVenue.value.pays && newVenue.value.ville && newVenue.value.rue;
         case 3:
-            return newVenue.value.heure_ouverture && newVenue.value.heure_fermeture &&
-                   Object.values(newVenue.value.jours_ouverture).some(jour => jour);
+          // At least one day must be active and each active day must have opening and closing times
+          const jours = Object.values(newVenue.value.jours_ouverture || {});
+          if (!jours.some(d => d.active)) return false;
+          return jours.every(d => !d.active || (d.ouverture && d.fermeture));
         case 4:
             return newVenue.value.telephone && newVenue.value.email;
         case 5:
@@ -105,8 +122,8 @@ const createVenue = () => {
         // Champs de base - exactement comme le backend attend
         nom: newVenue.value.nom || '',
         description: newVenue.value.description || '',
-        type: newVenue.value.type_salle || 'arcade',
-        categorie: newVenue.value.categorie || 'espace_jeux',
+        type: newVenue.value.type_salle || '',
+        categorie: newVenue.value.categorie || '',
         
         // Adresse - le backend attend 'adresse' pas 'rue'
         adresse: newVenue.value.rue || '',
@@ -136,7 +153,7 @@ const createVenue = () => {
         
         // Horaires et services - s'assurer qu'ils sont définis
         horaires: newVenue.value.jours_ouverture || {},
-        services: newVenue.value.services || {},
+        services: Object.assign({}, newVenue.value.services || {}, { custom: customServices.value.filter(s => s.active).map(s => s.name) }),
         
         // Statut
         statut: 'actif',
@@ -278,16 +295,14 @@ const resetForm = () => {
         tarif_minimum: '',
         tarif_maximum: '',
         capacite: '',
-        heure_ouverture: '',
-        heure_fermeture: '',
         jours_ouverture: {
-            lundi: false,
-            mardi: false,
-            mercredi: false,
-            jeudi: false,
-            vendredi: false,
-            samedi: false,
-            dimanche: false
+          lundi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+          mardi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+          mercredi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+          jeudi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+          vendredi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+          samedi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+          dimanche: { active: false, ouverture: '09:00', fermeture: '18:00' }
         },
         services: {
             wifi: false,
@@ -307,6 +322,7 @@ const resetForm = () => {
         logo_file: null
     };
     currentStep.value = 1;
+    customServices.value = [];
 };
 
 const editVenue = () => {
@@ -317,23 +333,33 @@ const editVenue = () => {
         // Extraire les jours d'ouverture correctement
         const horairesData = props.salle?.horaires;
         let joursOuverture = {
-            lundi: false,
-            mardi: false,
-            mercredi: false,
-            jeudi: false,
-            vendredi: false,
-            samedi: false,
-            dimanche: false
+          lundi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+          mardi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+          mercredi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+          jeudi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+          vendredi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+          samedi: { active: false, ouverture: '09:00', fermeture: '18:00' },
+          dimanche: { active: false, ouverture: '09:00', fermeture: '18:00' }
         };
-        
-        // Si les horaires sont au format {lundi: true, mardi: false, ...}
+
         if (horairesData && typeof horairesData === 'object') {
-            if (horairesData.jours) {
-                joursOuverture = {...joursOuverture, ...horairesData.jours};
-            } else {
-                // Si les jours sont directement dans horaires
-                joursOuverture = {...joursOuverture, ...horairesData};
+          const source = horairesData.jours ? horairesData.jours : horairesData;
+          Object.keys(joursOuverture).forEach(day => {
+            const val = source[day];
+            if (val) {
+              if (typeof val === 'object') {
+                joursOuverture[day] = {
+                  active: true,
+                  ouverture: val.ouverture || val.start || '09:00',
+                  fermeture: val.fermeture || val.end || '18:00'
+                };
+              } else if (typeof val === 'boolean') {
+                joursOuverture[day].active = val;
+                joursOuverture[day].ouverture = source.ouverture || joursOuverture[day].ouverture;
+                joursOuverture[day].fermeture = source.fermeture || joursOuverture[day].fermeture;
+              }
             }
+          });
         }
         
         console.log('Jours d\'ouverture mappés:', joursOuverture);
@@ -342,8 +368,8 @@ const editVenue = () => {
         newVenue.value = {
             nom: props.salle.nom || '',
             description: props.salle.description || '',
-            categorie: props.salle.categorie || 'espace_jeux',
-            type_salle: props.salle.type || 'arcade',
+            categorie: props.salle.categorie || '',
+            type_salle: props.salle.type || '',
             pays: props.salle.pays || 'Sénégal',
             ville: props.salle.ville || 'Dakar',
             quartier: props.salle.quartier || '',
@@ -360,8 +386,6 @@ const editVenue = () => {
             tarif_minimum: props.salle.prix_heure?.toString() || '15.00',
             tarif_maximum: props.salle.prix_journee?.toString() || '25.00',
             capacite: props.salle.capacite?.toString() || '10',
-            heure_ouverture: horairesData?.ouverture || '09:00',
-            heure_fermeture: horairesData?.fermeture || '22:00',
             jours_ouverture: joursOuverture,
             services: props.salle.services || {
                 wifi: false,
@@ -386,6 +410,25 @@ const editVenue = () => {
         };
         
         console.log('Formulaire pré-rempli:', newVenue.value);
+        // Pré-remplir les services personnalisés si présents
+        customServices.value = [];
+        const existingServices = props.salle.services;
+        const knownKeys = Object.keys(newVenue.value.services || {});
+        if (Array.isArray(existingServices)) {
+          // s'il s'agit d'un tableau, prendre les éléments string non connus
+          customServices.value = existingServices.filter(s => typeof s === 'string' && !knownKeys.includes(s)).map(s => ({ name: s, active: true }));
+        } else if (existingServices && typeof existingServices === 'object') {
+          if (Array.isArray(existingServices.custom)) {
+            customServices.value = existingServices.custom.map(s => ({ name: s, active: true }));
+          } else {
+            // Extraire les clés non connues avec valeur truthy
+            Object.keys(existingServices).forEach(k => {
+              if (!knownKeys.includes(k) && existingServices[k]) {
+                customServices.value.push({ name: k, active: true });
+              }
+            });
+          }
+        }
         
         isEditing.value = true;
         showCreateForm.value = true;
@@ -764,15 +807,18 @@ const getStepTitle = (step) => {
                     class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   >
                     <option value="">Sélectionner une catégorie</option>
-                    <option value="bar">Bar</option>
-                    <option value="restaurant">Restaurant</option>
-                    <option value="club">Club</option>
-                    <option value="centre_commercial">Centre commercial</option>
-                    <option value="hotel">Hôtel</option>
-                    <option value="complexe_sportif">Complexe sportif</option>
-                    <option value="espace_jeux">Espace de jeux</option>
-                    <option value="centre_loisirs">Centre de loisirs</option>
-                    <option value="autre">Autre</option>
+                    <option value="action">Action</option>
+                    <option value="aventure">Aventure</option>
+                    <option value="rpg">Jeu de rôle (RPG)</option>
+                    <option value="puzzle">Réflexion / Puzzle</option>
+                    <option value="simulation">Simulation</option>
+                    <option value="strategie">Stratégie</option>
+                    <option value="sport_course">Sport et Course</option>
+                    <option value="horreur">Horreur</option>
+                    <option value="jeux_societe">Jeux de société</option>
+                    <option value="jeux_cartes">Jeux de cartes</option>
+                    <option value="rpg_papier">Jeux de rôle (papier)</option>
+                    <option value="jeux_traditionnels">Jeux traditionnels</option>
                   </select>
                 </div>
                 <div>
@@ -956,93 +1002,37 @@ const getStepTitle = (step) => {
                 <span class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-sm font-bold">3</span>
                 Horaires d'ouverture
               </h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Heure d'ouverture <span class="text-red-500">*</span>
-                  </label>
-                  <input 
-                    v-model="newVenue.heure_ouverture" 
-                    type="time" 
-                    name="heure_ouverture"
-                    required
-                    class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                  >
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Heure de fermeture <span class="text-red-500">*</span>
-                  </label>
-                  <input 
-                    v-model="newVenue.heure_fermeture" 
-                    type="time" 
-                    name="heure_fermeture"
-                    required
-                    class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                  >
-                </div>
-              </div>
-              <div class="mt-6">
-                <label class="block text-sm font-medium text-gray-300 mb-4">
-                  Jours d'ouverture <span class="text-red-500">*</span>
-                </label>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.jours_ouverture.lundi" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Lundi</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.jours_ouverture.mardi" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Mardi</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.jours_ouverture.mercredi" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Mercredi</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.jours_ouverture.jeudi" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Jeudi</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.jours_ouverture.vendredi" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Vendredi</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.jours_ouverture.samedi" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Samedi</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.jours_ouverture.dimanche" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Dimanche</span>
-                  </label>
+              <div class="mt-2">
+                <p class="text-sm text-gray-600 mb-4">Sélectionnez les jours d'ouverture et définissez l'heure d'ouverture et de fermeture pour chaque jour.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <template v-for="day in ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche']" :key="day">
+                    <div class="flex items-center justify-between gap-4 p-3 border rounded-lg">
+                      <div class="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          v-model="newVenue.jours_ouverture[day].active"
+                          :id="`day-${day}`"
+                          class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <label :for="`day-${day}`" class="capitalize text-gray-700">{{ day }}</label>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <input
+                          v-model="newVenue.jours_ouverture[day].ouverture"
+                          type="time"
+                          :disabled="!newVenue.jours_ouverture[day].active"
+                          class="px-3 py-2 border rounded-lg text-sm"
+                        />
+                        <span class="text-gray-400">—</span>
+                        <input
+                          v-model="newVenue.jours_ouverture[day].fermeture"
+                          type="time"
+                          :disabled="!newVenue.jours_ouverture[day].active"
+                          class="px-3 py-2 border rounded-lg text-sm"
+                        />
+                      </div>
+                    </div>
+                  </template>
                 </div>
               </div>
             </div>
@@ -1165,79 +1155,26 @@ const getStepTitle = (step) => {
                 <label class="block text-sm font-medium text-gray-300 mb-4">
                   Services disponibles
                 </label>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.services.playstation_4" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>PlayStation 4</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.services.playstation_5" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>PlayStation 5</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.services.pc_gaming" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>PC Gaming</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.services.simulateur_voiture" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Simulateur voiture</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.services.vr" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>VR</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.services.billard" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Billard</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.services.baby_foot" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Baby-foot</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.services.jeux_societe" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Jeux de société</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.services.tournois_evenements" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Tournois / Événements</span>
-                  </label>
+                <div>
+                  <p class="text-sm text-gray-600 mb-3">Le promoteur définit ici les services disponibles pour cette salle. Ajoute des services puis coche ceux qui s'appliquent à cette salle.</p>
+                  <div class="space-y-2">
+                    <div v-if="customServices.length === 0" class="text-sm text-gray-500">Aucun service défini.</div>
+                    <template v-for="(s, i) in customServices" :key="s.name">
+                      <label class="flex items-center gap-3">
+                        <input type="checkbox" v-model="s.active" class="w-4 h-4 text-blue-600" />
+                        <span class="text-gray-700">{{ s.name }}</span>
+                        <button type="button" @click="removeCustomService(i)" class="text-red-500 ml-2">Supprimer</button>
+                      </label>
+                    </template>
+                  </div>
+
+                  <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Ajouter un service personnalisé</label>
+                    <div class="flex gap-2">
+                      <input v-model="newServiceName" type="text" placeholder="Ex: Espace VIP" class="w-full px-3 py-2 border rounded-lg" />
+                      <button type="button" @click="addCustomService" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Ajouter</button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1264,6 +1201,7 @@ const getStepTitle = (step) => {
                     >
                     <p class="text-sm text-gray-500 mt-2">Image actuelle</p>
                   </div>
+                  
                   
                   <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                     <input 
