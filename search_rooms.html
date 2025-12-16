@@ -113,7 +113,7 @@
                                     type="text" 
                                     class="w-full px-4 py-3 bg-[#2a2a3a] border border-gray-600/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 transition-all"
                                     placeholder="Ville, code postal ou adresse..."
-                                    @keyup.enter="searchRooms"
+                                    onkeyup="if(event.key === 'Enter') searchRooms()"
                                 />
                             </div>
                             <button 

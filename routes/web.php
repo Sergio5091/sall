@@ -94,4 +94,7 @@ Route::get('/salles/{salle}', [App\Http\Controllers\Public\SalleController::clas
 // Routes pour la recherche de salles
 Route::get('/search/rooms', [App\Http\Controllers\Search\RoomController::class, 'index'])->name('search.rooms');
 
+// Route API pour la recherche de salles à proximité par GPS
+Route::get('/api/search/nearby', [App\Http\Controllers\Search\RoomController::class, 'searchNearby']);
+
 require __DIR__.'/auth.php';

@@ -55,13 +55,20 @@ class SalleController extends Controller
             abort(404);
         }
 
-        // Charger la salle avec le promoteur et les événements à venir
+        // Charger la salle avec le promoteur, les événements à venir et les images
         $salle->load(['promoter', 'evenements' => function($query) {
             $query->where('statut', 'publie')
                   ->where('date_fin', '>=', now())
                   ->orderBy('date_debut', 'asc')
                   ->take(5);
         }]);
+
+        // Ajouter les images multiples (si le champ existe)
+        if (isset($salle->images) && is_string($salle->images)) {
+            $salle->images = json_decode($salle->images) ?? [];
+        } elseif (!isset($salle->images)) {
+            $salle->images = [];
+        }
 
         // Salles similaires (même ville)
         $sallesSimilaires = Salle::where('statut', 'actif')
