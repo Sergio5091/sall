@@ -147,7 +147,55 @@ const formatDate = (dateString) => {
                   <button class="p-2 text-gray-500 dark:text-gray-400 border border-transparent rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-sm">Passés</button>
                 </div>
               </div>
-              <div class="p-4 text-sm text-gray-600 dark:text-gray-400">Aucun événement pour le moment.</div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                  <thead class="text-xs text-gray-500 dark:text-gray-400 uppercase bg-gray-50 dark:bg-background-dark border-b border-t border-gray-200 dark:border-gray-800">
+                    <tr>
+                      <th class="px-2 py-1.5" scope="col">Événement</th>
+                      <th class="px-2 py-1.5" scope="col">Dates</th>
+                      <th class="px-2 py-1.5" scope="col">Participants</th>
+                      <th class="px-2 py-1.5" scope="col">Statut</th>
+                      <th class="px-2 py-1.5 text-right" scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="border-b border-gray-200 dark:border-gray-800">
+                      <td class="px-2 py-1.5 font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                        <div class="flex items-center gap-3">
+                          <div class="w-9 h-9 rounded-lg bg-cover bg-center" data-alt="Tournament thumbnail" style="background-image: url('https://picsum.photos/seed/tournament/100/100.jpg');"></div>
+                          <span>Tournoi Super Smash</span>
+                        </div>
+                      </td>
+                      <td class="px-2 py-1.5">25 Déc 2023</td>
+                      <td class="px-2 py-1.5">28 / 32</td>
+                      <td class="px-2 py-1.5"><span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Actif</span></td>
+                      <td class="px-2 py-1.5 text-right">
+                        <div class="inline-flex items-center gap-2 justify-end">
+                          <button class="inline-flex items-center gap-2 px-2 py-0.5 bg-gray-50 dark:bg-[#0f1724] rounded text-sm font-medium text-primary hover:bg-gray-100">Modifier</button>
+                          <button class="inline-flex items-center gap-2 px-2 py-0.5 bg-white dark:bg-[#11121b] rounded text-sm font-medium text-brand-red hover:bg-red-50">Supprimer</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="border-b border-gray-200 dark:border-gray-800">
+                      <td class="px-2 py-1.5 font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                        <div class="flex items-center gap-3">
+                          <div class="w-9 h-9 rounded-lg bg-cover bg-center" data-alt="VR Discovery thumbnail" style="background-image: url('https://picsum.photos/seed/vr/100/100.jpg');"></div>
+                          <span>Soirée Découverte VR</span>
+                        </div>
+                      </td>
+                      <td class="px-2 py-1.5">15 Jan 2024</td>
+                      <td class="px-2 py-1.5">12 / 20</td>
+                      <td class="px-2 py-1.5"><span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-0.5 rounded-full dark:bg-yellow-900 dark:text-yellow-300">Inactif</span></td>
+                      <td class="px-2 py-1.5 text-right">
+                        <div class="inline-flex items-center gap-2 justify-end">
+                          <button class="inline-flex items-center gap-2 px-2 py-0.5 bg-gray-50 dark:bg-[#0f1724] rounded text-sm font-medium text-primary hover:bg-gray-100">Modifier</button>
+                          <button class="inline-flex items-center gap-2 px-2 py-0.5 bg-white dark:bg-[#11121b] rounded text-sm font-medium text-brand-red hover:bg-red-50">Supprimer</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
