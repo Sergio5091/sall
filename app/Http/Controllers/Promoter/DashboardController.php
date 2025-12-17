@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Salle;
+use App\Models\Event;
 
 class DashboardController extends Controller
 {
@@ -16,11 +18,25 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         
-        // Ici, vous pouvez ajouter la logique pour récupérer les données du tableau de bord
-        // Par exemple :
-        // $salles = $user->salles()->count();
-        // $evenements = $user->evenements()->count();
-        // $reservations = $user->reservations()->count();
+        // Récupérer les salles du promoteur
+        $salles = Salle::where('promoter_id', $user->id)->get();
+        
+        // Récupérer les événements du promoteur
+        $events = Event::where('promoter_id', $user->id)
+                      ->orderBy('date_debut', 'desc')
+                      ->take(5)
+                      ->get();
+        
+        // Calculer les statistiques
+        $stats = [
+            'total' => $events->count(),
+            'publies' => $events->where('statut', 'publie')->count(),
+            'brouillons' => $events->where('statut', 'brouillon')->count(),
+            'avenir' => $events->where('date_debut', '>', now())->count(),
+            'en_cours' => $events->where('date_debut', '<=', now())
+                               ->where('date_fin', '>=', now())->count(),
+            'passes' => $events->where('date_fin', '<', now())->count(),
+        ];
         
         // Sample notifications data
         $notifications = [
@@ -67,11 +83,10 @@ class DashboardController extends Controller
         ];
         
         return Inertia::render('Promoter/Dashboard', [
-            'stats' => [
-                'salles' => 0, // Remplacer par $salles
-                'evenements' => 0, // Remplacer par $evenements
-                'reservations' => 0, // Remplacer par $reservations
-            ],
+            'salles' => $salles,
+            'salle' => $salles->first(), // Pour la compatibilité avec l'affichage existant
+            'stats' => $stats,
+            'events' => $events,
             'notifications' => $notifications
         ]);
     }

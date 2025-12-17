@@ -1,6 +1,57 @@
 <script setup>
 import { Head } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import Navbar from '@/Components/Navbar.vue';
+
+const props = defineProps({
+  user: Object,
+  stats: Object,
+  activity: Array,
+  newVenues: Array,
+  upcoming: Array,
+  nearby: Array,
+  referral: String,
+  notifications: Array,
+});
+
+const userName = computed(() => props.user?.name || 'Alex');
+const nextReservations = computed(() => props.stats?.next_reservations ?? props.stats?.nextReservations ?? 2);
+const invitationsPending = computed(() => props.stats?.invitations_pending ?? props.stats?.invitationsPending ?? 3);
+const credits = computed(() => props.stats?.credits ?? 150);
+
+const activityList = computed(() => (props.activity && props.activity.length) ? props.activity : [
+  {
+    type: 'event',
+    title: 'Tournoi Super Smash',
+    subtitle: "Rejoignez-nous pour une compétition amicale ce week-end ! De nombreux lots à gagner.",
+    location: 'Pixel Play',
+    distance: '2.5 km',
+    image: 'https://picsum.photos/seed/tournament/800/600'
+  }
+]);
+
+const newVenuesList = computed(() => (props.newVenues && props.newVenues.length) ? props.newVenues : [
+  {
+    title: 'VR Universe',
+    subtitle: 'Découvrez nos nouvelles stations de réalité virtuelle avec les derniers titres du moment.',
+    location: 'VR Universe',
+    distance: '1.2 km',
+    image: 'https://picsum.photos/seed/venue2/800/600'
+  }
+]);
+
+const upcomingList = computed(() => (props.upcoming && props.upcoming.length) ? props.upcoming : [
+  {
+    dayShort: 'MAR',
+    dayNum: '25',
+    title: 'Soirée LAN à Neo Arcade',
+    time: '20:00 - 23:00',
+    avatars: 3
+  }
+]);
+
+const nearbyList = computed(() => (props.nearby && props.nearby.length) ? props.nearby : []);
+const referralLink = computed(() => props.referral || 'gamecenter.com/invite/alex123');
 </script>
 
 <template>
@@ -60,7 +111,7 @@ import Navbar from '@/Components/Navbar.vue';
         <div class="layout-content-container flex flex-col w-full max-w-screen-xl flex-1 gap-8">
           <!-- Welcome Section -->
           <div class="flex flex-wrap justify-between gap-4 items-center">
-            <h1 class="text-4xl font-black leading-tight tracking-[-0.033em]">Bienvenue, Alex !</h1>
+            <h1 class="text-4xl font-black leading-tight tracking-[-0.033em]">Bienvenue, {{ userName }}</h1>
             <div class="flex items-center gap-2">
               <button class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold rounded-full bg-subtle-light hover:bg-border-light">
                 <i class="fas fa-calendar text-lg"></i>
@@ -82,7 +133,7 @@ import Navbar from '@/Components/Navbar.vue';
             <div class="flex flex-col justify-between gap-2 rounded-lg p-6 bg-content-light border border-border-light min-h-[120px]">
               <div>
                 <p class="text-base font-medium">Prochaines Réservations</p>
-                <p class="tracking-light text-3xl font-bold mt-2">2</p>
+                <p class="tracking-light text-3xl font-bold mt-2">{{ nextReservations }}</p>
               </div>
               <div class="text-xs text-text-light/60">
                 <i class="fas fa-calendar-alt text-sm"></i>
@@ -91,7 +142,7 @@ import Navbar from '@/Components/Navbar.vue';
             <div class="flex flex-col justify-between gap-2 rounded-lg p-6 bg-content-light border border-border-light min-h-[120px]">
               <div>
                 <p class="text-base font-medium">Invitations en attente</p>
-                <p class="tracking-light text-3xl font-bold mt-2">3</p>
+                <p class="tracking-light text-3xl font-bold mt-2">{{ invitationsPending }}</p>
               </div>
               <div class="text-xs text-text-light/60">
                 <i class="fas fa-user-plus text-sm"></i>
@@ -100,7 +151,7 @@ import Navbar from '@/Components/Navbar.vue';
             <div class="flex flex-col justify-between gap-2 rounded-lg p-6 bg-content-light border border-border-light min-h-[120px]">
               <div>
                 <p class="text-base font-medium">Mes Crédits</p>
-                <p class="tracking-light text-3xl font-bold mt-2">150</p>
+                <p class="tracking-light text-3xl font-bold mt-2">{{ credits }}</p>
               </div>
               <div class="text-xs text-text-light/60">
                 <i class="fas fa-wallet text-sm"></i>
@@ -115,59 +166,59 @@ import Navbar from '@/Components/Navbar.vue';
               <h2 class="text-2xl font-bold tracking-[-0.015em]">Flux d'activité personnalisé</h2>
               
               <div class="flex flex-col gap-6">
-                <!-- Event Card -->
-                <div class="flex flex-col sm:flex-row gap-6 p-4 rounded-lg bg-content-light border border-border-light">
-                  <div class="w-full sm:w-48 h-48 sm:h-auto bg-cover bg-center rounded" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAO6aMmeykJD_8Y3dAUhQkS0k2QK-FnToFSNyCXvQOw0b_Qhz7QQpr0G_VQYj_f_MACxkjYR-U4gqYUGvvOzq2fTSeATiJy5SmTGlgWq0GKpXduYJRyp7xuY56IidtJavV9YTLEJI2OjN-VmLsMZmbr1Z3QFwiZ_9X5Ai-51CabxCCP0-V-WwC9l9gBDBjXLWbduXDLwikEAYj6MAG7-4Z5EqjpJPHzmq059s7QKKIaWbclt7rWFrorybtE5AhfGBQYOcrVPq6srmVX')"></div>
-                  <div class="flex flex-col justify-between flex-1">
-                    <div>
-                      <p class="text-xs font-bold uppercase text-primary">Événement Recommandé</p>
-                      <h3 class="text-xl font-bold mt-1">Tournoi Super Smash</h3>
-                      <p class="text-sm mt-2 text-text-light/70">Rejoignez-nous pour une compétition amicale ce week-end ! De nombreux lots à gagner.</p>
-                      <p class="text-sm font-medium mt-2">📍 Pixel Play | 2.5 km</p>
-                    </div>
-                    <div class="flex gap-2 mt-4">
-                      <button class="px-4 py-2 text-sm font-bold text-white bg-primary rounded-full w-full sm:w-auto">S'inscrire</button>
-                      <button class="px-4 py-2 text-sm font-bold bg-subtle-light rounded-full w-full sm:w-auto">Voir les détails</button>
+                <template v-for="(item, idx) in activityList.slice(0,2)" :key="idx">
+                  <div v-if="item.type === 'event' || !item.type" class="flex flex-col sm:flex-row gap-6 p-4 rounded-lg bg-content-light border border-border-light">
+                    <div class="w-full sm:w-48 h-48 sm:h-auto bg-cover bg-center rounded" :style="`background-image: url('${item.image || 'https://picsum.photos/seed/tournament/800/600'}')`"></div>
+                    <div class="flex flex-col justify-between flex-1">
+                      <div>
+                        <p class="text-xs font-bold uppercase text-primary">Événement Recommandé</p>
+                        <h3 class="text-xl font-bold mt-1">{{ item.title }}</h3>
+                        <p class="text-sm mt-2 text-text-light/70">{{ item.subtitle }}</p>
+                        <p class="text-sm font-medium mt-2">📍 {{ item.location }} | {{ item.distance || '' }}</p>
+                      </div>
+                      <div class="flex gap-2 mt-4">
+                        <button class="px-4 py-2 text-sm font-bold text-white bg-primary rounded-full w-full sm:w-auto">S'inscrire</button>
+                        <button class="px-4 py-2 text-sm font-bold bg-subtle-light rounded-full w-full sm:w-auto">Voir les détails</button>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <!-- New Venue Card -->
-                <div class="flex flex-col sm:flex-row gap-6 p-4 rounded-lg bg-content-light border border-border-light">
-                  <div class="w-full sm:w-48 h-48 sm:h-auto bg-cover bg-center rounded" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCLMWeqq4RTuw0Hs_kE-TlTbEWyHEkUvdz1gqS0Dmx3ADF2kwxPPsIXIdi2KP6nJ8-vL640t-puAqz267GdyVG6SNJFCcSMNv3UCBUXmBE_2lTsb5S5vcelqZZVIyGVR1_Y39IGHICAq7rlwSHDY8BDWj-b7b3DquKiwnjMaQw-xYSe5P4MpONpO6FSMybP2jpCDPTT4iPSqpZ1WwOAl9x-3DptrblfZI4PpJ5XZFk_pDeuOZZXSuVDd9FwilG_rggQXsvQGWQgMXpD')"></div>
-                  <div class="flex flex-col justify-between flex-1">
-                    <div>
-                      <p class="text-xs font-bold uppercase text-primary">Nouveauté près de chez vous</p>
-                      <h3 class="text-xl font-bold mt-1">VR Universe</h3>
-                      <p class="text-sm mt-2 text-text-light/70">Découvrez nos nouvelles stations de réalité virtuelle avec les derniers titres du moment.</p>
-                      <p class="text-sm font-medium mt-2">📍 VR Universe | 1.2 km</p>
-                    </div>
-                    <div class="flex gap-2 mt-4">
-                      <button class="px-4 py-2 text-sm font-bold text-white bg-primary rounded-full w-full sm:w-auto">Réserver</button>
-                      <button class="px-4 py-2 text-sm font-bold bg-subtle-light rounded-full w-full sm:w-auto">Voir la salle</button>
+                  <div v-else-if="item.type === 'venue'" class="flex flex-col sm:flex-row gap-6 p-4 rounded-lg bg-content-light border border-border-light">
+                    <div class="w-full sm:w-48 h-48 sm:h-auto bg-cover bg-center rounded" :style="`background-image: url('${item.image || 'https://picsum.photos/seed/venue2/800/600'}')`"></div>
+                    <div class="flex flex-col justify-between flex-1">
+                      <div>
+                        <p class="text-xs font-bold uppercase text-primary">Nouveauté près de chez vous</p>
+                        <h3 class="text-xl font-bold mt-1">{{ item.title }}</h3>
+                        <p class="text-sm mt-2 text-text-light/70">{{ item.subtitle }}</p>
+                        <p class="text-sm font-medium mt-2">📍 {{ item.location }} | {{ item.distance || '' }}</p>
+                      </div>
+                      <div class="flex gap-2 mt-4">
+                        <button class="px-4 py-2 text-sm font-bold text-white bg-primary rounded-full w-full sm:w-auto">Réserver</button>
+                        <button class="px-4 py-2 text-sm font-bold bg-subtle-light rounded-full w-full sm:w-auto">Voir la salle</button>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </template>
               </div>
 
               <!-- Upcoming Appointments -->
               <h2 class="text-2xl font-bold tracking-[-0.015em] pt-4">Mes Prochains Rendez-vous</h2>
               <div class="flex flex-col gap-3">
-                <div class="flex items-center p-4 rounded-lg bg-content-light border border-border-light">
-                  <div class="pr-4 border-r border-border-light text-center">
-                    <p class="text-sm font-bold text-primary">MAR</p>
-                    <p class="text-2xl font-extrabold">25</p>
+                <template v-for="(appt, i) in upcomingList" :key="i">
+                  <div class="flex items-center p-4 rounded-lg bg-content-light border border-border-light">
+                    <div class="pr-4 border-r border-border-light text-center">
+                      <p class="text-sm font-bold text-primary">{{ appt.dayShort }}</p>
+                      <p class="text-2xl font-extrabold">{{ appt.dayNum }}</p>
+                    </div>
+                    <div class="flex-1 pl-4">
+                      <p class="font-bold">{{ appt.title }}</p>
+                      <p class="text-sm text-text-light/70">{{ appt.time }}</p>
+                    </div>
+                    <div class="flex -space-x-2">
+                      <div v-for="n in (appt.avatars || 3)" :key="n" class="inline-block size-8 rounded-full ring-2 ring-content-light bg-gray-300"></div>
+                    </div>
                   </div>
-                  <div class="flex-1 pl-4">
-                    <p class="font-bold">Soirée LAN à Neo Arcade</p>
-                    <p class="text-sm text-text-light/70">20:00 - 23:00</p>
-                  </div>
-                  <div class="flex -space-x-2">
-                    <div class="inline-block size-8 rounded-full ring-2 ring-content-light bg-gray-300"></div>
-                    <div class="inline-block size-8 rounded-full ring-2 ring-content-light bg-gray-400"></div>
-                    <div class="inline-block size-8 rounded-full ring-2 ring-content-light bg-gray-500"></div>
-                  </div>
-                </div>
+                </template>
               </div>
             </div>
 
@@ -176,7 +227,14 @@ import Navbar from '@/Components/Navbar.vue';
               <!-- Nearby Venues -->
               <div class="bg-content-light rounded-lg p-6 border border-border-light">
                 <h3 class="text-xl font-bold">Salles proches</h3>
-                <div class="mt-4 aspect-square w-full bg-cover bg-center rounded bg-gray-200"></div>
+                <div class="mt-4 grid grid-cols-1 gap-3">
+                  <template v-if="nearbyList.length">
+                    <div v-for="(v, idx) in nearbyList.slice(0,3)" :key="idx" class="aspect-square w-full bg-cover bg-center rounded" :style="`background-image: url('${v.image || 'https://picsum.photos/seed/nearby/400/400'}')`"></div>
+                  </template>
+                  <template v-else>
+                    <div class="aspect-square w-full bg-cover bg-center rounded bg-gray-200"></div>
+                  </template>
+                </div>
               </div>
 
               <!-- Referral Link -->
@@ -188,7 +246,7 @@ import Navbar from '@/Components/Navbar.vue';
                     class="w-full h-10 pr-12 rounded-full border-border-light bg-subtle-light text-sm px-4" 
                     readonly 
                     type="text" 
-                    value="gamecenter.com/invite/alex123"
+                    :value="referralLink"
                   />
                   <button class="absolute top-1/2 right-2 -translate-y-1/2 p-1.5 rounded-full bg-primary text-white">
                     <i class="fas fa-copy text-sm"></i>

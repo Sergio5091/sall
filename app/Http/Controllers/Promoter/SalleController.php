@@ -31,6 +31,28 @@ class SalleController extends Controller
     }
 
     /**
+     * Afficher une salle spécifique
+     */
+    public function show(Salle $salle)
+    {
+        $user = Auth::user();
+        
+        // Vérifier que l'utilisateur est le propriétaire de la salle
+        if ($salle->promoter_id !== $user->id) {
+            return redirect()->route('promoter.venues')
+                ->with('error', 'Vous n\'êtes pas autorisé à voir cette salle.');
+        }
+
+        return Inertia::render('Promoter/Venues', [
+            'salle' => $salle,
+            'coordinates' => [
+                'lat' => (float) $salle->latitude,
+                'lng' => (float) $salle->longitude
+            ]
+        ]);
+    }
+
+    /**
      * Afficher le formulaire de création de salle
      */
     public function create()

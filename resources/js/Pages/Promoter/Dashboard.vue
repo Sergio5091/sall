@@ -5,6 +5,7 @@ import Sidebar from '../../Components/Promoter/Sidebar.vue';
 const props = defineProps({
     stats: Object,
     salle: Object,
+    salles: Array,
     events: Array,
     notifications: Array
 });
@@ -45,7 +46,7 @@ const formatDate = (dateString) => {
     <Sidebar current-route="promoter.dashboard" />
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto transition-all duration-300">
+    <main class="flex-1 overflow-y-auto transition-all duration-300 pt-16 lg:pt-0">
       <div class="p-3">
         <!-- Header -->
         <div class="flex flex-wrap items-center justify-between gap-4">
@@ -65,10 +66,6 @@ const formatDate = (dateString) => {
             <button class="p-1.5 text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5">
               <i class="fas fa-upload text-sm"></i>
             </button>
-            <Link href="/promoter/events/create" class="flex items-center justify-center rounded-lg h-9 bg-brand-red text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] px-3 hover:bg-brand-red/90 transition-colors">
-              <i class="fas fa-plus text-base font-bold"></i>
-              <span class="truncate">Créer un événement</span>
-            </Link>
           </div>
         </div>
 
@@ -104,62 +101,72 @@ const formatDate = (dateString) => {
         <div class="grid grid-cols-1 lg:grid-cols-1 gap-6 mt-6">
           <div class="flex flex-col gap-4">
             <!-- Venue Info -->
-            <div class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl p-3 pb-8">
-              <div class="flex justify-between items-center mb-4">
-                <h2 class="text-gray-900 dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]">Gestion des Informations de la Salle</h2>
-                <button class="flex items-center justify-center rounded-lg h-9 bg-primary text-white gap-2 text-sm font-bold leading-normal px-3 hover:bg-primary/90 transition-colors">
-                  <i class="fas fa-edit text-base"></i>
-                  <span class="truncate">Modifier</span>
-                </button>
+            <div class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl p-3">
+              <!-- Salles List -->
+              <div v-if="salles && salles.length > 0" class="space-y-4">
+                <div v-for="salleItem in salles" :key="salleItem.id" class="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ salleItem.nom || 'Ma Salle' }}</h3>
+                      
+                      <!-- Informations principales -->
+                      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                        <div class="flex items-center gap-2">
+                          <i class="fas fa-map-marker-alt text-gray-400 text-sm"></i>
+                          <span class="text-sm text-gray-600">{{ salleItem.adresse || 'Adresse non définie' }}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <i class="fas fa-users text-gray-400 text-sm"></i>
+                          <span class="text-sm text-gray-600">{{ salleItem.capacite_max || '0' }} personnes</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <i class="fas fa-clock text-gray-400 text-sm"></i>
+                          <span class="text-sm text-gray-600">{{ formatPrice(salleItem.prix_heure || 0) }}/heure</span>
+                        </div>
+                      </div>
+                      
+                      <!-- Description courte -->
+                      <p class="text-sm text-gray-500 mb-3 line-clamp-2">
+                        {{ salleItem.description || 'Aucune description disponible' }}
+                      </p>
+                      
+                      <!-- Statut et catégorie -->
+                      <div class="flex items-center gap-2 mb-3">
+                        <span :class="[
+                          'px-2 py-1 text-xs font-medium rounded-full',
+                          salleItem.statut === 'actif' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-gray-100 text-gray-800'
+                        ]">
+                          {{ salleItem.statut === 'actif' ? 'Active' : 'Inactive' }}
+                        </span>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                          {{ salleItem.categorie || 'Non définie' }}
+                        </span>
+                        <span class="text-xs text-gray-400">
+                          {{ salleItem.images ? salleItem.images.length : 0 }} photos
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div class="flex gap-2 ml-4">
+                      <Link :href="`/promoter/venues/${salleItem.id}`" class="inline-flex items-center px-3 py-1 text-sm text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50">
+                        Voir
+                      </Link>
+                      <Link :href="`/promoter/venues/${salleItem.id}/edit`" class="inline-flex items-center px-3 py-1 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50">
+                        Modifier
+                      </Link>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="md:col-span-1 flex flex-col items-center text-center gap-4">
-                  <div class="relative w-36 h-36">
-                    <img 
-                      alt="Venue Banner" 
-                      class="w-full h-full object-cover rounded-xl" 
-                      :src="salle?.image_url ? (salle.image_url.startsWith('http') ? salle.image_url : `/storage/${salle.image_url}`) : 'https://picsum.photos/seed/venue/400/400.jpg'"
-                    >
-                    <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full border-2 border-white dark:border-[#19202e] bg-cover bg-center" 
-                         :style="salle?.image_url ? `background-image: url('${salle.image_url.startsWith('http') ? salle.image_url : `/storage/${salle.image_url}`}')` : 'background-image: url(\'https://picsum.photos/seed/logo/200/200.jpg\')'">
-                    </div>
-                  </div>
-                  <div class="mt-2">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ salle?.nom || 'Ma Salle' }}</h3>
-                    <div class="mt-1 flex justify-center items-center gap-2">
-                      <span :class="[
-                        'text-xs font-medium px-2.5 py-0.5 rounded-full',
-                        salle?.statut === 'actif' 
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' 
-                          : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
-                      ]">
-                        {{ salle?.statut === 'actif' ? 'Active' : 'Inactive' }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div class="md:col-span-2 space-y-4">
-                  <div>
-                    <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400">Description</h4>
-                    <p class="text-sm text-gray-800 dark:text-gray-200 mt-1">{{ salle?.description || 'Description de votre salle' }}</p>
-                  </div>
-                  <div>
-                    <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400">Adresse</h4>
-                    <p class="text-sm text-gray-800 dark:text-gray-200 mt-1">
-                      {{ salle?.adresse || 'Adresse à définir' }}, {{ salle?.ville || 'Ville' }}, {{ salle?.pays || 'Pays' }}
-                    </p>
-                  </div>
-                  <div>
-                    <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400">Capacité</h4>
-                    <p class="text-sm text-gray-800 dark:text-gray-200 mt-1">{{ salle?.capacite_max || '0' }} personnes maximum</p>
-                  </div>
-                  <div>
-                    <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400">Tarifs</h4>
-                    <p class="text-sm text-gray-800 dark:text-gray-200 mt-1">
-                      {{ formatPrice(salle?.prix_heure || 0) }} / heure
-                    </p>
-                  </div>
-                </div>
+              
+              <!-- Empty State -->
+              <div v-else class="text-center py-8">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Aucune salle</h3>
+                <Link href="/promoter/venues/create" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm rounded-lg">
+                  Créer une salle
+                </Link>
               </div>
             </div>
 
@@ -217,61 +224,8 @@ const formatDate = (dateString) => {
                   </tbody>
                 </table>
               </div>
-              <div v-else class="p-4 text-sm text-gray-600 dark:text-gray-400">
-                Aucun événement pour le moment.
-              </div>
             </div>
           </div>
-
-          <!-- Right: stats + notifications -->
-          <aside class="lg:col-span-1 flex flex-col gap-4">
-            <div class="space-y-3">
-              <div class="flex flex-col gap-2 rounded-xl p-3 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
-                <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Total événements</p>
-                <p class="text-gray-900 dark:text-white tracking-tight text-2xl font-bold">{{ formatNumber(stats.total || 0) }}</p>
-              </div>
-              <div class="flex flex-col gap-2 rounded-xl p-3 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
-                <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Événements publiés</p>
-                <p class="text-gray-900 dark:text-white tracking-tight text-2xl font-bold">{{ formatNumber(stats.publies || 0) }}</p>
-              </div>
-              <div class="flex flex-col gap-2 rounded-xl p-3 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
-                <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Brouillons</p>
-                <p class="text-gray-900 dark:text-white tracking-tight text-2xl font-bold">{{ formatNumber(stats.brouillons || 0) }}</p>
-              </div>
-              <div class="flex flex-col gap-2 rounded-xl p-3 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
-                <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">À venir</p>
-                <p class="text-gray-900 dark:text-white tracking-tight text-2xl font-bold">{{ formatNumber(stats.avenir || 0) }}</p>
-              </div>
-              <div class="flex flex-col gap-2 rounded-xl p-3 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
-                <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">En cours</p>
-                <p class="text-gray-900 dark:text-white tracking-tight text-2xl font-bold">{{ formatNumber(stats.en_cours || 0) }}</p>
-              </div>
-              <div class="flex flex-col gap-2 rounded-xl p-3 bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800">
-                <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Passés</p>
-                <p class="text-gray-900 dark:text-white tracking-tight text-2xl font-bold">{{ formatNumber(stats.passes || 0) }}</p>
-              </div>
-            </div>
-
-            <div class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl p-3">
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-bold text-gray-900 dark:text-white">Notifications</h3>
-                <Link href="#" class="text-xs text-gray-500">Voir tout</Link>
-              </div>
-              <div class="space-y-2">
-                <template v-if="notifications && notifications.length">
-                  <div v-for="(n, idx) in notifications.slice(0,6)" :key="idx" class="text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-transparent p-2 rounded">
-                    <div class="flex items-center justify-between">
-                      <div class="truncate">{{ n.message || n.title || 'Notification' }}</div>
-                      <div class="text-xs text-gray-400">{{ n.date ? formatDate(n.date) : '' }}</div>
-                    </div>
-                  </div>
-                </template>
-                <template v-else>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">Aucune notification récente.</p>
-                </template>
-              </div>
-            </div>
-          </aside>
         </div>
       </div>
     </main>

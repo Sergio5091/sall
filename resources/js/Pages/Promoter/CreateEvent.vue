@@ -7,6 +7,7 @@ import Sidebar from '../../Components/Promoter/Sidebar.vue';
 // État du formulaire
 const currentStep = ref(1);
 const totalSteps = 4;
+const errors = ref({});
 
 // Données du nouvel événement
 const newEvent = ref({
@@ -64,7 +65,7 @@ const stepValidation = computed(() => {
         case 3:
             return newEvent.value.capacite_max;
         case 4:
-            return true; // Étape 4 est optionnelle
+            return newEvent.value.email && newEvent.value.email.includes('@');
         default:
             return false;
     }
@@ -216,6 +217,14 @@ const createEvent = () => {
         },
         onError: (errors) => {
             console.error('Erreurs de validation:', errors);
+            errors.value = errors;
+            
+            // Afficher un message d'erreur plus clair
+            if (errors.contact_email) {
+                alert('L\'adresse email est obligatoire et doit être valide.');
+            } else {
+                alert('Erreur lors de la création de l\'événement. Veuillez vérifier tous les champs.');
+            }
         }
     });
 };
@@ -427,8 +436,9 @@ const cancel = () => {
                 <input v-model="newEvent.telephone" type="tel" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-[#1a1f2e]" placeholder="+221 77 123 45 67">
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
-                <input v-model="newEvent.email" type="email" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-[#1a1f2e]" placeholder="contact@evenement.com">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email *</label>
+                <input v-model="newEvent.email" type="email" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-[#1a1f2e]" placeholder="contact@evenement.com" :class="{'border-red-500': errors.contact_email}">
+                <p v-if="errors.contact_email" class="mt-1 text-sm text-red-600">{{ errors.contact_email }}</p>
               </div>
             </div>
 

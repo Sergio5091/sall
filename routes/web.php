@@ -35,7 +35,8 @@ Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(functi
     Route::get('/venues', [SalleController::class, 'index'])->name('venues');
     Route::get('/venues/create', [SalleController::class, 'create'])->name('venues.create');
     Route::post('/venues', [SalleController::class, 'store'])->name('venues.store');
-    Route::get('/venues/edit', [SalleController::class, 'edit'])->name('venues.edit');
+    Route::get('/venues/{salle}', [SalleController::class, 'show'])->name('venues.show');
+    Route::get('/venues/{salle}/edit', [SalleController::class, 'edit'])->name('venues.edit');
     Route::put('/venues/{salle}', [SalleController::class, 'update'])->name('venues.update');
     Route::delete('/venues/{salle}', [SalleController::class, 'destroy'])->name('venues.destroy');
     
