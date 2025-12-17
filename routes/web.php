@@ -75,6 +75,39 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/dashboard', function () {
         return Inertia::render('Admin/Dashboard');
     })->name('dashboard');
+    
+    // Routes pour la gestion des salles (admin)
+    Route::get('/salles', [App\Http\Controllers\Admin\SalleController::class, 'index'])->name('salles.index');
+    Route::get('/salles/{salle}', [App\Http\Controllers\Admin\SalleController::class, 'show'])->name('salles.show');
+    Route::patch('/salles/{salle}/approve', [App\Http\Controllers\Admin\SalleController::class, 'approve'])->name('salles.approve');
+    Route::patch('/salles/{salle}/toggle-status', [App\Http\Controllers\Admin\SalleController::class, 'toggleStatus'])->name('salles.toggle-status');
+    Route::delete('/salles/{salle}', [App\Http\Controllers\Admin\SalleController::class, 'destroy'])->name('salles.destroy');
+    Route::post('/salles/bulk-action', [App\Http\Controllers\Admin\SalleController::class, 'bulkAction'])->name('salles.bulk-action');
+    Route::get('/salles/export', [App\Http\Controllers\Admin\SalleController::class, 'export'])->name('salles.export');
+    Route::get('/salles/stats', [App\Http\Controllers\Admin\SalleController::class, 'getStats'])->name('salles.stats');
+    
+    // Routes pour la gestion des promoteurs (admin)
+    Route::get('/promoteurs', [App\Http\Controllers\Admin\UserController::class, 'promoters'])->name('promoteurs.index');
+    Route::get('/promoteurs/{user}', [App\Http\Controllers\Admin\UserController::class, 'showPromoter'])->name('promoteurs.show');
+    Route::patch('/promoteurs/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'togglePromoterStatus'])->name('promoteurs.toggle-status');
+    Route::delete('/promoteurs/{user}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('promoteurs.destroy');
+    
+    // Routes pour la gestion des clients (admin)
+    Route::get('/clients', [App\Http\Controllers\Admin\UserController::class, 'clients'])->name('clients.index');
+    Route::get('/clients/{user}', [App\Http\Controllers\Admin\UserController::class, 'showClient'])->name('clients.show');
+    Route::patch('/clients/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleClientStatus'])->name('clients.toggle-status');
+    Route::delete('/clients/{user}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('clients.destroy');
+    
+    // Routes pour la gestion des événements (admin)
+    Route::get('/events', [App\Http\Controllers\Admin\EventController::class, 'index'])->name('events.index');
+    Route::get('/events/{event}', [App\Http\Controllers\Admin\EventController::class, 'show'])->name('events.show');
+    Route::delete('/events/{event}', [App\Http\Controllers\Admin\EventController::class, 'destroy'])->name('events.destroy');
+    Route::patch('/events/{event}/toggle-status', [App\Http\Controllers\Admin\EventController::class, 'toggleStatus'])->name('events.toggle-status');
+    
+    // Routes pour les paramètres
+    Route::get('/settings', function () {
+        return Inertia::render('Admin/Settings');
+    })->name('settings');
 });
 
 Route::middleware('auth')->group(function () {

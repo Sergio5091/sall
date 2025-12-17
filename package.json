@@ -21,6 +21,8 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
-        "@heroicons/vue": "^1.0.6"
+        "@fortawesome/fontawesome-free": "^7.1.0",
+        "@heroicons/vue": "^1.0.6",
+        "lodash": "^4.17.21"
     }
 }

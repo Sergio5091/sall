@@ -1,3 +1,18 @@
+@import '@fortawesome/fontawesome-free/css/all.min.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Dark mode styles */
+.dark {
+  color-scheme: dark;
+}
+
+/* Custom scrollbar for dark mode */
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #475569;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #64748b;
+}
