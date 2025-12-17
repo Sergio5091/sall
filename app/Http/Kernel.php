@@ -128,6 +128,14 @@ class Kernel extends HttpKernel
         // Vérifie que l'email de l'utilisateur est vérifié
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         
+        // Middleware temporaire pour vérification de rôle simple
+        'simple.role' => \App\Http\Middleware\SimpleRoleCheck::class,
+        
+        // Middleware Spatie Permission (quand installé)
+        'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
+        'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
+        'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
+        
         // Middleware personnalisé pour les administrateurs
         'role.admin' => IsAdmin::class,
         

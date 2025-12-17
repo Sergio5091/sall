@@ -1,105 +1,223 @@
 <template>
-  <div class="min-h-screen bg-background-dark text-[#EAEAEA] font-body">
+  <!-- Add Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <div class="min-h-screen text-gray-800 font-body">
     <!-- TopNavBar -->
-    <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center bg-background-dark/80 backdrop-blur-sm shadow-sm">
+    <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center backdrop-blur-sm shadow-sm bg-white/90">
       <div class="flex items-center justify-between w-full max-w-7xl px-6 py-3">
         <div class="flex items-center gap-8">
-          <div class="flex items-center gap-3 text-white">
-            <svg class="w-7 h-7 text-accent-cyan" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-              <path clip-rule="evenodd" d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z" fill="currentColor" fill-rule="evenodd"></path>
-              <path clip-rule="evenodd" d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z" fill="currentColor" fill-rule="evenodd"></path>
-            </svg>
-            <h2 class="text-white text-2xl font-display font-bold">GameOn</h2>
+          <div class="flex items-center gap-2 text-gray-800">
+            <i class="fas fa-gamepad text-3xl text-gray-400"></i>
+            <h2 class="text-gray-800 text-2xl font-display font-bold">GameOn</h2>
           </div>
-        </div>
-        <div class="hidden md:flex flex-1 justify-center">
-          <label class="flex flex-col w-full max-w-sm h-11">
-            <div class="flex w-full flex-1 items-stretch rounded-full h-full">
-              <div class="text-[#9f9db9] flex bg-[#2a2839] items-center justify-center pl-4 rounded-l-full">
-                <span class="material-symbols-outlined">search</span>
-              </div>
-              <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-white focus:outline-0 focus:ring-0 border-none bg-[#2a2839] h-full placeholder:text-[#9f9db9] px-4 rounded-r-full text-base font-normal leading-normal" placeholder="Rechercher une salle, un jeu..." v-model="searchQuery" @keyup.enter="searchRooms"/>
-            </div>
-          </label>
+          <nav class="hidden md:flex space-x-8">
+            <a href="/" class="text-blue-600 hover:text-blue-700 px-3 py-2 text-sm font-medium border-b-2 border-blue-600">Accueil</a>
+            <a href="/search/rooms" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Salles</a>
+            <a href="/events" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Événements</a>
+          </nav>
         </div>
         <div class="flex items-center gap-3">
-          <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-[#2a2839] text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-[#3c3a50] transition-colors">
+          <a href="/login" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-200 text-gray-800 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 transition-colors">
             <span class="truncate">Connexion</span>
-          </button>
-          <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-accent-magenta text-white text-sm font-bold leading-normal tracking-[0.015em] hover:brightness-110 transition-all">
+          </a>
+          <a href="/register" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-800 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-700 transition-all">
             <span class="truncate">S'inscrire</span>
-          </button>
+          </a>
         </div>
       </div>
     </header>
     <!-- HeroSection -->
-    <section class="relative flex min-h-[80vh] sm:min-h-screen flex-col gap-6 sm:gap-8 items-center justify-center text-center py-16 sm:py-20 -mx-4 sm:-mx-6">
-      <div class="absolute inset-0 bg-cover bg-center bg-no-repeat z-0" style='background-image: linear-gradient(rgba(18, 17, 24, 0.8) 0%, rgba(18, 17, 24, 1) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuAvMkKqOU-KKBFEfq-XSqP8ERc3OcUD8c_cPSMVMQ51u7hagAf8c_kCEfAd86ta1yjbIE-5sLkK3wUnDLhWLOTh7SEnmUTk7eYbIG2ctck4ibodkjHwNZR2qQjYZjnEEW9bMiU8oTRROJKW5ErST-A-PlzGsUI-_7EzmG6n9rQEd02EfnEiJBNocXkEh4Q0lpRwJpxFjFSADix08DdbLqgv3LAEtZgVoQTgq8Fg9pcuOHKYf1A191jXTu07_i2G61JZjs70Bep8nXg5");'></div>
+    <section class="relative flex min-h-[80vh] sm:min-h-screen flex-col gap-6 sm:gap-8 items-center justify-center text-center py-16 sm:py-20 w-full overflow-x-hidden">
+      <!-- Gaming Background Animation -->
+      <div class="absolute inset-0 z-0">
+        <!-- Base gradient -->
+        <div class="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900"></div>
+        
+        <!-- Animated gaming elements -->
+        <div class="absolute inset-0">
+          <!-- Floating gamepad icon -->
+          <div class="absolute top-20 left-10 text-6xl text-blue-400 opacity-40 animate-float">
+            <i class="fas fa-gamepad"></i>
+          </div>
+          
+          <!-- Floating controller -->
+          <div class="absolute top-40 right-20 text-5xl text-purple-400 opacity-40 animate-float-delay">
+            <i class="fas fa-gamepad"></i>
+          </div>
+          
+          <!-- Floating trophy -->
+          <div class="absolute bottom-30 left-20 text-4xl text-gray-400 opacity-40 animate-float-delay-2">
+            <i class="fas fa-trophy"></i>
+          </div>
+          
+          <!-- Floating star -->
+          <div class="absolute top-60 left-1/3 text-3xl text-cyan-400 opacity-40 animate-float">
+            <i class="fas fa-star"></i>
+          </div>
+          
+          <!-- Floating fire -->
+          <div class="absolute bottom-40 right-1/3 text-5xl text-orange-400 opacity-40 animate-float-delay">
+            <i class="fas fa-fire"></i>
+          </div>
+          
+          <!-- Floating crown -->
+          <div class="absolute top-80 right-10 text-4xl text-cyan-300 opacity-50 animate-float-delay-2">
+            <i class="fas fa-crown"></i>
+          </div>
+          
+          <!-- Floating rocket -->
+          <div class="absolute bottom-60 left-1/4 text-3xl text-green-400 opacity-40 animate-float">
+            <i class="fas fa-rocket"></i>
+          </div>
+          
+          <!-- Floating gem -->
+          <div class="absolute top-1/3 right-1/4 text-4xl text-indigo-400 opacity-40 animate-float-delay">
+            <i class="fas fa-gem"></i>
+          </div>
+        </div>
+        
+        <!-- Animated particles -->
+        <div class="absolute inset-0">
+          <div class="particles">
+            <div class="particle particle-1"></div>
+            <div class="particle particle-2"></div>
+            <div class="particle particle-3"></div>
+            <div class="particle particle-4"></div>
+            <div class="particle particle-5"></div>
+            <div class="particle particle-6"></div>
+            <div class="particle particle-7"></div>
+            <div class="particle particle-8"></div>
+          </div>
+        </div>
+        
+        <!-- Gradient overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30"></div>
+      </div>
+      
+      <!-- Content -->
       <div class="relative z-10 flex flex-col gap-3 sm:gap-4 items-center w-full px-4 max-w-4xl">
-        <h1 class="text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight tracking-tighter">
+        <h1 class="text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight tracking-tighter animate-fade-in-up drop-shadow-lg">
           Votre Prochaine Partie Commence Ici.
         </h1>
-        <h2 class="text-white/80 text-base sm:text-lg md:text-xl font-normal leading-normal max-w-3xl px-2">
+        <h2 class="text-white text-base sm:text-lg md:text-xl font-normal leading-normal max-w-3xl px-2 animate-fade-in-up delay-300 drop-shadow-md">
           Découvrez et réservez des milliers de salles de jeux et d'expériences près de chez vous.
         </h2>
       </div>
       <div class="relative z-10 w-full max-w-2xl px-4">
-        <label class="flex flex-col h-14 sm:h-16 w-full">
-          <div class="flex w-full flex-1 items-stretch rounded-full h-full shadow-lg">
-            <div class="text-[#9f9db9] flex border border-accent-cyan/50 bg-[#1c1c27] items-center justify-center pl-4 sm:pl-5 rounded-l-full border-r-0">
-              <span class="material-symbols-outlined text-xl sm:text-2xl">location_on</span>
-            </div>
-            <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-white focus:outline-0 focus:ring-2 focus:ring-accent-cyan/80 border border-accent-cyan/50 bg-[#1c1c27] h-full placeholder:text-[#9f9db9] px-3 sm:px-4 rounded-none border-l-0 border-r-0 text-sm sm:text-base font-normal leading-normal" 
-                   placeholder="Entrez une ville, une adresse..." 
-                   v-model="location"/>
-            <div class="flex items-center justify-center rounded-r-full border-l-0 border border-accent-cyan/50 bg-[#1c1c27] pr-1 sm:pr-2">
-              <button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 sm:h-12 px-4 sm:px-6 bg-accent-cyan text-black text-sm sm:text-base font-bold leading-normal tracking-[0.015em] hover:brightness-110 transition-all" 
-                      @click="searchLocation">
-                <span class="truncate">Trouver une salle</span>
-              </button>
-            </div>
-          </div>
-        </label>
+        <a href="/search/rooms" class="flex w-full items-center justify-center overflow-hidden rounded-full h-14 sm:h-16 shadow-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white text-lg sm:text-xl font-bold leading-normal tracking-[0.015em] hover:from-blue-500 hover:to-blue-400 transition-all duration-300 animate-fade-in-up delay-500">
+          <i class="fas fa-search mr-3"></i>
+          <span>Trouver une salle</span>
+        </a>
       </div>
     </section>
 
     <!-- Nouveautés Section -->
-    <section class="pt-8 pb-16 bg-background-dark">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-white text-2xl sm:text-3xl font-display font-bold leading-tight tracking-tight px-4 pb-6">Nouveautés</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <div v-for="(item, index) in newItems" :key="index" class="w-full">
-            <div class="flex flex-col h-full gap-4 rounded-lg bg-[#1c1c27] shadow-lg transform hover:-translate-y-1 transition-transform duration-300">
-              <div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-t-lg" :style="'background-image: url(' + item.image + ')'"></div>
-              <div class="flex flex-col flex-1 justify-between p-4 pt-0 gap-4">
-                <div>
-                  <p class="text-white text-lg font-bold leading-normal">{{ item.title }}</p>
-                  <p class="text-[#9f9db9] text-sm font-normal leading-normal">{{ item.subtitle }}</p>
+    <section class="pt-8 pb-16 bg-gray-50 relative overflow-hidden">
+      <!-- Éléments décoratifs 3D -->
+      <div class="absolute inset-0 opacity-20">
+        <div class="absolute top-10 left-10 w-32 h-32 bg-gray-600 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-10 right-10 w-48 h-48 bg-gray-500 rounded-full blur-3xl"></div>
+      </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <h2 class="text-gray-800 text-2xl sm:text-3xl font-display font-bold leading-tight tracking-tight px-4 pb-6 animate-fade-in-up">Nouveautés</h2>
+        
+        <!-- Carousel Container -->
+        <div class="relative">
+          <!-- Carousel Track -->
+          <div class="overflow-hidden rounded-xl">
+            <div 
+              class="flex transition-all duration-700 ease-out"
+              :style="{ transform: `translateX(-${currentSlide * 100}%)` }"
+            >
+              <div 
+                v-for="(slide, slideIndex) in carouselSlides" 
+                :key="slideIndex"
+                class="w-full flex-shrink-0"
+              >
+                <div class="flex gap-6 p-2">
+                  <div 
+                    v-for="(item, itemIndex) in slide" 
+                    :key="itemIndex"
+                    class="w-full group animate-fade-in-up" :style="{ animationDelay: `${itemIndex * 100}ms` }"
+                  >
+                    <div class="flex flex-col gap-4 rounded-xl shadow-lg overflow-hidden group bg-white border border-gray-200 transform transition-all duration-500 hover:scale-105 hover:shadow-2xl">
+                      <div class="relative overflow-hidden">
+                        <div class="w-full bg-center bg-no-repeat aspect-video bg-cover transition-transform duration-700 group-hover:scale-110" :style="'background-image: url(' + item.image + ')'"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      </div>
+                      <div class="flex flex-col p-4 pt-0 gap-3">
+                        <div>
+                          <h3 class="text-gray-800 text-xl font-bold transform transition-transform duration-300 group-hover:translate-x-1">{{ item.title }}</h3>
+                          <p class="text-gray-600 text-sm font-normal transform transition-transform duration-300 group-hover:translate-x-1">{{ item.subtitle }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <button 
+            @click="prevSlide"
+            class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-md rounded-full p-3 shadow-xl hover:bg-white hover:shadow-2xl transition-all duration-300 z-10 transform hover:scale-110"
+          >
+            <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </button>
+          
+          <button 
+            @click="nextSlide"
+            class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-md rounded-full p-3 shadow-xl hover:bg-white hover:shadow-2xl transition-all duration-300 z-10 transform hover:scale-110"
+          >
+            <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+
+          <!-- Progress Indicator -->
+          <div class="flex justify-center gap-2 mt-6">
+            <button 
+              v-for="(slide, index) in carouselSlides" 
+              :key="index"
+              @click="goToSlide(index)"
+              :class="[
+                'h-2 rounded-full transition-all duration-500 ease-out',
+                currentSlide === index 
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 w-8 shadow-lg' 
+                  : 'bg-gray-300 hover:bg-gray-400 w-2'
+              ]"
+            />
           </div>
         </div>
       </div>
     </section>
     <!-- Salles Populaires Section -->
-    <section class="py-16 bg-background-dark">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-white text-3xl font-display font-bold leading-tight tracking-tight px-4 pb-6">Salles Populaires</h2>
+    <section class="py-16 bg-gray-50 relative overflow-hidden">
+      <!-- Éléments décoratifs 3D -->
+      <div class="absolute inset-0 opacity-15">
+        <div class="absolute top-1/4 right-20 w-40 h-40 bg-gray-600 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/4 left-20 w-36 h-36 bg-gray-500 rounded-full blur-3xl"></div>
+      </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <h2 class="text-gray-800 text-3xl font-display font-bold leading-tight tracking-tight px-4 pb-6 animate-fade-in-up delay-300">Salles Populaires</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="(room, index) in popularRooms" :key="index" class="flex flex-col gap-4 rounded-lg bg-[#1c1c27] shadow-lg overflow-hidden group">
-            <div class="w-full bg-center bg-no-repeat aspect-video bg-cover transition-transform duration-300 group-hover:scale-105" :style="'background-image: url(' + room.image + ')'"></div>
+          <div v-for="(room, index) in popularRooms" :key="index" class="flex flex-col gap-4 rounded-lg shadow-lg overflow-hidden group bg-white border border-gray-200 animate-fade-in-up" :style="{ animationDelay: `${index * 150}ms` }">
+            <div class="w-full bg-center bg-no-repeat aspect-video bg-cover group-hover:brightness-110 transition-all duration-500" :style="'background-image: url(' + room.image + ')'"></div>
             <div class="flex flex-col p-4 pt-0 gap-3">
-              <h3 class="text-white text-xl font-bold">{{ room.name }}</h3>
-              <div class="flex items-center justify-between text-sm text-[#9f9db9]">
-                <div class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-accent-yellow !text-xl" style="font-variation-settings: 'FILL' 1">star</span>
-                  <span class="font-bold text-white">{{ room.rating }}</span> ({{ room.reviews }} avis)
-                </div>
-                <span class="font-semibold">~ {{ room.distance }}</span>
+              <h3 class="text-gray-800 text-xl font-bold transform transition-transform duration-300 group-hover:translate-x-1">{{ room.name }}</h3>
+              <div class="flex items-center justify-between text-sm text-gray-600">
+                <div class="flex items-center gap-1 transform transition-transform duration-300 group-hover:scale-110">
+                  <i class="fas fa-star text-gray-500 !text-xl"></i>
+                  <span>{{ room.rating }}</span>
+                </div> ({{ room.reviews }} avis)
+                <span class="font-semibold transform transition-transform duration-300 group-hover:translate-x-1">~ {{ room.distance }}</span>
               </div>
-              <p class="text-sm text-white">À partir de <span class="font-bold text-lg text-accent-cyan">{{ room.price }}/h</span></p>
-              <button class="w-full mt-2 flex cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-5" :class="room.featured ? 'bg-accent-magenta' : 'bg-[#2a2839] hover:bg-accent-magenta'" @click="viewRoom(room.id)">
+              <p class="text-sm text-gray-600 transform transition-transform duration-300 group-hover:translate-x-1">À partir de <span class="font-bold text-lg text-blue-600">{{ room.price }}/h</span></p>
+              <button class="w-full mt-2 flex cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-5 transform transition-all duration-300 hover:scale-105" :class="room.featured ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-200 hover:bg-blue-600 hover:text-white text-gray-800'" @click="viewRoom(room.id)">
                 <span class="truncate">Voir la salle</span>
               </button>
             </div>
@@ -109,68 +227,82 @@
     </section>
 
     <!-- Comment ça marche Section -->
-    <section class="py-16 bg-background-dark">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-white text-center text-3xl font-display font-bold leading-tight tracking-tight pb-12">Comment ça marche ?</h2>
+    <section class="py-16 bg-gray-50 relative overflow-hidden">
+      <!-- Éléments décoratifs 3D -->
+      <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-1/3 left-1/4 w-44 h-44 bg-gradient-to-r from-gray-600 to-gray-500 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/3 right-1/4 w-52 h-52 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full blur-3xl"></div>
+      </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <h2 class="text-gray-800 text-center text-3xl font-display font-bold leading-tight tracking-tight pb-12 animate-fade-in-up delay-600">Comment ça marche ?</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-          <div v-for="(step, index) in howItWorks" :key="index" class="flex flex-col items-center gap-4">
-            <div class="flex items-center justify-center w-24 h-24 rounded-full bg-[#1c1c27] border-2 mb-4" :class="step.borderColor">
-              <span class="material-symbols-outlined !text-5xl" :class="step.iconColor">{{ step.icon }}</span>
+          <div v-for="(step, index) in howItWorks" :key="index" class="flex flex-col items-center gap-4 group animate-fade-in-up" :style="{ animationDelay: `${index * 200}ms` }">
+            <div class="flex items-center justify-center w-24 h-24 rounded-full border-2 mb-4 bg-gray-50 transform transition-all duration-500 group-hover:scale-110 group-hover:shadow-lg" :class="step.borderColor">
+              <i class="fas transform transition-transform duration-300 group-hover:rotate-12" :class="step.iconClass" style="font-size: 3.125rem;"></i>
             </div>
-            <h3 class="text-white text-xl font-bold font-display">{{ step.step }}. {{ step.title }}</h3>
-            <p class="text-[#9f9db9]">{{ step.description }}</p>
+            <h3 class="text-gray-800 text-xl font-bold font-display transform transition-transform duration-300 group-hover:translate-y-1">{{ step.title }}</h3>
+            <p class="text-gray-600 transform transition-all duration-300 group-hover:text-gray-700">{{ step.description }}</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Footer -->
-    <footer class="w-full border-t border-t-[#2a2839] mt-20 bg-background-dark">
-      <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
-        <div class="col-span-2 lg:col-span-1">
-          <div class="flex items-center gap-3 text-white">
-            <svg class="w-7 h-7 text-accent-cyan" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-              <path clip-rule="evenodd" d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z" fill="currentColor" fill-rule="evenodd"></path>
-              <path clip-rule="evenodd" d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z" fill="currentColor" fill-rule="evenodd"></path>
-            </svg>
-            <h2 class="text-white text-2xl font-display font-bold">GameOn</h2>
+    <footer class="bg-gray-900 text-white py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div class="col-span-1 md:col-span-2">
+            <div class="flex items-center gap-2 mb-4">
+              <i class="fas fa-gamepad text-3xl text-blue-400"></i>
+              <h3 class="text-2xl font-bold">GameOn</h3>
+            </div>
+            <p class="text-gray-300 mb-4">Votre plateforme pour trouver et réserver les meilleures salles de jeux près de chez vous.</p>
+            <div class="flex gap-4">
+              <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                <i class="fab fa-facebook text-xl"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                <i class="fab fa-twitter text-xl"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                <i class="fab fa-instagram text-xl"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                <i class="fab fa-linkedin text-xl"></i>
+              </a>
+            </div>
           </div>
-          <p class="text-[#9f9db9] mt-4 text-sm">La plus grande communauté de joueurs et de salles de jeux.</p>
-        </div>
-        <div>
-          <h4 class="font-display font-bold text-white mb-4">Navigation</h4>
-          <ul class="space-y-3">
-            <li v-for="(link, index) in footerLinks.navigation" :key="index">
-              <a :href="link.href" class="text-[#9f9db9] hover:text-white transition-colors">{{ link.label }}</a>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="font-display font-bold text-white mb-4">Aide</h4>
-          <ul class="space-y-3">
-            <li v-for="(link, index) in footerLinks.help" :key="index">
-              <a :href="link.href" class="text-[#9f9db9] hover:text-white transition-colors">{{ link.label }}</a>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="font-display font-bold text-white mb-4">Légal</h4>
-          <ul class="space-y-3">
-            <li v-for="(link, index) in footerLinks.legal" :key="index">
-              <a :href="link.href" class="text-[#9f9db9] hover:text-white transition-colors">{{ link.label }}</a>
-            </li>
-          </ul>
+          
+          <div>
+            <h4 class="text-lg font-semibold mb-4">Navigation</h4>
+            <ul class="space-y-2">
+              <li><a href="/" class="text-gray-300 hover:text-white transition-colors">Accueil</a></li>
+              <li><a href="/search/rooms" class="text-gray-300 hover:text-white transition-colors">Salles</a></li>
+              <li><a href="/events" class="text-gray-300 hover:text-white transition-colors">Événements</a></li>
+              <li><a href="/about" class="text-gray-300 hover:text-white transition-colors">À propos</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 class="text-lg font-semibold mb-4">Aide</h4>
+            <ul class="space-y-2">
+              <li><a href="/help" class="text-gray-300 hover:text-white transition-colors">Centre d'aide</a></li>
+              <li><a href="/contact" class="text-gray-300 hover:text-white transition-colors">Contact</a></li>
+              <li><a href="/faq" class="text-gray-300 hover:text-white transition-colors">FAQ</a></li>
+              <li><a href="/support" class="text-gray-300 hover:text-white transition-colors">Support</a></li>
+            </ul>
+          </div>
         </div>
       </div>
-      <div class="max-w-7xl mx-auto px-6 py-6 border-t border-t-[#2a2839]">
-        <p class="text-center text-sm text-[#9f9db9]">© 2024 GameOn. Tous droits réservés.</p>
+      <div class="max-w-7xl mx-auto px-6 py-6 border-t border-t-gray-700">
+        <p class="text-center text-sm text-gray-500"> 2024 GameOn. Tous droits réservés.</p>
       </div>
     </footer>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 // Data
 const searchQuery = ref('');
@@ -185,12 +317,7 @@ const newItems = ref([
   {
     title: 'VR Quest 3',
     subtitle: 'Immersion Totale',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDZk-K3kdE3ajUoJvzYE-P5V9EppOKL8LPxzcGNhBBEFNBXC7F5jYXrYrwDrW0P4VKmutq7EmadaTVN_b9AVhEasTSc4KYfjGVTFn0s903IJxUxwFXFS_K1QsZ4gFcXhPRD0FaretJixko9EAwJGx96RTLdxrfXwfeugzGsGp-jYct8KgevHhFT-0FSU6WxM0SZ5Phpkqu5Q6RHdudPx25ttQcImu_6BD-CPUjTWe7VC8fHQDsTcVJp58dXTQnjEpHJh_Ba6CrOPUsD'
-  },
-  {
-    title: 'Manette Pro-X',
-    subtitle: 'Précision Extrême',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCYHh5IqU9m7sGzI6nN-2TOY3cjqw6LvCPwENSrv1VEvphNaLlp8oKX_ChHWzDiAi9cQHqZzYOB5KUtfhaLcjJW_UOgoH9tS0xJuEpB9hPjC-ug8sBblwZq9yB1nXRMBDpKZy9x-ckdOciw7G1dgP5bJQflmdbedf6-LEwhU_rUgZPWNclac2ejM5-wf7h7ZqLDxaZ26KdjbR7S9QmN2aHgH3b6Wrcxc1LAK-t53YktCKAWh_nWLzRxSqobo14Awculpec_FS2SU2pt'
+    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCYHh5IqU9m7sGzI6nN-2TOY3cjqw6LvCPwENSrv1VEvphNaLlp8oKX_ChHWzDiAi9cQHqZzYOB5KUtfhaLcjJW_UOgoH9tS0xJuEpB9hPjC-ug8sBblwZq9yB1nXRMBDpKZy9x-ckdOciw7G1dgP5bJQflmdbedf6-LEwhU_rUgZPWNclac2ejM5-wf7h7ZqLDxaZ26KdjbR7S9QmN2aHgH3b6Wrcxc1LAK-t53YktCKAWh_nWLzRxSqabo14Awculpec_FS2SU2pt'
   },
   {
     title: 'CyberHero 2088',
@@ -201,73 +328,127 @@ const newItems = ref([
     title: 'PC Gamer Ultimate',
     subtitle: 'Puissance Max',
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAFHU-O26YCVGb8nn72fw_t3zCT0ekH-nFV7acoJIzDsxjIR-Lc_K7kG27Cdlw2y9G6cjOtbMeCCTpb6fpvIprI0mmn5ex2yb-BXmD0L6KlPW5rU6p-lXc__1mF2es4ZEWq3q4ApJbjlDkC2TSC7mq-_NE0vXwbHX6WGf4RibZubgcspYf4t8fKul0l8KUZrUNKhCv41euF-GtVhgfA3ESe3VG4R69TUjr3MK0L6Mo_FiYuXRADPqlhMa6yL4JRSgTFG6wPWKvxjCOM'
-  }
-]);
-
-const popularRooms = ref([
+  },
   {
-    id: 1,
-    name: 'Cyber Arena',
-    rating: 4.8,
-    reviews: 120,
-    distance: '2 km',
-    price: '12€',
-    featured: true,
+    title: 'VR World Experience',
+    subtitle: 'Réalité Virtuelle',
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDZk-K3kdE3ajUoJvzYE-P5V9EppOKL8LPxzcGNhBBEFNBXC7F5jYXrYrwDrW0P4VKmutq7EmadaTVN_b9AVhEasTSc4KYfjGVTFn0s903IJxUxwFXFS_K1QsZ4gFcXhPRD0FaretJixko9EAwJGx96RTLdxrfXwfeugzGsGp-jYct8KgevHhFT-0FSU6WxM0SZ5Phpkqu5Q6RHdudPx25ttQcImu_6BD-CPUjTWe7VC8fHQDsTcVJp58dXTQnjEpHJh_Ba6CrOPUsD'
   },
   {
-    id: 2,
-    name: 'VR World Experience',
-    rating: 4.9,
-    reviews: 98,
-    distance: '5 km',
-    price: '25€',
-    featured: false,
+    title: 'Retro Arcade Classic',
+    subtitle: 'Jeux Rétro',
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCYHh5IqU9m7sGzI6nN-2TOY3cjqw6LvCPwENSrv1VEvphNaLlp8oKX_ChHWzDiAi9cQHqZzYOB5KUtfhaLcjJW_UOgoH9tS0xJuEpB9hPjC-ug8sBblwZq9yB1nXRMBDpKZy9x-ckdOciw7G1dgP5bJQflmdbedf6-LEwhU_rUgZPWNclac2ejM5-wf7h7ZqLDxaZ26KdjbR7S9QmN2aHgH3b6Wrcxc1LAK-t53YktCKAWh_nWLzRxSqabo14Awculpec_FS2SU2pt'
   },
   {
-    id: 3,
-    name: 'Retro Game Hub',
-    rating: 4.7,
-    reviews: 250,
-    distance: '1.5 km',
-    price: '8€',
-    featured: false,
+    title: 'Mobile Gaming Zone',
+    subtitle: 'Gaming Mobile',
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDimTmosVRtitqU9V2oDIOQw50iGnF5QW3_KIKBaqu9WSJ6grhZy_x9Ae_lduBc_pSW7n6n0fdslfekYXLqoiES9JL0QHnKTOhiuS0amxXj43wWxYzVYUBCmQu2VSKPJVPWu7LoNMIQI1myV_R0FkUiHFHXNPfCG-wSmSlJgDp7jtXCr5fTgDvAynUYwM1PHaumBxDPSfTTJ40KvLX01F4PWrPOpTz6IGey33XXIKdUJHkgz2V0gqb2kltAbruyvqecqYp37qlscfYo'
+  },
+  {
+    title: 'E-Sports Arena',
+    subtitle: 'Compétitions',
+    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBoU7Oags87biuaaffc3aUGrDFW5kFUjxEbccg4ySsGzsmxpxUZoRY2m7gAWMY7xIqU5nQjefm2KQjibIT2Hn_fQ3SdFNqkMNgzCgtF5a09GtEpv59x7uIkqZv4UpDF2HYh4zSbA0MCObwDjUz2idQ4vU2ENeaBSQ2iPep1DeeAcN_oAIIdNDnfg7akYdQerYMQlTC9XfCixtt-VjVhodttIg_eETqbYCDuTTEmffxXDM6qfWkOTz8KXI4KVTjJnAwgnv_KLV0d0okk'
+  },
+  {
+    title: 'Streaming Studio',
+    subtitle: 'Live Streaming',
+    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAFHU-O26YCVGb8nn72fw_t3zCT0ekH-nFV7acoJIzDsxjIR-Lc_K7kG27Cdlw2y9G6cjOtbMeCCTpb6fpvIprI0mmn5ex2yb-BXmD0L6KlPW5rU6p-lXc__1mF2es4ZEWq3q4ApJbjlDkC2TSC7mq-_NE0vXwbHX6WGf4RibZubgcspYf4t8fKul0l8KUZrUNKhCv41euF-GtVhgfA3ESe3VG4R69TUjr3MK0L6Mo_FiYuXRADPqlhMa6yL4JRSgTFG6wPWKvxjCOM'
   }
 ]);
 
+// Carousel logic
+const currentSlide = ref(0);
+const itemsPerSlide = ref(3);
+
+// Calculate slides based on screen size
+const carouselSlides = computed(() => {
+  const items = newItems.value;
+  const slides = [];
+  const itemsCount = itemsPerSlide.value;
+  
+  for (let i = 0; i < items.length; i += itemsCount) {
+    slides.push(items.slice(i, i + itemsCount));
+  }
+  
+  return slides;
+});
+
+// Auto-play
+let autoplayInterval = null;
+
+const startAutoplay = () => {
+  autoplayInterval = setInterval(() => {
+    nextSlide();
+  }, 4000);
+};
+
+const stopAutoplay = () => {
+  if (autoplayInterval) {
+    clearInterval(autoplayInterval);
+    autoplayInterval = null;
+  }
+};
+
+// Navigation methods
+const nextSlide = () => {
+  currentSlide.value = (currentSlide.value + 1) % carouselSlides.value.length;
+};
+
+const prevSlide = () => {
+  currentSlide.value = currentSlide.value === 0 ? carouselSlides.value.length - 1 : currentSlide.value - 1;
+};
+
+const goToSlide = (index) => {
+  currentSlide.value = index;
+};
+
+// Update items per slide based on screen size
+const updateItemsPerSlide = () => {
+  if (window.innerWidth >= 1024) { // lg
+    itemsPerSlide.value = 3;
+  } else if (window.innerWidth >= 640) { // sm
+    itemsPerSlide.value = 2;
+  } else {
+    itemsPerSlide.value = 1;
+  }
+};
+
+// Lifecycle
+onMounted(() => {
+  updateItemsPerSlide();
+  window.addEventListener('resize', updateItemsPerSlide);
+  startAutoplay();
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateItemsPerSlide);
+  stopAutoplay();
+});
 const howItWorks = ref([
   {
-    step: 1,
-    title: 'Trouvez',
-    description: 'Utilisez notre recherche intelligente pour découvrir les meilleures salles de jeux près de chez vous.',
-    icon: 'search',
-    borderColor: 'border-accent-magenta',
-    iconColor: 'text-accent-magenta'
+    title: 'Recherche',
+    description: 'Trouvez la salle parfaite pour votre prochaine session de jeu',
+    iconClass: 'fa-search text-gray-600',
+    borderColor: 'border-gray-600'
   },
   {
-    step: 2,
     title: 'Réservez',
-    description: 'Sécurisez votre place en quelques clics, choisissez votre créneau et votre équipement.',
-    icon: 'calendar_add_on',
-    borderColor: 'border-accent-cyan',
-    iconColor: 'text-accent-cyan'
+    description: 'Réservez facilement en quelques clics',
+    iconClass: 'fa-gamepad text-gray-500',
+    borderColor: 'border-gray-500'
   },
   {
-    step: 3,
     title: 'Jouez',
-    description: 'Présentez-vous à la salle et plongez dans l\'action. Profitez de l\'expérience !',
-    icon: 'stadia_controller',
-    borderColor: 'border-accent-yellow',
-    iconColor: 'text-accent-yellow'
+    description: 'Profitez de votre expérience gaming unique',
+    iconClass: 'fa-play text-gray-400',
+    borderColor: 'border-gray-400'
   }
 ]);
 
 const footerLinks = ref({
   navigation: [
-    { label: 'Accueil', href: '#' },
-    { label: 'Salles', href: '#' },
+    { label: 'Accueil', href: '/' },
+    { label: 'Salles', href: '/salles' },
     { label: 'Événements', href: '#' },
     { label: 'Blog', href: '#' }
   ],
@@ -316,16 +497,16 @@ function viewRoom(id) {
 }
 
 :root {
-  --primary: #3b2bee;
-  --background-light: #f6f6f8;
-  --background-dark: #121118;
-  --accent-magenta: #FF00FF;
-  --accent-cyan: #00FFFF;
-  --accent-yellow: #FDFD00;
+  --accent-cyan: #6B7280;
+  --accent-magenta: #4B5563;
+  --accent-yellow: #9CA3AF;
+  --accent-magenta-rgb: 75, 85, 99;
+  --accent-cyan-rgb: 107, 114, 128;
+  --accent-yellow-rgb: 156, 163, 175;
 }
 
 .font-display {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 .font-body {
@@ -340,4 +521,205 @@ html, body {
 }
 
 /* Custom styles can be added here if needed */
+
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #FF00FF, #00FFFF);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, #FF00FF, #FDFD00);
+}
+
+/* Text Animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.delay-300 { animation-delay: 0.3s; }
+.delay-600 { animation-delay: 0.6s; }
+
+/* Gaming background animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+@keyframes float-delay {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(-3deg);
+  }
+}
+
+@keyframes float-delay-2 {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-25px) rotate(8deg);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delay {
+  animation: float-delay 8s ease-in-out infinite;
+}
+
+.animate-float-delay-2 {
+  animation: float-delay-2 7s ease-in-out infinite;
+}
+
+/* Text stroke for better visibility - WebKit only */
+.text-stroke-2xl {
+  -webkit-text-stroke: 3px rgba(0, 0, 0, 0.8);
+  /* Fallback for other browsers */
+  text-shadow: 
+    3px 3px 0 rgba(0, 0, 0, 0.9),
+    -3px 3px 0 rgba(0, 0, 0, 0.9),
+    3px -3px 0 rgba(0, 0, 0, 0.9),
+    -3px -3px 0 rgba(0, 0, 0, 0.9),
+    0 0 12px rgba(0, 0, 0, 1),
+    0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+.text-stroke-lg {
+  -webkit-text-stroke: 2px rgba(0, 0, 0, 0.7);
+  /* Fallback for other browsers */
+  text-shadow: 
+    2px 2px 0 rgba(0, 0, 0, 0.8),
+    -2px 2px 0 rgba(0, 0, 0, 0.8),
+    2px -2px 0 rgba(0, 0, 0, 0.8),
+    -2px -2px 0 rgba(0, 0, 0, 0.8),
+    0 0 8px rgba(0, 0, 0, 0.9),
+    0 0 15px rgba(0, 0, 0, 0.7);
+}
+
+/* Particle animations */
+.particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  background: linear-gradient(45deg, #f59e0b, #ef4444);
+  border-radius: 50%;
+  opacity: 0.7;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+}
+
+.particle-1 {
+  width: 4px;
+  height: 4px;
+  top: 20%;
+  left: 10%;
+  animation: particle-float 15s linear infinite;
+}
+
+.particle-2 {
+  width: 3px;
+  height: 3px;
+  top: 40%;
+  right: 15%;
+  animation: particle-float 12s linear infinite reverse;
+}
+
+.particle-3 {
+  width: 5px;
+  height: 5px;
+  bottom: 30%;
+  left: 20%;
+  animation: particle-float 18s linear infinite;
+}
+
+.particle-4 {
+  width: 2px;
+  height: 2px;
+  top: 60%;
+  right: 25%;
+  animation: particle-float 14s linear infinite reverse;
+}
+
+.particle-5 {
+  width: 6px;
+  height: 6px;
+  bottom: 20%;
+  right: 10%;
+  animation: particle-float 16s linear infinite;
+}
+
+.particle-6 {
+  width: 3px;
+  height: 3px;
+  top: 30%;
+  left: 40%;
+  animation: particle-float 13s linear infinite reverse;
+}
+
+.particle-7 {
+  width: 4px;
+  height: 4px;
+  bottom: 40%;
+  left: 30%;
+  animation: particle-float 17s linear infinite;
+}
+
+.particle-8 {
+  width: 5px;
+  height: 5px;
+  top: 70%;
+  right: 35%;
+  animation: particle-float 15s linear infinite reverse;
+}
+
+@keyframes particle-float {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(100px, -100px) scale(0.5);
+    opacity: 0;
+  }
+}
 </style>

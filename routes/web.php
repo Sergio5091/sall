@@ -12,16 +12,89 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-});
+})->name('welcome');
+
+Route::get('/search/rooms', function () {
+    return Inertia::render('Search/Rooms');
+})->name('search.rooms');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+// Routes protégées par rôle (temporairement sans middleware de rôle pour tester)
+use App\Http\Controllers\Promoter\DashboardController;
+use App\Http\Controllers\Promoter\NotificationsController;
+use App\Http\Controllers\Promoter\SalleController;
+use App\Http\Controllers\Promoter\EventController;
+
+Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Routes pour la gestion des salles
+    Route::get('/venues', [SalleController::class, 'index'])->name('venues');
+    Route::get('/venues/create', [SalleController::class, 'create'])->name('venues.create');
+    Route::post('/venues', [SalleController::class, 'store'])->name('venues.store');
+    Route::get('/venues/edit', [SalleController::class, 'edit'])->name('venues.edit');
+    Route::put('/venues/{salle}', [SalleController::class, 'update'])->name('venues.update');
+    Route::delete('/venues/{salle}', [SalleController::class, 'destroy'])->name('venues.destroy');
+    
+    // Routes pour la gestion des événements
+    Route::get('/events', [EventController::class, 'index'])->name('events');
+    Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
+    Route::post('/events', [EventController::class, 'store'])->name('events.store');
+    Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
+    Route::get('/events/{event}/edit', [EventController::class, 'edit'])->name('events.edit');
+    Route::put('/events/{event}', [EventController::class, 'update'])->name('events.update');
+    Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
+    Route::post('/events/{event}/duplicate', [EventController::class, 'duplicate'])->name('events.duplicate');
+    Route::post('/events/{event}/publish', [EventController::class, 'publish'])->name('events.publish');
+    Route::post('/events/{event}/cancel', [EventController::class, 'cancel'])->name('events.cancel');
+    Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications');
+    Route::post('/notifications/{id}/read', [NotificationsController::class, 'markAsRead'])->name('notifications.read');
+    Route::delete('/notifications/{id}', [NotificationsController::class, 'delete'])->name('notifications.delete');
+    Route::post('/notifications/read-all', [NotificationsController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::delete('/notifications/delete-all', [NotificationsController::class, 'deleteAll'])->name('notifications.delete-all');
+});
+
+Route::middleware(['auth'])->prefix('client')->name('client.')->group(function () {
+    Route::get('/dashboard', function () {
+        return Inertia::render('Client/Dashboard');
+    })->name('dashboard');
+    Route::get('/profile', function () {
+        return Inertia::render('Client/Profile');
+    })->name('profile');
+    
+    // Routes pour les salles (clients)
+    Route::get('/salles', [App\Http\Controllers\Client\SalleController::class, 'index'])->name('salles');
+    Route::get('/salles/{salle}', [App\Http\Controllers\Client\SalleController::class, 'show'])->name('salles.show');
+    Route::post('/salles/{salle}/reserver', [App\Http\Controllers\Client\SalleController::class, 'reserver'])->name('salles.reserver');
+});
+
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', function () {
+        return Inertia::render('Admin/Dashboard');
+    })->name('dashboard');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Routes publiques pour les événements
+Route::get('/events', [App\Http\Controllers\Public\EventController::class, 'index'])->name('events');
+Route::get('/events/{event}', [App\Http\Controllers\Public\EventController::class, 'show'])->name('events.show');
+
+// Routes publiques pour les salles
+Route::get('/salles', [App\Http\Controllers\Public\SalleController::class, 'index'])->name('public.salles');
+Route::get('/salles/{salle}', [App\Http\Controllers\Public\SalleController::class, 'show'])->name('public.salles.show');
+
+// Routes pour la recherche de salles
+Route::get('/search/rooms', [App\Http\Controllers\Search\RoomController::class, 'index'])->name('search.rooms');
+
+// Route API pour la recherche de salles à proximité par GPS
+Route::get('/api/search/nearby', [App\Http\Controllers\Search\RoomController::class, 'searchNearby']);
 
 require __DIR__.'/auth.php';
