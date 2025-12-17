@@ -8,6 +8,11 @@
   color-scheme: dark;
 }
 
+/* Ensure dark mode works properly */
+html.dark {
+  color-scheme: dark;
+}
+
 /* Custom scrollbar for dark mode */
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: #475569;
@@ -15,4 +20,39 @@
 
 .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: #64748b;
+}
+
+/* Fix for dark mode backgrounds */
+.dark body {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+/* Fix for dark mode text */
+.dark .text-slate-900 {
+  color: #f8fafc !important;
+}
+
+.dark .text-slate-800 {
+  color: #f1f5f9 !important;
+}
+
+.dark .text-slate-700 {
+  color: #e2e8f0 !important;
+}
+
+.dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-slate-400 {
+  color: #64748b !important;
+}
+
+.dark .text-slate-300 {
+  color: #475569 !important;
 }
