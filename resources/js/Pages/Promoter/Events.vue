@@ -48,36 +48,27 @@ const getStatusText = (status) => {
 const publishEvent = (evt) => {
   if (!confirm(`Publier l'événement "${evt.titre}" ?`)) return;
 
-  const formData = new FormData();
-  formData.append('_method', 'PUT');
-
-  // Map basic fields required by update validation
-  formData.append('titre', evt.titre || '');
-  formData.append('description', evt.description || '');
-  formData.append('date_debut', evt.date_debut || '');
-  formData.append('date_fin', evt.date_fin || '');
-  formData.append('prix_base', evt.prix_base ?? '0');
-  formData.append('devise', evt.devise || 'XOF');
-  formData.append('categorie', evt.categorie || 'autre');
-  formData.append('type', evt.type || 'offline');
-  formData.append('capacite_max', evt.capacite_max ?? '0');
-  formData.append('gratuit', evt.gratuit ? '1' : '0');
-  formData.append('limite_inscription', evt.limite_inscription ? '1' : '0');
-  formData.append('visibilite', evt.visibilite || 'public');
-  formData.append('contact_email', evt.contact_email || '');
-  formData.append('contact_telephone', evt.contact_telephone || '');
-  formData.append('site_web', evt.site_web || '');
-  formData.append('statut', 'publie');
-
-  // Submit update
-  router.post(`/promoter/events/${evt.id}`, formData, {
+  // Utiliser l'endpoint de publication dédié
+  router.post(`/promoter/events/${evt.id}/publish`, {}, {
     onSuccess: () => {
       // reload the list
       router.visit('/promoter/events');
     },
     onError: (errors) => {
       console.error('Erreur de publication:', errors);
-      alert('La publication a échoué. Vérifiez la console pour plus d\'infos.');
+      
+      // Afficher un message d'erreur plus spécifique
+      let errorMessage = 'La publication a échoué. ';
+      
+      if (typeof errors === 'string') {
+        errorMessage += errors;
+      } else if (errors.message) {
+        errorMessage += errors.message;
+      } else {
+        errorMessage += 'Veuillez contacter le support.';
+      }
+      
+      alert(errorMessage);
     }
   });
 };
@@ -92,7 +83,19 @@ const deleteEvent = (evt) => {
     },
     onError: (errors) => {
       console.error('Erreur suppression:', errors);
-      alert('La suppression a échoué. Voir la console pour détails.');
+      
+      let errorMessage = 'La suppression a échoué. ';
+      if (typeof errors === 'string') {
+        errorMessage += errors;
+      } else if (errors.message) {
+        errorMessage += errors.message;
+      } else if (errors.inscriptions) {
+        errorMessage += 'Des inscriptions confirmées existent. ';
+      } else {
+        errorMessage += 'Veuillez contacter le support.';
+      }
+      
+      alert(errorMessage);
     }
   });
 };
@@ -109,12 +112,12 @@ const deleteEvent = (evt) => {
     <Sidebar current-route="promoter.events" />
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto transition-all duration-300">
+    <main class="flex-1 overflow-y-auto transition-all duration-300 pt-16 lg:pt-0">
       <div class="p-8">
         <!-- Header -->
         <div class="flex flex-wrap items-center justify-between gap-4">
           <p class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Mes Événements</p>
-          <Link href="/promoter/events/create" class="flex items-center justify-center rounded-lg h-10 bg-brand-red text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] px-4 hover:bg-brand-red/90 transition-colors">
+          <Link href="/promoter/events/create" class="flex items-center justify-center rounded-lg h-10 bg-blue-600 text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] px-4 hover:bg-blue-500 transition-colors">
             <i class="fas fa-plus text-base font-bold"></i>
             <span class="truncate">Créer un événement</span>
           </Link>

@@ -131,6 +131,10 @@
                     <i class="fas fa-location-dot text-blue-600 text-xs"></i>
                     <span class="text-blue-600 text-sm font-semibold">{{ salle.distance }} km</span>
                   </div>
+                  <div v-else class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-full">
+                    <i class="fas fa-map-pin text-gray-600 text-xs"></i>
+                    <span class="text-gray-600 text-sm font-semibold">Localisation approx.</span>
+                  </div>
                 </div>
                 
                 <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
@@ -223,6 +227,10 @@
                   <div v-if="salle.distance" class="flex items-center gap-1 bg-blue-100 px-2 py-1 rounded-full">
                     <i class="fas fa-location-dot text-blue-600 text-xs"></i>
                     <span class="text-blue-600 text-sm font-semibold">{{ salle.distance }} km</span>
+                  </div>
+                  <div v-else class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-full">
+                    <i class="fas fa-map-pin text-gray-600 text-xs"></i>
+                    <span class="text-gray-600 text-sm font-semibold">Localisation approx.</span>
                   </div>
                 </div>
                 
@@ -364,6 +372,7 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
+import axios from 'axios';
 
 const props = defineProps({
     salles: Object,
@@ -426,57 +435,37 @@ const getCurrentLocation = () => {
     }
 };
 
-const searchNearbyRooms = (lat, lng) => {
+const searchNearbyRooms = async (lat, lng) => {
     isLoading.value = true;
     
-    // Simuler une recherche de salles avec distances
-    const mockRooms = [
-        {
-            id: 1,
-            nom: 'Gaming Arena Pro',
-            ville: 'Paris',
-            adresse: '15 Rue de la Paix',
-            latitude: 48.8566,
-            longitude: 2.3522,
-            capacite: 50,
-            prix_heure: 5000,
-            image_url: 'https://images.unsplash.com/photo-1511514623271-aeb3ec8a3f3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
-        },
-        {
-            id: 2,
-            nom: 'ESport Center',
-            ville: 'Paris',
-            adresse: '25 Avenue des Champs-Élysées',
-            latitude: 48.8708,
-            longitude: 2.3125,
-            capacite: 30,
-            prix_heure: 4000,
-            image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
-        },
-        {
-            id: 3,
-            nom: 'LAN Paradise',
-            ville: 'Paris',
-            adresse: '8 Boulevard Saint-Germain',
-            latitude: 48.8530,
-            longitude: 2.3499,
-            capacite: 25,
-            prix_heure: 3500,
-            image_url: 'https://images.unsplash.com/photo-1608178398316-48f4d9b6d6db?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
+    try {
+        // Appel API pour récupérer les salles depuis la base de données
+        const response = await axios.get('/api/search/nearby', {
+            params: {
+                lat: lat,
+                lng: lng,
+                radius: 50 // rayon de 50km par défaut
+            }
+        });
+        
+        searchResults.value = response.data.salles;
+        
+        if (response.data.salles.length === 0) {
+            console.log('Aucune salle trouvée dans un rayon de 50km');
         }
-    ];
-    
-    // Calculer les distances
-    const roomsWithDistance = mockRooms.map(room => {
-        const distance = calculateDistance(lat, lng, room.latitude, room.longitude);
-        return { ...room, distance };
-    });
-    
-    // Trier par distance
-    roomsWithDistance.sort((a, b) => a.distance - b.distance);
-    
-    searchResults.value = roomsWithDistance;
-    isLoading.value = false;
+    } catch (error) {
+        console.error('Erreur lors de la recherche des salles:', error);
+        searchResults.value = [];
+        
+        // Message d'erreur plus convivial
+        if (error.response && error.response.status === 422) {
+            alert('Coordonnées invalides. Veuillez réessayer.');
+        } else {
+            alert('Erreur lors de la recherche des salles. Veuillez réessayer plus tard.');
+        }
+    } finally {
+        isLoading.value = false;
+    }
 };
 
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -493,16 +482,16 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
     return Math.round(distance * 10) / 10; // Arrondir à 1 décimale
 };
 
-const searchRooms = () => {
+const searchRooms = async () => {
     if (searchQuery.value) {
         // Si la requête contient des coordonnées (lat, lng)
         const coords = searchQuery.value.split(',').map(s => s.trim());
         if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
-            searchNearbyRooms(parseFloat(coords[0]), parseFloat(coords[1]));
+            await searchNearbyRooms(parseFloat(coords[0]), parseFloat(coords[1]));
         } else {
-            // Sinon, recherche par texte
+            // Sinon, recherche par texte via les filtres existants
             console.log('Recherche de salles pour:', searchQuery.value);
-            // Ici vous pourriez faire un appel API pour rechercher par nom de ville
+            form.value.search = searchQuery.value;
         }
     }
 };

@@ -14,8 +14,15 @@ class EventController extends Controller
      */
     public function index()
     {
-        $events = Event::where('statut', '=', 'publie')
-            ->orderBy('date_debut', 'desc')
+        // Récupérer tous les événements pour déboguer
+        $allEvents = Event::get();
+        \Log::info('Total events: ' . $allEvents->count());
+        
+        foreach ($allEvents as $event) {
+            \Log::info('Event: ' . $event->titre . ', Statut: ' . $event->statut);
+        }
+
+        $events = Event::orderBy('date_debut', 'desc')
             ->get()
             ->map(function ($event) {
                 // Charger les relations seulement si disponibles

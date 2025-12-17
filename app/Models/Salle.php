@@ -76,7 +76,7 @@ class Salle extends Model
 
     public function evenements(): HasMany
     {
-        return $this->hasMany(Evenement::class);
+        return $this->hasMany(Event::class);
     }
 
     public function avis(): HasMany
