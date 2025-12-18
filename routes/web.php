@@ -32,9 +32,19 @@ use App\Http\Controllers\Promoter\DashboardController;
 use App\Http\Controllers\Promoter\NotificationsController;
 use App\Http\Controllers\Promoter\SalleController;
 use App\Http\Controllers\Promoter\EventController;
+use App\Http\Controllers\Promoter\AccountSwitchController;
 
 Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Routes pour la gestion des comptes promoteurs (API uniquement)
+    Route::get('/api/accounts', [AccountSwitchController::class, 'getAccounts'])->name('api.accounts');
+    Route::post('/accounts/add', [AccountSwitchController::class, 'addAccount'])->name('accounts.add');
+    Route::post('/accounts/switch/{accountId}', [AccountSwitchController::class, 'switch'])->name('accounts.switch');
+    Route::delete('/accounts/{accountId}', [AccountSwitchController::class, 'removeAccount'])->name('accounts.remove');
+    Route::patch('/accounts/{accountId}/nickname', [AccountSwitchController::class, 'updateNickname'])->name('accounts.update-nickname');
+    Route::get('/api/active-account', [AccountSwitchController::class, 'getActiveAccount'])->name('api.active-account');
+    Route::post('/accounts/store-link-session', [AccountSwitchController::class, 'storeLinkSession'])->name('accounts.store-link-session');
     
     // Routes pour la gestion des salles
     Route::get('/venues', [SalleController::class, 'index'])->name('venues');

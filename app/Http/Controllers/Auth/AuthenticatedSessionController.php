@@ -36,6 +36,33 @@ class AuthenticatedSessionController extends Controller
         // Récupérer l'utilisateur connecté
         $user = Auth::user();
 
+        // Vérifier si c'est une demande de liaison de compte
+        if ($request->has('link_account') && $request->get('link_account') === 'true') {
+            // Récupérer l'ID du compte principal depuis la session
+            $mainAccountId = $request->session()->get('linking_main_account_id');
+            
+            if ($mainAccountId) {
+                $mainUserModel = \App\Models\User::find($mainAccountId);
+                
+                if ($mainUserModel && $mainUserModel->isMainPromoter()) {
+                    // Lier le compte connecté au compte principal
+                    $mainUserModel->linkedPromoterAccounts()->attach($user->id, [
+                        'nickname' => $user->name,
+                        'linked_at' => now(),
+                    ]);
+                    
+                    // Se connecter automatiquement au compte principal
+                    Auth::login($mainUserModel);
+                    
+                    // Nettoyer la session
+                    $request->session()->forget('linking_main_account_id');
+                    
+                    return redirect()->intended(route('promoter.dashboard'))
+                        ->with('success', 'Le compte a été lié avec succès !');
+                }
+            }
+        }
+
         // Rediriger selon le rôle
         return match($user->role) {
             'admin' => redirect()->intended(route('admin.dashboard')),
