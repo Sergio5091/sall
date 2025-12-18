@@ -82,7 +82,7 @@ const pourcentageRemplissage = () => {
         :alt="event.name"
         class="w-full h-full object-cover opacity-70"
       >
-      <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+      <div class="absolute inset-0 bg-black/70"></div>
       
       <!-- Back Button -->
       <div class="absolute top-4 left-4 z-10">
