@@ -38,6 +38,17 @@ class DashboardController extends Controller
             'passes' => $events->where('date_fin', '<', now())->count(),
         ];
         
+        // Données pour le système multi-comptes
+        if ($user->role === 'promoter') {
+            $mainAccount = $user->isMainPromoter() ? $user : $user->getMainAccount();
+            $allAccounts = $mainAccount->getAllPromoterAccounts();
+            $activeAccount = $mainAccount->getActivePromoterAccount();
+        } else {
+            $mainAccount = null;
+            $allAccounts = collect([]);
+            $activeAccount = null;
+        }
+        
         // Sample notifications data
         $notifications = [
             [
@@ -87,7 +98,16 @@ class DashboardController extends Controller
             'salle' => $salles->first(), // Pour la compatibilité avec l'affichage existant
             'stats' => $stats,
             'events' => $events,
-            'notifications' => $notifications
+            'notifications' => $notifications,
+            // Données multi-comptes - toujours définies pour les promoteurs
+            'mainAccount' => $user->role === 'promoter' ? ($user->isMainPromoter() ? $user : $user->getMainAccount()) : null,
+            'allAccounts' => $user->role === 'promoter' ? ($user->isMainPromoter() ? $user->getAllPromoterAccounts() : collect([$user])) : collect([]),
+            'activeAccount' => $user->role === 'promoter' ? ($user->isMainPromoter() ? $user->getActivePromoterAccount() : $user) : null,
+            'activeAccountId' => $user->role === 'promoter' ? ($user->isMainPromoter() ? $user->getActivePromoterAccount()->id : $user->id) : null,
+            'isMainAccount' => $user->role === 'promoter' ? ($user->isMainPromoter() ? true : false) : false,
+            'auth' => [
+                'user' => $user
+            ]
         ]);
     }
 }

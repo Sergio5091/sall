@@ -44,8 +44,8 @@ class SalleController extends Controller
         // Statistiques pour le tableau de bord
         $stats = [
             'total' => Salle::count(),
-            'active' => Salle::where('statut', 'actif')->count(),
-            'pending' => Salle::where('statut', 'inactif')->count(),
+            'active' => Salle::where('statut', 'actif')->where('valide', true)->count(),
+            'pending' => Salle::where('valide', false)->count(),
             'disabled' => Salle::where('statut', 'maintenance')->count(),
         ];
 
@@ -83,16 +83,16 @@ class SalleController extends Controller
      */
     public function approve(Salle $salle)
     {
-        if ($salle->statut !== 'inactif') {
-            return back()->with('error', 'Seules les salles en attente peuvent être approuvées.');
+        if ($salle->valide) {
+            return back()->with('error', 'Cette salle est déjà validée.');
         }
 
-        $salle->update(['statut' => 'actif']);
+        $salle->update(['valide' => true]);
 
         // Notifier le promoteur
         // TODO: Implémenter la notification
 
-        return back()->with('success', 'La salle a été approuvée avec succès.');
+        return back()->with('success', 'La salle a été validée avec succès.');
     }
 
     /**
@@ -101,21 +101,21 @@ class SalleController extends Controller
     public function toggleStatus(Request $request, Salle $salle)
     {
         $request->validate([
-            'status' => ['required', 'string', Rule::in(['active', 'disabled'])]
+            'status' => ['required', 'string', Rule::in(['actif', 'maintenance'])]
         ]);
 
-        $oldStatus = $salle->status;
+        $oldStatus = $salle->statut;
         $newStatus = $request->input('status');
 
         if ($oldStatus === $newStatus) {
             return back()->with('info', 'Le statut de la salle n\'a pas changé.');
         }
 
-        $salle->update(['status' => $newStatus]);
+        $salle->update(['statut' => $newStatus]);
 
-        $message = $newStatus === 'active' 
+        $message = $newStatus === 'actif' 
             ? 'La salle a été réactivée avec succès.' 
-            : 'La salle a été désactivée avec succès.';
+            : 'La salle a été mise en maintenance avec succès.';
 
         // Notifier le promoteur
         // TODO: Implémenter la notification
@@ -165,9 +165,9 @@ class SalleController extends Controller
     {
         $stats = [
             'total_salles' => Salle::count(),
-            'active_salles' => Salle::where('status', 'active')->count(),
-            'pending_salles' => Salle::where('status', 'pending')->count(),
-            'disabled_salles' => Salle::where('status', 'disabled')->count(),
+            'active_salles' => Salle::where('statut', 'actif')->where('valide', true)->count(),
+            'pending_salles' => Salle::where('valide', false)->count(),
+            'disabled_salles' => Salle::where('statut', 'maintenance')->count(),
             'total_promoters' => User::where('role', 'promoter')->count(),
             'total_clients' => User::where('role', 'client')->count(),
             'recent_salles' => Salle::with('promoter')
@@ -205,7 +205,7 @@ class SalleController extends Controller
     public function bulkAction(Request $request)
     {
         $request->validate([
-            'action' => ['required', 'string', Rule::in(['approve', 'disable', 'enable', 'delete'])],
+            'action' => ['required', 'string', Rule::in(['validate', 'disable', 'enable', 'delete'])],
             'salle_ids' => ['required', 'array', 'min:1'],
             'salle_ids.*' => ['integer', 'exists:salles,id']
         ]);
@@ -215,22 +215,22 @@ class SalleController extends Controller
 
         try {
             switch ($action) {
-                case 'approve':
+                case 'validate':
                     Salle::whereIn('id', $salleIds)
-                        ->where('status', 'pending')
-                        ->update(['status' => 'active']);
-                    $message = 'Les salles sélectionnées ont été approuvées.';
+                        ->where('valide', false)
+                        ->update(['valide' => true]);
+                    $message = 'Les salles sélectionnées ont été validées.';
                     break;
 
                 case 'disable':
                     Salle::whereIn('id', $salleIds)
-                        ->update(['status' => 'disabled']);
-                    $message = 'Les salles sélectionnées ont été désactivées.';
+                        ->update(['statut' => 'maintenance']);
+                    $message = 'Les salles sélectionnées ont été mises en maintenance.';
                     break;
 
                 case 'enable':
                     Salle::whereIn('id', $salleIds)
-                        ->update(['status' => 'active']);
+                        ->update(['statut' => 'actif']);
                     $message = 'Les salles sélectionnées ont été activées.';
                     break;
 

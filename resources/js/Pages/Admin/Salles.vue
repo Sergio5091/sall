@@ -44,31 +44,40 @@ const updateFilters = () => {
   router.get(`${window.location.pathname}?${params.toString()}`, {}, { preserveState: true })
 }
 
-const getStatusClass = (status) => {
-  const classes = {
-    active: 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border border-green-200 dark:border-green-800',
-    pending: 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800',
-    disabled: 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 border border-red-200 dark:border-red-800'
+const getStatusClass = (salle) => {
+  if (!salle.valide) {
+    return 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800'
   }
-  return classes[status] || classes.pending
+  
+  const classes = {
+    actif: 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border border-green-200 dark:border-green-800',
+    maintenance: 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 border border-orange-200 dark:border-orange-800'
+  }
+  return classes[salle.statut] || classes.actif
 }
 
-const getStatusDotClass = (status) => {
-  const classes = {
-    active: 'bg-green-500',
-    pending: 'bg-yellow-500 animate-pulse',
-    disabled: 'bg-red-500'
+const getStatusDotClass = (salle) => {
+  if (!salle.valide) {
+    return 'bg-yellow-500 animate-pulse'
   }
-  return classes[status] || 'bg-yellow-500'
+  
+  const classes = {
+    actif: 'bg-green-500',
+    maintenance: 'bg-orange-500'
+  }
+  return classes[salle.statut] || 'bg-green-500'
 }
 
-const getStatusText = (status) => {
+const getStatusText = (salle) => {
+  if (!salle.valide) {
+    return 'En attente de validation'
+  }
+  
   const texts = {
-    active: 'Active',
-    pending: 'En attente',
-    disabled: 'Désactivée'
+    actif: 'Active',
+    maintenance: 'Maintenance'
   }
-  return texts[status] || 'Inconnu'
+  return texts[salle.statut] || 'Active'
 }
 
 const formatDate = (date) => {
@@ -85,7 +94,7 @@ const viewSalle = (salle) => {
 }
 
 const approveSalle = (salle) => {
-  if (confirm(`Êtes-vous sûr de vouloir approuver la salle "${salle.nom}" ?`)) {
+  if (confirm(`Êtes-vous sûr de vouloir valider la salle "${salle.nom}" ?`)) {
     router.patch(route('admin.salles.approve', salle.id), {}, {
       onSuccess: () => {
         // Message de succès géré par le backend
@@ -95,7 +104,7 @@ const approveSalle = (salle) => {
 }
 
 const toggleSalleStatus = (salle, newStatus) => {
-  const action = newStatus === 'active' ? 'réactiver' : 'désactiver'
+  const action = newStatus === 'actif' ? 'réactiver' : 'mettre en maintenance'
   if (confirm(`Êtes-vous sûr de vouloir ${action} la salle "${salle.nom}" ?`)) {
     router.patch(route('admin.salles.toggle-status', salle.id), { status: newStatus }, {
       onSuccess: () => {
@@ -216,9 +225,9 @@ const deleteSalle = (salle) => {
             class="block w-full pl-3 pr-10 py-2.5 text-base border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white appearance-none cursor-pointer"
           >
             <option value="">Tous les statuts</option>
-            <option value="active">Active</option>
-            <option value="pending">En attente</option>
-            <option value="disabled">Désactivée</option>
+            <option value="actif">Active</option>
+            <option value="pending">En attente de validation</option>
+            <option value="maintenance">Maintenance</option>
           </select>
           <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
             <i class="fas fa-chevron-down icon-sm"></i>
@@ -275,9 +284,9 @@ const deleteSalle = (salle) => {
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span :class="getStatusClass(salle.status)">
-                  <span class="size-1.5 rounded-full" :class="getStatusDotClass(salle.status)"></span>
-                  {{ getStatusText(salle.status) }}
+                <span :class="getStatusClass(salle)">
+                  <span class="size-1.5 rounded-full" :class="getStatusDotClass(salle)"></span>
+                  {{ getStatusText(salle) }}
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -286,15 +295,15 @@ const deleteSalle = (salle) => {
                     <i class="fas fa-eye icon-sm"></i>
                   </button>
                   
-                  <button v-if="salle.status === 'pending'" @click="approveSalle(salle)" class="text-slate-400 hover:text-green-600 dark:hover:text-green-500 transition-colors p-1" title="Approuver">
+                  <button v-if="!salle.valide" @click="approveSalle(salle)" class="text-slate-400 hover:text-green-600 dark:hover:text-green-500 transition-colors p-1" title="Valider">
                     <i class="fas fa-check-circle icon-sm"></i>
                   </button>
                   
-                  <button v-else-if="salle.status === 'active'" @click="toggleSalleStatus(salle, 'disabled')" class="text-slate-400 hover:text-amber-600 dark:hover:text-amber-500 transition-colors p-1" title="Désactiver (Pause)">
+                  <button v-else-if="salle.statut === 'actif'" @click="toggleSalleStatus(salle, 'maintenance')" class="text-slate-400 hover:text-amber-600 dark:hover:text-amber-500 transition-colors p-1" title="Mettre en maintenance">
                     <i class="fas fa-pause-circle icon-sm"></i>
                   </button>
                   
-                  <button v-else-if="salle.status === 'disabled'" @click="toggleSalleStatus(salle, 'active')" class="text-slate-400 hover:text-green-600 dark:hover:text-green-500 transition-colors p-1" title="Réactiver">
+                  <button v-else-if="salle.statut === 'maintenance'" @click="toggleSalleStatus(salle, 'actif')" class="text-slate-400 hover:text-green-600 dark:hover:text-green-500 transition-colors p-1" title="Réactiver">
                     <i class="fas fa-play-circle icon-sm"></i>
                   </button>
                   

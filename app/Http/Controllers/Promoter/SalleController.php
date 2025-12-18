@@ -182,7 +182,7 @@ class SalleController extends Controller
         
         // Valeurs par défaut
         $validated['statut'] = 'actif';
-        $validated['valide_par_admin'] = false;
+        $validated['valide'] = false;
         $validated['nombre_vues'] = 0;
         $validated['nombre_favoris'] = 0;
         $validated['note_moyenne'] = 0;

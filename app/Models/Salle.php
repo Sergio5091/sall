@@ -95,6 +95,18 @@ class Salle extends Model
         return "{$this->adresse}, {$this->code_postal} {$this->ville}, {$this->pays}";
     }
 
+    public function getValidationStatusAttribute(): string
+    {
+        return $this->valide ? 'validée' : 'en attente';
+    }
+
+    public function getValidationBadgeAttribute(): array
+    {
+        return $this->valide 
+            ? ['color' => 'green', 'text' => 'Validée']
+            : ['color' => 'yellow', 'text' => 'En attente'];
+    }
+
     public function getCoordinatesAttribute(): array
     {
         return [
@@ -124,10 +136,29 @@ class Salle extends Model
         return $badges[$this->statut] ?? ['color' => 'gray', 'text' => 'Inconnu'];
     }
 
+    public function getFullStatusBadgeAttribute(): array
+    {
+        if (!$this->valide) {
+            return ['color' => 'yellow', 'text' => 'En attente de validation'];
+        }
+        
+        return $this->getStatusBadgeAttribute();
+    }
+
     // Scopes
     public function scopeActif($query)
     {
         return $query->where('statut', 'actif')->where('valide', true);
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('valide', false);
+    }
+
+    public function scopeValidated($query)
+    {
+        return $query->where('valide', true);
     }
 
     public function scopeByCountry($query, $country)
@@ -164,7 +195,26 @@ class Salle extends Model
         return $this->calculateDistanceFrom($latitude, $longitude) <= $radiusKm;
     }
 
-    // Génération de slug unique
+    // Méthodes de validation
+    public function validate(): bool
+    {
+        return $this->update(['valide' => true]);
+    }
+
+    public function isPendingValidation(): bool
+    {
+        return !$this->valide;
+    }
+
+    public function isValidated(): bool
+    {
+        return $this->valide;
+    }
+
+    public function canBePublished(): bool
+    {
+        return $this->valide && $this->statut === 'actif';
+    }
     public static function generateUniqueSlug($nom)
     {
         $slug = \Str::slug($nom);

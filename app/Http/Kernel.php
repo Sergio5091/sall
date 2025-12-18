@@ -70,6 +70,9 @@ class Kernel extends HttpKernel
             
             // Gère les requêtes Inertia.js pour le rendu côté client
             \App\Http\Middleware\HandleInertiaRequests::class,
+            
+            // Définit automatiquement le compte promoteur actif
+            \App\Http\Middleware\SetActivePromoterAccount::class,
         ],
 
         // Groupe 'api' : appliqué aux routes d'API

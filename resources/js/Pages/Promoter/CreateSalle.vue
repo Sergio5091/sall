@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import Sidebar from '../../Components/Promoter/Sidebar.vue';
 import GoogleMap from '../../Components/GoogleMap.vue';
 
@@ -197,9 +197,36 @@ const submitForm = () => {
     formData.value.latitude = selectedLocation.value.lat;
     formData.value.longitude = selectedLocation.value.lng;
     
+    // Préparer les données pour l'envoi
+    const submitData = {
+        nom: formData.value.nom,
+        description: formData.value.description,
+        adresse: formData.value.adresse,
+        code_postal: formData.value.code_postal,
+        ville: formData.value.ville,
+        pays: formData.value.pays,
+        latitude: formData.value.latitude,
+        longitude: formData.value.longitude,
+        capacite_max: formData.value.capacite,
+        surface: formData.value.surface_area,
+        telephone: formData.value.telephone,
+        email: formData.value.email,
+        site_web: formData.value.site_web,
+        prix_heure: 5000, // Prix par défaut
+        statut: 'actif',
+        // Les champs valide et promoter_id seront ajoutés par le contrôleur
+    };
+    
     // Soumettre le formulaire
-    // Ici vous pouvez ajouter la logique de soumission
-    console.log('Formulaire soumis:', formData.value);
+    router.post('/promoter/venues', submitData, {
+        onSuccess: () => {
+            // Redirection automatique vers la liste des salles
+        },
+        onError: (errors) => {
+            console.error('Erreurs de validation:', errors);
+            alert('Erreur lors de la création de la salle. Veuillez vérifier les champs.');
+        }
+    });
 };
 </script>
 
