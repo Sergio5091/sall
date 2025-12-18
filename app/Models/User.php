@@ -4,13 +4,17 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
 use Laravel\Sanctum\HasApiTokens;
 
 
 use Illuminate\Notifications\Notifiable;
 use App\Models\Salle;
+use App\Models\Reservation;
 
 class User extends Authenticatable
 {
@@ -27,6 +31,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'referral_code',
+        'parent_id',
     ];
 
     /**
@@ -216,5 +222,24 @@ class User extends Authenticatable
     public function reservations()
     {
         return $this->hasMany(Reservation::class);
+    }
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id');
+    }
+
+    public static function generateUniqueReferralCode(int $length = 10): string
+    {
+        do {
+            $code = strtoupper(Str::random($length));
+        } while (self::where('referral_code', $code)->exists());
+
+        return $code;
     }
 }

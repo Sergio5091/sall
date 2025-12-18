@@ -68,18 +68,20 @@ Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(functi
     Route::delete('/notifications/delete-all', [NotificationsController::class, 'deleteAll'])->name('notifications.delete-all');
 });
 
-Route::middleware(['auth'])->prefix('client')->name('client.')->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Client/Dashboard');
-    })->name('dashboard');
-    Route::get('/profile', function () {
-        return Inertia::render('Client/Profile');
-    })->name('profile');
-    
-    // Routes pour les salles (clients)
+Route::middleware(['auth', 'role:client'])->prefix('client')->name('client.')->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\Client\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/salles', [App\Http\Controllers\Client\SalleController::class, 'index'])->name('salles');
     Route::get('/salles/{salle}', [App\Http\Controllers\Client\SalleController::class, 'show'])->name('salles.show');
     Route::post('/salles/{salle}/reserver', [App\Http\Controllers\Client\SalleController::class, 'reserver'])->name('salles.reserver');
+
+    Route::get('/reseau', [App\Http\Controllers\Client\ReseauController::class, 'index'])->name('reseau');
+    
+    // Routes pour les événements
+    Route::get('/evenements', [App\Http\Controllers\Client\EvenementController::class, 'index'])->name('evenements');
+    Route::get('/evenements/{evenement}', [App\Http\Controllers\Client\EvenementController::class, 'show'])->name('evenements.show');
+    
+    // Routes pour les réservations
+    Route::get('/reservations', [App\Http\Controllers\Client\ReservationController::class, 'index'])->name('reservations');
 });
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
@@ -140,5 +142,12 @@ Route::get('/search/rooms', [App\Http\Controllers\Search\RoomController::class, 
 
 // Route API pour la recherche de salles à proximité par GPS
 Route::get('/api/search/nearby', [App\Http\Controllers\Search\RoomController::class, 'searchNearby']);
+
+// Routes API pour les favoris (protégées par authentification web)
+Route::middleware('auth')->group(function () {
+    Route::get('/api/favorites', [App\Http\Controllers\Api\FavoriteController::class, 'index']);
+    Route::post('/api/favorites', [App\Http\Controllers\Api\FavoriteController::class, 'store']);
+    Route::delete('/api/favorites/{salleId}', [App\Http\Controllers\Api\FavoriteController::class, 'destroy']);
+});
 
 require __DIR__.'/auth.php';

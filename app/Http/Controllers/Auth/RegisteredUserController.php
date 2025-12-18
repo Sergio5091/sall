@@ -19,8 +19,21 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
+        $ref = $request->query('ref');
+        $referrer = null;
+
+        if ($ref) {
+            $referrer = User::query()
+                ->where('referral_code', $ref)
+                ->first();
+
+            if ($referrer) {
+                $request->session()->put('ref', $ref);
+            }
+        }
+
         // Récupérer les rôles disponibles (client et promoter)
         $roles = [
             'client' => 'Client',
@@ -28,7 +41,12 @@ class RegisteredUserController extends Controller
         ];
         
         return Inertia::render('Auth/Register', [
-            'availableRoles' => $roles
+            'availableRoles' => $roles,
+            'ref' => $ref,
+            'referrer' => $referrer ? [
+                'id' => $referrer->id,
+                'name' => $referrer->name,
+            ] : null,
         ]);
     }
 
@@ -39,12 +57,24 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        if (!$request->filled('ref') && $request->session()->has('ref')) {
+            $request->merge(['ref' => $request->session()->get('ref')]);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => 'required|in:client,promoter'
+            'role' => 'required|in:client,promoter',
+            'ref' => 'nullable|string|exists:users,referral_code',
         ]);
+
+        $parentId = null;
+        if (!empty($validated['ref'])) {
+            $parentId = User::query()
+                ->where('referral_code', $validated['ref'])
+                ->value('id');
+        }
 
         // Créer l'utilisateur
         $user = User::create([
@@ -52,7 +82,11 @@ class RegisteredUserController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'], // Sauvegarder le rôle dans la colonne
+            'referral_code' => User::generateUniqueReferralCode(),
+            'parent_id' => $parentId,
         ]);
+
+        $request->session()->forget('ref');
 
         // Si Spatie est installé et configuré, assigner le rôle
         if (class_exists('\Spatie\Permission\Models\Role') && \Spatie\Permission\Models\Role::count() > 0) {

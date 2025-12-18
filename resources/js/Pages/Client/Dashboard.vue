@@ -1,6 +1,6 @@
 <script setup>
-import { Head } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { Head, Link } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 import Navbar from '@/Components/Navbar.vue';
 
 const props = defineProps({
@@ -16,8 +16,11 @@ const props = defineProps({
 
 const userName = computed(() => props.user?.name || 'Alex');
 const nextReservations = computed(() => props.stats?.next_reservations ?? props.stats?.nextReservations ?? 2);
-const invitationsPending = computed(() => props.stats?.invitations_pending ?? props.stats?.invitationsPending ?? 3);
-const credits = computed(() => props.stats?.credits ?? 150);
+const invitationsPending = computed(() => props.stats?.invitations_pending ?? props.stats?.invitationsPending ?? 0);
+const credits = computed(() => props.stats?.credits ?? 0);
+
+const directReferralsCount = computed(() => props.stats?.direct_referrals ?? 0);
+const communitySize = computed(() => props.stats?.community_size ?? 0);
 
 const activityList = computed(() => (props.activity && props.activity.length) ? props.activity : [
   {
@@ -29,6 +32,57 @@ const activityList = computed(() => (props.activity && props.activity.length) ? 
     image: 'https://picsum.photos/seed/tournament/800/600'
   }
 ]);
+
+const recommendedEvents = computed(() => {
+  const events = [];
+  const source = (props.upcoming && props.upcoming.length)
+    ? props.upcoming
+    : ((props.activity && props.activity.length) ? props.activity : []);
+
+  for (const item of source) {
+    const looksLikeEvent = item?.type === 'event' || item?.titre || item?.title || item?.name;
+    if (!looksLikeEvent) continue;
+
+    const id = item?.id;
+    events.push({
+      id,
+      title: item?.titre || item?.title || item?.name || 'Événement',
+      subtitle: item?.subtitle || item?.description || item?.resume || '',
+      location: item?.lieu || item?.location || item?.salle?.nom || '',
+      image: item?.image_affiche || item?.image || item?.image_url || null,
+      href: id ? `/client/evenements/${id}` : '/client/evenements'
+    });
+  }
+
+  if (events.length) return events.slice(0, 3);
+
+  return [
+    {
+      id: null,
+      title: 'League of Legends Championship',
+      subtitle: 'Tournoi compétitif avec des lots à gagner.',
+      location: 'Dakar',
+      image: 'https://picsum.photos/seed/lol/800/600',
+      href: '/client/evenements'
+    },
+    {
+      id: null,
+      title: 'Gaming Night',
+      subtitle: 'Soirée gaming multi-jeux et animations.',
+      location: 'Thiès',
+      image: 'https://picsum.photos/seed/gamingnight/800/600',
+      href: '/client/evenements'
+    },
+    {
+      id: null,
+      title: 'Showmatch Pro Players',
+      subtitle: "Matchs d'exhibition avec des joueurs invités.",
+      location: 'Saint-Louis',
+      image: 'https://picsum.photos/seed/showmatch/800/600',
+      href: '/client/evenements'
+    }
+  ];
+});
 
 const newVenuesList = computed(() => (props.newVenues && props.newVenues.length) ? props.newVenues : [
   {
@@ -49,9 +103,33 @@ const upcomingList = computed(() => (props.upcoming && props.upcoming.length) ? 
     avatars: 3
   }
 ]);
-
-const nearbyList = computed(() => (props.nearby && props.nearby.length) ? props.nearby : []);
 const referralLink = computed(() => props.referral || 'gamecenter.com/invite/alex123');
+
+const copyState = ref('idle');
+
+const copyReferralLink = async () => {
+  if (!referralLink.value) return;
+
+  try {
+    await navigator.clipboard.writeText(referralLink.value);
+    copyState.value = 'copied';
+    setTimeout(() => (copyState.value = 'idle'), 1500);
+  } catch (e) {
+    try {
+      const el = document.createElement('textarea');
+      el.value = referralLink.value;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      copyState.value = 'copied';
+      setTimeout(() => (copyState.value = 'idle'), 1500);
+    } catch (e2) {
+      copyState.value = 'error';
+      setTimeout(() => (copyState.value = 'idle'), 1500);
+    }
+  }
+};
 </script>
 
 <template>
@@ -75,22 +153,11 @@ const referralLink = computed(() => props.referral || 'gamecenter.com/invite/ale
           </div>
           <!-- Client Navigation -->
           <nav class="hidden md:flex items-center gap-6">
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/dashboard">Dashboard</a>
+            <a class="text-black text-sm font-medium text-accent-cyan" href="/client/dashboard">Dashboard</a>
             <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/salles">Salles</a>
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="#">Événements</a>
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="#">Mes Réservations</a>
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/profile">Profil</a>
+            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/evenements">Événements</a>
+            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/reservations">Mes Réservations</a>
           </nav>
-        </div>
-        <div class="hidden md:flex flex-1 justify-center">
-          <label class="flex flex-col w-full max-w-sm h-11">
-            <div class="flex w-full flex-1 items-stretch rounded-full h-full">
-              <div class="text-[#6b7280] flex bg-[#e5e7eb] items-center justify-center pl-4 rounded-l-full">
-                <i class="fas fa-search text-xl"></i>
-              </div>
-              <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-black focus:outline-0 focus:ring-0 border-none bg-[#e5e7eb] h-full placeholder:text-[#6b7280] px-4 rounded-r-full text-base font-normal leading-normal" placeholder="Rechercher une salle, un jeu..."/>
-            </div>
-          </label>
         </div>
         <div class="flex items-center gap-3">
           <button class="flex relative cursor-pointer items-center justify-center overflow-hidden rounded-full size-10 bg-[#e5e7eb] text-black gap-2">
@@ -117,10 +184,10 @@ const referralLink = computed(() => props.referral || 'gamecenter.com/invite/ale
                 <i class="fas fa-calendar text-lg"></i>
                 <span>Réserver une salle</span>
               </button>
-              <button class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold rounded-full bg-subtle-light hover:bg-border-light">
+              <Link href="/client/reseau" class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold rounded-full bg-subtle-light hover:bg-border-light">
                 <i class="fas fa-user-plus text-lg"></i>
                 <span>Inviter des amis</span>
-              </button>
+              </Link>
               <button class="hidden md:flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold rounded-full bg-subtle-light hover:bg-border-light">
                 <i class="fas fa-history text-lg"></i>
                 <span>Voir mon historique</span>
@@ -159,42 +226,26 @@ const referralLink = computed(() => props.referral || 'gamecenter.com/invite/ale
             </div>
           </div>
 
-          <!-- Main Content Grid -->
+           <!-- Main Content Grid -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Left Column - Activity Feed -->
             <div class="lg:col-span-2 flex flex-col gap-6">
               <h2 class="text-2xl font-bold tracking-[-0.015em]">Flux d'activité personnalisé</h2>
               
               <div class="flex flex-col gap-6">
-                <template v-for="(item, idx) in activityList.slice(0,2)" :key="idx">
-                  <div v-if="item.type === 'event' || !item.type" class="flex flex-col sm:flex-row gap-6 p-4 rounded-lg bg-content-light border border-border-light">
-                    <div class="w-full sm:w-48 h-48 sm:h-auto bg-cover bg-center rounded" :style="`background-image: url('${item.image || 'https://picsum.photos/seed/tournament/800/600'}')`"></div>
+                <template v-for="(evt, idx) in recommendedEvents" :key="evt.id ?? idx">
+                  <div class="flex flex-col sm:flex-row gap-6 p-4 rounded-lg bg-content-light border border-border-light">
+                    <div class="w-full sm:w-48 h-48 sm:h-auto bg-cover bg-center rounded" :style="`background-image: url('${evt.image || 'https://picsum.photos/seed/tournament/800/600'}')`"></div>
                     <div class="flex flex-col justify-between flex-1">
                       <div>
-                        <p class="text-xs font-bold uppercase text-primary">Événement Recommandé</p>
-                        <h3 class="text-xl font-bold mt-1">{{ item.title }}</h3>
-                        <p class="text-sm mt-2 text-text-light/70">{{ item.subtitle }}</p>
-                        <p class="text-sm font-medium mt-2">📍 {{ item.location }} | {{ item.distance || '' }}</p>
+                        <p class="text-xs font-bold uppercase text-primary">Événement disponible</p>
+                        <h3 class="text-xl font-bold mt-1">{{ evt.title }}</h3>
+                        <p class="text-sm mt-2 text-text-light/70">{{ evt.subtitle }}</p>
+                        <p v-if="evt.location" class="text-sm font-medium mt-2">📍 {{ evt.location }}</p>
                       </div>
                       <div class="flex gap-2 mt-4">
-                        <button class="px-4 py-2 text-sm font-bold text-white bg-primary rounded-full w-full sm:w-auto">S'inscrire</button>
-                        <button class="px-4 py-2 text-sm font-bold bg-subtle-light rounded-full w-full sm:w-auto">Voir les détails</button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div v-else-if="item.type === 'venue'" class="flex flex-col sm:flex-row gap-6 p-4 rounded-lg bg-content-light border border-border-light">
-                    <div class="w-full sm:w-48 h-48 sm:h-auto bg-cover bg-center rounded" :style="`background-image: url('${item.image || 'https://picsum.photos/seed/venue2/800/600'}')`"></div>
-                    <div class="flex flex-col justify-between flex-1">
-                      <div>
-                        <p class="text-xs font-bold uppercase text-primary">Nouveauté près de chez vous</p>
-                        <h3 class="text-xl font-bold mt-1">{{ item.title }}</h3>
-                        <p class="text-sm mt-2 text-text-light/70">{{ item.subtitle }}</p>
-                        <p class="text-sm font-medium mt-2">📍 {{ item.location }} | {{ item.distance || '' }}</p>
-                      </div>
-                      <div class="flex gap-2 mt-4">
-                        <button class="px-4 py-2 text-sm font-bold text-white bg-primary rounded-full w-full sm:w-auto">Réserver</button>
-                        <button class="px-4 py-2 text-sm font-bold bg-subtle-light rounded-full w-full sm:w-auto">Voir la salle</button>
+                        <a :href="evt.href" class="px-4 py-2 text-sm font-bold bg-subtle-light rounded-full w-full sm:w-auto text-center">Voir les détails</a>
+                        <a :href="evt.href" class="px-4 py-2 text-sm font-bold text-white bg-primary rounded-full w-full sm:w-auto text-center">Réserver</a>
                       </div>
                     </div>
                   </div>
@@ -224,19 +275,6 @@ const referralLink = computed(() => props.referral || 'gamecenter.com/invite/ale
 
             <!-- Right Column - Sidebar -->
             <div class="flex flex-col gap-6">
-              <!-- Nearby Venues -->
-              <div class="bg-content-light rounded-lg p-6 border border-border-light">
-                <h3 class="text-xl font-bold">Salles proches</h3>
-                <div class="mt-4 grid grid-cols-1 gap-3">
-                  <template v-if="nearbyList.length">
-                    <div v-for="(v, idx) in nearbyList.slice(0,3)" :key="idx" class="aspect-square w-full bg-cover bg-center rounded" :style="`background-image: url('${v.image || 'https://picsum.photos/seed/nearby/400/400'}')`"></div>
-                  </template>
-                  <template v-else>
-                    <div class="aspect-square w-full bg-cover bg-center rounded bg-gray-200"></div>
-                  </template>
-                </div>
-              </div>
-
               <!-- Referral Link -->
               <div class="bg-content-light rounded-lg p-6 border border-border-light">
                 <h3 class="text-xl font-bold">Mon Lien de Recommandation</h3>
@@ -248,10 +286,12 @@ const referralLink = computed(() => props.referral || 'gamecenter.com/invite/ale
                     type="text" 
                     :value="referralLink"
                   />
-                  <button class="absolute top-1/2 right-2 -translate-y-1/2 p-1.5 rounded-full bg-primary text-white">
+                  <button type="button" @click="copyReferralLink" class="absolute top-1/2 right-2 -translate-y-1/2 p-1.5 rounded-full bg-primary text-white">
                     <i class="fas fa-copy text-sm"></i>
                   </button>
                 </div>
+                <p v-if="copyState === 'copied'" class="text-sm text-green-700 mt-2">Lien copié !</p>
+                <p v-else-if="copyState === 'error'" class="text-sm text-red-700 mt-2">Impossible de copier. Copiez manuellement.</p>
                 <div class="flex justify-center gap-4 mt-4">
                   <button class="flex size-10 items-center justify-center rounded-full bg-subtle-light text-lg">f</button>
                   <button class="flex size-10 items-center justify-center rounded-full bg-subtle-light text-lg">X</button>
@@ -260,7 +300,7 @@ const referralLink = computed(() => props.referral || 'gamecenter.com/invite/ale
                   </button>
                 </div>
                 <div class="mt-4 text-center">
-                  <p class="text-sm font-medium"><span class="font-bold text-primary">5</span> amis invités | <span class="font-bold text-primary">75</span> crédits gagnés</p>
+                  <p class="text-sm font-medium"><span class="font-bold text-primary">{{ directReferralsCount }}</span> ami(s) invité(s) | <span class="font-bold text-primary">{{ communitySize }}</span> dans la communauté</p>
                 </div>
               </div>
             </div>
@@ -278,8 +318,8 @@ const referralLink = computed(() => props.referral || 'gamecenter.com/invite/ale
 .bg-subtle-light { background-color: #f0f4f2; }
 .text-text-light { color: #111813; }
 .text-text-light\/70 { color: #111813; opacity: 0.7; }
-.text-primary { color: #13ec5b; }
-.bg-primary { background-color: #13ec5b; }
+.text-primary { color: #3b82f6; }
+.bg-primary { background-color: #3b82f6; }
 .border-border-light { border-color: #dbe6df; }
 .hover\:bg-border-light:hover { background-color: #dbe6df; }
 

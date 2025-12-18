@@ -26,13 +26,13 @@
     </header>
     
     <!-- Hero Section -->
-    <section class="relative pt-24 pb-16 bg-gradient-to-br from-blue-50 to-gray-100">
+    <section class="relative pt-24 pb-16 bg-blue-600">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center animate-fade-in-up">
-          <h1 class="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-gray-800 leading-tight mb-6">
+          <h1 class="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-white leading-tight mb-6">
             Événements Gaming
           </h1>
-          <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p class="text-xl text-white/90 max-w-3xl mx-auto">
             Découvrez les tournois, compétitions et événements gaming près de chez vous
           </p>
         </div>
@@ -112,7 +112,7 @@
                 {{ getStatusText(event.status) }}
               </span>
             </div>
-            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+            <div class="absolute bottom-0 left-0 right-0 bg-black/70 p-4">
               <h3 class="text-white text-xl font-bold">{{ event.name }}</h3>
             </div>
           </div>
