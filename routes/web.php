@@ -9,10 +9,15 @@ Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
+        'laravelVersion' => app()->version(),
         'phpVersion' => PHP_VERSION,
     ]);
 })->name('welcome');
+
+// Route pour la connexion admin
+Route::get('/admin/login', function () {
+    return Inertia::render('Admin/Login');
+})->name('admin.login');
 
 Route::get('/search/rooms', function () {
     return Inertia::render('Search/Rooms');
