@@ -7,12 +7,19 @@ import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import MainNavbar from '@/Components/MainNavbar.vue';
 
+const props = defineProps({
+    availableRoles: Object,
+    ref: String,
+    referrer: Object,
+});
+
 const form = useForm({
     name: '',
     email: '',
     password: '',
     password_confirmation: '',
     role: '', // Vide pour forcer la sélection
+    ref: props.ref || '',
 });
 
 const submit = () => {
@@ -44,7 +51,7 @@ const submit = () => {
               <a href="/login" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-200 text-gray-800 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 transition-colors">
                 <span class="truncate">Connexion</span>
               </a>
-              <a href="/register" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-800 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-700 transition-all">
+              <a :href="form.ref ? ('/register?ref=' + form.ref) : '/register'" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-800 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-700 transition-all">
                 <span class="truncate">S'inscrire</span>
               </a>
             </div>
@@ -59,6 +66,10 @@ const submit = () => {
                         <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-gray-800">Créer un compte</h1>
                         <p class="mt-2 text-gray-600">Rejoignez notre communauté de joueurs passionnés</p>
                     </header>
+
+                    <div v-if="form.ref" class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+                        Vous vous inscrivez via le lien de parrainage de <span class="font-semibold">{{ props.referrer?.name || 'un utilisateur' }}</span>.
+                    </div>
 
                     <form @submit.prevent="submit" class="space-y-6">
                         <!-- Nom complet -->

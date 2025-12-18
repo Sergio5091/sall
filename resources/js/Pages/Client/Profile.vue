@@ -25,21 +25,10 @@ import { ref } from 'vue';
           <!-- Client Navigation -->
           <nav class="hidden md:flex items-center gap-6">
             <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/dashboard">Dashboard</a>
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="#">Salles</a>
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="#">Événements</a>
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="#">Mes Réservations</a>
-            <a class="text-black text-sm font-medium text-accent-cyan" href="/client/profile">Profil</a>
+            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/salles">Salles</a>
+            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/evenements">Événements</a>
+            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/reservations">Mes Réservations</a>
           </nav>
-        </div>
-        <div class="hidden md:flex flex-1 justify-center">
-          <label class="flex flex-col w-full max-w-sm h-11">
-            <div class="flex w-full flex-1 items-stretch rounded-full h-full">
-              <div class="text-[#6b7280] flex bg-[#e5e7eb] items-center justify-center pl-4 rounded-l-full">
-                <i class="fas fa-search text-xl"></i>
-              </div>
-              <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-black focus:outline-0 focus:ring-0 border-none bg-[#e5e7eb] h-full placeholder:text-[#6b7280] px-4 rounded-r-full text-base font-normal leading-normal" placeholder="Rechercher une salle, un jeu..."/>
-            </div>
-          </label>
         </div>
         <div class="flex items-center gap-3">
           <button class="flex relative cursor-pointer items-center justify-center overflow-hidden rounded-full size-10 bg-[#e5e7eb] text-black gap-2">
