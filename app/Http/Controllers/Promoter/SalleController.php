@@ -20,13 +20,23 @@ class SalleController extends Controller
         $user = Auth::user();
         $salle = Salle::where('promoter_id', $user->id)->first();
 
+        // Ajouter les données de notifications pour le sidebar
+        $unreadCount = \App\Models\Notification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->count();
+            
+        // DEBUG
+        \Log::info('DEBUG SalleController index() - unreadCount: ' . $unreadCount);
+        \Log::info('DEBUG SalleController index() - user_id: ' . $user->id);
+
         // Toujours afficher Venues.vue avec les données appropriées
         return Inertia::render('Promoter/Venues', [
             'salle' => $salle,
             'coordinates' => $salle ? [
                 'lat' => (float) $salle->latitude,
                 'lng' => (float) $salle->longitude
-            ] : null
+            ] : null,
+            'unreadCount' => $unreadCount
         ]);
     }
 
@@ -43,12 +53,18 @@ class SalleController extends Controller
                 ->with('error', 'Vous n\'êtes pas autorisé à voir cette salle.');
         }
 
+        // Ajouter les données de notifications pour le sidebar
+        $unreadCount = \App\Models\Notification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->count();
+
         return Inertia::render('Promoter/Venues', [
             'salle' => $salle,
             'coordinates' => [
                 'lat' => (float) $salle->latitude,
                 'lng' => (float) $salle->longitude
-            ]
+            ],
+            'unreadCount' => $unreadCount
         ]);
     }
 
@@ -65,6 +81,11 @@ class SalleController extends Controller
                 ->with('error', 'Vous avez déjà une salle. Vous ne pouvez en avoir qu\'une seule.');
         }
 
+        // Ajouter les données de notifications pour le sidebar
+        $unreadCount = \App\Models\Notification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->count();
+
         return Inertia::render('Promoter/CreateSalle', [
             'defaultCoordinates' => [
                 'lat' => 14.6928, // Dakar par défaut
@@ -72,7 +93,8 @@ class SalleController extends Controller
             ],
             'pays_africains' => $this->getAfricanCountries(),
             'types_salle' => $this->getVenueTypes(),
-            'categories_salle' => $this->getVenueCategories()
+            'categories_salle' => $this->getVenueCategories(),
+            'unreadCount' => $unreadCount
         ]);
     }
 
@@ -195,6 +217,16 @@ class SalleController extends Controller
         // Créer la salle
         $salle = Salle::create($validated);
         
+        // Envoyer une notification au promoteur
+        \App\Models\Notification::createForUser(
+            $user->id,
+            'Salle en attente de validation',
+            "Votre salle '{$salle->nom}' a été créée avec succès et est en attente de validation par notre équipe d'administration.",
+            'warning',
+            'salle',
+            $salle->id
+        );
+        
         // Vérifier après création
         \Log::info('Salle créée:', ['id' => $salle->id, 'valide' => $salle->valide, 'statut' => $salle->statut]);
 
@@ -215,6 +247,11 @@ class SalleController extends Controller
                 ->with('error', 'Vous n\'avez pas encore de salle.');
         }
 
+        // Ajouter les données de notifications pour le sidebar
+        $unreadCount = \App\Models\Notification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->count();
+
         return Inertia::render('Promoter/EditSalle', [
             'salle' => $salle,
             'coordinates' => [
@@ -223,7 +260,8 @@ class SalleController extends Controller
             ],
             'pays_africains' => $this->getAfricanCountries(),
             'types_salle' => $this->getVenueTypes(),
-            'categories_salle' => $this->getVenueCategories()
+            'categories_salle' => $this->getVenueCategories(),
+            'unreadCount' => $unreadCount
         ]);
     }
 

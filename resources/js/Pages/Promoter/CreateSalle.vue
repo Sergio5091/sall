@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import Sidebar from '../../Components/Promoter/Sidebar.vue';
 import GoogleMap from '../../Components/GoogleMap.vue';
+import NotificationModal from '../../Components/NotificationModal.vue';
 
 const props = defineProps({
     defaultCoordinates: Object,
@@ -10,6 +11,12 @@ const props = defineProps({
     typesSalle: Object,
     categoriesSalle: Object
 });
+
+// États pour les modaux
+const showNotificationModal = ref(false);
+const notificationType = ref('error');
+const notificationTitle = ref('');
+const notificationMessage = ref('');
 
 const selectedLocation = ref({
     lat: props.defaultCoordinates?.lat || 14.6928,
@@ -225,7 +232,10 @@ const submitForm = () => {
         onError: (errors) => {
             console.error('Erreurs de validation:', errors);
             console.error('Données envoyées:', submitData);
-            alert('Erreur lors de la création de la salle. Veuillez vérifier les champs.');
+            notificationType.value = 'error';
+            notificationTitle.value = 'Erreur de création';
+            notificationMessage.value = 'Erreur lors de la création de la salle. Veuillez vérifier les champs.';
+            showNotificationModal.value = true;
         }
     });
 };
@@ -382,4 +392,13 @@ const submitForm = () => {
       </div>
     </main>
   </div>
+
+  <!-- Notification Modal -->
+  <NotificationModal
+    :show="showNotificationModal"
+    :type="notificationType"
+    :title="notificationTitle"
+    :message="notificationMessage"
+    @close="showNotificationModal = false"
+  />
 </template>

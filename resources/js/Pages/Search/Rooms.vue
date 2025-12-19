@@ -373,12 +373,19 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 import axios from 'axios';
+import NotificationModal from '../../Components/NotificationModal.vue';
 
 const props = defineProps({
     salles: Object,
     villes: Array,
     filters: Object
 });
+
+// États pour les modaux
+const showNotificationModal = ref(false);
+const notificationType = ref('error');
+const notificationTitle = ref('');
+const notificationMessage = ref('');
 
 const form = ref({
     search: props.filters.search || '',
@@ -427,11 +434,17 @@ const getCurrentLocation = () => {
             },
             (error) => {
                 console.error('Erreur de géolocalisation:', error);
-                alert('Impossible d\'obtenir votre position. Veuillez entrer votre adresse manuellement.');
+                notificationType.value = 'error';
+                notificationTitle.value = 'Erreur de géolocalisation';
+                notificationMessage.value = 'Impossible d\'obtenir votre position. Veuillez entrer votre adresse manuellement.';
+                showNotificationModal.value = true;
             }
         );
     } else {
-        alert('La géolocalisation n\'est pas supportée par votre navigateur.');
+        notificationType.value = 'error';
+        notificationTitle.value = 'Erreur de géolocalisation';
+        notificationMessage.value = 'La géolocalisation n\'est pas supportée par votre navigateur.';
+        showNotificationModal.value = true;
     }
 };
 
@@ -459,9 +472,15 @@ const searchNearbyRooms = async (lat, lng) => {
         
         // Message d'erreur plus convivial
         if (error.response && error.response.status === 422) {
-            alert('Coordonnées invalides. Veuillez réessayer.');
+            notificationType.value = 'error';
+            notificationTitle.value = 'Erreur de recherche';
+            notificationMessage.value = 'Coordonnées invalides. Veuillez réessayer.';
+            showNotificationModal.value = true;
         } else {
-            alert('Erreur lors de la recherche des salles. Veuillez réessayer plus tard.');
+            notificationType.value = 'error';
+            notificationTitle.value = 'Erreur de recherche';
+            notificationMessage.value = 'Erreur lors de la recherche des salles. Veuillez réessayer plus tard.';
+            showNotificationModal.value = true;
         }
     } finally {
         isLoading.value = false;
@@ -502,5 +521,14 @@ const searchRooms = async () => {
 .group:hover .group-hover\:text-accent-cyan {
   color: #00ffff;
 }
+
+<!-- Notification Modal -->
+<NotificationModal
+  :show="showNotificationModal"
+  :type="notificationType"
+  :title="notificationTitle"
+  :message="notificationMessage"
+  @close="showNotificationModal = false"
+/>
 
 </style>

@@ -2,6 +2,8 @@
 import { ref, computed } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import Sidebar from '../../Components/Promoter/Sidebar.vue';
+import ConfirmModal from '../../Components/ConfirmModal.vue';
+import NotificationModal from '../../Components/NotificationModal.vue';
 
 const props = defineProps({
     event: {
@@ -9,6 +11,18 @@ const props = defineProps({
         required: true
     }
 });
+
+// États pour les modaux
+const showConfirmModal = ref(false);
+const confirmTitle = ref('');
+const confirmMessage = ref('');
+const confirmAction = ref(null);
+const confirmData = ref(null);
+
+const showNotificationModal = ref(false);
+const notificationType = ref('success');
+const notificationTitle = ref('');
+const notificationMessage = ref('');
 
 // État du formulaire
 const eventForm = ref({
@@ -105,9 +119,18 @@ const updateEvent = () => {
 
 // Publier l'événement (met à jour le statut puis redirige)
 const publishEvent = () => {
-  if (!confirm('Confirmez-vous la publication de cet événement ?')) return;
+  confirmTitle.value = 'Publier l\'événement';
+  confirmMessage.value = 'Confirmez-vous la publication de cet événement ?';
+  confirmAction.value = 'publish';
+  showConfirmModal.value = true;
+};
 
-  // Forcer le statut à 'publie'
+// Confirmer l'action
+const confirmActionHandler = () => {
+  if (!confirmAction.value) return;
+  
+  if (confirmAction.value === 'publish') {
+    // Forcer le statut à 'publie'
   eventForm.value.statut = 'publie';
 
   const formData = new FormData();
@@ -132,13 +155,27 @@ const publishEvent = () => {
 
   router.post(`/promoter/events/${props.event.id}`, formData, {
     onSuccess: () => {
-      window.location.href = '/promoter/events';
+      notificationType.value = 'success';
+      notificationTitle.value = 'Succès';
+      notificationMessage.value = 'Événement publié avec succès !';
+      showNotificationModal.value = true;
+      setTimeout(() => {
+        window.location.href = '/promoter/events';
+      }, 1500);
     },
     onError: (errors) => {
       console.error('Erreurs:', errors);
+      notificationType.value = 'error';
+      notificationTitle.value = 'Erreur';
+      notificationMessage.value = 'Une erreur est survenue lors de la publication.';
+      showNotificationModal.value = true;
     }
   });
-};
+  
+  // Réinitialiser
+  showConfirmModal.value = false;
+  confirmAction.value = null;
+}
 
 // Gestion des fichiers
 const handleImageUpload = (event) => {
@@ -332,4 +369,23 @@ const handleImageUpload = (event) => {
       </div>
     </main>
   </div>
+
+  <!-- Confirm Modal -->
+  <ConfirmModal
+    :show="showConfirmModal"
+    :title="confirmTitle"
+    :message="confirmMessage"
+    @confirm="confirmActionHandler"
+    @cancel="showConfirmModal = false"
+    @close="showConfirmModal = false"
+  />
+
+  <!-- Notification Modal -->
+  <NotificationModal
+    :show="showNotificationModal"
+    :type="notificationType"
+    :title="notificationTitle"
+    :message="notificationMessage"
+    @close="showNotificationModal = false"
+  />
 </template>

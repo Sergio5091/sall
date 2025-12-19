@@ -3,6 +3,8 @@ import AdminLayout from '@/Layouts/AdminLayout.vue'
 import { Link, router } from '@inertiajs/vue3'
 import { ref, watch } from 'vue'
 import { debounce } from 'lodash'
+import ConfirmModal from '../../Components/ConfirmModal.vue'
+import NotificationModal from '../../Components/NotificationModal.vue'
 
 defineOptions({ layout: AdminLayout })
 
@@ -13,7 +15,19 @@ const props = defineProps({
 })
 
 const searchQuery = ref(props.filters?.search || '')
-const statusFilter = ref(props.filters?.status || '')
+const selectedStatus = ref(props.filters?.status || '')
+
+// États pour les modaux
+const showConfirmModal = ref(false)
+const confirmTitle = ref('')
+const confirmMessage = ref('')
+const confirmAction = ref(null)
+const confirmData = ref(null)
+
+const showNotificationModal = ref(false)
+const notificationType = ref('success')
+const notificationTitle = ref('')
+const notificationMessage = ref('')
 const showCreateModal = ref(false)
 const showDetailModal = ref(false)
 const selectedSalle = ref(null)
@@ -94,34 +108,88 @@ const viewSalle = (salle) => {
 }
 
 const approveSalle = (salle) => {
-  if (confirm(`Êtes-vous sûr de vouloir valider la salle "${salle.nom}" ?`)) {
-    router.patch(route('admin.salles.approve', salle.id), {}, {
-      onSuccess: () => {
-        // Message de succès géré par le backend
-      }
-    })
-  }
-}
+  confirmTitle.value = 'Valider la salle';
+  confirmMessage.value = `Êtes-vous sûr de vouloir valider la salle "${salle.nom}" ?`;
+  confirmAction.value = 'approve';
+  confirmData.value = salle;
+  showConfirmModal.value = true;
+};
 
 const toggleSalleStatus = (salle, newStatus) => {
   const action = newStatus === 'actif' ? 'réactiver' : 'mettre en maintenance'
-  if (confirm(`Êtes-vous sûr de vouloir ${action} la salle "${salle.nom}" ?`)) {
-    router.patch(route('admin.salles.toggle-status', salle.id), { status: newStatus }, {
-      onSuccess: () => {
-        // Message de succès géré par le backend
-      }
-    })
-  }
-}
+  confirmTitle.value = 'Changer le statut de la salle';
+  confirmMessage.value = `Êtes-vous sûr de vouloir ${action} la salle "${salle.nom}" ?`;
+  confirmAction.value = 'toggle-status';
+  confirmData.value = { salle, newStatus };
+  showConfirmModal.value = true;
+};
 
 const deleteSalle = (salle) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer définitivement la salle "${salle.nom}" ? Cette action est irréversible.`)) {
+  confirmTitle.value = 'Supprimer la salle';
+  confirmMessage.value = `Êtes-vous sûr de vouloir supprimer définitivement la salle "${salle.nom}" ? Cette action est irréversible.`;
+  confirmAction.value = 'delete';
+  confirmData.value = salle;
+  showConfirmModal.value = true;
+};
+
+// Confirmer l'action
+const confirmActionHandler = () => {
+  if (!confirmAction.value || !confirmData.value) return;
+  
+  if (confirmAction.value === 'approve') {
+    const salle = confirmData.value;
+    router.patch(route('admin.salles.approve', salle.id), {}, {
+      onSuccess: () => {
+        notificationType.value = 'success';
+        notificationTitle.value = 'Succès';
+        notificationMessage.value = 'Salle validée avec succès !';
+        showNotificationModal.value = true;
+      },
+      onError: (errors) => {
+        notificationType.value = 'error';
+        notificationTitle.value = 'Erreur';
+        notificationMessage.value = 'Une erreur est survenue lors de la validation.';
+        showNotificationModal.value = true;
+      }
+    });
+  } else if (confirmAction.value === 'toggle-status') {
+    const { salle, newStatus } = confirmData.value;
+    router.patch(route('admin.salles.toggle-status', salle.id), { status: newStatus }, {
+      onSuccess: () => {
+        notificationType.value = 'success';
+        notificationTitle.value = 'Succès';
+        notificationMessage.value = 'Statut de la salle modifié avec succès !';
+        showNotificationModal.value = true;
+      },
+      onError: (errors) => {
+        notificationType.value = 'error';
+        notificationTitle.value = 'Erreur';
+        notificationMessage.value = 'Une erreur est survenue lors de la modification du statut.';
+        showNotificationModal.value = true;
+      }
+    });
+  } else if (confirmAction.value === 'delete') {
+    const salle = confirmData.value;
     router.delete(route('admin.salles.destroy', salle.id), {
       onSuccess: () => {
-        // Message de succès géré par le backend
+        notificationType.value = 'success';
+        notificationTitle.value = 'Succès';
+        notificationMessage.value = 'Salle supprimée avec succès !';
+        showNotificationModal.value = true;
+      },
+      onError: (errors) => {
+        notificationType.value = 'error';
+        notificationTitle.value = 'Erreur';
+        notificationMessage.value = 'Une erreur est survenue lors de la suppression.';
+        showNotificationModal.value = true;
       }
-    })
+    });
   }
+  
+  // Réinitialiser
+  showConfirmModal.value = false;
+  confirmAction.value = null;
+  confirmData.value = null;
 }
 </script>
 
@@ -557,3 +625,22 @@ const deleteSalle = (salle) => {
   background-color: #475569;
 }
 </style>
+
+<!-- Confirm Modal -->
+<ConfirmModal
+  :show="showConfirmModal"
+  :title="confirmTitle"
+  :message="confirmMessage"
+  @confirm="confirmActionHandler"
+  @cancel="showConfirmModal = false"
+  @close="showConfirmModal = false"
+/>
+
+<!-- Notification Modal -->
+<NotificationModal
+  :show="showNotificationModal"
+  :type="notificationType"
+  :title="notificationTitle"
+  :message="notificationMessage"
+  @close="showNotificationModal = false"
+/>

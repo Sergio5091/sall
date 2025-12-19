@@ -3,11 +3,18 @@ import { ref, computed } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { Head } from '@inertiajs/vue3';
 import Sidebar from '../../Components/Promoter/Sidebar.vue';
+import NotificationModal from '../../Components/NotificationModal.vue';
 
 // État du formulaire
 const currentStep = ref(1);
 const totalSteps = 4;
 const errors = ref({});
+
+// États pour les modaux
+const showNotificationModal = ref(false);
+const notificationType = ref('error');
+const notificationTitle = ref('');
+const notificationMessage = ref('');
 
 // Données du nouvel événement
 const newEvent = ref({
@@ -221,9 +228,15 @@ const createEvent = () => {
             
             // Afficher un message d'erreur plus clair
             if (errors.contact_email) {
-                alert('L\'adresse email est obligatoire et doit être valide.');
+                notificationType.value = 'error';
+                notificationTitle.value = 'Erreur de validation';
+                notificationMessage.value = 'L\'adresse email est obligatoire et doit être valide.';
+                showNotificationModal.value = true;
             } else {
-                alert('Erreur lors de la création de l\'événement. Veuillez vérifier tous les champs.');
+                notificationType.value = 'error';
+                notificationTitle.value = 'Erreur de création';
+                notificationMessage.value = 'Erreur lors de la création de l\'événement. Veuillez vérifier tous les champs.';
+                showNotificationModal.value = true;
             }
         }
     });
@@ -500,4 +513,13 @@ const cancel = () => {
       </div>
     </main>
   </div>
+
+  <!-- Notification Modal -->
+  <NotificationModal
+    :show="showNotificationModal"
+    :type="notificationType"
+    :title="notificationTitle"
+    :message="notificationMessage"
+    @close="showNotificationModal = false"
+  />
 </template>

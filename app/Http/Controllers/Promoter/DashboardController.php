@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Salle;
 use App\Models\Event;
+use App\Models\Notification;
 
 class DashboardController extends Controller
 {
@@ -49,49 +50,15 @@ class DashboardController extends Controller
             $activeAccount = null;
         }
         
-        // Sample notifications data
-        $notifications = [
-            [
-                'id' => 1,
-                'type' => 'alert',
-                'title' => 'Alerte Admin',
-                'message' => 'Votre salle "Pixel Palace" a été désactivée pour informations incomplètes. Veuillez mettre à jour votre profil.',
-                'created_at' => now()->subMinutes(15),
-                'read' => false,
-                'icon' => 'exclamation-circle',
-                'color' => 'red'
-            ],
-            [
-                'id' => 2,
-                'type' => 'message',
-                'title' => 'Nouveau message',
-                'message' => 'Alice Martin vous a envoyé un message concernant "CyberZone Arena".',
-                'created_at' => now()->subHours(2),
-                'read' => false,
-                'icon' => 'comment',
-                'color' => 'blue'
-            ],
-            [
-                'id' => 3,
-                'type' => 'reservation',
-                'title' => 'Réservation récente',
-                'message' => 'Nouvelle réservation pour "Tournoi Super Smash" par Bob Johnson.',
-                'created_at' => now()->subDay(),
-                'read' => true,
-                'icon' => 'ticket-alt',
-                'color' => 'green'
-            ],
-            [
-                'id' => 4,
-                'type' => 'comment',
-                'title' => 'Nouveau commentaire',
-                'message' => 'Charlie Brown a commenté votre événement "Soirée Découverte VR".',
-                'created_at' => now()->subDays(3),
-                'read' => true,
-                'icon' => 'comment-dots',
-                'color' => 'yellow'
-            ]
-        ];
+        // Récupérer les notifications réelles
+        $notifications = Notification::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+            
+        $unreadCount = Notification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->count();
         
         return Inertia::render('Promoter/Dashboard', [
             'salles' => $salles,
@@ -99,6 +66,7 @@ class DashboardController extends Controller
             'stats' => $stats,
             'events' => $events,
             'notifications' => $notifications,
+            'unreadCount' => $unreadCount,
             // Données multi-comptes - toujours définies pour les promoteurs
             'mainAccount' => $user->role === 'promoter' ? ($user->isMainPromoter() ? $user : $user->getMainAccount()) : null,
             'allAccounts' => $user->role === 'promoter' ? ($user->isMainPromoter() ? $user->getAllPromoterAccounts() : collect([$user])) : collect([]),

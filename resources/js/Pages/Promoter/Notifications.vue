@@ -1,10 +1,137 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import { Head, Link, router } from '@inertiajs/vue3';
 import Sidebar from '../../Components/Promoter/Sidebar.vue';
+import ConfirmModal from '../../Components/ConfirmModal.vue';
 
 const props = defineProps({
-    notifications: Array
+    notifications: Object,
+    stats: Object,
+    filters: Object
 });
+
+// États pour les modaux
+const showDeleteModal = ref(false);
+const showDeleteAllModal = ref(false);
+const notificationToDelete = ref(null);
+
+const getNotificationIcon = (type) => {
+    switch (type) {
+        case 'success':
+            return 'fas fa-check-circle text-green-500';
+        case 'warning':
+            return 'fas fa-exclamation-triangle text-yellow-500';
+        case 'error':
+            return 'fas fa-times-circle text-red-500';
+        default:
+            return 'fas fa-info-circle text-blue-500';
+    }
+};
+
+const getNotificationBgClass = (type, isRead) => {
+    if (isRead) return 'bg-white dark:bg-gray-800';
+    
+    switch (type) {
+        case 'success':
+            return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800';
+        case 'warning':
+            return 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800';
+        case 'error':
+            return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800';
+        default:
+            return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800';
+    }
+};
+
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+        return 'Aujourd\'hi ' + date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    } else if (diffDays === 1) {
+        return 'Hier ' + date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    } else if (diffDays < 7) {
+        return date.toLocaleDateString('fr-FR', { weekday: 'long', hour: '2-digit', minute: '2-digit' });
+    } else {
+        return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+};
+
+// Méthodes pour gérer les actions
+const markAsRead = async (notification) => {
+    try {
+        await router.post(`/promoter/notifications/${notification.id}/read`, {}, {
+            onSuccess: () => {
+                // Mettre à jour l'état local
+                notification.is_read = true;
+                // Mettre à jour le compteur dans le sidebar
+                window.location.reload();
+            }
+        });
+    } catch (error) {
+        console.error('Erreur lors du marquage comme lu:', error);
+    }
+};
+
+const markAllAsRead = async () => {
+    try {
+        await router.post('/promoter/notifications/read-all', {}, {
+            onSuccess: () => {
+                // Recharger la page pour voir les changements
+                window.location.reload();
+            }
+        });
+    } catch (error) {
+        // Erreur silencieuse
+    }
+};
+
+const deleteNotification = async (notification) => {
+    notificationToDelete.value = notification;
+    showDeleteModal.value = true;
+};
+
+const confirmDeleteNotification = async () => {
+    try {
+        await router.delete(`/promoter/notifications/${notificationToDelete.value.id}`, {
+            onSuccess: () => {
+                // Recharger la page pour voir les changements
+                window.location.reload();
+            }
+        });
+    } catch (error) {
+        // Erreur silencieuse
+    }
+    showDeleteModal.value = false;
+    notificationToDelete.value = null;
+};
+
+const deleteAllNotifications = async () => {
+    showDeleteAllModal.value = true;
+};
+
+const confirmDeleteAllNotifications = async () => {
+    try {
+        await router.delete('/promoter/notifications/delete-all', {
+            onSuccess: () => {
+                // Recharger la page pour voir les changements
+                window.location.reload();
+            }
+        });
+    } catch (error) {
+        // Erreur silencieuse
+    }
+    showDeleteAllModal.value = false;
+};
+
+const viewSalle = (notification) => {
+    if (notification.related_type === 'salle' && notification.related_id) {
+        router.visit(`/promoter/venues`);
+    }
+};
 </script>
 
 <template>
@@ -27,160 +154,140 @@ const props = defineProps({
             <p class="text-gray-600 dark:text-gray-400 mt-2">Gérez toutes vos notifications et messages</p>
           </div>
           <div class="flex items-center gap-2">
-            <button class="flex items-center justify-center rounded-lg h-10 bg-white dark:bg-[#19202e] border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 gap-2 text-sm font-medium px-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+            <button @click="markAllAsRead" class="flex items-center justify-center rounded-lg h-10 bg-white dark:bg-[#19202e] border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 gap-2 text-sm font-medium px-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
               <i class="fas fa-check-double"></i>
               <span class="truncate">Marquer tout comme lu</span>
             </button>
-            <button class="flex items-center justify-center rounded-lg h-10 bg-brand-red text-white gap-2 text-sm font-medium px-4 hover:bg-brand-red/90 transition-colors">
+            <button @click="deleteAllNotifications" class="flex items-center justify-center rounded-lg h-10 bg-brand-red text-white gap-2 text-sm font-medium px-4 hover:bg-brand-red/90 transition-colors">
               <i class="fas fa-trash"></i>
               <span class="truncate">Supprimer tout</span>
             </button>
           </div>
         </div>
 
-        <!-- Filter Tabs -->
-        <div class="flex items-center gap-2 mt-8 border-b border-gray-200 dark:border-gray-800">
-          <button class="px-4 py-3 text-sm font-medium text-primary border-b-2 border-primary">
-            Toutes
-          </button>
-          <button class="px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-            Non lues
-          </button>
-          <button class="px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-            Messages
-          </button>
-          <button class="px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-            Réservations
-          </button>
-          <button class="px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-            Système
-          </button>
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mt-8">
+          <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Total</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total }}</p>
+              </div>
+              <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                <i class="fas fa-bell text-gray-600 dark:text-gray-400"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Non lues</p>
+                <p class="text-2xl font-bold text-yellow-600">{{ stats.unread }}</p>
+              </div>
+              <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
+                <i class="fas fa-envelope text-yellow-600"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Succès</p>
+                <p class="text-2xl font-bold text-green-600">{{ stats.success }}</p>
+              </div>
+              <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                <i class="fas fa-check-circle text-green-600"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Alertes</p>
+                <p class="text-2xl font-bold text-yellow-600">{{ stats.warning }}</p>
+              </div>
+              <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
+                <i class="fas fa-exclamation-triangle text-yellow-600"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Erreurs</p>
+                <p class="text-2xl font-bold text-red-600">{{ stats.error }}</p>
+              </div>
+              <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+                <i class="fas fa-times-circle text-red-600"></i>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Notifications List -->
-        <div class="mt-6 space-y-4">
-          <!-- Today -->
-          <div>
-            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Aujourd'hui</h3>
-            <div class="space-y-3">
-              <div class="flex gap-3 items-start p-4 rounded-lg bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 hover:shadow-md transition-shadow">
-                <div class="mt-1 flex-shrink-0">
-                  <div class="w-2 h-2 rounded-full bg-red-500"></div>
+        <div class="mt-8">
+          <div v-if="notifications.data.length === 0" class="text-center py-12">
+            <i class="fas fa-bell-slash text-4xl text-gray-400 mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Aucune notification</h3>
+            <p class="text-gray-600 dark:text-gray-400">Vous n'avez aucune notification pour le moment.</p>
+          </div>
+          
+          <div v-else class="space-y-3">
+            <div 
+              v-for="notification in notifications.data" 
+              :key="notification.id"
+              :class="[
+                'p-4 rounded-lg border transition-all hover:shadow-md',
+                getNotificationBgClass(notification.type, notification.is_read)
+              ]"
+            >
+              <div class="flex gap-3 items-start">
+                <div class="flex-shrink-0 mt-1">
+                  <i :class="getNotificationIcon(notification.type)"></i>
                 </div>
                 <div class="flex-1">
-                  <p class="font-semibold text-sm text-gray-900 dark:text-white">Alerte Admin</p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Votre salle "Pixel Palace" a été désactivée pour informations incomplètes. Veuillez mettre à jour votre profil.</p>
+                  <div class="flex items-center justify-between">
+                    <h4 class="font-semibold text-gray-900 dark:text-white">
+                      {{ notification.title }}
+                    </h4>
+                    <div class="flex items-center gap-2">
+                      <span v-if="!notification.is_read" class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                      <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-400 mt-1">
+                    {{ notification.message }}
+                  </p>
                   <div class="flex items-center gap-4 mt-3">
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Il y a 15 minutes</p>
-                    <button class="text-xs font-medium text-primary hover:underline">Voir les détails</button>
-                    <button class="text-xs font-medium text-gray-600 dark:text-gray-400 hover:underline">Ignorer</button>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                      {{ formatDate(notification.created_at) }}
+                    </p>
+                    <button @click="markAsRead(notification)" v-if="!notification.is_read" class="text-xs font-medium text-primary hover:underline">
+                      Marquer comme lu
+                    </button>
+                    <button @click="viewSalle(notification)" v-if="notification.related_type === 'salle' && notification.related_id" class="text-xs font-medium text-primary hover:underline">
+                      Voir la salle
+                    </button>
                   </div>
                 </div>
-                <button class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-
-              <div class="flex gap-3 items-start p-4 rounded-lg bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 hover:shadow-md transition-shadow">
-                <div class="mt-1 flex-shrink-0">
-                  <i class="fas fa-comment text-blue-500"></i>
-                </div>
-                <div class="flex-1">
-                  <p class="font-semibold text-sm text-gray-900 dark:text-white">Nouveau message</p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Alice Martin vous a envoyé un message concernant "CyberZone Arena".</p>
-                  <div class="flex items-center gap-4 mt-3">
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Il y a 2 heures</p>
-                    <button class="text-xs font-medium text-primary hover:underline">Lire le message</button>
-                    <button class="text-xs font-medium text-gray-600 dark:text-gray-400 hover:underline">Archiver</button>
-                  </div>
-                </div>
-                <button class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
-                  <i class="fas fa-times"></i>
-                </button>
               </div>
             </div>
           </div>
-
-          <!-- Yesterday -->
-          <div>
-            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Hier</h3>
-            <div class="space-y-3">
-              <div class="flex gap-3 items-start p-4 rounded-lg bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 hover:shadow-md transition-shadow opacity-75">
-                <div class="mt-1 flex-shrink-0">
-                  <i class="fas fa-ticket-alt text-green-500"></i>
-                </div>
-                <div class="flex-1">
-                  <p class="font-semibold text-sm text-gray-900 dark:text-white">Réservation récente</p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Nouvelle réservation pour "Tournoi Super Smash" par Bob Johnson.</p>
-                  <div class="flex items-center gap-4 mt-3">
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Hier</p>
-                    <button class="text-xs font-medium text-primary hover:underline">Voir la réservation</button>
-                    <button class="text-xs font-medium text-gray-600 dark:text-gray-400 hover:underline">Archiver</button>
-                  </div>
-                </div>
-                <button class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-
-              <div class="flex gap-3 items-start p-4 rounded-lg bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 hover:shadow-md transition-shadow opacity-75">
-                <div class="mt-1 flex-shrink-0">
-                  <i class="fas fa-comment-dots text-yellow-500"></i>
-                </div>
-                <div class="flex-1">
-                  <p class="font-semibold text-sm text-gray-900 dark:text-white">Nouveau commentaire</p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Charlie Brown a commenté votre événement "Soirée Découverte VR".</p>
-                  <div class="flex items-center gap-4 mt-3">
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Il y a 3 jours</p>
-                    <button class="text-xs font-medium text-primary hover:underline">Voir le commentaire</button>
-                    <button class="text-xs font-medium text-gray-600 dark:text-gray-400 hover:underline">Archiver</button>
-                  </div>
-                </div>
-                <button class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- This Week -->
-          <div>
-            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Cette semaine</h3>
-            <div class="space-y-3">
-              <div class="flex gap-3 items-start p-4 rounded-lg bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 hover:shadow-md transition-shadow opacity-75">
-                <div class="mt-1 flex-shrink-0">
-                  <i class="fas fa-star text-purple-500"></i>
-                </div>
-                <div class="flex-1">
-                  <p class="font-semibold text-sm text-gray-900 dark:text-white">Nouvel avis</p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Sarah a laissé un avis 5 étoiles pour votre salle "Pixel Palace".</p>
-                  <div class="flex items-center gap-4 mt-3">
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Il y a 5 jours</p>
-                    <button class="text-xs font-medium text-primary hover:underline">Voir l'avis</button>
-                    <button class="text-xs font-medium text-gray-600 dark:text-gray-400 hover:underline">Répondre</button>
-                  </div>
-                </div>
-                <button class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-
-              <div class="flex gap-3 items-start p-4 rounded-lg bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 hover:shadow-md transition-shadow opacity-75">
-                <div class="mt-1 flex-shrink-0">
-                  <i class="fas fa-chart-line text-indigo-500"></i>
-                </div>
-                <div class="flex-1">
-                  <p class="font-semibold text-sm text-gray-900 dark:text-white">Rapport hebdomadaire</p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Votre rapport de performance hebdomadaire est disponible.</p>
-                  <div class="flex items-center gap-4 mt-3">
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Il y a 6 jours</p>
-                    <button class="text-xs font-medium text-primary hover:underline">Voir le rapport</button>
-                    <button class="text-xs font-medium text-gray-600 dark:text-gray-400 hover:underline">Télécharger</button>
-                  </div>
-                </div>
-                <button class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
-                  <i class="fas fa-times"></i>
-                </button>
+          
+          <!-- Pagination -->
+          <div v-if="notifications.data.length > 0" class="mt-8">
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                Affichage de {{ notifications.from }} à {{ notifications.to }} sur {{ notifications.total }} notifications
+              </p>
+              <div class="flex gap-2">
+                <!-- Pagination links will be added here if needed -->
               </div>
             </div>
           </div>
@@ -194,5 +301,28 @@ const props = defineProps({
         </div>
       </div>
     </main>
+    
+    <!-- Modaux de confirmation -->
+    <ConfirmModal
+        :show="showDeleteModal"
+        title="Supprimer la notification"
+        message="Êtes-vous sûr de vouloir supprimer cette notification ? Cette action est irréversible."
+        confirm-text="Supprimer"
+        cancel-text="Annuler"
+        type="danger"
+        @confirm="confirmDeleteNotification"
+        @close="showDeleteModal = false"
+    />
+    
+    <ConfirmModal
+        :show="showDeleteAllModal"
+        title="Supprimer toutes les notifications"
+        message="Êtes-vous sûr de vouloir supprimer toutes les notifications ? Cette action est irréversible."
+        confirm-text="Supprimer tout"
+        cancel-text="Annuler"
+        type="danger"
+        @confirm="confirmDeleteAllNotifications"
+        @close="showDeleteAllModal = false"
+    />
   </div>
 </template>

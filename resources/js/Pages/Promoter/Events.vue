@@ -1,11 +1,26 @@
 <script setup>
+import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import Sidebar from '../../Components/Promoter/Sidebar.vue';
+import ConfirmModal from '../../Components/ConfirmModal.vue';
+import NotificationModal from '../../Components/NotificationModal.vue';
 
 const props = defineProps({
     events: Object,
     stats: Object
 });
+
+// États pour les modaux
+const showConfirmModal = ref(false);
+const confirmTitle = ref('');
+const confirmMessage = ref('');
+const confirmAction = ref(null);
+const confirmData = ref(null);
+
+const showNotificationModal = ref(false);
+const notificationType = ref('success');
+const notificationTitle = ref('');
+const notificationMessage = ref('');
 
 // Formater les nombres
 const formatNumber = (num) => {
@@ -46,58 +61,85 @@ const getStatusText = (status) => {
 
 // Publier un événement directement depuis la liste
 const publishEvent = (evt) => {
-  if (!confirm(`Publier l'événement "${evt.titre}" ?`)) return;
+  confirmTitle.value = 'Publier l\'événement';
+  confirmMessage.value = `Voulez-vous vraiment publier l'événement "${evt.titre}" ?`;
+  confirmAction.value = 'publish';
+  confirmData.value = evt;
+  showConfirmModal.value = true;
+};
 
-  // Utiliser l'endpoint de publication dédié
-  router.post(`/promoter/events/${evt.id}/publish`, {}, {
-    onSuccess: () => {
-      // reload the list
-      router.visit('/promoter/events');
-    },
-    onError: (errors) => {
-      console.error('Erreur de publication:', errors);
-      
-      // Afficher un message d'erreur plus spécifique
-      let errorMessage = 'La publication a échoué. ';
-      
-      if (typeof errors === 'string') {
-        errorMessage += errors;
-      } else if (errors.message) {
-        errorMessage += errors.message;
-      } else {
-        errorMessage += 'Veuillez contacter le support.';
+// Confirmer l'action
+const confirmActionHandler = () => {
+  if (!confirmAction.value || !confirmData.value) return;
+  
+  if (confirmAction.value === 'publish') {
+    const evt = confirmData.value;
+    // Utiliser l'endpoint de publication dédié
+    router.post(`/promoter/events/${evt.id}/publish`, {}, {
+      onSuccess: () => {
+        notificationType.value = 'success';
+        notificationTitle.value = 'Succès';
+        notificationMessage.value = 'Événement publié avec succès !';
+        showNotificationModal.value = true;
+      },
+      onError: (errors) => {
+        let errorMessage = 'Une erreur est survenue lors de la publication:\n\n';
+        
+        if (typeof errors === 'object') {
+          Object.keys(errors).forEach(key => {
+            errorMessage += `${key}: ${errors[key]}\n`;
+          });
+        } else {
+          errorMessage += errors || 'Veuillez contacter le support.';
+        }
+        
+        notificationType.value = 'error';
+        notificationTitle.value = 'Erreur';
+        notificationMessage.value = errorMessage;
+        showNotificationModal.value = true;
       }
-      
-      alert(errorMessage);
-    }
-  });
+    });
+  } else if (confirmAction.value === 'delete') {
+    const evt = confirmData.value;
+    router.delete(`/promoter/events/${evt.id}`, {
+      onSuccess: () => {
+        notificationType.value = 'success';
+        notificationTitle.value = 'Succès';
+        notificationMessage.value = 'Événement supprimé avec succès !';
+        showNotificationModal.value = true;
+      },
+      onError: (errors) => {
+        let errorMessage = 'Une erreur est survenue lors de la suppression:\n\n';
+        
+        if (typeof errors === 'object') {
+          Object.keys(errors).forEach(key => {
+            errorMessage += `${key}: ${errors[key]}\n`;
+          });
+        } else {
+          errorMessage += errors || 'Veuillez contacter le support.';
+        }
+        
+        notificationType.value = 'error';
+        notificationTitle.value = 'Erreur';
+        notificationMessage.value = errorMessage;
+        showNotificationModal.value = true;
+      }
+    });
+  }
+  
+  // Réinitialiser
+  showConfirmModal.value = false;
+  confirmAction.value = null;
+  confirmData.value = null;
 };
 
 // Supprimer un événement
 const deleteEvent = (evt) => {
-  if (!confirm(`Supprimer définitivement l'événement "${evt.titre}" ?`)) return;
-
-  router.delete(`/promoter/events/${evt.id}`, {
-    onSuccess: () => {
-      router.visit('/promoter/events');
-    },
-    onError: (errors) => {
-      console.error('Erreur suppression:', errors);
-      
-      let errorMessage = 'La suppression a échoué. ';
-      if (typeof errors === 'string') {
-        errorMessage += errors;
-      } else if (errors.message) {
-        errorMessage += errors.message;
-      } else if (errors.inscriptions) {
-        errorMessage += 'Des inscriptions confirmées existent. ';
-      } else {
-        errorMessage += 'Veuillez contacter le support.';
-      }
-      
-      alert(errorMessage);
-    }
-  });
+  confirmTitle.value = 'Supprimer l\'événement';
+  confirmMessage.value = `Voulez-vous vraiment supprimer définitivement l'événement "${evt.titre}" ?`;
+  confirmAction.value = 'delete';
+  confirmData.value = evt;
+  showConfirmModal.value = true;
 };
 </script>
 
@@ -290,6 +332,25 @@ const deleteEvent = (evt) => {
     </main>
   </div>
 </template>
+
+<!-- Confirm Modal -->
+<ConfirmModal
+  :show="showConfirmModal"
+  :title="confirmTitle"
+  :message="confirmMessage"
+  @confirm="confirmActionHandler"
+  @cancel="showConfirmModal = false"
+  @close="showConfirmModal = false"
+/>
+
+<!-- Notification Modal -->
+<NotificationModal
+  :show="showNotificationModal"
+  :type="notificationType"
+  :title="notificationTitle"
+  :message="notificationMessage"
+  @close="showNotificationModal = false"
+/>
 
 <style scoped>
 .line-clamp-3 {

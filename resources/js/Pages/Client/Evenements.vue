@@ -2,12 +2,19 @@
 import { Head } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
+import NotificationModal from '../../Components/NotificationModal.vue';
 
 const props = defineProps({
     evenements: Object,
     villes: Array,
     filters: Object
 });
+
+// États pour les modaux
+const showNotificationModal = ref(false);
+const notificationType = ref('success');
+const notificationTitle = ref('');
+const notificationMessage = ref('');
 
 // État local pour les filtres
 const searchQuery = ref(props.filters.search || '');
@@ -185,7 +192,10 @@ const submitReservation = () => {
         onSuccess: () => {
             showReservationModal.value = false;
             // Afficher un message de succès
-            alert('Réservation effectuée avec succès ! Vous serez contacté prochainement.');
+            notificationType.value = 'success';
+            notificationTitle.value = 'Réservation réussie';
+            notificationMessage.value = 'Réservation effectuée avec succès ! Vous serez contacté prochainement.';
+            showNotificationModal.value = true;
         },
         onError: (errors) => {
             reservationErrors.value = errors;
@@ -712,3 +722,12 @@ const hasActiveFilters = computed(() => {
   line-clamp: 2;
 }
 </style>
+
+<!-- Notification Modal -->
+<NotificationModal
+  :show="showNotificationModal"
+  :type="notificationType"
+  :title="notificationTitle"
+  :message="notificationMessage"
+  @close="showNotificationModal = false"
+/>

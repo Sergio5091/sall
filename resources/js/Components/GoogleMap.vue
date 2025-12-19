@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted, defineProps, defineEmits } from 'vue';
+import NotificationModal from './NotificationModal.vue';
 
 const props = defineProps({
   initialLat: {
@@ -21,6 +22,12 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['location-selected']);
+
+// États pour les modaux
+const showNotificationModal = ref(false);
+const notificationType = ref('error');
+const notificationTitle = ref('');
+const notificationMessage = ref('');
 
 const mapContainer = ref(null);
 const map = ref(null);
@@ -215,7 +222,10 @@ const initFallbackMap = () => {
             const lng = parseFloat(lngInput.value);
             
             if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-              alert('Veuillez entrer des coordonnées valides.');
+              notificationType.value = 'error';
+              notificationTitle.value = 'Coordonnées invalides';
+              notificationMessage.value = 'Veuillez entrer des coordonnées valides.';
+              showNotificationModal.value = true;
               return;
             }
             
@@ -789,3 +799,12 @@ defineExpose({
   animation: spin 1s linear infinite;
 }
 </style>
+
+<!-- Notification Modal -->
+<NotificationModal
+  :show="showNotificationModal"
+  :type="notificationType"
+  :title="notificationTitle"
+  :message="notificationMessage"
+  @close="showNotificationModal = false"
+/>
