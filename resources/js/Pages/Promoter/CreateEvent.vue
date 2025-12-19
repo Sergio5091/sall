@@ -182,39 +182,39 @@ const createEvent = () => {
     };
 
     // Afficher les données dans la console
-    console.log('=== DONNÉES ENVOYÉES DU FRONTEND ===');
-    console.log('eventData:', eventData);
-    console.log('newEvent.value:', newEvent.value);
+    // === DONNÉES ENVOYÉES DU FRONTEND ===
+    // eventData: eventData
+    // newEvent.value: newEvent.value
     
     // (debug) summary available in console
     
     Object.keys(eventData).forEach(key => {
         if (key !== 'services' && typeof eventData[key] !== 'object') {
             formData.append(key, eventData[key]);
-            console.log(`${key}:`, eventData[key]);
+            // Debug: key, eventData[key]
         }
     });
     
     formData.append('services', JSON.stringify(eventData.services));
-    console.log('services (JSON):', JSON.stringify(eventData.services));
+    // Debug: services (JSON)
     
     // Ajouter les fichiers
     if (newEvent.value.banniere_file) {
         formData.append('image_banniere', newEvent.value.banniere_file);
-        console.log('image_banniere:', newEvent.value.banniere_file);
+        // Debug: image_banniere
     }
     
     newEvent.value.galerie_files.forEach((file, index) => {
         if (file) {
             formData.append(`galerie_files[${index}]`, file);
-            console.log(`galerie_files[${index}]:`, file);
+            // Debug: galerie_files[index]
         }
     });
 
     // Afficher le FormData complet
-    console.log('=== FORMDATA COMPLET ===');
+    // === FORMDATA COMPLET ===
     for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
+        // Debug FormData: key, value
     }
 
     // Envoyer la requête

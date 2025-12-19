@@ -115,19 +115,19 @@ const props = defineProps({
 });
 
 // Debug temporaire
-console.log('Props reçues:', {
-  isMainAccount: props.isMainAccount,
-  mainAccount: props.mainAccount,
-  activeAccount: props.activeAccount,
-  allAccounts: props.allAccounts
-});
+// Props reçues: {
+//   isMainAccount: props.isMainAccount,
+//   mainAccount: props.mainAccount,
+//   activeAccount: props.activeAccount,
+//   allAccounts: props.allAccounts
+// }
 
 // Debug supplémentaire
-console.log('Condition bouton:', {
-  isMainAccount: props.isMainAccount,
-  disabled: !props.isMainAccount,
-  buttonShouldBeEnabled: props.isMainAccount === true
-});
+// Condition bouton: {
+//   isMainAccount: props.isMainAccount,
+//   disabled: !props.isMainAccount,
+//   buttonShouldBeEnabled: props.isMainAccount === true
+// }
 
 const showDropdown = ref(false);
 const confirmModal = ref({

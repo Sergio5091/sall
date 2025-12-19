@@ -467,20 +467,17 @@ const footerLinks = ref({
 function searchRooms() {
   if (searchQuery.value.trim()) {
     // Implémentez la logique de recherche ici
-    console.log('Recherche pour:', searchQuery.value);
   }
 }
 
 function searchLocation() {
   if (location.value.trim()) {
     // Implémentez la logique de recherche par localisation ici
-    console.log('Recherche de salles près de:', location.value);
   }
 }
 
 function viewRoom(id) {
   // Implémentez la navigation vers la page de la salle
-  console.log('Voir la salle avec ID:', id);
 }
 </script>
 

@@ -180,10 +180,6 @@ const createVenue = () => {
   const route = isEditing.value ? `/promoter/venues/${props.salle.id}` : '/promoter/venues';
   const method = 'POST'; // Toujours POST pour FormData
 
-  console.log('Route:', route);
-  console.log('Method:', method);
-  console.log('Salle ID:', props.salle?.id);
-
   // Créer FormData pour les fichiers uploadés
   const formData = new FormData();
 
@@ -250,16 +246,16 @@ const createVenue = () => {
   });
 
   // Debug: voir les chemins des images
-  console.log('=== MODE ÉDITION ===');
-  console.log('isEditing:', isEditing.value);
-  console.log('Images de la salle:', props.salle?.images);
-  console.log('Image URL:', props.salle?.image_url);
-  console.log('venueData:', venueData);
-  console.log('horaires:', venueData.horaires);
-  console.log('services:', venueData.services);
-  console.log('FormData entries:');
+  // === MODE ÉDITION ===
+  // isEditing: isEditing.value
+  // Images de la salle: props.salle?.images
+  // Image URL: props.salle?.image_url
+  // venueData: venueData
+  // horaires: venueData.horaires
+  // services: venueData.services
+  // FormData entries:
   for (let [key, value] of formData.entries()) {
-    console.log(key, value);
+    // Debug entry: key, value
   }
 
   // Envoi des données au backend
@@ -352,8 +348,8 @@ const resetForm = () => {
 
 const editVenue = () => {
   if (props.salle) {
-    console.log('Données brutes de la salle:', props.salle);
-    console.log('Horaires bruts:', props.salle?.horaires);
+    // Données brutes de la salle: props.salle
+    // Horaires bruts: props.salle?.horaires
 
     // Extraire les jours d'ouverture correctement
     const horairesData = props.salle?.horaires;
@@ -387,7 +383,7 @@ const editVenue = () => {
       });
     }
 
-    console.log('Jours d\'ouverture mappés:', joursOuverture);
+    // Jours d'ouverture mappés: joursOuverture
 
     // Pré-remplir le formulaire avec les données de la salle existante
     newVenue.value = {
@@ -434,7 +430,7 @@ const editVenue = () => {
       logo_url: props.salle.logo && props.salle.logo.startsWith('salles/') ? `/storage/${props.salle.logo}` : props.salle.logo || null
     };
 
-    console.log('Formulaire pré-rempli:', newVenue.value);
+    // Formulaire pré-rempli: newVenue.value
     // Pré-remplir les services personnalisés si présents
     customServices.value = [];
     const existingServices = props.salle.services;

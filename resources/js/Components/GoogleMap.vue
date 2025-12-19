@@ -75,7 +75,7 @@ const loadGoogleMaps = () => {
 
   // Définir les callbacks globaux
   window.initMap = () => {
-    console.log('Google Maps chargé avec succès');
+    // Google Maps chargé avec succès
     initializeMap();
   };
 
@@ -95,7 +95,7 @@ const loadGoogleMaps = () => {
   // Timeout pour éviter un chargement infini
   const timeout = setTimeout(() => {
     if (isLoading.value) {
-      console.log('Timeout Google Maps, utilisation de la solution de secours');
+      // Timeout Google Maps, utilisation de la solution de secours
       initFallbackMap();
     }
   }, 5000); // Réduit à 5 secondes
@@ -111,7 +111,7 @@ const initFallbackMap = () => {
   isLoading.value = false;
   hasError.value = false;
   
-  console.log('Initialisation de la carte de secours');
+  // Initialisation de la carte de secours
   
   try {
     // Créer une carte simple avec OpenStreetMap comme alternative
@@ -331,9 +331,9 @@ const initializeMap = () => {
     // Centrer la carte sur le marqueur
     map.value.setCenter(selectedLocation.value);
     
-    console.log('Carte initialisée avec succès');
+    // Carte initialisée avec succès
   } catch (error) {
-    console.error('Erreur lors de l\'initialisation de la carte:', error);
+    // Erreur lors de l'initialisation de la carte
     hasError.value = true;
     errorMessage.value = 'Erreur lors de l\'initialisation de la carte.';
   }
