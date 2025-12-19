@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
 use Laravel\Sanctum\HasApiTokens;
@@ -241,5 +242,22 @@ class User extends Authenticatable
         } while (self::where('referral_code', $code)->exists());
 
         return $code;
+    }
+    
+    /**
+     * Générer un code de parrainage uniquement si la colonne existe
+     */
+    public static function generateReferralCodeIfExists(): ?string
+    {
+        try {
+            // Vérifier si la colonne existe avant de générer le code
+            if (Schema::hasColumn('users', 'referral_code')) {
+                return self::generateUniqueReferralCode();
+            }
+        } catch (\Exception $e) {
+            // En cas d'erreur, retourner null
+        }
+        
+        return null;
     }
 }

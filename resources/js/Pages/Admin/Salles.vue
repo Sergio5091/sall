@@ -385,9 +385,9 @@ const deleteSalle = (salle) => {
               </div>
               
               <div class="flex items-center gap-2">
-                <span :class="getStatusClass(selectedSalle.status)">
-                  <span class="size-1.5 rounded-full" :class="getStatusDotClass(selectedSalle.status)"></span>
-                  {{ getStatusText(selectedSalle.status) }}
+                <span :class="getStatusClass(selectedSalle)">
+                  <span class="size-1.5 rounded-full" :class="getStatusDotClass(selectedSalle)"></span>
+                  {{ getStatusText(selectedSalle) }}
                 </span>
               </div>
 
@@ -464,8 +464,8 @@ const deleteSalle = (salle) => {
                 <i class="fas fa-gamepad text-primary"></i>
                 Équipements
               </h5>
-              <div v-if="selectedSalle.equipements && selectedSalle.equipements.length > 0" class="flex flex-wrap gap-1">
-                <span v-for="equipement in JSON.parse(selectedSalle.equipements)" :key="equipement" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+              <div v-if="selectedSalle.equipements && Array.isArray(selectedSalle.equipements) && selectedSalle.equipements.length > 0" class="flex flex-wrap gap-1">
+                <span v-for="equipement in selectedSalle.equipements" :key="equipement" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                   {{ equipement }}
                 </span>
               </div>
@@ -478,8 +478,8 @@ const deleteSalle = (salle) => {
                 <i class="fas fa-concierge-bell text-primary"></i>
                 Services
               </h5>
-              <div v-if="selectedSalle.services && selectedSalle.services.length > 0" class="flex flex-wrap gap-1">
-                <span v-for="service in JSON.parse(selectedSalle.services)" :key="service" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border border-green-200 dark:border-green-800">
+              <div v-if="selectedSalle.services && Array.isArray(selectedSalle.services) && selectedSalle.services.length > 0" class="flex flex-wrap gap-1">
+                <span v-for="service in selectedSalle.services" :key="service" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border border-green-200 dark:border-green-800">
                   {{ service }}
                 </span>
               </div>
@@ -502,8 +502,8 @@ const deleteSalle = (salle) => {
               <i class="fas fa-clock text-primary"></i>
               Horaires d'ouverture
             </h5>
-            <div v-if="selectedSalle.horaires" class="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <div v-for="(horaire, jour) in JSON.parse(selectedSalle.horaires)" :key="jour" class="flex justify-between text-xs">
+            <div v-if="selectedSalle.horaires && typeof selectedSalle.horaires === 'object'" class="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div v-for="(horaire, jour) in selectedSalle.horaires" :key="jour" class="flex justify-between text-xs">
                 <span class="font-medium text-slate-700 dark:text-slate-300">{{ jour }}</span>
                 <span class="text-slate-600 dark:text-slate-400">{{ horaire }}</span>
               </div>
@@ -516,15 +516,15 @@ const deleteSalle = (salle) => {
             <button @click="showDetailModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg font-medium transition-colors">
               Fermer
             </button>
-            <button v-if="selectedSalle.status === 'pending'" @click="approveSalle(selectedSalle); showDetailModal = false" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
+            <button v-if="!selectedSalle.valide" @click="approveSalle(selectedSalle); showDetailModal = false" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
               <i class="fas fa-check-circle mr-2"></i>
               Approuver
             </button>
-            <button v-else-if="selectedSalle.status === 'active'" @click="toggleSalleStatus(selectedSalle, 'disabled'); showDetailModal = false" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors">
+            <button v-else-if="selectedSalle.statut === 'actif'" @click="toggleSalleStatus(selectedSalle, 'maintenance'); showDetailModal = false" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors">
               <i class="fas fa-pause-circle mr-2"></i>
               Désactiver
             </button>
-            <button v-else-if="selectedSalle.status === 'disabled'" @click="toggleSalleStatus(selectedSalle, 'active'); showDetailModal = false" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
+            <button v-else-if="selectedSalle.statut === 'maintenance'" @click="toggleSalleStatus(selectedSalle, 'actif'); showDetailModal = false" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
               <i class="fas fa-play-circle mr-2"></i>
               Réactiver
             </button>

@@ -187,9 +187,16 @@ class SalleController extends Controller
         $validated['nombre_favoris'] = 0;
         $validated['note_moyenne'] = 0;
         $validated['nombre_avis'] = 0;
+        
+        // Debug logs
+        \Log::info('Création de salle avec les données:', $validated);
+        \Log::info('Statut valide:', ['valide' => $validated['valide']]);
 
         // Créer la salle
         $salle = Salle::create($validated);
+        
+        // Vérifier après création
+        \Log::info('Salle créée:', ['id' => $salle->id, 'valide' => $salle->valide, 'statut' => $salle->statut]);
 
         return redirect()->route('promoter.venues')
             ->with('success', 'Votre salle a été créée avec succès ! Elle est en attente de validation par notre équipe.');

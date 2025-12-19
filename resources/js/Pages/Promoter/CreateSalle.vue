@@ -224,6 +224,7 @@ const submitForm = () => {
         },
         onError: (errors) => {
             console.error('Erreurs de validation:', errors);
+            console.error('Données envoyées:', submitData);
             alert('Erreur lors de la création de la salle. Veuillez vérifier les champs.');
         }
     });
