@@ -61,15 +61,15 @@ class SalleController extends Controller
      */
     public function show(Salle $salle)
     {
-        $salle->load(['promoter', 'events' => function($query) {
-            $query->withCount('reservations')->orderBy('created_at', 'desc')->take(5);
+        $salle->load(['promoter', 'evenements' => function($query) {
+            $query->withCount('inscriptions')->orderBy('created_at', 'desc')->take(5);
         }]);
 
         // Statistiques pour cette salle
         $stats = [
-            'total_events' => $salle->events()->count(),
-            'active_events' => $salle->events()->where('status', 'published')->count(),
-            'total_reservations' => $salle->events()->withCount('reservations')->get()->sum('reservations_count'),
+            'total_events' => $salle->evenements()->count(),
+            'active_events' => $salle->evenements()->where('statut', 'publie')->count(),
+            'total_reservations' => $salle->evenements()->withCount('inscriptions')->get()->sum('inscriptions_count'),
         ];
 
         return Inertia::render('Admin/SalleDetails', [
@@ -89,8 +89,15 @@ class SalleController extends Controller
 
         $salle->update(['valide' => true]);
 
-        // Notifier le promoteur
-        // TODO: Implémenter la notification
+        // Notifier le promoteur que la salle est validée
+        \App\Models\Notification::createForUser(
+            $salle->promoter_id,
+            'Salle validée et publiée',
+            "Votre salle '{$salle->nom}' a été validée par notre équipe d'administration et est maintenant visible par les clients.",
+            'success',
+            'salle',
+            $salle->id
+        );
 
         return back()->with('success', 'La salle a été validée avec succès.');
     }
@@ -113,12 +120,29 @@ class SalleController extends Controller
 
         $salle->update(['statut' => $newStatus]);
 
+        // Notifier le promoteur du changement de statut
+        $notificationTitle = $newStatus === 'actif' 
+            ? 'Salle réactivée'
+            : 'Salle mise en maintenance';
+            
+        $notificationMessage = $newStatus === 'actif'
+            ? "Votre salle '{$salle->nom}' a été réactivée et est de nouveau visible par les clients."
+            : "Votre salle '{$salle->nom}' a été temporairement mise en maintenance et n'est plus visible par les clients.";
+            
+        $notificationType = $newStatus === 'actif' ? 'success' : 'warning';
+
+        \App\Models\Notification::createForUser(
+            $salle->promoter_id,
+            $notificationTitle,
+            $notificationMessage,
+            $notificationType,
+            'salle',
+            $salle->id
+        );
+
         $message = $newStatus === 'actif' 
             ? 'La salle a été réactivée avec succès.' 
             : 'La salle a été mise en maintenance avec succès.';
-
-        // Notifier le promoteur
-        // TODO: Implémenter la notification
 
         return back()->with('success', $message);
     }
@@ -129,10 +153,10 @@ class SalleController extends Controller
     public function destroy(Salle $salle)
     {
         // Vérifier s'il y a des réservations actives
-        $activeReservations = $salle->events()
-            ->where('status', 'published')
-            ->whereHas('reservations', function($query) {
-                $query->where('status', 'confirmed')
+        $activeReservations = $salle->evenements()
+            ->where('statut', 'publie')
+            ->whereHas('inscriptions', function($query) {
+                $query->where('statut', 'confirme')
                       ->where('date_debut', '>', now());
             })
             ->count();
@@ -144,7 +168,7 @@ class SalleController extends Controller
         DB::beginTransaction();
         try {
             // Supprimer les événements associés
-            $salle->events()->delete();
+            $salle->evenements()->delete();
             
             // Supprimer la salle
             $salle->delete();

@@ -29,7 +29,7 @@ Route::get('/dashboard', function () {
 
 // Routes protégées par rôle (temporairement sans middleware de rôle pour tester)
 use App\Http\Controllers\Promoter\DashboardController;
-use App\Http\Controllers\Promoter\NotificationsController;
+use App\Http\Controllers\Promoter\NotificationController;
 use App\Http\Controllers\Promoter\SalleController;
 use App\Http\Controllers\Promoter\EventController;
 use App\Http\Controllers\Promoter\AccountSwitchController;
@@ -66,11 +66,20 @@ Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(functi
     Route::post('/events/{event}/duplicate', [EventController::class, 'duplicate'])->name('events.duplicate');
     Route::post('/events/{event}/publish', [EventController::class, 'publish'])->name('events.publish');
     Route::post('/events/{event}/cancel', [EventController::class, 'cancel'])->name('events.cancel');
-    Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications');
-    Route::post('/notifications/{id}/read', [NotificationsController::class, 'markAsRead'])->name('notifications.read');
-    Route::delete('/notifications/{id}', [NotificationsController::class, 'delete'])->name('notifications.delete');
-    Route::post('/notifications/read-all', [NotificationsController::class, 'markAllAsRead'])->name('notifications.read-all');
-    Route::delete('/notifications/delete-all', [NotificationsController::class, 'deleteAll'])->name('notifications.delete-all');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.delete');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::delete('/notifications/delete-all', [NotificationController::class, 'clearAll'])->name('notifications.delete-all');
+    
+    // API pour le compteur de notifications
+    Route::get('/api/unread-count', function () {
+        $user = Auth::user();
+        $count = \App\Models\Notification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->count();
+        return response()->json(['count' => $count]);
+    });
 });
 
 Route::middleware(['auth', 'role:client'])->prefix('client')->name('client.')->group(function () {

@@ -14,6 +14,7 @@ class RoomController extends Controller
     public function index(Request $request)
     {
         $query = Salle::where('statut', 'actif')
+            ->where('valide', true)
             ->select('id', 'nom', 'ville', 'pays', 'capacite_max', 'prix_heure', 'description', 'image_url', 'promoter_id')
             ->with(['promoter:id,name'])
             ->orderBy('created_at', 'desc');
@@ -42,6 +43,7 @@ class RoomController extends Controller
 
         // Récupérer les villes uniques pour le filtre
         $villes = Salle::where('statut', 'actif')
+            ->where('valide', true)
             ->distinct()
             ->pluck('ville')
             ->filter()
@@ -70,8 +72,9 @@ class RoomController extends Controller
         $lng = $request->lng;
         $radius = $request->radius ?? 50; // 50km par défaut
 
-        // Récupérer toutes les salles actives (avec ou sans coordonnées)
+        // Récupérer toutes les salles actives et validées (avec ou sans coordonnées)
         $salles = Salle::where('statut', 'actif')
+            ->where('valide', true)
             ->select('id', 'nom', 'ville', 'pays', 'adresse', 'capacite_max', 'prix_heure', 'description', 'image_url', 'promoter_id', 'latitude', 'longitude')
             ->with(['promoter:id,name'])
             ->get();

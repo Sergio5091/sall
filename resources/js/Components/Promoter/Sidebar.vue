@@ -11,8 +11,28 @@ const props = defineProps({
 });
 
 const page = usePage();
-const notifications = computed(() => page.props.notifications || []);
+const notifications = computed(() => page.props.notifications?.data || []);
+const unreadCount = ref(0);
 const user = computed(() => page.props.auth?.user);
+
+// Récupérer le nombre de notifications non lues
+const fetchUnreadCount = async () => {
+    try {
+        const response = await fetch('/promoter/api/unread-count');
+        const data = await response.json();
+        unreadCount.value = data.count;
+    } catch (error) {
+        // Fallback: utiliser les props si disponibles
+        unreadCount.value = page.props.unreadCount || 0;
+    }
+};
+
+// Charger au montage et rafraîchir périodiquement
+onMounted(() => {
+    fetchUnreadCount();
+    // Rafraîchir toutes les 30 secondes
+    setInterval(fetchUnreadCount, 30000);
+});
 
 const isSidebarOpen = ref(false);
 const isMobile = ref(false);
@@ -33,7 +53,7 @@ onUnmounted(() => {
     window.removeEventListener("resize", checkScreenSize);
 });
 
-const menuItems = [
+const menuItems = computed(() => [
     {
         name: "Tableau de bord",
         icon: "fas fa-tachometer-alt",
@@ -57,9 +77,9 @@ const menuItems = [
         icon: "fas fa-bell",
         route: "promoter.notifications",
         href: "/promoter/notifications",
-        badge: computed(() => notifications.value.filter(n => !n.read).length)
+        badge: unreadCount.value
     }
-];
+]);
 
 const handleNavigation = () => {
     if (isMobile.value) {
@@ -123,8 +143,12 @@ const toggleSidebar = () => {
       </div>
     </aside>
     
-    <button class="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md" @click="toggleSidebar">
-      <i class="fas fa-bars text-gray-700"></i>
+    <button v-if="!isSidebarOpen" 
+            class="lg:hidden fixed top-4 left-4 z-50 w-10 h-10 bg-white shadow-md flex flex-col items-center justify-center gap-1.5 transition-all duration-200 hover:shadow-lg active:scale-95" 
+            @click="toggleSidebar">
+      <span class="block w-6 h-0.5 bg-gray-700"></span>
+      <span class="block w-6 h-0.5 bg-gray-700"></span>
+      <span class="block w-6 h-0.5 bg-gray-700"></span>
     </button>
   </div>
 </template>

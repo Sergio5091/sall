@@ -14,30 +14,36 @@ class ReseauController extends Controller
         $user = Auth::user();
 
         if (!$user->referral_code) {
-            $user->referral_code = User::generateUniqueReferralCode();
+            $user->referral_code = User::generateReferralCodeIfExists();
             $user->save();
         }
 
         $referralLink = url('/register?ref=' . $user->referral_code);
 
-        $generations = [];
-        $currentIds = [$user->id];
-        $level = 1;
-        $totalCommunity = 0;
+        $referralSummary = $user->getReferralPointsSummary();
+        $generationIds = $user->getReferralGenerationIds();
 
-        while (true) {
+        $generations = [];
+        $directReferrals = [];
+        foreach ($generationIds as $gen) {
+            $level = (int) $gen['level'];
+            $ids = $gen['ids'];
+            if (empty($ids)) {
+                continue;
+            }
+
             $children = User::query()
-                ->whereIn('parent_id', $currentIds)
+                ->whereIn('id', $ids)
                 ->orderBy('created_at', 'asc')
                 ->get(['id', 'name', 'email', 'created_at', 'parent_id']);
 
-            if ($children->isEmpty()) {
-                break;
-            }
+            $summaryRow = collect($referralSummary['generations'])->firstWhere('level', $level);
 
-            $generations[] = [
+            $row = [
                 'level' => $level,
                 'count' => $children->count(),
+                'multiplier' => $summaryRow['multiplier'] ?? null,
+                'points' => $summaryRow['points'] ?? null,
                 'users' => $children->map(function (User $u) {
                     return [
                         'id' => $u->id,
@@ -49,18 +55,10 @@ class ReseauController extends Controller
                 })->values(),
             ];
 
-            $totalCommunity += $children->count();
-            $currentIds = $children->pluck('id')->all();
-            $level++;
-
-            if ($level > 50) {
-                break;
+            $generations[] = $row;
+            if ($level === 1) {
+                $directReferrals = $row['users'];
             }
-        }
-
-        $directReferrals = [];
-        if (!empty($generations)) {
-            $directReferrals = $generations[0]['users'];
         }
 
         return inertia('Client/Reseau', [
@@ -72,7 +70,8 @@ class ReseauController extends Controller
             'referralLink' => $referralLink,
             'directReferrals' => $directReferrals,
             'generations' => $generations,
-            'totalCommunity' => $totalCommunity,
+            'totalCommunity' => $referralSummary['community_size'],
+            'totalPoints' => $referralSummary['total_points'],
         ]);
     }
 }

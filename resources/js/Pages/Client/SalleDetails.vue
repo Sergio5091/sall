@@ -1,12 +1,19 @@
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
+import NotificationModal from '../../Components/NotificationModal.vue';
 
 const props = defineProps({
     salle: Object,
     sallesSimilaires: Array,
     aReserve: Boolean
 });
+
+// États pour les modaux
+const showNotificationModal = ref(false);
+const notificationType = ref('error');
+const notificationTitle = ref('');
+const notificationMessage = ref('');
 
 const form = ref({
     date_heure: '',
@@ -65,12 +72,18 @@ watch(() => form.value.duree, (newDuree) => {
 const reserver = () => {
     // Validation côté client
     if (!form.value.accepte_conditions) {
-        alert('Vous devez accepter les conditions générales pour continuer.');
+        notificationType.value = 'error';
+        notificationTitle.value = 'Conditions requises';
+        notificationMessage.value = 'Vous devez accepter les conditions générales pour continuer.';
+        showNotificationModal.value = true;
         return;
     }
 
     if (!form.value.date_heure) {
-        alert('Veuillez sélectionner une date et heure de début.');
+        notificationType.value = 'error';
+        notificationTitle.value = 'Champ requis';
+        notificationMessage.value = 'Veuillez sélectionner une date et heure de début.';
+        showNotificationModal.value = true;
         return;
     }
 
@@ -110,13 +123,25 @@ const reserver = () => {
             
             // Afficher les erreurs spécifiques
             if (errors.date_heure) {
-                alert('Erreur de date: ' + errors.date_heure[0]);
+                notificationType.value = 'error';
+                notificationTitle.value = 'Erreur de date';
+                notificationMessage.value = 'Erreur de date: ' + errors.date_heure[0];
+                showNotificationModal.value = true;
             } else if (errors.nombre_personnes) {
-                alert('Erreur de participants: ' + errors.nombre_personnes[0]);
+                notificationType.value = 'error';
+                notificationTitle.value = 'Erreur de participants';
+                notificationMessage.value = 'Erreur de participants: ' + errors.nombre_personnes[0];
+                showNotificationModal.value = true;
             } else if (errors.capacite) {
-                alert('Erreur de capacité: ' + errors.capacite[0]);
+                notificationType.value = 'error';
+                notificationTitle.value = 'Erreur de capacité';
+                notificationMessage.value = 'Erreur de capacité: ' + errors.capacite[0];
+                showNotificationModal.value = true;
             } else {
-                alert('Une erreur est survenue lors de la réservation. Veuillez réessayer.');
+                notificationType.value = 'error';
+                notificationTitle.value = 'Erreur de réservation';
+                notificationMessage.value = 'Une erreur est survenue lors de la réservation. Veuillez réessayer.';
+                showNotificationModal.value = true;
             }
         }
     });
@@ -547,3 +572,12 @@ const reserver = () => {
   letter-spacing: -0.025em;
 }
 </style>
+
+<!-- Notification Modal -->
+<NotificationModal
+  :show="showNotificationModal"
+  :type="notificationType"
+  :title="notificationTitle"
+  :message="notificationMessage"
+  @close="showNotificationModal = false"
+/>

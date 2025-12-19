@@ -328,7 +328,6 @@ const viewEventDetails = (event) => {
 
 const registerForEvent = (event) => {
   // Inscription à l'événement
-  console.log('Register for event:', event);
   // Logique d'inscription
 };
 

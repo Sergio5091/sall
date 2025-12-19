@@ -3,6 +3,8 @@ import AdminLayout from '@/Layouts/AdminLayout.vue'
 import { Link, router } from '@inertiajs/vue3'
 import { ref, watch } from 'vue'
 import { debounce } from 'lodash'
+import ConfirmModal from '../../Components/ConfirmModal.vue'
+import NotificationModal from '../../Components/NotificationModal.vue'
 
 defineOptions({ layout: AdminLayout })
 
@@ -13,7 +15,19 @@ const props = defineProps({
 })
 
 const searchQuery = ref(props.filters?.search || '')
-const statusFilter = ref(props.filters?.status || '')
+const selectedStatus = ref(props.filters?.status || '')
+
+// États pour les modaux
+const showConfirmModal = ref(false)
+const confirmTitle = ref('')
+const confirmMessage = ref('')
+const confirmAction = ref(null)
+const confirmData = ref(null)
+
+const showNotificationModal = ref(false)
+const notificationType = ref('success')
+const notificationTitle = ref('')
+const notificationMessage = ref('')
 const showCreateModal = ref(false)
 const showDetailModal = ref(false)
 const selectedSalle = ref(null)
@@ -94,34 +108,88 @@ const viewSalle = (salle) => {
 }
 
 const approveSalle = (salle) => {
-  if (confirm(`Êtes-vous sûr de vouloir valider la salle "${salle.nom}" ?`)) {
-    router.patch(route('admin.salles.approve', salle.id), {}, {
-      onSuccess: () => {
-        // Message de succès géré par le backend
-      }
-    })
-  }
-}
+  confirmTitle.value = 'Valider la salle';
+  confirmMessage.value = `Êtes-vous sûr de vouloir valider la salle "${salle.nom}" ?`;
+  confirmAction.value = 'approve';
+  confirmData.value = salle;
+  showConfirmModal.value = true;
+};
 
 const toggleSalleStatus = (salle, newStatus) => {
   const action = newStatus === 'actif' ? 'réactiver' : 'mettre en maintenance'
-  if (confirm(`Êtes-vous sûr de vouloir ${action} la salle "${salle.nom}" ?`)) {
-    router.patch(route('admin.salles.toggle-status', salle.id), { status: newStatus }, {
-      onSuccess: () => {
-        // Message de succès géré par le backend
-      }
-    })
-  }
-}
+  confirmTitle.value = 'Changer le statut de la salle';
+  confirmMessage.value = `Êtes-vous sûr de vouloir ${action} la salle "${salle.nom}" ?`;
+  confirmAction.value = 'toggle-status';
+  confirmData.value = { salle, newStatus };
+  showConfirmModal.value = true;
+};
 
 const deleteSalle = (salle) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer définitivement la salle "${salle.nom}" ? Cette action est irréversible.`)) {
+  confirmTitle.value = 'Supprimer la salle';
+  confirmMessage.value = `Êtes-vous sûr de vouloir supprimer définitivement la salle "${salle.nom}" ? Cette action est irréversible.`;
+  confirmAction.value = 'delete';
+  confirmData.value = salle;
+  showConfirmModal.value = true;
+};
+
+// Confirmer l'action
+const confirmActionHandler = () => {
+  if (!confirmAction.value || !confirmData.value) return;
+  
+  if (confirmAction.value === 'approve') {
+    const salle = confirmData.value;
+    router.patch(route('admin.salles.approve', salle.id), {}, {
+      onSuccess: () => {
+        notificationType.value = 'success';
+        notificationTitle.value = 'Succès';
+        notificationMessage.value = 'Salle validée avec succès !';
+        showNotificationModal.value = true;
+      },
+      onError: (errors) => {
+        notificationType.value = 'error';
+        notificationTitle.value = 'Erreur';
+        notificationMessage.value = 'Une erreur est survenue lors de la validation.';
+        showNotificationModal.value = true;
+      }
+    });
+  } else if (confirmAction.value === 'toggle-status') {
+    const { salle, newStatus } = confirmData.value;
+    router.patch(route('admin.salles.toggle-status', salle.id), { status: newStatus }, {
+      onSuccess: () => {
+        notificationType.value = 'success';
+        notificationTitle.value = 'Succès';
+        notificationMessage.value = 'Statut de la salle modifié avec succès !';
+        showNotificationModal.value = true;
+      },
+      onError: (errors) => {
+        notificationType.value = 'error';
+        notificationTitle.value = 'Erreur';
+        notificationMessage.value = 'Une erreur est survenue lors de la modification du statut.';
+        showNotificationModal.value = true;
+      }
+    });
+  } else if (confirmAction.value === 'delete') {
+    const salle = confirmData.value;
     router.delete(route('admin.salles.destroy', salle.id), {
       onSuccess: () => {
-        // Message de succès géré par le backend
+        notificationType.value = 'success';
+        notificationTitle.value = 'Succès';
+        notificationMessage.value = 'Salle supprimée avec succès !';
+        showNotificationModal.value = true;
+      },
+      onError: (errors) => {
+        notificationType.value = 'error';
+        notificationTitle.value = 'Erreur';
+        notificationMessage.value = 'Une erreur est survenue lors de la suppression.';
+        showNotificationModal.value = true;
       }
-    })
+    });
   }
+  
+  // Réinitialiser
+  showConfirmModal.value = false;
+  confirmAction.value = null;
+  confirmData.value = null;
 }
 </script>
 
@@ -385,9 +453,9 @@ const deleteSalle = (salle) => {
               </div>
               
               <div class="flex items-center gap-2">
-                <span :class="getStatusClass(selectedSalle.status)">
-                  <span class="size-1.5 rounded-full" :class="getStatusDotClass(selectedSalle.status)"></span>
-                  {{ getStatusText(selectedSalle.status) }}
+                <span :class="getStatusClass(selectedSalle)">
+                  <span class="size-1.5 rounded-full" :class="getStatusDotClass(selectedSalle)"></span>
+                  {{ getStatusText(selectedSalle) }}
                 </span>
               </div>
 
@@ -464,8 +532,8 @@ const deleteSalle = (salle) => {
                 <i class="fas fa-gamepad text-primary"></i>
                 Équipements
               </h5>
-              <div v-if="selectedSalle.equipements && selectedSalle.equipements.length > 0" class="flex flex-wrap gap-1">
-                <span v-for="equipement in JSON.parse(selectedSalle.equipements)" :key="equipement" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+              <div v-if="selectedSalle.equipements && Array.isArray(selectedSalle.equipements) && selectedSalle.equipements.length > 0" class="flex flex-wrap gap-1">
+                <span v-for="equipement in selectedSalle.equipements" :key="equipement" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                   {{ equipement }}
                 </span>
               </div>
@@ -478,8 +546,8 @@ const deleteSalle = (salle) => {
                 <i class="fas fa-concierge-bell text-primary"></i>
                 Services
               </h5>
-              <div v-if="selectedSalle.services && selectedSalle.services.length > 0" class="flex flex-wrap gap-1">
-                <span v-for="service in JSON.parse(selectedSalle.services)" :key="service" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border border-green-200 dark:border-green-800">
+              <div v-if="selectedSalle.services && Array.isArray(selectedSalle.services) && selectedSalle.services.length > 0" class="flex flex-wrap gap-1">
+                <span v-for="service in selectedSalle.services" :key="service" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border border-green-200 dark:border-green-800">
                   {{ service }}
                 </span>
               </div>
@@ -502,8 +570,8 @@ const deleteSalle = (salle) => {
               <i class="fas fa-clock text-primary"></i>
               Horaires d'ouverture
             </h5>
-            <div v-if="selectedSalle.horaires" class="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <div v-for="(horaire, jour) in JSON.parse(selectedSalle.horaires)" :key="jour" class="flex justify-between text-xs">
+            <div v-if="selectedSalle.horaires && typeof selectedSalle.horaires === 'object'" class="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div v-for="(horaire, jour) in selectedSalle.horaires" :key="jour" class="flex justify-between text-xs">
                 <span class="font-medium text-slate-700 dark:text-slate-300">{{ jour }}</span>
                 <span class="text-slate-600 dark:text-slate-400">{{ horaire }}</span>
               </div>
@@ -516,15 +584,15 @@ const deleteSalle = (salle) => {
             <button @click="showDetailModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg font-medium transition-colors">
               Fermer
             </button>
-            <button v-if="selectedSalle.status === 'pending'" @click="approveSalle(selectedSalle); showDetailModal = false" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
+            <button v-if="!selectedSalle.valide" @click="approveSalle(selectedSalle); showDetailModal = false" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
               <i class="fas fa-check-circle mr-2"></i>
               Approuver
             </button>
-            <button v-else-if="selectedSalle.status === 'active'" @click="toggleSalleStatus(selectedSalle, 'disabled'); showDetailModal = false" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors">
+            <button v-else-if="selectedSalle.statut === 'actif'" @click="toggleSalleStatus(selectedSalle, 'maintenance'); showDetailModal = false" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors">
               <i class="fas fa-pause-circle mr-2"></i>
               Désactiver
             </button>
-            <button v-else-if="selectedSalle.status === 'disabled'" @click="toggleSalleStatus(selectedSalle, 'active'); showDetailModal = false" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
+            <button v-else-if="selectedSalle.statut === 'maintenance'" @click="toggleSalleStatus(selectedSalle, 'actif'); showDetailModal = false" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
               <i class="fas fa-play-circle mr-2"></i>
               Réactiver
             </button>
@@ -557,3 +625,22 @@ const deleteSalle = (salle) => {
   background-color: #475569;
 }
 </style>
+
+<!-- Confirm Modal -->
+<ConfirmModal
+  :show="showConfirmModal"
+  :title="confirmTitle"
+  :message="confirmMessage"
+  @confirm="confirmActionHandler"
+  @cancel="showConfirmModal = false"
+  @close="showConfirmModal = false"
+/>
+
+<!-- Notification Modal -->
+<NotificationModal
+  :show="showNotificationModal"
+  :type="notificationType"
+  :title="notificationTitle"
+  :message="notificationMessage"
+  @close="showNotificationModal = false"
+/>

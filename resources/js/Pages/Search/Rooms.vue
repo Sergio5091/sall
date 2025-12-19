@@ -373,12 +373,19 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 import axios from 'axios';
+import NotificationModal from '../../Components/NotificationModal.vue';
 
 const props = defineProps({
     salles: Object,
     villes: Array,
     filters: Object
 });
+
+// États pour les modaux
+const showNotificationModal = ref(false);
+const notificationType = ref('error');
+const notificationTitle = ref('');
+const notificationMessage = ref('');
 
 const form = ref({
     search: props.filters.search || '',
@@ -421,17 +428,21 @@ const getCurrentLocation = () => {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
-                console.log('Position obtenue:', position.coords);
                 searchQuery.value = `${position.coords.latitude}, ${position.coords.longitude}`;
                 searchNearbyRooms(position.coords.latitude, position.coords.longitude);
             },
             (error) => {
-                console.error('Erreur de géolocalisation:', error);
-                alert('Impossible d\'obtenir votre position. Veuillez entrer votre adresse manuellement.');
+                notificationType.value = 'error';
+                notificationTitle.value = 'Erreur de géolocalisation';
+                notificationMessage.value = 'Impossible d\'obtenir votre position. Veuillez entrer votre adresse manuellement.';
+                showNotificationModal.value = true;
             }
         );
     } else {
-        alert('La géolocalisation n\'est pas supportée par votre navigateur.');
+        notificationType.value = 'error';
+        notificationTitle.value = 'Erreur de géolocalisation';
+        notificationMessage.value = 'La géolocalisation n\'est pas supportée par votre navigateur.';
+        showNotificationModal.value = true;
     }
 };
 
@@ -451,17 +462,22 @@ const searchNearbyRooms = async (lat, lng) => {
         searchResults.value = response.data.salles;
         
         if (response.data.salles.length === 0) {
-            console.log('Aucune salle trouvée dans un rayon de 50km');
+            // Aucune salle trouvée dans un rayon de 50km
         }
     } catch (error) {
-        console.error('Erreur lors de la recherche des salles:', error);
         searchResults.value = [];
         
         // Message d'erreur plus convivial
         if (error.response && error.response.status === 422) {
-            alert('Coordonnées invalides. Veuillez réessayer.');
+            notificationType.value = 'error';
+            notificationTitle.value = 'Erreur de recherche';
+            notificationMessage.value = 'Coordonnées invalides. Veuillez réessayer.';
+            showNotificationModal.value = true;
         } else {
-            alert('Erreur lors de la recherche des salles. Veuillez réessayer plus tard.');
+            notificationType.value = 'error';
+            notificationTitle.value = 'Erreur de recherche';
+            notificationMessage.value = 'Erreur lors de la recherche des salles. Veuillez réessayer plus tard.';
+            showNotificationModal.value = true;
         }
     } finally {
         isLoading.value = false;
@@ -490,7 +506,6 @@ const searchRooms = async () => {
             await searchNearbyRooms(parseFloat(coords[0]), parseFloat(coords[1]));
         } else {
             // Sinon, recherche par texte via les filtres existants
-            console.log('Recherche de salles pour:', searchQuery.value);
             form.value.search = searchQuery.value;
         }
     }
@@ -502,5 +517,13 @@ const searchRooms = async () => {
 .group:hover .group-hover\:text-accent-cyan {
   color: #00ffff;
 }
-
 </style>
+
+<!-- Notification Modal -->
+<NotificationModal
+  :show="showNotificationModal"
+  :type="notificationType"
+  :title="notificationTitle"
+  :message="notificationMessage"
+  @close="showNotificationModal = false"
+/>

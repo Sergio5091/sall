@@ -20,46 +20,24 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         if (!$user->referral_code) {
-            $user->referral_code = User::generateUniqueReferralCode();
+            $user->referral_code = User::generateReferralCodeIfExists();
             $user->save();
         }
 
         $referralLink = url('/register?ref=' . $user->referral_code);
 
-        $directReferralsCount = User::query()
-            ->where('parent_id', $user->id)
-            ->count();
-
-        $communitySize = 0;
-        $currentIds = [$user->id];
-        $level = 1;
-        while (true) {
-            $ids = User::query()
-                ->whereIn('parent_id', $currentIds)
-                ->pluck('id');
-
-            if ($ids->isEmpty()) {
-                break;
-            }
-
-            $communitySize += $ids->count();
-            $currentIds = $ids->all();
-            $level++;
-
-            if ($level > 50) {
-                break;
-            }
-        }
+        $referralSummary = $user->getReferralPointsSummary();
         
         // Statistiques du client
         $stats = [
             'next_reservations' => $user->reservations()
                 ->where('date_heure', '>=', now())
                 ->count(),
-            'invitations_pending' => $directReferralsCount,
+            'invitations_pending' => $referralSummary['direct_referrals'],
             'credits' => 150, // À implémenter plus tard
-            'direct_referrals' => $directReferralsCount,
-            'community_size' => $communitySize,
+            'direct_referrals' => $referralSummary['direct_referrals'],
+            'community_size' => $referralSummary['community_size'],
+            'referral_points' => $referralSummary['total_points'],
         ];
 
         // Activité récente (réservations)

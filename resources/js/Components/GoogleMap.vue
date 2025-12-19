@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted, defineProps, defineEmits } from 'vue';
+import NotificationModal from './NotificationModal.vue';
 
 const props = defineProps({
   initialLat: {
@@ -21,6 +22,12 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['location-selected']);
+
+// États pour les modaux
+const showNotificationModal = ref(false);
+const notificationType = ref('error');
+const notificationTitle = ref('');
+const notificationMessage = ref('');
 
 const mapContainer = ref(null);
 const map = ref(null);
@@ -68,7 +75,7 @@ const loadGoogleMaps = () => {
 
   // Définir les callbacks globaux
   window.initMap = () => {
-    console.log('Google Maps chargé avec succès');
+    // Google Maps chargé avec succès
     initializeMap();
   };
 
@@ -88,7 +95,7 @@ const loadGoogleMaps = () => {
   // Timeout pour éviter un chargement infini
   const timeout = setTimeout(() => {
     if (isLoading.value) {
-      console.log('Timeout Google Maps, utilisation de la solution de secours');
+      // Timeout Google Maps, utilisation de la solution de secours
       initFallbackMap();
     }
   }, 5000); // Réduit à 5 secondes
@@ -104,7 +111,7 @@ const initFallbackMap = () => {
   isLoading.value = false;
   hasError.value = false;
   
-  console.log('Initialisation de la carte de secours');
+  // Initialisation de la carte de secours
   
   try {
     // Créer une carte simple avec OpenStreetMap comme alternative
@@ -215,7 +222,10 @@ const initFallbackMap = () => {
             const lng = parseFloat(lngInput.value);
             
             if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-              alert('Veuillez entrer des coordonnées valides.');
+              notificationType.value = 'error';
+              notificationTitle.value = 'Coordonnées invalides';
+              notificationMessage.value = 'Veuillez entrer des coordonnées valides.';
+              showNotificationModal.value = true;
               return;
             }
             
@@ -321,9 +331,9 @@ const initializeMap = () => {
     // Centrer la carte sur le marqueur
     map.value.setCenter(selectedLocation.value);
     
-    console.log('Carte initialisée avec succès');
+    // Carte initialisée avec succès
   } catch (error) {
-    console.error('Erreur lors de l\'initialisation de la carte:', error);
+    // Erreur lors de l'initialisation de la carte
     hasError.value = true;
     errorMessage.value = 'Erreur lors de l\'initialisation de la carte.';
   }
@@ -789,3 +799,12 @@ defineExpose({
   animation: spin 1s linear infinite;
 }
 </style>
+
+<!-- Notification Modal -->
+<NotificationModal
+  :show="showNotificationModal"
+  :type="notificationType"
+  :title="notificationTitle"
+  :message="notificationMessage"
+  @close="showNotificationModal = false"
+/>

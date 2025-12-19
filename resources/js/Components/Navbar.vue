@@ -57,7 +57,6 @@ const searchQuery = ref('');
 const searchRooms = () => {
   if (searchQuery.value.trim()) {
     // Implémentez la logique de recherche ici
-    console.log('Recherche:', searchQuery.value);
   }
 };
 </script>

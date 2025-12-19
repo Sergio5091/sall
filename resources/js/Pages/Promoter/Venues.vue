@@ -3,6 +3,8 @@ import { ref, watch, onMounted } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import Sidebar from '../../Components/Promoter/Sidebar.vue';
 import GoogleMap from '../../Components/GoogleMap.vue';
+import ConfirmModal from '../../Components/ConfirmModal.vue';
+import NotificationModal from '../../Components/NotificationModal.vue';
 
 const props = defineProps({
   salle: Object,
@@ -12,6 +14,12 @@ const props = defineProps({
 const showCreateForm = ref(false);
 const isEditing = ref(false);
 const showImagesModal = ref(false);
+
+// États pour les modaux
+const showNotificationModal = ref(false);
+const notificationType = ref('success');
+const notificationTitle = ref('');
+const notificationMessage = ref('');
 
 // S'assurer que la modal est fermée au chargement
 onMounted(() => {
@@ -118,7 +126,10 @@ const validateStep = (step) => {
 const createVenue = () => {
   // Validation finale
   if (!validateStep(6)) {
-    alert('Veuillez remplir tous les champs obligatoires');
+    notificationType.value = 'error';
+    notificationTitle.value = 'Erreur de validation';
+    notificationMessage.value = 'Veuillez remplir tous les champs obligatoires';
+    showNotificationModal.value = true;
     return;
   }
 
@@ -168,10 +179,6 @@ const createVenue = () => {
   // Choisir la bonne route et méthode
   const route = isEditing.value ? `/promoter/venues/${props.salle.id}` : '/promoter/venues';
   const method = 'POST'; // Toujours POST pour FormData
-
-  console.log('Route:', route);
-  console.log('Method:', method);
-  console.log('Salle ID:', props.salle?.id);
 
   // Créer FormData pour les fichiers uploadés
   const formData = new FormData();
@@ -239,16 +246,16 @@ const createVenue = () => {
   });
 
   // Debug: voir les chemins des images
-  console.log('=== MODE ÉDITION ===');
-  console.log('isEditing:', isEditing.value);
-  console.log('Images de la salle:', props.salle?.images);
-  console.log('Image URL:', props.salle?.image_url);
-  console.log('venueData:', venueData);
-  console.log('horaires:', venueData.horaires);
-  console.log('services:', venueData.services);
-  console.log('FormData entries:');
+  // === MODE ÉDITION ===
+  // isEditing: isEditing.value
+  // Images de la salle: props.salle?.images
+  // Image URL: props.salle?.image_url
+  // venueData: venueData
+  // horaires: venueData.horaires
+  // services: venueData.services
+  // FormData entries:
   for (let [key, value] of formData.entries()) {
-    console.log(key, value);
+    // Debug entry: key, value
   }
 
   // Envoi des données au backend
@@ -256,9 +263,15 @@ const createVenue = () => {
     method: method,
     data: formData,
     onSuccess: (response) => {
-      alert(isEditing.value ? 'Salle mise à jour avec succès !' : 'Salle créée avec succès !');
+      notificationType.value = 'success';
+      notificationTitle.value = 'Succès';
+      notificationMessage.value = isEditing.value ? 'Salle mise à jour avec succès !' : 'Salle créée avec succès !';
+      showNotificationModal.value = true;
+      
       // Redirection vers la page des salles pour voir les modifications
-      window.location.href = '/promoter/venues';
+      setTimeout(() => {
+        window.location.href = '/promoter/venues';
+      }, 2000);
     },
     onError: (errors) => {
       let errorMessage = isEditing.value ?
@@ -273,7 +286,10 @@ const createVenue = () => {
         errorMessage += errors;
       }
 
-      alert(errorMessage);
+      notificationType.value = 'error';
+      notificationTitle.value = 'Erreur';
+      notificationMessage.value = errorMessage;
+      showNotificationModal.value = true;
     }
   });
 };
@@ -332,8 +348,8 @@ const resetForm = () => {
 
 const editVenue = () => {
   if (props.salle) {
-    console.log('Données brutes de la salle:', props.salle);
-    console.log('Horaires bruts:', props.salle?.horaires);
+    // Données brutes de la salle: props.salle
+    // Horaires bruts: props.salle?.horaires
 
     // Extraire les jours d'ouverture correctement
     const horairesData = props.salle?.horaires;
@@ -367,7 +383,7 @@ const editVenue = () => {
       });
     }
 
-    console.log('Jours d\'ouverture mappés:', joursOuverture);
+    // Jours d'ouverture mappés: joursOuverture
 
     // Pré-remplir le formulaire avec les données de la salle existante
     newVenue.value = {
@@ -414,7 +430,7 @@ const editVenue = () => {
       logo_url: props.salle.logo && props.salle.logo.startsWith('salles/') ? `/storage/${props.salle.logo}` : props.salle.logo || null
     };
 
-    console.log('Formulaire pré-rempli:', newVenue.value);
+    // Formulaire pré-rempli: newVenue.value
     // Pré-remplir les services personnalisés si présents
     customServices.value = [];
     const existingServices = props.salle.services;
@@ -505,7 +521,7 @@ const getStepTitle = (step) => {
   <!-- Add Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <div class="relative flex min-h-screen w-full bg-gray-50 font-display text-gray-800">
+  <div class="relative flex h-screen w-full bg-gray-50 font-display text-gray-800">
     <!-- Sidebar Component -->
     <Sidebar current-route="promoter.venues" />
 
@@ -594,13 +610,14 @@ const getStepTitle = (step) => {
                         class="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-sm font-medium rounded-full border border-white/30">
                         {{ props.salle.type }}
                       </span>
-                      <span :class="[
-                        'px-3 py-1 text-sm font-medium rounded-full border backdrop-blur-sm',
-                        props.salle.statut === 'actif'
-                          ? 'bg-green-500/20 text-green-100 border-green-400/30'
-                          : 'bg-gray-500/20 text-gray-100 border-gray-400/30'
-                      ]">
-                        {{ props.salle.statut === 'actif' ? 'Active' : 'Inactive' }}
+                      <span
+                        :class="[
+                          'px-3 py-1 text-sm font-medium rounded-full border backdrop-blur-sm',
+                          props.salle.valide_par_admin
+                            ? 'bg-green-500/20 text-green-100 border-green-400/30'
+                            : 'bg-yellow-500/20 text-yellow-100 border-yellow-400/30'
+                        ]">
+                        {{ props.salle.valide_par_admin ? 'Active' : 'En attente' }}
                       </span>
                     </div>
                   </div>
@@ -1816,4 +1833,13 @@ const getStepTitle = (step) => {
     <!-- Galerie -->
 
   </div>
+
+  <!-- Notification Modal -->
+  <NotificationModal
+    :show="showNotificationModal"
+    :type="notificationType"
+    :title="notificationTitle"
+    :message="notificationMessage"
+    @close="showNotificationModal = false"
+  />
 </template>
