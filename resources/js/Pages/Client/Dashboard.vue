@@ -18,6 +18,7 @@ const userName = computed(() => props.user?.name || 'Alex');
 const nextReservations = computed(() => props.stats?.next_reservations ?? props.stats?.nextReservations ?? 2);
 const invitationsPending = computed(() => props.stats?.invitations_pending ?? props.stats?.invitationsPending ?? 0);
 const credits = computed(() => props.stats?.credits ?? 0);
+const referralPoints = computed(() => props.stats?.referral_points ?? '0');
 
 const directReferralsCount = computed(() => props.stats?.direct_referrals ?? 0);
 const communitySize = computed(() => props.stats?.community_size ?? 0);
@@ -106,6 +107,7 @@ const upcomingList = computed(() => (props.upcoming && props.upcoming.length) ? 
 const referralLink = computed(() => props.referral || 'gamecenter.com/invite/alex123');
 
 const copyState = ref('idle');
+const howItWorksOpen = ref(false);
 
 const copyReferralLink = async () => {
   if (!referralLink.value) return;
@@ -129,6 +131,14 @@ const copyReferralLink = async () => {
       setTimeout(() => (copyState.value = 'idle'), 1500);
     }
   }
+};
+
+const openHowItWorks = () => {
+  howItWorksOpen.value = true;
+};
+
+const closeHowItWorks = () => {
+  howItWorksOpen.value = false;
 };
 </script>
 
@@ -208,7 +218,7 @@ const copyReferralLink = async () => {
             </div>
             <div class="flex flex-col justify-between gap-2 rounded-lg p-6 bg-content-light border border-border-light min-h-[120px]">
               <div>
-                <p class="text-base font-medium">Invitations en attente</p>
+                <p class="text-base font-medium">Filleuls directs</p>
                 <p class="tracking-light text-3xl font-bold mt-2">{{ invitationsPending }}</p>
               </div>
               <div class="text-xs text-text-light/60">
@@ -217,11 +227,11 @@ const copyReferralLink = async () => {
             </div>
             <div class="flex flex-col justify-between gap-2 rounded-lg p-6 bg-content-light border border-border-light min-h-[120px]">
               <div>
-                <p class="text-base font-medium">Mes Crédits</p>
-                <p class="tracking-light text-3xl font-bold mt-2">{{ credits }}</p>
+                <p class="text-base font-medium">Mes Points</p>
+                <p class="tracking-light text-3xl font-bold mt-2">{{ referralPoints }}</p>
               </div>
               <div class="text-xs text-text-light/60">
-                <i class="fas fa-wallet text-sm"></i>
+                <i class="fas fa-star text-sm"></i>
               </div>
             </div>
           </div>
@@ -277,8 +287,18 @@ const copyReferralLink = async () => {
             <div class="flex flex-col gap-6">
               <!-- Referral Link -->
               <div class="bg-content-light rounded-lg p-6 border border-border-light">
-                <h3 class="text-xl font-bold">Mon Lien de Recommandation</h3>
-                <p class="text-sm mt-2 text-text-light/70">Partagez ce lien et gagnez des crédits pour chaque ami qui s'inscrit !</p>
+                <div class="flex items-start justify-between gap-4">
+                  <h3 class="text-xl font-bold">Mon Lien de Recommandation</h3>
+                  <button
+                    type="button"
+                    @click="openHowItWorks"
+                    class="flex items-center justify-center gap-2 px-3 py-1.5 text-xs font-bold rounded-full bg-subtle-light hover:bg-border-light"
+                  >
+                    <i class="fas fa-circle-question"></i>
+                    <span>Comment ça marche ?</span>
+                  </button>
+                </div>
+                <p class="text-sm mt-2 text-text-light/70">Partagez ce lien et gagnez des points selon les générations de votre réseau.</p>
                 <div class="relative mt-4">
                   <input 
                     class="w-full h-10 pr-12 rounded-full border-border-light bg-subtle-light text-sm px-4" 
@@ -308,6 +328,103 @@ const copyReferralLink = async () => {
         </div>
       </div>
     </main>
+
+    <div
+      v-if="howItWorksOpen"
+      class="fixed inset-0 z-[60] flex items-center justify-center px-4"
+      @click.self="closeHowItWorks"
+    >
+      <div class="absolute inset-0 bg-black/50"></div>
+      <div class="relative w-full max-w-2xl rounded-lg bg-white border border-border-light shadow-2xl max-h-[85vh] overflow-hidden">
+        <div class="flex items-start justify-between gap-4 p-6 border-b border-border-light">
+          <div>
+            <h3 class="text-xl font-bold">Comment ça marche ?</h3>
+            <p class="text-sm text-text-light/70 mt-1">Le parrainage et le calcul des points par génération.</p>
+          </div>
+          <button type="button" class="p-2 rounded-full bg-subtle-light hover:bg-border-light" @click="closeHowItWorks">
+            <i class="fas fa-xmark"></i>
+          </button>
+        </div>
+        <div class="p-6 space-y-4 overflow-y-auto" style="max-height: calc(85vh - 140px);">
+          <div class="bg-subtle-light rounded-lg p-4 border border-border-light">
+            <div class="font-bold">1) Ton lien</div>
+            <div class="text-sm text-text-light/70 mt-1">
+              Partage ton lien. Toute inscription via ce lien devient ton filleul direct (génération 1).
+            </div>
+          </div>
+
+          <div class="bg-subtle-light rounded-lg p-4 border border-border-light">
+            <div class="font-bold">2) Générations</div>
+            <div class="text-sm text-text-light/70 mt-1">
+              Si ton filleul invite quelqu’un, cette personne est génération 2 pour toi, puis génération 3, etc. (illimité).
+            </div>
+          </div>
+
+          <div class="bg-subtle-light rounded-lg p-4 border border-border-light">
+            <div class="font-bold">3) Points par génération</div>
+            <div class="text-sm text-text-light/70 mt-1">
+              On compte uniquement les personnes réelles présentes dans ton réseau.
+              <div class="mt-2 font-mono text-sm bg-white rounded-lg p-3 border border-border-light">PointsGenN = NombreDePersonnesGenN × (0.5)^N</div>
+            </div>
+          </div>
+
+          <details class="bg-subtle-light rounded-lg p-4 border border-border-light">
+            <summary class="font-bold cursor-pointer select-none">Schéma (exemple)</summary>
+            <div class="text-sm text-text-light/70 mt-3">
+              <div class="overflow-x-auto">
+                <svg viewBox="0 0 900 260" class="min-w-[700px] w-full h-auto">
+                  <defs>
+                    <linearGradient id="node_dash" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stop-color="#ffffff" />
+                      <stop offset="100%" stop-color="#f0f4f2" />
+                    </linearGradient>
+                  </defs>
+
+                  <text x="50" y="28" font-size="14" fill="#111813" font-weight="700">Parrain (racine)</text>
+                  <rect x="40" y="45" rx="14" ry="14" width="200" height="48" fill="url(#node_dash)" stroke="#dbe6df" />
+                  <text x="60" y="76" font-size="14" fill="#111813">Toi</text>
+
+                  <text x="330" y="28" font-size="14" fill="#111813" font-weight="700">Génération 1</text>
+                  <rect x="310" y="45" rx="14" ry="14" width="180" height="48" fill="url(#node_dash)" stroke="#dbe6df" />
+                  <text x="330" y="76" font-size="14" fill="#111813">Filleuls directs</text>
+                  <text x="310" y="112" font-size="12" fill="#3b82f6" font-weight="700">Points = count × (0.5)^1</text>
+
+                  <text x="610" y="28" font-size="14" fill="#111813" font-weight="700">Génération 2</text>
+                  <rect x="590" y="45" rx="14" ry="14" width="260" height="48" fill="url(#node_dash)" stroke="#dbe6df" />
+                  <text x="610" y="76" font-size="14" fill="#111813">Filleuls des filleuls</text>
+                  <text x="590" y="112" font-size="12" fill="#3b82f6" font-weight="700">Points = count × (0.5)^2</text>
+
+                  <line x1="240" y1="69" x2="310" y2="69" stroke="#3b82f6" stroke-width="3" />
+                  <line x1="490" y1="69" x2="590" y2="69" stroke="#3b82f6" stroke-width="3" />
+
+                  <circle cx="240" cy="69" r="5" fill="#3b82f6" />
+                  <circle cx="310" cy="69" r="5" fill="#3b82f6" />
+                  <circle cx="490" cy="69" r="5" fill="#3b82f6" />
+                  <circle cx="590" cy="69" r="5" fill="#3b82f6" />
+
+                  <text x="40" y="175" font-size="13" fill="#111813" font-weight="700">Règle :</text>
+                  <text x="96" y="175" font-size="13" fill="#111813">on compte seulement les personnes réelles dans chaque génération (pas de places théoriques).</text>
+                  <text x="40" y="205" font-size="13" fill="#111813" font-weight="700">Total points :</text>
+                  <text x="140" y="205" font-size="13" fill="#111813">somme des points de toutes les générations existantes.</text>
+                </svg>
+              </div>
+            </div>
+          </details>
+
+          <div class="bg-subtle-light rounded-lg p-4 border border-border-light">
+            <div class="font-bold">4) Total des points</div>
+            <div class="text-sm text-text-light/70 mt-1">
+              Ton total correspond à la somme des points de toutes les générations de ton réseau.
+            </div>
+          </div>
+        </div>
+        <div class="p-6 border-t border-border-light flex justify-end">
+          <button type="button" class="px-4 py-2 text-sm font-bold rounded-full bg-primary text-white" @click="closeHowItWorks">
+            Fermer
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
