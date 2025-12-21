@@ -1,5 +1,5 @@
 <script setup>
-import { Link, usePage } from "@inertiajs/vue3";
+import { Link, usePage, router } from "@inertiajs/vue3";
 import { computed, ref, onMounted, onUnmounted } from "vue";
 
 const props = defineProps({
@@ -78,6 +78,12 @@ const menuItems = computed(() => [
         route: "promoter.notifications",
         href: "/promoter/notifications",
         badge: unreadCount.value
+    },
+    {
+        name: "Mon Profil",
+        icon: "fas fa-user",
+        route: "promoter.profile",
+        href: "/promoter/profile"
     }
 ]);
 
@@ -94,10 +100,10 @@ const toggleSidebar = () => {
 
 <template>
   <div class="flex h-screen">
-    <div class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" v-if="isSidebarOpen" @click="toggleSidebar"></div>
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden" v-if="isSidebarOpen" @click="toggleSidebar"></div>
     
-    <aside class="fixed lg:relative w-64 h-full bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 z-50"
-           :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
+    <aside class="fixed top-0 left-0 w-64 h-screen bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 z-40 lg:translate-x-0"
+           :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'">
       
       <div class="p-6 border-b border-gray-200">
         <div class="flex items-center gap-3">

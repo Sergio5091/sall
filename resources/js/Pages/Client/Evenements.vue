@@ -160,8 +160,8 @@ const validateReservation = () => {
     
     if (!reservationForm.value.whatsapp.trim()) {
         errors.whatsapp = 'Le numéro WhatsApp est obligatoire';
-    } else if (!/^(?:\+221)?(?:77|76|70|78|33)\d{7}$/.test(reservationForm.value.whatsapp.replace(/\s/g, ''))) {
-        errors.whatsapp = 'Le numéro WhatsApp n\'est pas valide';
+    } else if (!/^(?:\+221)?[77678]\d{7}$/.test(reservationForm.value.whatsapp.replace(/\s/g, ''))) {
+        errors.whatsapp = 'Format invalide. Ex: +221771234567 ou 771234567';
     }
     
     if (!reservationForm.value.email.trim()) {
@@ -174,31 +174,47 @@ const validateReservation = () => {
     return Object.keys(errors).length === 0;
 };
 
-// Fonction pour soumettre la réservation
+// Fonction pour soumettre l'inscription
 const submitReservation = () => {
+    console.log('submitReservation appelé');
+    console.log('selectedEvent:', selectedEvent.value);
+    console.log('reservationForm:', reservationForm.value);
+    
     if (!validateReservation()) {
+        console.log('Validation échouée:', reservationErrors.value);
         return;
     }
     
+    console.log('Validation OK, envoi de la requête');
+    
     // Créer FormData
     const formData = new FormData();
-    formData.append('evenement_id', selectedEvent.value.id);
+    formData.append('event_id', selectedEvent.value.id);
     formData.append('nom', reservationForm.value.nom);
     formData.append('whatsapp', reservationForm.value.whatsapp);
     formData.append('email', reservationForm.value.email);
     
-    // Envoyer la requête
-    router.post('/client/evenements/reserver', formData, {
-        onSuccess: () => {
+    console.log('FormData créé:', formData);
+    
+    // Envoyer la requête d'inscription
+    router.post(`/events/${selectedEvent.value.id}/register`, formData, {
+        onSuccess: (page) => {
+            console.log('Succès:', page);
             showReservationModal.value = false;
             // Afficher un message de succès
             notificationType.value = 'success';
-            notificationTitle.value = 'Réservation réussie';
-            notificationMessage.value = 'Réservation effectuée avec succès ! Vous serez contacté prochainement.';
+            notificationTitle.value = 'Inscription réussie';
+            notificationMessage.value = page.props.flash?.success || 'Inscription effectuée avec succès !';
             showNotificationModal.value = true;
+            // Recharger la page pour mettre à jour les places disponibles
+            router.reload();
         },
         onError: (errors) => {
+            console.error('Erreurs inscription:', errors);
             reservationErrors.value = errors;
+        },
+        onStart: () => {
+            console.log('Début de la requête');
         }
     });
 };
@@ -219,6 +235,41 @@ const closeReservationModal = () => {
 const hasActiveFilters = computed(() => {
     return searchQuery.value || selectedVille.value || selectedDate.value;
 });
+
+// Fonction pour gérer les erreurs d'images
+const handleImageError = (event) => {
+  const src = event.target.src;
+  if (src.includes('/bannieres/')) {
+    // Essayer le dossier affiches
+    const filename = src.split('/').pop();
+    event.target.src = '/storage/events/affiches/' + filename;
+  } else if (src.includes('/affiches/')) {
+    // Utiliser l'image par défaut
+    event.target.src = '/images/default-event.jpg';
+  }
+};
+
+// Fonction pour s'inscrire directement à un événement
+const sInscrire = (event) => {
+  router.post(`/events/${event.id}/register`, {}, {
+    onSuccess: (page) => {
+      // Afficher le message de succès depuis les flash messages
+      const flashMessage = page.props.flash?.success;
+      if (flashMessage) {
+        alert(flashMessage);
+      } else {
+        alert('Inscription réussie !');
+      }
+      // Recharger la page pour mettre à jour le nombre de participants
+      router.reload();
+    },
+    onError: (errors) => {
+      // Afficher les erreurs
+      const errorMessage = Object.values(errors).join('\n') || 'Erreur lors de l\'inscription';
+      alert(errorMessage);
+    }
+  });
+};
 </script>
 
 <template>
@@ -300,108 +351,6 @@ const hasActiveFilters = computed(() => {
         </div>
       </div>
 
-      <!-- Flux d'activité personnalisé -->
-      <div class="bg-gray-50 py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="mb-6">
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">Flux d'activité personnalisé</h2>
-            <p class="text-gray-600">Découvrez les événements recommandés pour vous</p>
-          </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Événement 1 -->
-            <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
-              <div class="flex items-start justify-between mb-4">
-                <div class="flex-1">
-                  <span class="inline-block px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium mb-2">
-                    Tournoi
-                  </span>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">League of Legends Championship</h3>
-                  <p class="text-gray-600 text-sm mb-3">Tournoi compétitif avec prix de 500 000 FCFA</p>
-                </div>
-              </div>
-              <div class="space-y-2 text-sm text-gray-500">
-                <div class="flex items-center gap-2">
-                  <i class="fas fa-calendar text-blue-500"></i>
-                  <span>25 Décembre 2025</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <i class="fas fa-map-marker-alt text-blue-500"></i>
-                  <span>Dakar, Sénégal</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <i class="fas fa-users text-blue-500"></i>
-                  <span>32 places</span>
-                </div>
-              </div>
-              <button class="w-full mt-4 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                Voir détails
-              </button>
-            </div>
-
-            <!-- Événement 2 -->
-            <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
-              <div class="flex items-start justify-between mb-4">
-                <div class="flex-1">
-                  <span class="inline-block px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium mb-2">
-                    LAN Party
-                  </span>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Gaming Night Extrême</h3>
-                  <p class="text-gray-600 text-sm mb-3">Soirée gaming avec multiples jeux et animations</p>
-                </div>
-              </div>
-              <div class="space-y-2 text-sm text-gray-500">
-                <div class="flex items-center gap-2">
-                  <i class="fas fa-calendar text-blue-500"></i>
-                  <span>28 Décembre 2025</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <i class="fas fa-map-marker-alt text-blue-500"></i>
-                  <span>Thiès, Sénégal</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <i class="fas fa-users text-blue-500"></i>
-                  <span>50 places</span>
-                </div>
-              </div>
-              <button class="w-full mt-4 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                Voir détails
-              </button>
-            </div>
-
-            <!-- Événement 3 -->
-            <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
-              <div class="flex items-start justify-between mb-4">
-                <div class="flex-1">
-                  <span class="inline-block px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-medium mb-2">
-                    Showmatch
-                  </span>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Pro Players Exhibition</h3>
-                  <p class="text-gray-600 text-sm mb-3">Matchs d'exhibition entre joueurs professionnels</p>
-                </div>
-              </div>
-              <div class="space-y-2 text-sm text-gray-500">
-                <div class="flex items-center gap-2">
-                  <i class="fas fa-calendar text-blue-500"></i>
-                  <span>30 Décembre 2025</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <i class="fas fa-map-marker-alt text-blue-500"></i>
-                  <span>Saint-Louis, Sénégal</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <i class="fas fa-users text-blue-500"></i>
-                  <span>100 places</span>
-                </div>
-              </div>
-              <button class="w-full mt-4 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                Voir détails
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Filtres -->
       <div class="bg-white border-b border-gray-200 py-4">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -465,12 +414,20 @@ const hasActiveFilters = computed(() => {
             :key="event.id"
             class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-purple-100"
           >
-            <!-- Header avec image de la salle -->
+            <!-- Header avec image de l'événement -->
             <div class="relative h-48 bg-blue-600">
               <img 
-                v-if="event.salle?.image_url"
-                :src="event.salle.image_url.startsWith('http') ? event.salle.image_url : '/storage/' + event.salle.image_url"
-                :alt="event.salle.nom"
+                v-if="event.image_banniere || event.image_affiche"
+                :src="(event.image_banniere || event.image_affiche).startsWith('http') ? (event.image_banniere || event.image_affiche) : '/storage/events/bannieres/' + (event.image_banniere || event.image_affiche)"
+                :alt="event.titre"
+                class="w-full h-full object-cover"
+                @error="handleImageError"
+                @load="console.log('Image chargée:', $event.target.src)"
+              >
+              <img 
+                v-else
+                src="/images/default-event.jpg"
+                :alt="event.titre"
                 class="w-full h-full object-cover"
               >
               <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -538,11 +495,21 @@ const hasActiveFilters = computed(() => {
                 </Link>
                 
                 <button 
+                  v-if="event.places_disponibles > 0"
                   @click="reserverPlace(event)"
-                  class="flex-1 px-4 py-2 bg-blue-600 text-white text-center font-medium rounded-lg hover:bg-blue-700 transition-all duration-300"
+                  class="flex-1 px-4 py-2 bg-green-600 text-white text-center font-medium rounded-lg hover:bg-green-700 transition-all duration-300"
                 >
-                  <i class="fas fa-ticket-alt mr-2"></i>
-                  Réserver
+                  <i class="fas fa-user-plus mr-2"></i>
+                  S'inscrire
+                </button>
+                
+                <button 
+                  v-else
+                  disabled
+                  class="flex-1 px-4 py-2 bg-gray-400 text-white text-center font-medium rounded-lg cursor-not-allowed"
+                >
+                  <i class="fas fa-times mr-2"></i>
+                  Complet
                 </button>
               </div>
             </div>
@@ -581,7 +548,7 @@ const hasActiveFilters = computed(() => {
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <!-- Header du modal -->
         <div class="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 class="text-xl font-bold text-gray-900">Réserver ma place</h3>
+          <h3 class="text-xl font-bold text-gray-900">Inscription à l'événement</h3>
           <button @click="closeReservationModal" class="text-gray-400 hover:text-gray-600">
             <i class="fas fa-times text-xl"></i>
           </button>
@@ -686,11 +653,11 @@ const hasActiveFilters = computed(() => {
             Annuler
           </button>
           <button 
-            @click="submitReservation"
+            @click="console.log('Bouton cliqué'); submitReservation()"
             class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <i class="fas fa-check mr-2"></i>
-            Confirmer la réservation
+            Confirmer l'inscription
           </button>
         </div>
       </div>

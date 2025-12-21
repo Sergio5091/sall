@@ -61,7 +61,25 @@
           <span class="text-sm font-medium">Événements</span>
         </Link>
         
+        <Link
+          :href="route('admin.news.index')"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
+          :class="{ 'bg-primary/10 text-primary dark:text-blue-400': route().current('admin.news.*') }"
+        >
+          <i class="fas fa-newspaper group-hover:text-primary transition-colors"></i>
+          <span class="text-sm font-medium">Actualités</span>
+        </Link>
+        
         <div class="my-2 border-t border-slate-100 dark:border-slate-800"></div>
+        
+        <Link
+          :href="route('admin.profile')"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
+          :class="{ 'bg-primary/10 text-primary dark:text-blue-400': route().current('admin.profile') }"
+        >
+          <i class="fas fa-user group-hover:text-primary transition-colors"></i>
+          <span class="text-sm font-medium">Profil</span>
+        </Link>
         
         <Link
           :href="route('admin.settings')"

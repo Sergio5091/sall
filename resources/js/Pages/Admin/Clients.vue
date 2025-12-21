@@ -55,6 +55,39 @@ const clearFilters = () => {
   dateTo.value = '';
   updateFilters();
 };
+
+const showNotificationModal = ref(false);
+const selectedClient = ref(null);
+const notificationForm = ref({
+  title: '',
+  message: '',
+  type: 'info'
+});
+
+const sendNotificationToClient = (client) => {
+  selectedClient.value = client;
+  showNotificationModal.value = true;
+};
+
+const sendNotification = () => {
+  if (!selectedClient.value) return;
+  
+  router.post(`/admin/clients/${selectedClient.value.id}/notify`, notificationForm.value, {
+    onSuccess: () => {
+      showNotificationModal.value = false;
+      selectedClient.value = null;
+      notificationForm.value = { title: '', message: '', type: 'info' };
+    }
+  });
+};
+
+const toggleClientStatus = (client) => {
+  const newStatus = client.status === 'active' ? 'inactive' : 'active';
+  router.patch(`/admin/clients/${client.id}/toggle-status`, 
+    { status: newStatus }, 
+    { preserveScroll: true }
+  );
+};
 </script>
 
 <template>
@@ -189,9 +222,21 @@ const clearFilters = () => {
               </div>
               
               <div class="flex flex-wrap items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border border-green-200 dark:border-green-800">
-                  <span class="size-1.5 rounded-full bg-green-500"></span>
-                  Actif
+                <span 
+                  :class="[
+                    'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
+                    client.status === 'active' 
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800'
+                      : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800'
+                  ]"
+                >
+                  <span 
+                    :class="[
+                      'size-1.5 rounded-full',
+                      client.status === 'active' ? 'bg-green-500' : 'bg-red-500'
+                    ]"
+                  ></span>
+                  {{ client.status === 'active' ? 'Actif' : 'Inactif' }}
                 </span>
                 <span class="text-xs text-slate-500 dark:text-slate-400">{{ client.reservations_count || 0 }} réservation(s)</span>
                 <span class="text-xs text-slate-400">Inscrit le {{ new Date(client.created_at).toLocaleDateString('fr-FR') }}</span>
@@ -209,11 +254,24 @@ const clearFilters = () => {
                   >
                     <i class="fas fa-eye icon-sm"></i>
                   </Link>
-                  <button class="text-slate-400 hover:text-amber-600 dark:hover:text-amber-500 transition-colors p-2" title="Modifier">
-                    <i class="fas fa-edit icon-sm"></i>
+                  <button 
+                    @click="toggleClientStatus(client)"
+                    :class="[
+                      'transition-colors p-2',
+                      client.status === 'active' 
+                        ? 'text-amber-500 hover:text-amber-600 dark:hover:text-amber-400' 
+                        : 'text-green-500 hover:text-green-600 dark:hover:text-green-400'
+                    ]" 
+                    :title="client.status === 'active' ? 'Désactiver' : 'Activer'"
+                  >
+                    <i :class="client.status === 'active' ? 'fas fa-pause' : 'fas fa-play'"></i>
                   </button>
-                  <button class="text-slate-400 hover:text-red-600 dark:hover:text-red-500 transition-colors p-2" title="Supprimer">
-                    <i class="fas fa-trash icon-sm"></i>
+                  <button 
+                    @click="sendNotificationToClient(client)"
+                    class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-500 transition-colors p-2" 
+                    title="Envoyer une notification"
+                  >
+                    <i class="fas fa-bell icon-sm"></i>
                   </button>
                 </div>
               </div>
@@ -246,16 +304,88 @@ const clearFilters = () => {
                 >
                   <i class="fas fa-eye icon-sm"></i>
                 </Link>
-                <button class="text-slate-400 hover:text-amber-600 dark:hover:text-amber-500 transition-colors p-2" title="Modifier">
-                  <i class="fas fa-edit icon-sm"></i>
+                <button 
+                  @click="toggleClientStatus(client)"
+                  :class="[
+                    'transition-colors p-2',
+                    client.status === 'active' 
+                      ? 'text-amber-500 hover:text-amber-600 dark:hover:text-amber-400' 
+                      : 'text-green-500 hover:text-green-600 dark:hover:text-green-400'
+                  ]" 
+                  :title="client.status === 'active' ? 'Désactiver' : 'Activer'"
+                >
+                  <i :class="client.status === 'active' ? 'fas fa-pause' : 'fas fa-play'"></i>
                 </button>
-                <button class="text-slate-400 hover:text-red-600 dark:hover:text-red-500 transition-colors p-2" title="Supprimer">
-                  <i class="fas fa-trash icon-sm"></i>
+                <button 
+                  @click="sendNotificationToClient(client)"
+                  class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-500 transition-colors p-2" 
+                  title="Envoyer une notification"
+                >
+                  <i class="fas fa-bell icon-sm"></i>
                 </button>
               </div>
             </div>
           </div>
         </template>
+      </div>
+    </div>
+
+    <!-- Notification Modal -->
+    <div v-if="showNotificationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white dark:bg-slate-850 rounded-xl border border-slate-200 dark:border-slate-800 shadow-lg p-6 max-w-md w-full mx-4">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+          Envoyer une notification à {{ selectedClient?.name }}
+        </h3>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Titre</label>
+            <input
+              v-model="notificationForm.title"
+              type="text"
+              placeholder="Titre de la notification"
+              class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Message</label>
+            <textarea
+              v-model="notificationForm.message"
+              placeholder="Message de la notification"
+              rows="4"
+              class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+            ></textarea>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Type</label>
+            <select
+              v-model="notificationForm.type"
+              class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+            >
+              <option value="info">Information</option>
+              <option value="success">Succès</option>
+              <option value="warning">Avertissement</option>
+              <option value="error">Erreur</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-3 mt-6">
+          <button
+            @click="sendNotification"
+            class="flex-1 bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            Envoyer
+          </button>
+          <button
+            @click="showNotificationModal = false; selectedClient = null"
+            class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+          >
+            Annuler
+          </button>
+        </div>
       </div>
     </div>
   </div>

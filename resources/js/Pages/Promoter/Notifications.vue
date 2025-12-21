@@ -140,12 +140,11 @@ const viewSalle = (notification) => {
   <!-- Add Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <div class="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
-    <!-- Sidebar Component -->
+  <div class="flex h-screen bg-gray-50">
     <Sidebar current-route="promoter.notifications" />
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto transition-all duration-300">
+    <main class="flex-1 overflow-y-auto lg:ml-64">
       <div class="p-8">
         <!-- Header -->
         <div class="flex flex-wrap items-center justify-between gap-4">

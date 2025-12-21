@@ -36,6 +36,28 @@ class AuthenticatedSessionController extends Controller
         // Récupérer l'utilisateur connecté
         $user = Auth::user();
 
+        // Vérifier si le compte est désactivé
+        if ($user->status === 'inactive') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            
+            // Envoyer une notification à l'admin
+            $admin = \App\Models\User::where('role', 'admin')->first();
+            if ($admin) {
+                \App\Models\Notification::create([
+                    'user_id' => $admin->id,
+                    'title' => 'Tentative de connexion - Compte désactivé',
+                    'message' => "L'utilisateur {$user->name} ({$user->email}) a tenté de se connecter mais son compte est désactivé.",
+                    'type' => 'warning',
+                    'is_read' => false
+                ]);
+            }
+            
+            return redirect()->route('login')
+                ->with('error', 'Votre compte a été désactivé. Veuillez contacter l\'administrateur pour plus d\'informations.');
+        }
+
         // Vérifier si c'est une demande de liaison de compte
         if ($request->has('link_account') && $request->get('link_account') === 'true') {
             // Récupérer l'ID du compte principal depuis la session

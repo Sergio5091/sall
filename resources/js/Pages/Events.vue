@@ -87,6 +87,7 @@
     <section class="py-12 bg-gray-50 animate-fade-in-up delay-400">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div v-if="filteredEvents.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- Event cards here -->
           <div 
             v-for="event in filteredEvents" 
             :key="event.id"
@@ -106,6 +107,7 @@
                     'px-3 py-1 rounded-full text-xs font-bold',
                     event.status === 'upcoming' ? 'bg-green-100 text-green-800' :
                     event.status === 'ongoing' ? 'bg-yellow-100 text-yellow-800' :
+                    event.status === 'completed' ? 'bg-gray-100 text-gray-800' :
                     'bg-gray-100 text-gray-800'
                     ]"
                 >
@@ -177,11 +179,19 @@
                   @click="registerForEvent(event)"
                   class="flex-1 px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
                 >
-                  S'inscrire
+                  Se connecter pour s'inscrire
                 </button>
               </div>
             </div>
           </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div v-else class="text-center py-16">
+          <i class="fas fa-calendar-times text-6xl text-gray-300 mb-4"></i>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">Aucun événement publié</h3>
+          <p class="text-gray-600">Il n'y a aucun événement publié pour le moment.</p>
+          <p class="text-sm text-gray-500 mt-2">Vérifiez les logs de la console pour voir les données reçues.</p>
         </div>
       </div>
     </section>
@@ -242,9 +252,13 @@
 </style>
 
 <script setup>
+console.log('Events page loading...');
+
 import { ref, computed, onMounted } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import MainNavbar from '../Components/MainNavbar.vue';
+
+const page = usePage();
 
 const events = ref([]);
 const categories = ref([]);
@@ -255,9 +269,22 @@ const props = defineProps({
   categories: Array
 });
 
+console.log('Props received:', props);
+
+// Vérifier si l'utilisateur est connecté
+const isAuthenticated = computed(() => page.props.auth?.user);
+const currentUser = computed(() => page.props.auth?.user);
+
 // Initialiser les données avec les props
+console.log('Events props:', props.events);
+console.log('First event structure:', props.events?.[0]);
+
+// Le backend ne renvoie que les événements publiés, donc pas besoin de filtrer
 events.value = props.events || [];
 categories.value = props.categories || [];
+
+console.log('Filtered events:', events.value);
+console.log('Filtered events length:', events.value.length);
 
 const selectedCategory = ref(0);
 const sortBy = ref('date');
@@ -300,6 +327,8 @@ const filteredEvents = computed(() => {
   return filtered;
 });
 
+console.log('Computed filteredEvents:', filteredEvents.value);
+
 // Methods
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -327,8 +356,13 @@ const viewEventDetails = (event) => {
 };
 
 const registerForEvent = (event) => {
-  // Inscription à l'événement
-  // Logique d'inscription
+  // Toujours rediriger vers la page de connexion
+  router.visit('/login', {
+    method: 'get',
+    data: {
+      redirect_to: `/client/evenements`
+    }
+  });
 };
 
 // Lifecycle

@@ -272,7 +272,10 @@ class SalleController extends Controller
     {
         $user = Auth::user();
         
+        \Log::info('Update attempt', ['user_id' => $user->id, 'salle_id' => $salle->id, 'salle_promoter_id' => $salle->promoter_id]);
+        
         if ($salle->promoter_id !== $user->id) {
+            \Log::error('Unauthorized update attempt', ['user_id' => $user->id, 'salle_promoter_id' => $salle->promoter_id]);
             return redirect()->route('promoter.venues')
                 ->with('error', 'Vous n\'êtes pas autorisé à modifier cette salle.');
         }
@@ -283,12 +286,13 @@ class SalleController extends Controller
         \Log::info('Logo file exists', ['has_file' => $request->hasFile('logo_file')]);
         \Log::info('Logo field', ['logo' => $request->input('logo')]);
 
-        $validated = $request->validate([
-            // Informations de base
-            'nom' => 'required|string|max:255',
-            'description' => 'required|string|max:2000',
-            'type' => 'required|string',
-            'categorie' => 'required|string',
+        try {
+            $validated = $request->validate([
+                // Informations de base
+                'nom' => 'required|string|max:255',
+                'description' => 'required|string|max:2000',
+                'type' => 'nullable|string',
+                'categorie' => 'nullable|string',
             
             // Adresse
             'adresse' => 'required|string|max:255',
@@ -375,10 +379,26 @@ if (empty($galerieImages)) {
             }
         }
 
+        \Log::info('Validated data before update', ['data' => $validated]);
+        
+        // Convertir capacite en capacite_max si présent
+        if (isset($validated['capacite'])) {
+            $validated['capacite_max'] = $validated['capacite'];
+            unset($validated['capacite']);
+        }
+        
         $salle->update($validated);
+
+        \Log::info('Salle updated successfully', ['salle_id' => $salle->id, 'updated_fields' => array_keys($validated)]);
 
         return redirect()->route('promoter.venues')
             ->with('success', 'Votre salle a été mise à jour avec succès !');
+            
+        } catch (\Exception $e) {
+            \Log::error('Error updating salle', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return redirect()->back()
+                ->with('error', 'Une erreur est survenue lors de la mise à jour: ' . $e->getMessage());
+        }
     }
 
     /**

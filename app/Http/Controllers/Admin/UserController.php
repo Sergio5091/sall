@@ -90,8 +90,11 @@ class UserController extends Controller
             'status' => ['required', 'string', Rule::in(['active', 'inactive'])]
         ]);
 
-        // TODO: Implement status toggle logic
-        return back()->with('success', 'Statut du promoteur mis à jour.');
+        $user->status = $request->status;
+        $user->save();
+
+        $statusText = $request->status === 'active' ? 'activé' : 'désactivé';
+        return back()->with('success', "Le promoteur a été {$statusText} avec succès.");
     }
 
     /**
@@ -165,8 +168,11 @@ class UserController extends Controller
             'status' => ['required', 'string', Rule::in(['active', 'inactive'])]
         ]);
 
-        // TODO: Implement status toggle logic
-        return back()->with('success', 'Statut du client mis à jour.');
+        $user->status = $request->status;
+        $user->save();
+
+        $statusText = $request->status === 'active' ? 'activé' : 'désactivé';
+        return back()->with('success', "Le client a été {$statusText} avec succès.");
     }
 
     /**

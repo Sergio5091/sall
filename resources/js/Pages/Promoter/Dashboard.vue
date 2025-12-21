@@ -1,11 +1,24 @@
 <script setup>
-import { Head, Link } from "@inertiajs/vue3";
+import { Head, Link, usePage } from "@inertiajs/vue3";
+import { computed } from "vue";
 import Sidebar from '../../Components/Promoter/Sidebar.vue';
 
+const page = usePage();
 const props = defineProps({
     stats: Object,
-    salles: Array,
-    events: Array,
+});
+
+const success = computed(() => {
+    console.log('Dashboard - Flash success:', page.props.flash?.success);
+    return page.props.flash?.success;
+});
+const error = computed(() => {
+    console.log('Dashboard - Flash error:', page.props.flash?.error);
+    return page.props.flash?.error;
+});
+const info = computed(() => {
+    console.log('Dashboard - Flash info:', page.props.flash?.info);
+    return page.props.flash?.info;
 });
 
 const formatNumber = (num) => {
@@ -34,11 +47,44 @@ const formatDate = (dateString) => {
   <Head title="Tableau de bord Promoteur" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <div class="flex h-screen bg-gray-50">
+  <div class="relative flex min-h-screen w-full bg-gray-50 font-display text-gray-800">
     <Sidebar current-route="promoter.dashboard" />
 
-    <main class="flex-1 overflow-y-auto">
+    <main class="flex-1 overflow-y-auto transition-all duration-300 lg:ml-64">
       <div class="p-8">
+        <!-- Messages flash -->
+        <div v-if="success" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div class="flex items-center">
+            <i class="fas fa-check-circle text-green-600 mr-2"></i>
+            <p class="text-green-800">{{ success }}</p>
+          </div>
+        </div>
+        
+        <div v-if="error" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div class="flex items-center">
+            <i class="fas fa-exclamation-circle text-red-600 mr-2"></i>
+            <p class="text-red-800">{{ error }}</p>
+          </div>
+        </div>
+        
+        <div v-if="info" class="mb-6 p-6 bg-blue-50 border-2 border-blue-200 rounded-lg shadow-lg">
+          <div class="flex items-start">
+            <div class="flex-shrink-0">
+              <i class="fas fa-exclamation-triangle text-blue-600 text-xl mr-3 mt-1"></i>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold text-blue-800 mb-2">Information importante</h3>
+              <p class="text-blue-700">{{ info }}</p>
+              <div class="mt-4">
+                <Link href="/promoter/venues/create" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  <i class="fas fa-plus mr-2"></i>
+                  Créer une salle maintenant
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="mb-8">
           <h1 class="text-3xl font-bold text-gray-900">Tableau de bord</h1>
           <p class="text-gray-600 mt-2">Vue d'ensemble de vos activités</p>
@@ -94,81 +140,28 @@ const formatDate = (dateString) => {
           </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-gray-900">Mes Salles</h3>
-              <Link href="/promoter/venues/create" class="text-blue-600 text-sm hover:underline">
-                + Ajouter
-              </Link>
-            </div>
-            
-            <div v-if="salles && salles.length > 0" class="space-y-3">
-              <div v-for="salleItem in salles" :key="salleItem.id" class="p-3 border border-gray-200 rounded-lg">
-                <div class="flex items-center justify-between">
-                  <h4 class="font-medium text-gray-900">{{ salleItem.nom || 'Ma Salle' }}</h4>
-                  <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
-                    {{ salleItem.statut === 'actif' ? 'Active' : 'Inactive' }}
-                  </span>
-                </div>
-                <p class="text-sm text-gray-600 mt-1">{{ salleItem.adresse || 'Adresse non définie' }}</p>
-                <div class="flex gap-4 text-xs text-gray-500 mt-2">
-                  <span><i class="fas fa-users mr-1"></i>{{ salleItem.capacite_max || '0' }} pers.</span>
-                  <span><i class="fas fa-clock mr-1"></i>{{ formatPrice(salleItem.prix_heure || 0) }}/h</span>
-                </div>
-              </div>
-            </div>
-            
-            <div v-else class="text-center py-8">
-              <i class="fas fa-store text-gray-400 text-3xl mb-3"></i>
-              <p class="text-gray-600">Aucune salle</p>
-              <Link href="/promoter/venues/create" class="inline-block mt-3 text-blue-600 hover:underline">
-                Créer une salle
-              </Link>
-            </div>
-          </div>
-          
-          <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-gray-900">Événements récents</h3>
-              <select class="text-sm border border-gray-300 rounded px-2 py-1">
-                <option>À venir</option>
-                <option>Tous</option>
-              </select>
-            </div>
-            
-            <div v-if="events && events.length > 0" class="space-y-3">
-              <div v-for="event in events.slice(0, 5)" :key="event.id" class="p-3 border border-gray-200 rounded-lg">
-                <div class="flex items-center justify-between">
-                  <h4 class="font-medium text-gray-900">{{ event.titre }}</h4>
-                  <span :class="[
-                    'text-xs px-2 py-1 rounded-full',
-                    event.statut === 'publie' ? 'bg-green-100 text-green-800' :
-                    event.statut === 'brouillon' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-gray-100 text-gray-800'
-                  ]">
-                    {{ event.statut === 'publie' ? 'Publié' : event.statut === 'brouillon' ? 'Brouillon' : event.statut }}
-                  </span>
-                </div>
-                <p class="text-sm text-gray-600 mt-1">{{ formatDate(event.date_debut) }}</p>
-                <div class="flex gap-2 mt-2">
-                  <Link :href="`/promoter/events/${event.id}/edit`" class="text-xs text-blue-600 hover:underline">
-                    Modifier
-                  </Link>
-                  <button class="text-xs text-red-600 hover:underline">
-                    Supprimer
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <div v-else class="text-center py-8">
-              <i class="fas fa-calendar text-gray-400 text-3xl mb-3"></i>
-              <p class="text-gray-600">Aucun événement</p>
-              <Link href="/promoter/events/create" class="inline-block mt-3 text-blue-600 hover:underline">
-                Créer un événement
-              </Link>
-            </div>
+        <!-- Actions rapides -->
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Actions rapides</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Link 
+              href="/promoter/venues/create"
+              class="flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              <i class="fas fa-plus mr-2"></i> Créer une salle
+            </Link>
+            <Link 
+              href="/promoter/events/create"
+              class="flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            >
+              <i class="fas fa-calendar-plus mr-2"></i> Créer un événement
+            </Link>
+            <Link 
+              href="/promoter/profile"
+              class="flex items-center justify-center px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+              <i class="fas fa-user mr-2"></i> Mon profil
+            </Link>
           </div>
         </div>
       </div>

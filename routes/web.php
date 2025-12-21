@@ -6,11 +6,17 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
+    $news = \App\Models\News::where('is_active', true)
+        ->orderBy('created_at', 'desc')
+        ->take(9)
+        ->get();
+    
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => app()->version(),
         'phpVersion' => PHP_VERSION,
+        'news' => $news
     ]);
 })->name('welcome');
 
@@ -29,13 +35,25 @@ Route::get('/dashboard', function () {
 
 // Routes protégées par rôle (temporairement sans middleware de rôle pour tester)
 use App\Http\Controllers\Promoter\DashboardController;
-use App\Http\Controllers\Promoter\NotificationController;
-use App\Http\Controllers\Promoter\SalleController;
-use App\Http\Controllers\Promoter\EventController;
+use App\Http\Controllers\Promoter\PromoterProfileController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\SalleController;
+use App\Http\Controllers\Admin\EventController;
+use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Promoter\AccountSwitchController;
 
 Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Routes pour la gestion du profil
+    Route::get('/profile', [PromoterProfileController::class, 'show'])->name('profile');
+    Route::put('/profile', [PromoterProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/photo', [PromoterProfileController::class, 'updatePhoto'])->name('profile.photo');
+    Route::delete('/profile/photo', [PromoterProfileController::class, 'deletePhoto'])->name('profile.photo.delete');
+    Route::put('/password', [PromoterProfileController::class, 'updatePassword'])->name('password.update');
+    Route::delete('/profile', [PromoterProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile/stats', [PromoterProfileController::class, 'stats'])->name('profile.stats');
     
     // Routes pour la gestion des comptes promoteurs (API uniquement)
     Route::get('/api/accounts', [AccountSwitchController::class, 'getAccounts'])->name('api.accounts');
@@ -63,6 +81,7 @@ Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(functi
     Route::get('/events/{event}/edit', [EventController::class, 'edit'])->name('events.edit');
     Route::put('/events/{event}', [EventController::class, 'update'])->name('events.update');
     Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
+    Route::get('/events/{event}/participants', [EventController::class, 'participants'])->name('events.participants');
     Route::post('/events/{event}/duplicate', [EventController::class, 'duplicate'])->name('events.duplicate');
     Route::post('/events/{event}/publish', [EventController::class, 'publish'])->name('events.publish');
     Route::post('/events/{event}/cancel', [EventController::class, 'cancel'])->name('events.cancel');
@@ -79,7 +98,7 @@ Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(functi
             ->where('is_read', false)
             ->count();
         return response()->json(['count' => $count]);
-    });
+    })->withoutMiddleware(['inertia']);
 });
 
 Route::middleware(['auth', 'role:client'])->prefix('client')->name('client.')->group(function () {
@@ -114,22 +133,69 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/salles/stats', [App\Http\Controllers\Admin\SalleController::class, 'getStats'])->name('salles.stats');
     
     // Routes pour la gestion des promoteurs (admin)
-    Route::get('/promoteurs', [App\Http\Controllers\Admin\UserController::class, 'promoters'])->name('promoteurs.index');
-    Route::get('/promoteurs/{user}', [App\Http\Controllers\Admin\UserController::class, 'showPromoter'])->name('promoteurs.show');
-    Route::patch('/promoteurs/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'togglePromoterStatus'])->name('promoteurs.toggle-status');
-    Route::delete('/promoteurs/{user}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('promoteurs.destroy');
+    Route::get('/promoteurs', [UserController::class, 'promoters'])->name('promoteurs.index');
+    Route::get('/promoteurs/{user}', [UserController::class, 'showPromoter'])->name('promoteurs.show');
+    Route::patch('/promoteurs/{user}/toggle-status', [UserController::class, 'togglePromoterStatus'])->name('promoteurs.toggle-status');
+    Route::post('/promoters/{user}/notify', [NotificationController::class, 'sendToPromoter'])->name('promoters.notify');
+    Route::delete('/promoteurs/{user}', [UserController::class, 'destroy'])->name('promoteurs.destroy');
     
     // Routes pour la gestion des clients (admin)
     Route::get('/clients', [App\Http\Controllers\Admin\UserController::class, 'clients'])->name('clients.index');
     Route::get('/clients/{user}', [App\Http\Controllers\Admin\UserController::class, 'showClient'])->name('clients.show');
     Route::patch('/clients/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleClientStatus'])->name('clients.toggle-status');
-    Route::delete('/clients/{user}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('clients.destroy');
+    Route::post('/clients/{user}/notify', [NotificationController::class, 'sendToClient'])->name('clients.notify');
     
     // Routes pour la gestion des événements (admin)
     Route::get('/events', [App\Http\Controllers\Admin\EventController::class, 'index'])->name('events.index');
     Route::get('/events/{event}', [App\Http\Controllers\Admin\EventController::class, 'show'])->name('events.show');
     Route::delete('/events/{event}', [App\Http\Controllers\Admin\EventController::class, 'destroy'])->name('events.destroy');
     Route::patch('/events/{event}/toggle-status', [App\Http\Controllers\Admin\EventController::class, 'toggleStatus'])->name('events.toggle-status');
+    
+    // Routes pour la gestion des actualités (admin)
+    Route::get('/news', [NewsController::class, 'index'])->name('news.index');
+    Route::get('/news/create', [NewsController::class, 'create'])->name('news.create');
+    Route::post('/news', [NewsController::class, 'store'])->name('news.store');
+    Route::get('/news/{news}', [NewsController::class, 'show'])->name('news.show');
+    Route::get('/news/{news}/edit', [NewsController::class, 'edit'])->name('news.edit');
+    Route::put('/news/{news}', [NewsController::class, 'update'])->name('news.update');
+    Route::delete('/news/{news}', [NewsController::class, 'destroy'])->name('news.destroy');
+    
+    // Routes pour le profil administrateur
+    Route::get('/profile', function () {
+        return Inertia::render('Admin/Profile', [
+            'auth' => [
+                'user' => auth()->user()
+            ]
+        ]);
+    })->name('profile');
+    
+    Route::put('/profile', function (Illuminate\Http\Request $request) {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . auth()->id(),
+        ]);
+
+        auth()->user()->update($validated);
+
+        return back()->with('success', 'Profil mis à jour avec succès.');
+    })->name('profile.update');
+    
+    Route::put('/password', function (Illuminate\Http\Request $request) {
+        $validated = $request->validate([
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if (!Hash::check($validated['current_password'], auth()->user()->password)) {
+            return back()->withErrors(['current_password' => 'Le mot de passe actuel est incorrect.']);
+        }
+
+        auth()->user()->update([
+            'password' => Hash::make($validated['password'])
+        ]);
+
+        return back()->with('success', 'Mot de passe mis à jour avec succès.');
+    })->name('password.update');
     
     // Routes pour les paramètres
     Route::get('/settings', function () {
@@ -146,6 +212,7 @@ Route::middleware('auth')->group(function () {
 // Routes publiques pour les événements
 Route::get('/events', [App\Http\Controllers\Public\EventController::class, 'index'])->name('events');
 Route::get('/events/{event}', [App\Http\Controllers\Public\EventController::class, 'show'])->name('events.show');
+Route::middleware('auth')->post('/events/{event}/register', [App\Http\Controllers\Public\EventController::class, 'register'])->name('events.register');
 
 // Routes publiques pour les salles
 Route::get('/salles', [App\Http\Controllers\Public\SalleController::class, 'index'])->name('public.salles');

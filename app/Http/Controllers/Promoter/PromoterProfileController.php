@@ -1,0 +1,172 @@
+<?php
+
+namespace App\Http\Controllers\Promoter;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
+use Inertia\Inertia;
+
+class PromoterProfileController extends Controller
+{
+    /**
+     * Afficher la page de profil
+     */
+    public function show()
+    {
+        $user = Auth::user();
+        
+        return Inertia::render('Promoter/Profile', [
+            'user' => $user,
+            'notifications' => $user->notifications()->latest()->take(5)->get()
+        ]);
+    }
+
+    /**
+     * Mettre à jour les informations du profil
+     */
+    public function update(Request $request)
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'telephone' => ['nullable', 'string', 'max:20'],
+            'bio' => ['nullable', 'string', 'max:2000'],
+            'company' => ['nullable', 'string', 'max:255'],
+            'experience' => ['nullable', 'string', 'max:10'],
+            'favorite_games' => ['nullable', 'string', 'max:500'],
+            'specialties' => ['nullable', 'array'],
+            'specialties.tournaments' => ['boolean'],
+            'specialties.lan' => ['boolean'],
+            'specialties.streaming' => ['boolean'],
+            'specialties.esports' => ['boolean'],
+            'specialties.cosplay' => ['boolean'],
+            'specialties.workshops' => ['boolean'],
+            'social_links' => ['nullable', 'array'],
+            'social_links.twitter' => ['nullable', 'string', 'max:255'],
+            'social_links.discord' => ['nullable', 'string', 'max:255'],
+            'social_links.twitch' => ['nullable', 'string', 'max:255'],
+            'social_links.youtube' => ['nullable', 'string', 'max:255'],
+            'preferences' => ['nullable', 'array'],
+            'preferences.email_notifications' => ['boolean'],
+            'preferences.push_notifications' => ['boolean'],
+            'preferences.language' => ['string', 'in:fr,en']
+        ]);
+
+        $user->update($validated);
+
+        return back()->with('success', 'Profil mis à jour avec succès');
+    }
+
+    /**
+     * Mettre à jour la photo de profil
+     */
+    public function updatePhoto(Request $request)
+    {
+        $request->validate([
+            'photo' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048']
+        ]);
+
+        $user = Auth::user();
+        
+        // Supprimer l'ancienne photo si elle existe
+        if ($user->profile_photo_path) {
+            $oldPath = storage_path('app/public/' . $user->profile_photo_path);
+            if (file_exists($oldPath)) {
+                unlink($oldPath);
+            }
+        }
+
+        // Stocker la nouvelle photo
+        $path = $request->file('photo')->store('profile-photos', 'public');
+        $user->update(['profile_photo_path' => $path]);
+
+        return back()->with('success', 'Photo de profil mise à jour');
+    }
+
+    /**
+     * Supprimer la photo de profil
+     */
+    public function deletePhoto()
+    {
+        $user = Auth::user();
+        
+        if ($user->profile_photo_path) {
+            $path = storage_path('app/public/' . $user->profile_photo_path);
+            if (file_exists($path)) {
+                unlink($path);
+            }
+            $user->update(['profile_photo_path' => null]);
+        }
+
+        return back()->with('success', 'Photo de profil supprimée');
+    }
+
+    /**
+     * Mettre à jour le mot de passe
+     */
+    public function updatePassword(Request $request)
+    {
+        $validated = $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'new_password' => ['required', Password::defaults(), 'confirmed'],
+        ]);
+
+        $user = Auth::user();
+        $user->update([
+            'password' => Hash::make($validated['new_password']),
+            'password_updated_at' => now()
+        ]);
+
+        return back()->with('success', 'Mot de passe mis à jour avec succès');
+    }
+
+    /**
+     * Supprimer le compte
+     */
+    public function destroy(Request $request)
+    {
+        $request->validate([
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $user = Auth::user();
+
+        // Supprimer la photo de profil
+        if ($user->profile_photo_path) {
+            $path = storage_path('app/public/' . $user->profile_photo_path);
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }
+
+        // Supprimer l'utilisateur
+        Auth::logout();
+        $user->delete();
+
+        return redirect('/')->with('success', 'Votre compte a été supprimé avec succès');
+    }
+
+    /**
+     * Obtenir les statistiques du profil
+     */
+    public function stats()
+    {
+        $user = Auth::user();
+        
+        $stats = [
+            'total_salles' => $user->salles()->count(),
+            'active_salles' => $user->salles()->where('statut', 'actif')->count(),
+            'total_events' => $user->events()->count(),
+            'published_events' => $user->events()->where('statut', 'publie')->count(),
+            'upcoming_events' => $user->events()->where('date_debut', '>', now())->count(),
+            'total_revenue' => $user->events()->sum('prix_base'),
+        ];
+
+        return response()->json($stats);
+    }
+}

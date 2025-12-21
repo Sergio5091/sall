@@ -23,24 +23,25 @@ class EventController extends Controller
         $user = Auth::user();
         
         $events = Event::where('promoter_id', $user->id)
-            ->with('salle')
+            ->with(['salle', 'inscriptions'])
             ->orderBy('date_debut', 'desc')
             ->paginate(10);
 
-        // Ajouter les URLs des images aux événements
+        // Ajouter les URLs des images et le nombre d'inscriptions aux événements
         $events->getCollection()->transform(function ($event) {
             $event->url_image_affiche = $event->url_image_affiche;
+            $event->inscriptions_count = $event->inscriptions->count();
             return $event;
         });
 
         // Statistiques
         $stats = [
-            'total' => $events->count(),
+            'total' => Event::where('promoter_id', $user->id)->count(),
             'publies' => Event::where('promoter_id', $user->id)->where('statut', 'publie')->count(),
             'brouillons' => Event::where('promoter_id', $user->id)->where('statut', 'brouillon')->count(),
-            'avenir' => Event::where('promoter_id', $user->id)->aVenir()->count(),
-            'en_cours' => Event::where('promoter_id', $user->id)->enCours()->count(),
-            'passes' => Event::where('promoter_id', $user->id)->passe()->count(),
+            'avenir' => Event::where('promoter_id', $user->id)->where('date_debut', '>', now())->count(),
+            'en_cours' => Event::where('promoter_id', $user->id)->where('date_debut', '<=', now())->where('date_fin', '>=', now())->count(),
+            'passes' => Event::where('promoter_id', $user->id)->where('date_fin', '<', now())->count(),
         ];
 
         return Inertia::render('Promoter/Events', [
@@ -56,22 +57,19 @@ class EventController extends Controller
     {
         $user = Auth::user();
         
-        // Vérifier si le promoteur a une salle
-        $salle = Salle::where('promoter_id', $user->id)->first();
-        
-        if (!$salle) {
-            return redirect()->route('promoter.venues.index')
-                ->with('error', 'Vous devez d\'abord créer une salle avant de pouvoir organiser des événements.');
-        }
+        // Récupérer les salles du promoteur
+        $salles = Salle::where('promoter_id', $user->id)->get();
 
         return Inertia::render('Promoter/CreateEvent', [
-            'salle' => $salle,
-            'categories' => Event::categories(),
-            'types' => Event::types(),
-            'statuts' => Event::statuts(),
-            'visibilites' => Event::visibilites(),
-            'devises' => Event::devises(),
-            'publics_cibles' => Event::publicsCibles(),
+            'salles' => $salles,
+            'categories' => [
+                'tournoi' => 'Tournoi',
+                'lan_party' => 'LAN Party',
+                'workshop' => 'Atelier',
+                'streaming' => 'Streaming',
+                'meetup' => 'Meetup',
+                'autre' => 'Autre'
+            ]
         ]);
     }
 
@@ -81,6 +79,10 @@ class EventController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+        
+        // Logs pour débogage
+        \Log::info('Début de la création d\'événement', ['user_id' => $user->id]);
+        \Log::info('Données reçues', $request->all());
         
         // Validation
         $validated = $request->validate([
@@ -146,15 +148,20 @@ class EventController extends Controller
             'mots_cles' => 'nullable|array',
             
             // Images
-            'image_affiche' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'image_banniere' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
+            'image_affiche' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'image_banniere' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
         ]);
+
+        \Log::info('Données validées', $validated);
 
         // Récupérer la salle du promoteur
         $salle = Salle::where('promoter_id', $user->id)->first();
         
+        \Log::info('Salle trouvée', ['salle_id' => $salle ? $salle->id : null]);
+        
         if (!$salle) {
-            return back()->with('error', 'Vous devez avoir une salle pour créer un événement.');
+            \Log::info('Aucune salle trouvée - retour avec message info', ['user_id' => $user->id]);
+            return back()->with('info', 'Vous devez avoir une salle avant de pouvoir créer des événements.');
         }
 
         // Gérer les images
@@ -192,10 +199,9 @@ class EventController extends Controller
             }
         }
 
-        // Créer l'événement
-        $event = Event::create([
-            'salle_id' => $salle->id,
-            'promoter_id' => $user->id,
+        // Créer l'événement lié à la salle
+        $event = $salle->evenements()->create([
+            'promoter_id' => $user->id, // Ajout explicite du promoter_id
             
             // Informations de base
             'titre' => $validated['titre'],
@@ -269,8 +275,18 @@ class EventController extends Controller
             'statut' => 'brouillon',
         ]);
 
+        \Log::info('Événement créé avec succès', ['event_id' => $event->id, 'event_titre' => $event->titre]);
+        
+        // Vérifier les messages flash avant redirection
+        \Log::info('Messages flash avant redirection', [
+            'success' => session()->get('success'),
+            'error' => session()->get('error'),
+            'all_flash' => session()->all()
+        ]);
+
         return redirect()->route('promoter.events')
-            ->with('success', 'Événement créé avec succès ! Il est maintenant en brouillon.');
+            ->with('success', 'Événement créé avec succès ! Il est maintenant en brouillon.')
+            ->with('debug', 'Redirection vers events après création');
     }
 
     /**
@@ -481,6 +497,23 @@ class EventController extends Controller
 
         return redirect("/promoter/events/{$newEvent->id}/edit")
             ->with('success', 'Événement dupliqué avec succès !');
+    }
+
+    /**
+     * Afficher les participants d'un événement
+     */
+    public function participants(Event $event)
+    {
+        // Vérifier que l'événement appartient au promoteur
+        if ($event->promoter_id !== Auth::id()) {
+            abort(403);
+        }
+
+        // Pour l'instant, retourner une vue vide (à implémenter plus tard)
+        return Inertia::render('Promoter/EventParticipants', [
+            'event' => $event,
+            'participants' => [] // Sera rempli plus tard avec les vrais participants
+        ]);
     }
 
     /**

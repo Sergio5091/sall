@@ -17,12 +17,17 @@ class Salle extends Model
         'nom',
         'slug',
         'description',
+        'type',
+        'categorie',
         
         // Adresse
         'adresse',
         'code_postal',
         'ville',
         'pays',
+        'region',
+        'departement',
+        'quartier',
         
         // Coordonnées GPS
         'latitude',
@@ -30,31 +35,83 @@ class Salle extends Model
         
         // Contact
         'telephone',
+        'whatsapp',
         'email',
         'site_web',
+        'reseaux_sociaux',
         
         // Capacité et surface
         'capacite_max',
+        'capacite', // Ajout pour compatibilité
         'surface',
+        'surface_area',
         
         // Équipements et services
         'equipements',
         'services',
+        'machines_arcade',
+        'casques_vr',
+        'flippers',
+        'consoles_retro',
+        'pc_gaming',
+        'tables_bowling',
+        'tables_billard',
+        'wifi_gratuit',
+        'parking',
+        'climatisation',
+        'accessibilite_pmr',
+        'surveillance_24h',
+        'snack_bar',
+        'restaurant',
+        'bar',
+        'terrasse',
+        'espace_fumeur',
+        'vestiaires',
+        
+        // Horaires
+        'horaires',
+        'horaires_ouverture',
+        'jours_fermes',
+        
+        // Médias
+        'image_couverture',
+        'image_url',
+        'images',
+        'images_galerie',
+        'video_presentation',
+        'images_360',
         
         // Tarifs
         'prix_heure',
         'prix_journee',
+        'tarifs',
         
-        // Médias
-        'image_url',
-        'images',
-        
-        // Horaires
-        'horaires',
-        
-        // Statut
+        // Statut et validation
         'statut',
+        'valide_par_admin',
+        'date_validation',
+        'motif_rejet',
         'valide',
+        
+        // Réservation et paiement
+        'reservation_en_ligne',
+        'paiement_en_ligne',
+        
+        // SEO
+        'meta_titre',
+        'meta_description',
+        'mots_cles',
+        
+        // Statistiques
+        'note_moyenne',
+        'nombre_avis',
+        'nombre_vues',
+        'nombre_favoris',
+        
+        // Localisation
+        'rayon_action_km',
+        'zones_couvertes',
+        'point_repere',
     ];
 
     protected $casts = [

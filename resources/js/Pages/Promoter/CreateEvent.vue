@@ -9,6 +9,7 @@ import NotificationModal from '../../Components/NotificationModal.vue';
 const currentStep = ref(1);
 const totalSteps = 4;
 const errors = ref({});
+const isSubmitting = ref(false);
 
 // États pour les modaux
 const showNotificationModal = ref(false);
@@ -217,27 +218,27 @@ const createEvent = () => {
         // Debug FormData: key, value
     }
 
+    // Démarrer la soumission
+    isSubmitting.value = true;
+
     // Envoyer la requête
     router.post('/promoter/events', formData, {
         onSuccess: () => {
+            alert('Événement créé avec succès ! Il est maintenant en brouillon.');
             router.visit('/promoter/events');
         },
         onError: (errors) => {
             console.error('Erreurs de validation:', errors);
-            errors.value = errors;
             
-            // Afficher un message d'erreur plus clair
-            if (errors.contact_email) {
-                notificationType.value = 'error';
-                notificationTitle.value = 'Erreur de validation';
-                notificationMessage.value = 'L\'adresse email est obligatoire et doit être valide.';
-                showNotificationModal.value = true;
+            // Afficher un message d'erreur clair
+            if (errors.image_banniere) {
+                alert('Erreur image bannière: ' + errors.image_banniere[0] + '\n\nAstuce: Essayez avec une image plus petite (moins de 10MB) ou compressez votre image.');
             } else {
-                notificationType.value = 'error';
-                notificationTitle.value = 'Erreur de création';
-                notificationMessage.value = 'Erreur lors de la création de l\'événement. Veuillez vérifier tous les champs.';
-                showNotificationModal.value = true;
+                alert('Erreurs de validation:\n\n' + JSON.stringify(errors, null, 2));
             }
+        },
+        onFinish: () => {
+            isSubmitting.value = false;
         }
     });
 };
@@ -251,12 +252,11 @@ const cancel = () => {
 <template>
   <Head title="Créer un événement" />
   
-  <div class="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
-    <!-- Sidebar Component -->
+  <div class="flex h-screen bg-gray-50">
     <Sidebar current-route="promoter.events" />
     
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto transition-all duration-300">
+    <main class="flex-1 overflow-y-auto lg:ml-64">
       <div class="p-8">
         <!-- Header -->
         <div class="flex items-center justify-between mb-8">
@@ -459,14 +459,6 @@ const cancel = () => {
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Site web</label>
                 <input v-model="newEvent.site_web" type="url" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-[#1a1f2e]" placeholder="https://evenement.com">
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Facebook</label>
-                <input v-model="newEvent.facebook" type="text" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-[#1a1f2e]" placeholder="@evenement">
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Instagram</label>
-                <input v-model="newEvent.instagram" type="text" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-[#1a1f2e]" placeholder="@evenement">
               </div>
             </div>
           </div>

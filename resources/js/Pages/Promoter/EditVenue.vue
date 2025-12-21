@@ -1,5 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import Sidebar from '../../Components/Promoter/Sidebar.vue';
 
 const props = defineProps({
     venue: Object
@@ -12,53 +13,11 @@ const props = defineProps({
   <!-- Add Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <div class="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
-    <!-- Side Navigation -->
-    <aside class="flex h-screen w-64 flex-col bg-white/5 border-r border-white/10 p-4 sticky top-0">
-      <div class="flex flex-col gap-4">
-        <div class="flex items-center gap-3">
-          <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Promoter's profile picture" style='background-image: url("https://picsum.photos/seed/promoter-profile/100/100.jpg");'></div>
-          <div class="flex flex-col">
-            <h1 class="text-white text-base font-medium leading-normal">Alex Durand</h1>
-            <p class="text-gray-400 text-sm font-normal leading-normal">Espace Promoteur</p>
-          </div>
-        </div>
-        <div class="flex flex-col gap-1 mt-4">
-          <Link href="/promoter/dashboard" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-primary">
-            <i class="fas fa-info-circle text-xl"></i>
-            <p class="text-sm font-medium leading-normal">Informations Générales</p>
-          </Link>
-          <Link href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 transition-colors">
-            <i class="fas fa-clock text-xl"></i>
-            <p class="text-sm font-medium leading-normal">Horaires</p>
-          </Link>
-          <Link href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 transition-colors">
-            <i class="fas fa-images text-xl"></i>
-            <p class="text-sm font-medium leading-normal">Galerie</p>
-          </Link>
-          <Link href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 transition-colors">
-            <i class="fas fa-gamepad text-xl"></i>
-            <p class="text-sm font-medium leading-normal">Équipements</p>
-          </Link>
-          <Link href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 transition-colors">
-            <i class="fas fa-tag text-xl"></i>
-            <p class="text-sm font-medium leading-normal">Tarification</p>
-          </Link>
-          <Link href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 transition-colors">
-            <i class="fas fa-globe text-xl"></i>
-            <p class="text-sm font-medium leading-normal">SEO & Visibilité</p>
-          </Link>
-        </div>
-      </div>
-      <div class="mt-auto">
-        <Link href="/promoter/dashboard" class="flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-white/10 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-white/20 transition-colors">
-          <span class="truncate">Retour au tableau de bord</span>
-        </Link>
-      </div>
-    </aside>
+  <div class="flex h-screen bg-gray-50">
+    <Sidebar current-route="promoter.events" />
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto">
+    <main class="flex-1 overflow-y-auto lg:ml-64">
       <div class="sticky top-0 z-10 bg-background-dark/80 backdrop-blur-md border-b border-white/10 px-8 py-4">
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div class="flex min-w-72 flex-col gap-1">

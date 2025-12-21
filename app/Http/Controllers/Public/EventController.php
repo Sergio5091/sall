@@ -14,15 +14,9 @@ class EventController extends Controller
      */
     public function index()
     {
-        // Récupérer tous les événements pour déboguer
-        $allEvents = Event::get();
-        \Log::info('Total events: ' . $allEvents->count());
-        
-        foreach ($allEvents as $event) {
-            \Log::info('Event: ' . $event->titre . ', Statut: ' . $event->statut);
-        }
-
-        $events = Event::orderBy('date_debut', 'desc')
+        // Récupérer uniquement les événements publiés
+        $events = Event::where('statut', 'publie')
+            ->orderBy('date_debut', 'desc')
             ->get()
             ->map(function ($event) {
                 // Charger les relations seulement si disponibles
@@ -46,7 +40,8 @@ class EventController extends Controller
                     'status' => $event->date_debut > now() ? 'upcoming' : 'completed',
                     'category_id' => 1,
                     'image' => $event->url_image_banniere,
-                    'category' => $event->categorie
+                    'category' => $event->categorie,
+                    'statut' => $event->statut // Ajouter le statut pour le frontend
                 ];
             });
 
@@ -65,8 +60,54 @@ class EventController extends Controller
     }
 
     /**
-     * Afficher les détails d'un événement
+     * Inscrire un utilisateur à un événement
      */
+    public function register(Request $request, Event $event)
+    {
+        \Log::info('Tentative d\'inscription', [
+            'event_id' => $event->id,
+            'user_id' => auth()->id(),
+            'request_data' => $request->all()
+        ]);
+        
+        $user = auth()->user();
+        
+        // Vérifier si l'utilisateur est déjà inscrit
+        if ($event->inscriptions()->where('user_id', $user->id)->exists()) {
+            \Log::info('Utilisateur déjà inscrit');
+            return redirect('/client/evenements')->withErrors(['message' => 'Vous êtes déjà inscrit à cet événement.']);
+        }
+        
+        // Vérifier si l'événement est complet
+        if ($event->places_disponibles <= 0) {
+            \Log::info('Événement complet');
+            return redirect('/client/evenements')->withErrors(['message' => 'Cet événement est complet.']);
+        }
+        
+        // Vérifier si l'événement est publié
+        if ($event->statut !== 'publie') {
+            \Log::info('Événement non publié', ['statut' => $event->statut]);
+            return redirect('/client/evenements')->withErrors(['message' => 'Cet événement n\'est pas encore publié.']);
+        }
+        
+        // Créer l'inscription avec les données du formulaire
+        $inscription = \App\Models\Inscription::create([
+            'event_id' => $event->id,
+            'user_id' => $user->id,
+            'date_inscription' => now(),
+            'statut' => 'confirme',
+            'nom' => $request->input('nom', $user->name),
+            'whatsapp' => $request->input('whatsapp', $user->telephone),
+            'email' => $request->input('email', $user->email)
+        ]);
+        
+        \Log::info('Inscription créée', ['inscription_id' => $inscription->id]);
+        
+        // Mettre à jour le nombre de places disponibles
+        $event->decrement('places_disponibles');
+        
+        return redirect('/client/evenements')->with('success', 'Inscription réussie !');
+    }
     public function show(Event $event)
     {
         $event->load(['salle.promoter', 'promoter']);

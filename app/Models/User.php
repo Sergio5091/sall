@@ -32,8 +32,19 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'status',
         'referral_code',
         'parent_id',
+        'telephone',
+        'bio',
+        'company',
+        'experience',
+        'favorite_games',
+        'specialties',
+        'social_links',
+        'profile_photo_path',
+        'preferences',
+        'password_updated_at',
     ];
 
     /**
@@ -56,6 +67,10 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'preferences' => 'array',
+            'specialties' => 'array',
+            'social_links' => 'array',
+            'password_updated_at' => 'datetime',
         ];
     }
 
@@ -445,5 +460,45 @@ class User extends Authenticatable
 
         $result = ltrim($result, '0');
         return $result === '' ? '0' : $result;
+    }
+
+    /**
+     * Obtenir l'URL de la photo de profil
+     */
+    public function getProfilePhotoUrlAttribute(): string
+    {
+        if ($this->profile_photo_path) {
+            return url('storage/' . $this->profile_photo_path);
+        }
+
+        // Avatar par défaut basé sur les initiales
+        $initials = strtoupper(substr($this->name, 0, 2));
+        return "https://ui-avatars.com/api/?name={$initials}&color=7F9CF5&background=EBF4FF&size=200";
+    }
+
+    /**
+     * Relation avec les notifications
+     */
+    public function notifications()
+    {
+        return $this->hasMany(\App\Models\Notification::class);
+    }
+
+    /**
+     * Générer un code de parrainage s'il n'existe pas
+     */
+    public static function generateReferralCodeIfExists($code = null)
+    {
+        // Si aucun code n'est fourni, en générer un
+        if ($code === null) {
+            return static::generateUniqueReferralCode();
+        }
+        
+        // Vérifier si le code fourni existe déjà
+        if (static::where('referral_code', $code)->exists()) {
+            return null;
+        }
+        
+        return $code;
     }
 }

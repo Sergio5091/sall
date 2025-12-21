@@ -131,47 +131,48 @@ const confirmActionHandler = () => {
   
   if (confirmAction.value === 'publish') {
     // Forcer le statut à 'publie'
-  eventForm.value.statut = 'publie';
+    eventForm.value.statut = 'publie';
 
-  const formData = new FormData();
-  formData.append('_method', 'PUT');
+    const formData = new FormData();
+    formData.append('_method', 'PUT');
 
-  // Ensure services are synced with customServices
-  eventForm.value.services = { custom: customServices.value.filter(s => s.active).map(s => s.name) };
+    // Ensure services are synced with customServices
+    eventForm.value.services = { custom: customServices.value.filter(s => s.active).map(s => s.name) };
 
-  Object.keys(eventForm.value).forEach(key => {
-    if (key === 'gratuit' || key === 'limite_inscription') {
-      formData.append(key, eventForm.value[key] ? '1' : '0');
-    } else if (key === 'services') {
-      formData.append(key, JSON.stringify(eventForm.value[key]));
-    } else if (key !== 'image_banniere') {
-      formData.append(key, eventForm.value[key]);
+    Object.keys(eventForm.value).forEach(key => {
+      if (key === 'gratuit' || key === 'limite_inscription') {
+        formData.append(key, eventForm.value[key] ? '1' : '0');
+      } else if (key === 'services') {
+        formData.append(key, JSON.stringify(eventForm.value[key]));
+      } else if (key !== 'image_banniere') {
+        formData.append(key, eventForm.value[key]);
+      }
+    });
+
+    if (eventForm.value.image_banniere) {
+      formData.append('image_banniere', eventForm.value.image_banniere);
     }
-  });
 
-  if (eventForm.value.image_banniere) {
-    formData.append('image_banniere', eventForm.value.image_banniere);
+    router.post(`/promoter/events/${props.event.id}`, formData, {
+      onSuccess: () => {
+        notificationType.value = 'success';
+        notificationTitle.value = 'Succès';
+        notificationMessage.value = 'Événement publié avec succès !';
+        showNotificationModal.value = true;
+        setTimeout(() => {
+          window.location.href = '/promoter/events';
+        }, 1500);
+      },
+      onError: (errors) => {
+        console.error('Erreurs:', errors);
+        notificationType.value = 'error';
+        notificationTitle.value = 'Erreur';
+        notificationMessage.value = 'Une erreur est survenue lors de la publication.';
+        showNotificationModal.value = true;
+      }
+    });
   }
 
-  router.post(`/promoter/events/${props.event.id}`, formData, {
-    onSuccess: () => {
-      notificationType.value = 'success';
-      notificationTitle.value = 'Succès';
-      notificationMessage.value = 'Événement publié avec succès !';
-      showNotificationModal.value = true;
-      setTimeout(() => {
-        window.location.href = '/promoter/events';
-      }, 1500);
-    },
-    onError: (errors) => {
-      console.error('Erreurs:', errors);
-      notificationType.value = 'error';
-      notificationTitle.value = 'Erreur';
-      notificationMessage.value = 'Une erreur est survenue lors de la publication.';
-      showNotificationModal.value = true;
-    }
-  });
-  
   // Réinitialiser
   showConfirmModal.value = false;
   confirmAction.value = null;
@@ -192,7 +193,7 @@ const handleImageUpload = (event) => {
   <div class="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
     <Sidebar current-route="promoter.events" />
     
-    <main class="flex-1 overflow-y-auto transition-all duration-300">
+    <main class="flex-1 overflow-y-auto transition-all duration-300 lg:ml-64">
       <div class="p-8">
         <!-- Header -->
         <div class="flex items-center justify-between mb-8">

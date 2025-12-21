@@ -1,5 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import Sidebar from '../../Components/Promoter/Sidebar.vue';
 
 const props = defineProps({
     venue: Object
@@ -12,58 +13,11 @@ const props = defineProps({
   <!-- Add Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <div class="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
-    <!-- Sidebar -->
-    <aside class="flex w-64 flex-col bg-white dark:bg-[#19202e] border-r border-gray-200 dark:border-gray-800">
-      <div class="flex h-full flex-col justify-between p-4">
-        <div class="flex flex-col gap-4">
-          <div class="flex items-center gap-3 p-2">
-            <i class="fas fa-gamepad text-3xl text-brand-red"></i>
-            <h1 class="text-xl font-bold text-gray-900 dark:text-white">GameOn</h1>
-          </div>
-          <div class="flex flex-col gap-1 mt-4">
-            <Link href="/promoter/dashboard" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5">
-              <i class="fas fa-tachometer-alt"></i>
-              <p class="text-sm font-semibold">Dashboard</p>
-            </Link>
-            <Link href="/promoter/venues" class="flex items-center gap-3 rounded-lg bg-primary/10 px-3 py-2 text-primary dark:bg-primary/20">
-              <i class="fas fa-store"></i>
-              <p class="text-sm font-medium">Salles</p>
-            </Link>
-            <Link href="/promoter/events" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5">
-              <i class="fas fa-calendar-alt"></i>
-              <p class="text-sm font-medium">Événements</p>
-            </Link>
-            <Link href="/promoter/notifications" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5">
-              <i class="fas fa-bell"></i>
-              <p class="text-sm font-medium">Notifications</p>
-              <span class="ml-auto text-xs font-bold bg-brand-red text-white rounded-full px-2 py-0.5">3</span>
-            </Link>
-          </div>
-        </div>
-        <div class="flex flex-col gap-4">
-          <div class="flex flex-col gap-1 border-t border-gray-200 dark:border-gray-800 pt-4">
-            <Link href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5">
-              <i class="fas fa-cog"></i>
-              <p class="text-sm font-medium">Paramètres</p>
-            </Link>
-          </div>
-          <div class="flex items-center gap-3 border-t border-gray-200 dark:border-gray-800 pt-4">
-            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Profile picture of Jean Dupont" style='background-image: url("https://picsum.photos/seed/promoter/100/100.jpg");'></div>
-            <div class="flex flex-col">
-              <h1 class="text-gray-900 dark:text-white text-sm font-medium leading-normal">Jean Dupont</h1>
-              <p class="text-gray-500 dark:text-gray-400 text-xs font-normal leading-normal">Promoteur</p>
-            </div>
-            <button class="ml-auto text-gray-500 dark:text-gray-400">
-              <i class="fas fa-sign-out-alt"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </aside>
+  <div class="flex h-screen bg-gray-50">
+    <Sidebar current-route="promoter.venues" />
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto">
+    <main class="flex-1 overflow-y-auto lg:ml-64">
       <div class="sticky top-0 z-10 bg-white/80 dark:bg-[#19202e]/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-8 py-4">
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div class="flex min-w-72 flex-col gap-1">
