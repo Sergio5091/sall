@@ -88,6 +88,7 @@ class AuthenticatedSessionController extends Controller
         // Rediriger selon le rôle
         return match($user->role) {
             'admin' => redirect()->intended(route('admin.dashboard')),
+            'sub_admin' => redirect()->intended(route('admin.sub-admins.dashboard')),
             'promoter' => redirect()->intended(route('promoter.dashboard')),
             'client' => redirect()->intended(route('client.dashboard')),
             default => redirect()->intended(route('dashboard')),

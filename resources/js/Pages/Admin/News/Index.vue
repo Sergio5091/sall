@@ -331,7 +331,8 @@ const deleteNews = (newsItem) => {
                 </div>
             </div>
         </div>
-    </template>
+    </div>
+</template>
 
     <style scoped>
     .icon-sm {
@@ -341,6 +342,7 @@ const deleteNews = (newsItem) => {
 .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }

@@ -206,7 +206,7 @@ const confirmActionHandler = () => {
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
         <h2 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Gestion des salles</h2>
-        <p class="text-slate-500 dark:text-slate-400 mt-1">Gérez, modérez et surveillez l'activité des salles de jeux.</p>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">Gérez, modérez et surveillez l'activité des centres de loisirs.</p>
       </div>
       <button
         @click="showCreateModal = true"
@@ -333,7 +333,7 @@ const confirmActionHandler = () => {
                   </div>
                   <div class="ml-4">
                     <div class="text-sm font-medium text-slate-900 dark:text-white group-hover:text-primary transition-colors cursor-pointer">{{ salle.nom }}</div>
-                    <div class="text-xs text-slate-500 dark:text-slate-400">{{ salle.type || 'Salle de jeux' }}</div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400">{{ salle.type || 'Centre de loisirs' }}</div>
                   </div>
                 </div>
               </td>
@@ -449,7 +449,7 @@ const confirmActionHandler = () => {
             <div class="md:col-span-2 space-y-3">
               <div>
                 <h4 class="text-lg font-semibold text-slate-900 dark:text-white">{{ selectedSalle.nom }}</h4>
-                <p class="text-sm text-slate-500 dark:text-slate-400">{{ selectedSalle.type || 'Salle de jeux' }}</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">{{ selectedSalle.type || 'Centre de loisirs' }}</p>
               </div>
               
               <div class="flex items-center gap-2">

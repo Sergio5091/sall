@@ -80,6 +80,12 @@ const menuItems = computed(() => [
         badge: unreadCount.value
     },
     {
+        name: "Messages",
+        icon: "fas fa-envelope",
+        route: "promoter.messages",
+        href: "/promoter/messages"
+    },
+    {
         name: "Mon Profil",
         icon: "fas fa-user",
         route: "promoter.profile",

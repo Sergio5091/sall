@@ -36,7 +36,7 @@
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvH2WTqOH4xdpVYNnE-AEFRRddj-EuRD0tnArJLb7oiAWvIp-Qtmwd-tR44tBYuIL9XkGjTu6hrz1fbv0sRpr-kX6GHHvDlqmEfeZBWWIDPjIxx5XICSthpyGGo6HnkD-KQJEARGM2QWfZFHPAL0LB_PlSt4ECuOTAZyeJGu2nfHkeKY5of2ezUggCSp6YWPhzFl6HDAxuJtpjpCG-DeCuElEFOfHRxYJ87yGW0NGnQggcGusH7isgz2z6G84Me6uB4dNF5ZG6uEKf"
           />
           <h1 class="text-3xl font-bold text-white leading-tight">Votre univers de jeu connecté</h1>
-          <p class="mt-4 text-lg text-gray-300">Rejoignez une communauté de passionnés et découvrez les meilleures salles de jeux près de chez vous.</p>
+          <p class="mt-4 text-lg text-gray-300">Rejoignez une communauté de passionnés et découvrez les meilleurs centres de loisirs près de chez vous.</p>
         </div>
       </div>
       

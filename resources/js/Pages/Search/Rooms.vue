@@ -47,7 +47,7 @@
               Trouver une salle près de chez vous
             </h1>
             <p class="text-gray-600 text-lg font-normal leading-normal">
-              Entrez votre localisation pour découvrir les salles de jeux disponibles
+              Entrez votre localisation pour découvrir les centres de loisirs disponibles
             </p>
           </div>
 

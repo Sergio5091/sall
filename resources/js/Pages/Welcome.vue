@@ -2,32 +2,40 @@
   <!-- Add Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <div class="min-h-screen text-gray-800 font-body">
-    <!-- TopNavBar -->
-    <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center backdrop-blur-sm shadow-sm bg-white/90">
-      <div class="flex items-center justify-between w-full max-w-7xl px-6 py-3">
-        <div class="flex items-center gap-8">
-          <div class="flex items-center gap-2 text-gray-800">
-            <i class="fas fa-gamepad text-3xl text-gray-400"></i>
-            <h2 class="text-gray-800 text-2xl font-display font-bold">GameOn</h2>
+  <div class="min-h-screen text-gray-800 font-body bg-gray-50">
+    <!-- Navigation Supérieure (Fixe) -->
+    <header class="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-gray-900/80 border-b border-gray-800/50 shadow-2xl">
+      <div class="max-w-7xl mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+          <!-- Logo -->
+          <div class="flex items-center gap-3">
+            <div class="bg-gradient-to-br from-blue-500 to-purple-600 size-10 rounded-xl flex items-center justify-center shadow-lg">
+              <i class="fas fa-gamepad text-white text-xl"></i>
+            </div>
+            <h1 class="text-white text-2xl font-bold tracking-tight">GameOn</h1>
           </div>
-          <nav class="hidden md:flex space-x-8">
-            <a href="/" class="text-blue-600 hover:text-blue-700 px-3 py-2 text-sm font-medium border-b-2 border-blue-600">Accueil</a>
-            <a href="/search/rooms" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Salles</a>
-            <a href="/events" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Événements</a>
+          
+          <!-- Navigation Menu -->
+          <nav class="hidden md:flex items-center gap-8">
+            <a href="/" class="text-white px-4 py-2 text-sm font-medium border-b-2 border-blue-500 bg-blue-500/10 rounded-lg">Accueil</a>
+            <a href="/search/rooms" class="text-gray-300 hover:text-white px-4 py-2 text-sm font-medium transition-all hover:bg-gray-800/50 rounded-lg">Salles</a>
+            <a href="/events" class="text-gray-300 hover:text-white px-4 py-2 text-sm font-medium transition-all hover:bg-gray-800/50 rounded-lg">Événements</a>
           </nav>
-        </div>
-        <div class="flex items-center gap-3">
-          <a href="/login" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-200 text-gray-800 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 transition-colors">
-            <span class="truncate">Connexion</span>
-          </a>
-          <a href="/register" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-800 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-700 transition-all">
-            <span class="truncate">S'inscrire</span>
-          </a>
+          
+          <!-- Auth Buttons -->
+          <div class="flex items-center gap-3">
+            <a href="/login" class="px-5 py-2.5 text-gray-300 hover:text-white text-sm font-medium transition-all hover:bg-gray-800/50 rounded-lg">
+              Connexion
+            </a>
+            <a href="/register" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-medium rounded-lg hover:from-blue-500 hover:to-blue-400 transition-all shadow-lg hover:shadow-blue-500/25">
+              S'inscrire
+            </a>
+          </div>
         </div>
       </div>
     </header>
-    <!-- HeroSection -->
+
+    <!-- Hero Section -->
     <section class="relative flex min-h-[80vh] sm:min-h-screen flex-col gap-6 sm:gap-8 items-center justify-center text-center py-16 sm:py-20 w-full overflow-x-hidden">
       <!-- Gaming Background Animation -->
       <div class="absolute inset-0 z-0">
@@ -97,11 +105,11 @@
       
       <!-- Content -->
       <div class="relative z-10 flex flex-col gap-3 sm:gap-4 items-center w-full px-4 max-w-4xl">
-        <h1 class="text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight tracking-tighter animate-fade-in-up drop-shadow-lg">
+        <h1 class="text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tighter animate-fade-in-up drop-shadow-lg">
           Votre Prochaine Partie Commence Ici.
         </h1>
         <h2 class="text-white text-base sm:text-lg md:text-xl font-normal leading-normal max-w-3xl px-2 animate-fade-in-up delay-300 drop-shadow-md">
-          Découvrez et réservez des milliers de salles de jeux et d'expériences près de chez vous.
+          Découvrez et réservez des milliers de centres de loisirs et d'événements près de chez vous.
         </h2>
       </div>
       <div class="relative z-10 w-full max-w-2xl px-4">
@@ -112,15 +120,15 @@
       </div>
     </section>
 
-    <!-- Nouveautés Section -->
+    <!-- Section Nouveautés -->
     <section class="pt-8 pb-16 bg-gray-50 relative overflow-hidden">
       <!-- Éléments décoratifs 3D -->
       <div class="absolute inset-0 opacity-20">
-        <div class="absolute top-10 left-10 w-32 h-32 bg-gray-600 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-10 right-10 w-48 h-48 bg-gray-500 rounded-full blur-3xl"></div>
+        <div class="absolute top-10 left-10 w-32 h-32 bg-blue-600 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-10 right-10 w-48 h-48 bg-purple-600 rounded-full blur-3xl"></div>
       </div>
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <h2 class="text-gray-800 text-2xl sm:text-3xl font-display font-bold leading-tight tracking-tight px-4 pb-6 animate-fade-in-up">Nouveautés</h2>
+        <h2 class="text-gray-800 text-2xl sm:text-3xl font-bold leading-tight tracking-tight px-4 pb-6 animate-fade-in-up">Nouveautés</h2>
         
         <!-- Carousel Container -->
         <div class="relative">
@@ -195,15 +203,16 @@
         </div>
       </div>
     </section>
-    <!-- Salles Populaires Section -->
+
+    <!-- Section Salles Populaires -->
     <section class="py-16 bg-gray-50 relative overflow-hidden">
       <!-- Éléments décoratifs 3D -->
       <div class="absolute inset-0 opacity-15">
-        <div class="absolute top-1/4 right-20 w-40 h-40 bg-gray-600 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-1/4 left-20 w-36 h-36 bg-gray-500 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/4 right-20 w-40 h-40 bg-blue-600 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/4 left-20 w-36 h-36 bg-purple-600 rounded-full blur-3xl"></div>
       </div>
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <h2 class="text-gray-800 text-3xl font-display font-bold leading-tight tracking-tight px-4 pb-6 animate-fade-in-up delay-300">Salles Populaires</h2>
+        <h2 class="text-gray-800 text-3xl font-bold leading-tight tracking-tight px-4 pb-6 animate-fade-in-up delay-300">Salles Populaires</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <div v-for="(room, index) in popularRooms" :key="index" class="flex flex-col gap-4 rounded-lg shadow-lg overflow-hidden group bg-white border border-gray-200 animate-fade-in-up" :style="{ animationDelay: `${index * 150}ms` }">
             <div class="w-full bg-center bg-no-repeat aspect-video bg-cover group-hover:brightness-110 transition-all duration-500" :style="'background-image: url(' + room.image + ')'"></div>
@@ -211,9 +220,10 @@
               <h3 class="text-gray-800 text-xl font-bold transform transition-transform duration-300 group-hover:translate-x-1">{{ room.name }}</h3>
               <div class="flex items-center justify-between text-sm text-gray-600">
                 <div class="flex items-center gap-1 transform transition-transform duration-300 group-hover:scale-110">
-                  <i class="fas fa-star text-gray-500 !text-xl"></i>
+                  <i class="fas fa-star text-yellow-500 !text-xl"></i>
                   <span>{{ room.rating }}</span>
-                </div> ({{ room.reviews }} avis)
+                </div> 
+                <span>({{ room.reviews }} avis)</span>
                 <span class="font-semibold transform transition-transform duration-300 group-hover:translate-x-1">~ {{ room.distance }}</span>
               </div>
               <p class="text-sm text-gray-600 transform transition-transform duration-300 group-hover:translate-x-1">À partir de <span class="font-bold text-lg text-blue-600">{{ room.price }}/h</span></p>
@@ -226,22 +236,58 @@
       </div>
     </section>
 
-    <!-- Comment ça marche Section -->
+    <!-- Section Comment ça marche -->
     <section class="py-16 bg-gray-50 relative overflow-hidden">
       <!-- Éléments décoratifs 3D -->
       <div class="absolute inset-0 opacity-10">
-        <div class="absolute top-1/3 left-1/4 w-44 h-44 bg-gradient-to-r from-gray-600 to-gray-500 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-1/3 right-1/4 w-52 h-52 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/3 left-1/4 w-44 h-44 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/3 right-1/4 w-52 h-52 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full blur-3xl"></div>
       </div>
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <h2 class="text-gray-800 text-center text-3xl font-display font-bold leading-tight tracking-tight pb-12 animate-fade-in-up delay-600">Comment ça marche ?</h2>
+        <h2 class="text-gray-800 text-center text-3xl font-bold leading-tight tracking-tight pb-12 animate-fade-in-up delay-600">Comment ça marche ?</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
           <div v-for="(step, index) in howItWorks" :key="index" class="flex flex-col items-center gap-4 group animate-fade-in-up" :style="{ animationDelay: `${index * 200}ms` }">
             <div class="flex items-center justify-center w-24 h-24 rounded-full border-2 mb-4 bg-gray-50 transform transition-all duration-500 group-hover:scale-110 group-hover:shadow-lg" :class="step.borderColor">
               <i class="fas transform transition-transform duration-300 group-hover:rotate-12" :class="step.iconClass" style="font-size: 3.125rem;"></i>
             </div>
-            <h3 class="text-gray-800 text-xl font-bold font-display transform transition-transform duration-300 group-hover:translate-y-1">{{ step.title }}</h3>
+            <h3 class="text-gray-800 text-xl font-bold transform transition-transform duration-300 group-hover:translate-y-1">{{ step.title }}</h3>
             <p class="text-gray-600 transform transition-all duration-300 group-hover:text-gray-700">{{ step.description }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section Crédibilité -->
+    <section class="py-16 bg-gradient-to-br from-gray-800 to-gray-900 relative overflow-hidden">
+      <!-- Background gaming blur -->
+      <div class="absolute inset-0 opacity-20">
+        <div class="absolute top-10 left-10 w-64 h-64 bg-blue-600 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-10 right-10 w-96 h-96 bg-purple-600 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-3xl"></div>
+      </div>
+      
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-12">
+          <h2 class="text-white text-3xl md:text-4xl font-bold leading-tight tracking-tight mb-4 animate-fade-in-up">
+            GameOn accompagne les joueurs depuis 5 années
+          </h2>
+          <p class="text-gray-300 text-lg animate-fade-in-up delay-300">
+            La confiance de milliers de gamers pour leurs expériences gaming
+          </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="text-center animate-fade-in-up delay-500">
+            <div class="text-4xl md:text-5xl font-bold text-white mb-2">{{ formatNumber(usersCount) }}</div>
+            <div class="text-gray-300 text-lg">Utilisateurs actifs</div>
+          </div>
+          <div class="text-center animate-fade-in-up delay-700">
+            <div class="text-4xl md:text-5xl font-bold text-white mb-2">{{ formatNumber(roomsCount) }}</div>
+            <div class="text-gray-300 text-lg">Salles disponibles</div>
+          </div>
+          <div class="text-center animate-fade-in-up delay-900">
+            <div class="text-4xl md:text-5xl font-bold text-white mb-2">{{ formatNumber(bookingsCount) }}</div>
+            <div class="text-gray-300 text-lg">Réservations effectuées</div>
           </div>
         </div>
       </div>
@@ -252,11 +298,13 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div class="col-span-1 md:col-span-2">
-            <div class="flex items-center gap-2 mb-4">
-              <i class="fas fa-gamepad text-3xl text-blue-400"></i>
+            <div class="flex items-center gap-3 mb-4">
+              <div class="bg-gradient-to-br from-blue-500 to-purple-600 size-10 rounded-xl flex items-center justify-center">
+                <i class="fas fa-gamepad text-white text-xl"></i>
+              </div>
               <h3 class="text-2xl font-bold">GameOn</h3>
             </div>
-            <p class="text-gray-300 mb-4">Votre plateforme pour trouver et réserver les meilleures salles de jeux près de chez vous.</p>
+            <p class="text-gray-300 mb-4">Votre plateforme pour trouver et réserver les meilleurs centres de loisirs près de chez vous.</p>
             <div class="flex gap-4">
               <a href="#" class="text-gray-400 hover:text-white transition-colors">
                 <i class="fab fa-facebook text-xl"></i>
@@ -294,8 +342,8 @@
           </div>
         </div>
       </div>
-      <div class="max-w-7xl mx-auto px-6 py-6 border-t border-t-gray-700">
-        <p class="text-center text-sm text-gray-500"> 2024 GameOn. Tous droits réservés.</p>
+      <div class="max-w-7xl mx-auto px-6 py-6 border-t border-gray-700">
+        <p class="text-center text-sm text-gray-500">© 2024 GameOn. Tous droits réservés.</p>
       </div>
     </footer>
   </div>
@@ -316,6 +364,16 @@ const props = defineProps({
     }
 });
 
+// Statistics data
+const usersCount = ref(15420);
+const roomsCount = ref(892);
+const bookingsCount = ref(28456);
+
+// Format numbers with separators
+const formatNumber = (num) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+};
+
 // Use news from database or fallback to hardcoded data
 const newItems = computed(() => {
     if (props.news && props.news.length > 0) {
@@ -329,52 +387,123 @@ const newItems = computed(() => {
     // Fallback hardcoded data
     return [
       {
-        title: 'PlayStation 5',
-        subtitle: 'Nouvelle Génération',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD69TFuViF7AheUFy17TAyvRJAUQDSjQvthTej3ob3xgQmrxiCd4iSWk-15WKVVXVg7iR7MRVXLP69kARZpApmxUiFWTjQupx5knfihjq16_6LiKHOGALdCgtZqEbqj2Lx05w_E9SPXIfRnzOvrlMaC70jZ0GoQHNJ-FSg8ND7bjfjfHmdw_MqQ3tRBQr7BrN_nw6e1VHb8V5ourB1d5hDkm0qFuKQ6IGF7YjTjMHDGjCnqQ2mjuzhCipJ53hS8D4cuaPDgHOyyhOgE'
+        title: 'PlayStation 5 Arena',
+        subtitle: 'Nouvelle génération de gaming',
+        image: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=500&h=300&fit=crop'
       },
       {
-        title: 'VR Quest 3',
-        subtitle: 'Immersion Totale',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCYHh5IqU9m7sGzI6nN-2TOY3cjqw6LvCPwENSrv1VEvphNaLlp8oKX_ChHWzDiAi9cQHqZzYOB5KUtfhaLcjJW_UOgoH9tS0xJuEpB9hPjC-ug8sBblwZq9yB1nXRMBDpKZy9x-ckdOciw7G1dgP5bJQflmdbedf6-LEwhU_rUgZPWNclac2ejM5-wf7h7ZqLDxaZ26KdjbR7S9QmN2aHgH3b6Wrcxc1LAK-t53YktCKAWh_nWLzRxSqabo14Awculpec_FS2SU2pt'
+        title: 'VR Quest 3 Experience',
+        subtitle: 'Immersion totale en réalité virtuelle',
+        image: 'https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=500&h=300&fit=crop'
       },
       {
         title: 'CyberHero 2088',
-        subtitle: 'Dernière Sortie',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBoU7Oags87biuaaffc3aUGrDFW5kFUjxEbccg4ySsGzsmxpxUZoRY2m7gAWMY7xIqU5nQjefm2KQjibIT2Hn_fQ3SdFNqkMNgzCgtF5a09GtEpv59x7uIkqZv4UpDF2HYh4zSbA0MCObwDjUz2idQ4vU2ENeaBSQ2iPep1DeeAcN_oAIIdNDnfg7akYdQerYMQlTC9XfCixtt-VjVhodttIg_eETqbYCDuTTEmffxXDM6qfWkOTz8KXI4KVTjJnAwgnv_KLV0d0okk'
+        subtitle: 'Le dernier jeu cyberpunk',
+        image: 'https://images.unsplash.com/photo-1511512578047-dfb36704621f?w=500&h=300&fit=crop'
       },
       {
         title: 'PC Gamer Ultimate',
-        subtitle: 'Puissance Max',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAFHU-O26YCVGb8nn72fw_t3zCT0ekH-nFV7acoJIzDsxjIR-Lc_K7kG27Cdlw2y9G6cjOtbMeCCTpb6fpvIprI0mmn5ex2yb-BXmD0L6KlPW5rU6p-lXc__1mF2es4ZEWq3q4ApJbjlDkC2TSC7mq-_NE0vXwbHX6WGf4RibZubgcspYf4t8fKul0l8KUZrUNKhCv41euF-GtVhgfA3ESe3VG4R69TUjr3MK0L6Mo_FiYuXRADPqlhMa6yL4JRSgTFG6wPWKvxjCOM'
+        subtitle: 'Puissance maximale garantie',
+        image: 'https://images.unsplash.com/photo-1587829741301-dc798b83dec3?w=500&h=300&fit=crop'
       },
       {
         title: 'VR World Experience',
-        subtitle: 'Réalité Virtuelle',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDZk-K3kdE3ajUoJvzYE-P5V9EppOKL8LPxzcGNhBBEFNBXC7F5jYXrYrwDrW0P4VKmutq7EmadaTVN_b9AVhEasTSc4KYfjGVTFn0s903IJxUxwFXFS_K1QsZ4gFcXhPRD0FaretJixko9EAwJGx96RTLdxrfXwfeugzGsGp-jYct8KgevHhFT-0FSU6WxM0SZ5Phpkqu5Q6RHdudPx25ttQcImu_6BD-CPUjTWe7VC8fHQDsTcVJp58dXTQnjEpHJh_Ba6CrOPUsD'
+        subtitle: 'Réalité virtuelle immersive',
+        image: 'https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=500&h=300&fit=crop'
       },
       {
         title: 'Retro Arcade Classic',
-        subtitle: 'Jeux Rétro',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCYHh5IqU9m7sGzI6nN-2TOY3cjqw6LvCPwENSrv1VEvphNaLlp8oKX_ChHWzDiAi9cQHqZzYOB5KUtfhaLcjJW_UOgoH9tS0xJuEpB9hPjC-ug8sBblwZq9yB1nXRMBDpKZy9x-ckdOciw7G1dgP5bJQflmdbedf6-LEwhU_rUgZPWNclac2ejM5-wf7h7ZqLDxaZ26KdjbR7S9QmN2aHgH3b6Wrcxc1LAK-t53YktCKAWh_nWLzRxSqabo14Awculpec_FS2SU2pt'
-      },
-      {
-        title: 'Mobile Gaming Zone',
-        subtitle: 'Gaming Mobile',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDimTmosVRtitqU9V2oDIOQw50iGnF5QW3_KIKBaqu9WSJ6grhZy_x9Ae_lduBc_pSW7n6n0fdslfekYXLqoiES9JL0QHnKTOhiuS0amxXj43wWxYzVYUBCmQu2VSKPJVPWu7LoNMIQI1myV_R0FkUiHFHXNPfCG-wSmSlJgDp7jtXCr5fTgDvAynUYwM1PHaumBxDPSfTTJ40KvLX01F4PWrPOpTz6IGey33XXIKdUJHkgz2V0gqb2kltAbruyvqecqYp37qlscfYo'
-      },
-      {
-        title: 'E-Sports Arena',
-        subtitle: 'Compétitions',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBoU7Oags87biuaaffc3aUGrDFW5kFUjxEbccg4ySsGzsmxpxUZoRY2m7gAWMY7xIqU5nQjefm2KQjibIT2Hn_fQ3SdFNqkMNgzCgtF5a09GtEpv59x7uIkqZv4UpDF2HYh4zSbA0MCObwDjUz2idQ4vU2ENeaBSQ2iPep1DeeAcN_oAIIdNDnfg7akYdQerYMQlTC9XfCixtt-VjVhodttIg_eETqbYCDuTTEmffxXDM6qfWkOTz8KXI4KVTjJnAwgnv_KLV0d0okk'
-      },
-      {
-        title: 'Streaming Studio',
-        subtitle: 'Live Streaming',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAFHU-O26YCVGb8nn72fw_t3zCT0ekH-nFV7acoJIzDsxjIR-Lc_K7kG27Cdlw2y9G6cjOtbMeCCTpb6fpvIprI0mmn5ex2yb-BXmD0L6KlPW5rU6p-lXc__1mF2es4ZEWq3q4ApJbjlDkC2TSC7mq-_NE0vXwbHX6WGf4RibZubgcspYf4t8fKul0l8KUZrUNKhCv41euF-GtVhgfA3ESe3VG4R69TUjr3MK0L6Mo_FiYuXRADPqlhMa6yL4JRSgTFG6wPWKvxjCOM'
+        subtitle: 'Jeux rétro nostalgiques',
+        image: 'https://images.unsplash.com/photo-1552728089-57bdde6beb07?w=500&h=300&fit=crop'
       }
     ];
 });
+
+// Popular rooms data
+const popularRooms = ref([
+  {
+    id: 1,
+    name: 'Gaming Zone Pro',
+    rating: 4.8,
+    reviews: 234,
+    distance: '2.5 km',
+    price: '25€',
+    featured: true,
+    image: 'https://images.unsplash.com/photo-1493770348161-369560ae357d?w=500&h=300&fit=crop'
+  },
+  {
+    id: 2,
+    name: 'E-Sports Arena',
+    rating: 4.9,
+    reviews: 189,
+    distance: '1.8 km',
+    price: '30€',
+    featured: false,
+    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500&h=300&fit=crop'
+  },
+  {
+    id: 3,
+    name: 'VR Experience Center',
+    rating: 4.7,
+    reviews: 156,
+    distance: '3.2 km',
+    price: '35€',
+    featured: true,
+    image: 'https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=500&h=300&fit=crop'
+  },
+  {
+    id: 4,
+    name: 'Retro Gaming Lounge',
+    rating: 4.6,
+    reviews: 98,
+    distance: '4.1 km',
+    price: '20€',
+    featured: false,
+    image: 'https://images.unsplash.com/photo-1552728089-57bdde6beb07?w=500&h=300&fit=crop'
+  },
+  {
+    id: 5,
+    name: 'PC Master Race',
+    rating: 4.9,
+    reviews: 312,
+    distance: '2.8 km',
+    price: '28€',
+    featured: true,
+    image: 'https://images.unsplash.com/photo-1587829741301-dc798b83dec3?w=500&h=300&fit=crop'
+  },
+  {
+    id: 6,
+    name: 'Mobile Gaming Hub',
+    rating: 4.5,
+    reviews: 67,
+    distance: '5.3 km',
+    price: '18€',
+    featured: false,
+    image: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=500&h=300&fit=crop'
+  }
+]);
+
+// How it works data
+const howItWorks = ref([
+  {
+    title: 'Recherche',
+    description: 'Trouvez la salle parfaite pour votre prochaine session de jeu',
+    iconClass: 'fa-search text-blue-600',
+    borderColor: 'border-blue-600'
+  },
+  {
+    title: 'Réservez',
+    description: 'Réservez facilement en quelques clics',
+    iconClass: 'fa-gamepad text-purple-600',
+    borderColor: 'border-purple-600'
+  },
+  {
+    title: 'Jouez',
+    description: 'Profitez de votre expérience gaming unique',
+    iconClass: 'fa-play text-green-600',
+    borderColor: 'border-green-600'
+  }
+]);
 
 // Carousel logic
 const currentSlide = ref(0);
@@ -433,6 +562,12 @@ const updateItemsPerSlide = () => {
   }
 };
 
+// Methods
+function viewRoom(id) {
+  // Implémentez la navigation vers la page de la salle
+  console.log('View room:', id);
+}
+
 // Lifecycle
 onMounted(() => {
   updateItemsPerSlide();
@@ -444,101 +579,14 @@ onUnmounted(() => {
   window.removeEventListener('resize', updateItemsPerSlide);
   stopAutoplay();
 });
-const howItWorks = ref([
-  {
-    title: 'Recherche',
-    description: 'Trouvez la salle parfaite pour votre prochaine session de jeu',
-    iconClass: 'fa-search text-gray-600',
-    borderColor: 'border-gray-600'
-  },
-  {
-    title: 'Réservez',
-    description: 'Réservez facilement en quelques clics',
-    iconClass: 'fa-gamepad text-gray-500',
-    borderColor: 'border-gray-500'
-  },
-  {
-    title: 'Jouez',
-    description: 'Profitez de votre expérience gaming unique',
-    iconClass: 'fa-play text-gray-400',
-    borderColor: 'border-gray-400'
-  }
-]);
-
-const footerLinks = ref({
-  navigation: [
-    { label: 'Accueil', href: '/' },
-    { label: 'Salles', href: '/salles' },
-    { label: 'Événements', href: '#' },
-    { label: 'Blog', href: '#' }
-  ],
-  help: [
-    { label: 'FAQ', href: '#' },
-    { label: 'Contactez-nous', href: '#' },
-    { label: 'Support', href: '#' }
-  ],
-  legal: [
-    { label: 'Conditions d\'utilisation', href: '#' },
-    { label: 'Politique de confidentialité', href: '#' }
-  ]
-});
-
-// Methods
-function searchRooms() {
-  if (searchQuery.value.trim()) {
-    // Implémentez la logique de recherche ici
-  }
-}
-
-function searchLocation() {
-  if (location.value.trim()) {
-    // Implémentez la logique de recherche par localisation ici
-  }
-}
-
-function viewRoom(id) {
-  // Implémentez la navigation vers la page de la salle
-}
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Inter:wght@400;500;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0..200');
-
-.material-symbols-outlined {
-  font-variation-settings:
-    'FILL' 0,
-    'wght' 400,
-    'GRAD' 0,
-    'opsz' 24;
-}
-
-:root {
-  --accent-cyan: #6B7280;
-  --accent-magenta: #4B5563;
-  --accent-yellow: #9CA3AF;
-  --accent-magenta-rgb: 75, 85, 99;
-  --accent-cyan-rgb: 107, 114, 128;
-  --accent-yellow-rgb: 156, 163, 175;
-}
-
-.font-display {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 .font-body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
-
-html, body {
-  background-color: var(--background-dark);
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
-}
-
-/* Custom styles can be added here if needed */
-
 
 /* Scrollbar personnalisée */
 ::-webkit-scrollbar {
@@ -550,12 +598,12 @@ html, body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(45deg, #FF00FF, #00FFFF);
+  background: linear-gradient(45deg, #3B82F6, #8B5CF6);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(45deg, #FF00FF, #FDFD00);
+  background: linear-gradient(45deg, #2563EB, #7C3AED);
 }
 
 /* Text Animations */
@@ -576,7 +624,10 @@ html, body {
 }
 
 .delay-300 { animation-delay: 0.3s; }
+.delay-500 { animation-delay: 0.5s; }
 .delay-600 { animation-delay: 0.6s; }
+.delay-700 { animation-delay: 0.7s; }
+.delay-900 { animation-delay: 0.9s; }
 
 /* Gaming background animations */
 @keyframes float {
@@ -618,31 +669,6 @@ html, body {
   animation: float-delay-2 7s ease-in-out infinite;
 }
 
-/* Text stroke for better visibility - WebKit only */
-.text-stroke-2xl {
-  -webkit-text-stroke: 3px rgba(0, 0, 0, 0.8);
-  /* Fallback for other browsers */
-  text-shadow: 
-    3px 3px 0 rgba(0, 0, 0, 0.9),
-    -3px 3px 0 rgba(0, 0, 0, 0.9),
-    3px -3px 0 rgba(0, 0, 0, 0.9),
-    -3px -3px 0 rgba(0, 0, 0, 0.9),
-    0 0 12px rgba(0, 0, 0, 1),
-    0 0 20px rgba(0, 0, 0, 0.8);
-}
-
-.text-stroke-lg {
-  -webkit-text-stroke: 2px rgba(0, 0, 0, 0.7);
-  /* Fallback for other browsers */
-  text-shadow: 
-    2px 2px 0 rgba(0, 0, 0, 0.8),
-    -2px 2px 0 rgba(0, 0, 0, 0.8),
-    2px -2px 0 rgba(0, 0, 0, 0.8),
-    -2px -2px 0 rgba(0, 0, 0, 0.8),
-    0 0 8px rgba(0, 0, 0, 0.9),
-    0 0 15px rgba(0, 0, 0, 0.7);
-}
-
 /* Particle animations */
 .particles {
   position: absolute;
@@ -653,10 +679,10 @@ html, body {
 
 .particle {
   position: absolute;
-  background: linear-gradient(45deg, #f59e0b, #ef4444);
+  background: linear-gradient(45deg, #3B82F6, #8B5CF6);
   border-radius: 50%;
   opacity: 0.7;
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
 }
 
 .particle-1 {

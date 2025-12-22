@@ -91,7 +91,7 @@ const props = defineProps({
                   <p class="text-white text-sm font-medium leading-normal">Méta-Titre</p>
                   <p class="text-gray-400 text-xs">65 / 70</p>
                 </div>
-                <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-white/5 h-12 placeholder:text-gray-400 px-4 text-base font-normal leading-normal" value="Arcade Invaders - Salle de jeux et VR à Paris | Réservez maintenant"/>
+                <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-white/5 h-12 placeholder:text-gray-400 px-4 text-base font-normal leading-normal" value="Arcade Invaders - Centre de loisirs et VR à Paris | Réservez maintenant"/>
               </label>
               <label class="flex flex-col">
                 <div class="flex justify-between items-center pb-2">
