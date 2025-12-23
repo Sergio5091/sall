@@ -198,6 +198,12 @@ class SalleController extends Controller
             }
         }
 
+        // Convertir capacite en capacite_max si présent
+        if (isset($validated['capacite'])) {
+            $validated['capacite_max'] = $validated['capacite'];
+            unset($validated['capacite']);
+        }
+
         // Générer le slug
         $validated['slug'] = Salle::generateUniqueSlug($validated['nom']);
         $validated['promoter_id'] = $user->id;

@@ -141,12 +141,26 @@ class SubAdminDashboardController extends Controller
         
         $salles = $sallesQuery->with('promoter')->latest()->get();
         
+        // Log pour débogage - vérifier les statuts réels
+        \Log::info('Salles loaded for sub-admin', [
+            'sub_admin_id' => $subAdmin->id,
+            'salles_count' => $salles->count(),
+            'salles_data' => $salles->map(function($salle) {
+                return [
+                    'id' => $salle->id,
+                    'nom' => $salle->nom,
+                    'statut' => $salle->statut,
+                    'valide' => $salle->valide
+                ];
+            })->toArray()
+        ]);
+        
         // Calculate stats
         $stats = [
             'total' => $salles->count(),
-            'active' => $salles->where('status', 'active')->count(),
-            'pending' => $salles->where('status', 'pending')->count(),
-            'inactive' => $salles->where('status', 'inactive')->count(),
+            'active' => $salles->where('statut', 'actif')->count(),
+            'pending' => $salles->where('valide', false)->count(),
+            'inactive' => $salles->where('statut', 'inactif')->count(),
         ];
         
         return Inertia::render('SubAdmin/Salles/Index', [
@@ -266,7 +280,9 @@ class SubAdminDashboardController extends Controller
             abort(403, 'Unauthorized access to this salle.');
         }
         
-        $salle->status = 'active';
+        $salle->statut = 'actif';
+        $salle->valide = true;
+        $salle->valide_par_admin = true;
         $salle->validated_at = now();
         $salle->validated_by = $user->id;
         $salle->save();
@@ -294,7 +310,7 @@ class SubAdminDashboardController extends Controller
             abort(403, 'Unauthorized access to this salle.');
         }
         
-        $salle->status = 'inactive';
+        $salle->statut = 'inactif';
         $salle->deactivated_at = now();
         $salle->deactivated_by = $user->id;
         $salle->save();
@@ -328,7 +344,7 @@ class SubAdminDashboardController extends Controller
             'capacite_max' => 'nullable|integer|min:1',
             'surface' => 'nullable|numeric|min:1',
             'type' => 'nullable|string|max:255',
-            'status' => 'required|in:active,inactive,maintenance',
+            'statut' => 'required|in:actif,inactif,maintenance',
         ]);
         
         $salle->update($validated);
@@ -356,10 +372,20 @@ class SubAdminDashboardController extends Controller
             abort(403, 'Unauthorized access to this salle.');
         }
         
-        $salle->status = $salle->status === 'active' ? 'inactive' : 'active';
+        $oldStatus = $salle->statut;
+        $salle->statut = $salle->statut === 'actif' ? 'inactif' : 'actif';
         $salle->save();
 
-        return back()->with('success', 'Statut de la salle mis à jour avec succès.');
+        // Log pour débogage
+        \Log::info('Salle status toggled', [
+            'salle_id' => $salle->id,
+            'old_status' => $oldStatus,
+            'new_status' => $salle->statut,
+            'sub_admin_id' => $subAdmin->id
+        ]);
+
+        return redirect()->route('admin.admin.sub-admin.salles.index')
+            ->with('success', 'Statut de la salle mis à jour avec succès.');
     }
 
     /**

@@ -612,11 +612,13 @@ const getStepTitle = (step) => {
                       <span
                         :class="[
                           'px-3 py-1 text-sm font-medium rounded-full border backdrop-blur-sm',
-                          props.salle.valide_par_admin
+                          props.salle.valide_par_admin && props.salle.statut === 'actif'
                             ? 'bg-green-500/20 text-green-100 border-green-400/30'
+                            : props.salle.statut === 'inactif'
+                            ? 'bg-red-500/20 text-red-100 border-red-400/30'
                             : 'bg-yellow-500/20 text-yellow-100 border-yellow-400/30'
                         ]">
-                        {{ props.salle.valide_par_admin ? 'Active' : 'En attente' }}
+                        {{ props.salle.valide_par_admin && props.salle.statut === 'actif' ? 'Active' : (props.salle.statut === 'inactif' ? 'Inactive' : 'En attente') }}
                       </span>
                     </div>
                   </div>

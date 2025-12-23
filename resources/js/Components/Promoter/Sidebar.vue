@@ -18,6 +18,12 @@ const user = computed(() => page.props.auth?.user);
 // Récupérer le nombre de notifications non lues
 const fetchUnreadCount = async () => {
     try {
+        // Vérifier si l'utilisateur est un promoteur avant de faire la requête
+        if (user.value?.role !== 'promoter') {
+            unreadCount.value = 0;
+            return;
+        }
+        
         const response = await fetch('/promoter/api/unread-count');
         const data = await response.json();
         unreadCount.value = data.count;

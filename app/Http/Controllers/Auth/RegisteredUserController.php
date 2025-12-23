@@ -82,7 +82,7 @@ class RegisteredUserController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'], // Sauvegarder le rôle dans la colonne
-            'referral_code' => User::generateReferralCodeIfExists(),
+            'referral_code' => User::generateUniqueReferralCode(),
             'parent_id' => $parentId,
         ]);
 

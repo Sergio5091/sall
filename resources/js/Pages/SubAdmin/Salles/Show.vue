@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import SubAdminLayout from '@/Layouts/SubAdminLayout.vue';
 
 defineOptions({ layout: SubAdminLayout });
@@ -8,17 +8,30 @@ const props = defineProps({
     salle: Object
 });
 
+const toggleSalleStatus = (salle) => {
+  const action = salle.statut === 'actif' ? 'désactiver' : 'activer';
+  const actionText = salle.statut === 'actif' ? 'désactiver' : 'activer';
+  
+  if (confirm(`Êtes-vous sûr de vouloir ${actionText} le centre "${salle.nom}" ?`)) {
+    router.post(route('admin.admin.sub-admin.salles.toggle-status', salle.id), {}, {
+      onSuccess: () => {
+        location.reload();
+      },
+      onError: () => {
+        alert(`Une erreur est survenue lors de la ${action}.`);
+      }
+    });
+  }
+};
+
 const getStatusClass = (status) => {
     switch(status) {
-        case 'active':
         case 'actif':
+        case 'active':
             return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
-        case 'inactive':
         case 'inactif':
+        case 'inactive':
             return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-        case 'pending':
-        case 'en_attente':
-            return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
         case 'maintenance':
             return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400';
         default:
@@ -28,15 +41,12 @@ const getStatusClass = (status) => {
 
 const getStatusText = (status) => {
     switch(status) {
-        case 'active':
         case 'actif':
+        case 'active':
             return 'Actif';
-        case 'inactive':
         case 'inactif':
+        case 'inactive':
             return 'Inactif';
-        case 'pending':
-        case 'en_attente':
-            return 'En attente';
         case 'maintenance':
             return 'Maintenance';
         default:
@@ -52,7 +62,7 @@ const getStatusText = (status) => {
   <div class="mb-6">
     <div class="flex items-center gap-4 mb-4">
       <Link 
-        :href="route('admin.sub-admin.salles.index')"
+        :href="route('admin.admin.sub-admin.salles.index')"
         class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
       >
         <i class="fas fa-arrow-left mr-2"></i>
@@ -67,8 +77,8 @@ const getStatusText = (status) => {
           {{ salle.ville }}, {{ salle.pays }}
         </p>
       </div>
-      <span :class="getStatusClass(salle.status)" class="px-3 py-1 text-sm font-medium rounded-full">
-        {{ getStatusText(salle.status) }}
+      <span :class="getStatusClass(salle.statut)" class="px-3 py-1 text-sm font-medium rounded-full">
+        {{ getStatusText(salle.statut) }}
       </span>
     </div>
   </div>
@@ -182,7 +192,7 @@ const getStatusText = (status) => {
             </div>
           </div>
           <Link 
-            :href="route('admin.sub-admin.promoters.show', salle.promoter?.id)"
+            :href="route('admin.admin.sub-admin.promoters.show', salle.promoter?.id)"
             class="mt-4 block w-full text-center px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm font-medium"
           >
             Voir le promoteur
@@ -199,31 +209,23 @@ const getStatusText = (status) => {
           </h2>
         </div>
         <div class="p-6 space-y-3">
+          <!-- Bouton unique d'activation/désactivation -->
           <button 
-            v-if="salle.status === 'pending'"
-            @click="validateSalle"
-            class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
-          >
-            <i class="fas fa-check mr-2"></i>
-            Valider le centre
-          </button>
-          
-          <button 
-            v-if="salle.status === 'active'"
-            @click="deactivateSalle"
+            v-if="salle.statut === 'actif'"
+            @click="toggleSalleStatus(salle)"
             class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium"
           >
-            <i class="fas fa-times mr-2"></i>
+            <i class="fas fa-ban mr-2"></i>
             Désactiver le centre
           </button>
           
           <button 
-            v-if="salle.status === 'inactive'"
-            @click="reactivateSalle"
-            class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+            v-else
+            @click="toggleSalleStatus(salle)"
+            class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
           >
-            <i class="fas fa-redo mr-2"></i>
-            Réactiver le centre
+            <i class="fas fa-check mr-2"></i>
+            Activer le centre
           </button>
         </div>
       </div>
@@ -262,19 +264,19 @@ import { router } from '@inertiajs/vue3';
 
 const validateSalle = () => {
   if (confirm('Êtes-vous sûr de vouloir valider ce centre ?')) {
-    router.post(route('admin.sub-admin.salles.validate', props.salle.id));
+    router.post(route('admin.admin.sub-admin.salles.validate', props.salle.id));
   }
 };
 
 const deactivateSalle = () => {
   if (confirm('Êtes-vous sûr de vouloir désactiver ce centre ?')) {
-    router.post(route('admin.sub-admin.salles.deactivate', props.salle.id));
+    router.post(route('admin.admin.sub-admin.salles.deactivate', props.salle.id));
   }
 };
 
 const reactivateSalle = () => {
   if (confirm('Êtes-vous sûr de vouloir réactiver ce centre ?')) {
-    router.put(route('admin.sub-admin.salles.update', props.salle.id), { status: 'active' });
+    router.put(route('admin.admin.sub-admin.salles.update', props.salle.id), { status: 'active' });
   }
 };
 </script>

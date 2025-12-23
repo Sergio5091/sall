@@ -20,7 +20,7 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         if (!$user->referral_code) {
-            $user->referral_code = User::generateReferralCodeIfExists();
+            $user->referral_code = User::generateUniqueReferralCode();
             $user->save();
         }
 

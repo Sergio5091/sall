@@ -3,6 +3,7 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { debounce } from 'lodash';
 import SubAdminLayout from '@/Layouts/SubAdminLayout.vue';
+import NotificationModal from '../../../Components/NotificationModal.vue';
 
 defineOptions({ layout: SubAdminLayout });
 
@@ -13,6 +14,19 @@ const props = defineProps({
 
 const searchQuery = ref('');
 const statusFilter = ref('');
+
+// Notification system
+const showNotificationModal = ref(false);
+const notificationType = ref('success');
+const notificationTitle = ref('');
+const notificationMessage = ref('');
+
+const showNotification = (type, title, message) => {
+  notificationType.value = type;
+  notificationTitle.value = title;
+  notificationMessage.value = message;
+  showNotificationModal.value = true;
+};
 
 const filteredSalles = computed(() => {
     let filtered = props.salles;
@@ -27,7 +41,7 @@ const filteredSalles = computed(() => {
     }
     
     if (statusFilter.value) {
-        filtered = filtered.filter(salle => salle.status === statusFilter.value);
+        filtered = filtered.filter(salle => salle.statut === statusFilter.value);
     }
     
     return filtered;
@@ -39,15 +53,12 @@ const handleSearch = debounce(() => {
 
 const getStatusClass = (status) => {
     switch(status) {
-        case 'active':
         case 'actif':
+        case 'active':
             return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
-        case 'inactive':
         case 'inactif':
+        case 'inactive':
             return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-        case 'pending':
-        case 'en_attente':
-            return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
         case 'maintenance':
             return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400';
         default:
@@ -57,15 +68,12 @@ const getStatusClass = (status) => {
 
 const getStatusText = (status) => {
     switch(status) {
-        case 'active':
         case 'actif':
+        case 'active':
             return 'Actif';
-        case 'inactive':
         case 'inactif':
+        case 'inactive':
             return 'Inactif';
-        case 'pending':
-        case 'en_attente':
-            return 'En attente';
         case 'maintenance':
             return 'Maintenance';
         default:
@@ -79,69 +87,97 @@ const formatDate = (date) => {
 
 const validateSalle = (salle) => {
   if (confirm(`Êtes-vous sûr de vouloir valider le centre "${salle.nom}" ?`)) {
-    router.post(route('admin.sub-admin.salles.validate', salle.id));
+    router.post(route('admin.admin.sub-admin.salles.validate', salle.id), {}, {
+      onSuccess: () => {
+        showNotification('success', 'Succès', 'Salle validée avec succès !');
+      },
+      onError: () => {
+        showNotification('error', 'Erreur', 'Une erreur est survenue lors de la validation.');
+      }
+    });
   }
 };
 
 const deactivateSalle = (salle) => {
   if (confirm(`Êtes-vous sûr de vouloir désactiver le centre "${salle.nom}" ?`)) {
-    router.post(route('admin.sub-admin.salles.deactivate', salle.id));
+    router.post(route('admin.admin.sub-admin.salles.deactivate', salle.id), {}, {
+      onSuccess: () => {
+        showNotification('success', 'Succès', 'Salle désactivée avec succès !');
+      },
+      onError: () => {
+        showNotification('error', 'Erreur', 'Une erreur est survenue lors de la désactivation.');
+      }
+    });
   }
 };
 
 const toggleSalleStatus = (salle) => {
-  const action = salle.status === 'active' ? 'désactiver' : 'activer';
-  if (confirm(`Êtes-vous sûr de vouloir ${action} le centre "${salle.nom}" ?`)) {
-    router.post(route('admin.sub-admin.salles.toggle-status', salle.id));
+  const action = salle.statut === 'actif' ? 'désactiver' : 'activer';
+  const actionText = salle.statut === 'actif' ? 'désactiver' : 'activer';
+  
+  if (confirm(`Êtes-vous sûr de vouloir ${actionText} le centre "${salle.nom}" ?`)) {
+    router.post(route('admin.admin.sub-admin.salles.toggle-status', salle.id), {}, {
+      onSuccess: () => {
+        showNotification('success', 'Succès', `Centre ${actionText} avec succès !`);
+      },
+      onError: () => {
+        showNotification('error', 'Erreur', `Une erreur est survenue lors de la ${action}.`);
+      }
+    });
   }
 };
 
-const editSalle = (salle) => {
-  // TODO: Implement edit modal or redirect to edit page
-  console.log('Edit salle:', salle);
+const viewSalle = (salle) => {
+  window.location.href = route('admin.admin.sub-admin.salles.show', salle.id);
+};
+
+const sendNotification = (salle) => {
+  if (confirm(`Êtes-vous sûr de vouloir envoyer une notification au promoteur du centre "${salle.nom}" ?`)) {
+    // Simuler l'envoi de notification - à remplacer avec l'appel API réel
+    showNotification('success', 'Notification envoyée', `Une notification a été envoyée au promoteur du centre "${salle.nom}".`);
+  }
 };
 </script>
 
 <template>
-  <Head title="Gestion des Centres" />
-  
-  <div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-      <div class="bg-white dark:bg-slate-850 overflow-hidden shadow-sm sm:rounded-lg">
-        <div class="p-6 bg-white dark:bg-slate-850 border-b border-slate-200 dark:border-slate-800">
+  <div>
+    <Head title="Gestion des Centres" />
+    
+    <div class="space-y-6">
+        <div class="p-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-xl shadow-sm">
           <!-- Breadcrumbs -->
-          <nav class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-6">
-            <Link :href="route('admin.sub-admins.dashboard')" class="hover:text-primary transition-colors">Tableau de bord</Link>
-            <i class="fas fa-chevron-right icon-sm text-slate-300"></i>
-            <span class="text-slate-900 dark:text-white font-medium">Centres</span>
+          <nav class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
+            <Link :href="route('admin.sub-admins.dashboard')" class="hover:text-blue-600 transition-colors">Tableau de bord</Link>
+            <i class="fas fa-chevron-right icon-sm text-gray-300"></i>
+            <span class="text-gray-900 dark:text-white font-medium">Centres</span>
           </nav>
 
           <!-- Page Heading -->
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h2 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Gestion des centres</h2>
-              <p class="text-slate-500 dark:text-slate-400 mt-1">Validez et gérez les centres de loisirs de votre région.</p>
+              <h2 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Gestion des centres</h2>
+              <p class="text-gray-500 dark:text-gray-400 mt-1">Validez et gérez les centres de loisirs de votre région.</p>
             </div>
           </div>
 
           <!-- Stats Cards -->
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-            <div class="bg-white dark:bg-slate-850 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Total centres</p>
-                  <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ stats?.total || 0 }}</p>
+                  <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total centres</p>
+                  <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats?.total || 0 }}</p>
                 </div>
-                <div class="bg-primary/10 p-3 rounded-lg">
-                  <i class="fas fa-store text-primary"></i>
+                <div class="bg-blue-100 p-3 rounded-lg">
+                  <i class="fas fa-store text-blue-600"></i>
                 </div>
               </div>
             </div>
             
-            <div class="bg-white dark:bg-slate-850 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Actifs</p>
+                  <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Actifs</p>
                   <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ stats?.active || 0 }}</p>
                 </div>
                 <div class="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg">
@@ -150,10 +186,10 @@ const editSalle = (salle) => {
               </div>
             </div>
             
-            <div class="bg-white dark:bg-slate-850 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm font-medium text-slate-600 dark:text-slate-400">En attente</p>
+                  <p class="text-sm font-medium text-gray-600 dark:text-gray-400">En attente</p>
                   <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ stats?.pending || 0 }}</p>
                 </div>
                 <div class="bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-lg">
@@ -162,10 +198,10 @@ const editSalle = (salle) => {
               </div>
             </div>
             
-            <div class="bg-white dark:bg-slate-850 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Inactifs</p>
+                  <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Inactifs</p>
                   <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ stats?.inactive || 0 }}</p>
                 </div>
                 <div class="bg-red-100 dark:bg-red-900/30 p-3 rounded-lg">
@@ -176,16 +212,16 @@ const editSalle = (salle) => {
           </div>
 
           <!-- Filters & Controls -->
-          <div class="bg-white dark:bg-slate-850 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between mt-6">
+          <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between mt-6">
             <!-- Search Field -->
             <div class="relative w-full md:max-w-md">
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <i class="fas fa-search text-slate-400 icon-sm"></i>
+                <i class="fas fa-search text-gray-400 icon-sm"></i>
               </div>
               <input
                 v-model="searchQuery"
                 @input="handleSearch"
-                class="block w-full pl-10 pr-3 py-2.5 border border-slate-300 dark:border-slate-700 rounded-lg leading-5 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition-shadow"
+                class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg leading-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 sm:text-sm transition-shadow"
                 placeholder="Rechercher par nom, ville ou promoteur..."
                 type="text"
               />
@@ -197,15 +233,14 @@ const editSalle = (salle) => {
                 <select
                   v-model="statusFilter"
                   @change="handleSearch"
-                  class="block w-full pl-3 pr-10 py-2.5 text-base border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white appearance-none cursor-pointer"
+                  class="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-blue-600 focus:border-blue-600 sm:text-sm rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white appearance-none cursor-pointer"
                 >
                   <option value="">Tous les statuts</option>
-                  <option value="active">Actifs</option>
-                  <option value="pending">En attente</option>
-                  <option value="inactive">Inactifs</option>
+                  <option value="actif">Actifs</option>
+                  <option value="inactif">Inactifs</option>
                   <option value="maintenance">Maintenance</option>
                 </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
                   <i class="fas fa-chevron-down icon-sm"></i>
                 </div>
               </div>
@@ -214,94 +249,65 @@ const editSalle = (salle) => {
         </div>
 
         <!-- Data Table -->
-        <div class="bg-white dark:bg-slate-850 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
           <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-              <thead class="bg-slate-50 dark:bg-slate-900/50">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+              <thead class="bg-gray-50 dark:bg-gray-900/50">
                 <tr>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider" scope="col">ID</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider" scope="col">Centre</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden sm:table-cell" scope="col">Promoteur</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell" scope="col">Localisation</th>
-                  <th class="px-6 py-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider" scope="col">Capacité</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider" scope="col">Statut</th>
-                  <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider" scope="col">Actions</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">ID</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">Centre</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell" scope="col">Promoteur</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden lg:table-cell" scope="col">Localisation</th>
+                  <th class="px-6 py-4 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">Capacité</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">Statut</th>
+                  <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">Actions</th>
                 </tr>
               </thead>
-              <tbody class="bg-white dark:bg-slate-850 divide-y divide-slate-200 dark:divide-slate-800">
-                <tr v-for="salle in filteredSalles" :key="salle.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400 font-mono">#SL-{{ salle.id }}</td>
+              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-800">
+                <tr v-for="salle in filteredSalles" :key="salle.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 font-mono">#SL-{{ salle.id }}</td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
-                      <div class="h-10 w-10 flex-shrink-0 bg-slate-100 dark:bg-slate-700 rounded-lg bg-cover bg-center flex items-center justify-center">
-                        <i class="fas fa-store text-slate-400"></i>
+                      <div class="h-10 w-10 flex-shrink-0 bg-gray-100 dark:bg-gray-700 rounded-lg bg-cover bg-center flex items-center justify-center">
+                        <i class="fas fa-store text-gray-400"></i>
                       </div>
                       <div class="ml-4">
-                        <div class="text-sm font-medium text-slate-900 dark:text-white group-hover:text-primary transition-colors cursor-pointer">{{ salle.nom }}</div>
-                        <div class="text-xs text-slate-500 dark:text-slate-400">{{ salle.type || 'Centre de loisirs' }}</div>
+                        <div class="text-sm font-medium text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors cursor-pointer">{{ salle.nom }}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ salle.type || 'Centre de loisirs' }}</div>
                       </div>
                     </div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-white hidden sm:table-cell">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white hidden sm:table-cell">
                     <div class="flex items-center gap-2">
-                      <div class="size-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                        <i class="fas fa-user text-xs text-slate-600 dark:text-slate-400"></i>
+                      <div class="size-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                        <i class="fas fa-user text-xs text-gray-600 dark:text-gray-400"></i>
                       </div>
                       {{ salle.promoter?.name || 'N/A' }}
                     </div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400 hidden lg:table-cell">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 hidden lg:table-cell">
                     <div class="flex items-center gap-1">
                       <i class="fas fa-map-marker-alt text-xs"></i>
                       {{ salle.ville }}, {{ salle.pays }}
                     </div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-white text-center">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-center">
                     {{ salle.capacite_max || salle.capacite || 'N/A' }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <span :class="getStatusClass(salle.status)" class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
-                      {{ getStatusText(salle.status) }}
+                    <span :class="getStatusClass(salle.statut)" class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
+                      {{ getStatusText(salle.statut) }}
                     </span>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div class="flex items-center justify-end gap-2">
-                      <Link 
-                        :href="route('admin.admin.sub-admin.salles.show', salle.id)"
-                        class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-500 transition-colors p-2" 
-                        title="Voir les détails"
-                      >
-                        <i class="fas fa-eye icon-sm"></i>
-                      </Link>
-                      <button 
-                        @click="editSalle(salle)"
-                        class="text-slate-400 hover:text-amber-600 dark:hover:text-amber-500 transition-colors p-2" 
-                        title="Modifier"
-                      >
-                        <i class="fas fa-edit icon-sm"></i>
-                      </button>
-                      <button 
-                        v-if="salle.status === 'pending'"
-                        @click="validateSalle(salle)"
-                        class="text-slate-400 hover:text-green-600 dark:hover:text-green-500 transition-colors p-2" 
-                        title="Valider"
-                      >
-                        <i class="fas fa-check icon-sm"></i>
-                      </button>
-                      <button 
-                        @click="toggleSalleStatus(salle)"
-                        class="text-slate-400 hover:text-yellow-600 dark:hover:text-yellow-500 transition-colors p-2" 
-                        :title="salle.status === 'active' ? 'Désactiver' : 'Activer'"
-                      >
-                        <i :class="salle.status === 'active' ? 'fas fa-power-off' : 'fas fa-check-circle'"></i>
-                      </button>
-                      <button 
-                        v-if="salle.status === 'active'"
-                        @click="deactivateSalle(salle)"
-                        class="text-slate-400 hover:text-red-600 dark:hover:text-red-500 transition-colors p-2" 
-                        title="Désactiver"
-                      >
+                      <!-- Bouton unique d'activation/désactivation -->
+                      <button v-if="salle.statut === 'actif'" @click="toggleSalleStatus(salle)" class="text-gray-400 hover:text-red-600 dark:hover:text-red-500 transition-colors p-1" title="Désactiver">
                         <i class="fas fa-ban icon-sm"></i>
+                      </button>
+                      
+                      <button v-else @click="toggleSalleStatus(salle)" class="text-gray-400 hover:text-green-600 dark:hover:text-green-500 transition-colors p-1" title="Activer">
+                        <i class="fas fa-check icon-sm"></i>
                       </button>
                     </div>
                   </td>
@@ -312,19 +318,27 @@ const editSalle = (salle) => {
           
           <!-- Empty State -->
           <div v-if="filteredSalles.length === 0" class="text-center py-12">
-            <div class="bg-slate-100 dark:bg-slate-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-store text-slate-400 text-2xl"></i>
+            <div class="bg-gray-100 dark:bg-gray-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-store text-gray-400 text-2xl"></i>
             </div>
-            <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-2">Aucun centre trouvé</h3>
-            <p class="text-slate-500 dark:text-slate-400">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Aucun centre trouvé</h3>
+            <p class="text-gray-500 dark:text-gray-400">
               {{ searchQuery ? 'Aucun centre ne correspond à votre recherche' : 'Aucun centre dans votre région' }}
             </p>
           </div>
         </div>
       </div>
-    </div>
   </div>
 </template>
+
+<!-- Notification Modal -->
+<NotificationModal
+  :show="showNotificationModal"
+  :type="notificationType"
+  :title="notificationTitle"
+  :message="notificationMessage"
+  @close="showNotificationModal = false"
+/>
 
 <style scoped>
 .icon-sm {
