@@ -1,24 +1,13 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WelcomeController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    $news = \App\Models\News::where('is_active', true)
-        ->orderBy('created_at', 'desc')
-        ->take(9)
-        ->get();
-    
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => app()->version(),
-        'phpVersion' => PHP_VERSION,
-        'news' => $news
-    ]);
-})->name('welcome');
+Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
+Route::get('/search', [WelcomeController::class, 'search'])->name('search');
 
 // Route pour la connexion admin
 Route::get('/admin/login', function () {
@@ -260,11 +249,9 @@ Route::middleware('auth')->group(function () {
 // Routes publiques pour les événements
 Route::get('/events', [App\Http\Controllers\Public\EventController::class, 'index'])->name('events');
 Route::get('/events/{event}', [App\Http\Controllers\Public\EventController::class, 'show'])->name('events.show');
+Route::get('/salles/{salle}', [App\Http\Controllers\Public\SalleController::class, 'show'])->name('public.salles.show');
 Route::middleware('auth')->post('/events/{event}/register', [App\Http\Controllers\Public\EventController::class, 'register'])->name('events.register');
 
-// Routes publiques pour les salles
-Route::get('/salles', [App\Http\Controllers\Public\SalleController::class, 'index'])->name('public.salles');
-Route::get('/salles/{salle}', [App\Http\Controllers\Public\SalleController::class, 'show'])->name('public.salles.show');
 
 // Routes pour la recherche de salles
 Route::get('/search/rooms', [App\Http\Controllers\Search\RoomController::class, 'index'])->name('search.rooms');

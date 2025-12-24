@@ -5,7 +5,8 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import MainNavbar from '@/Components/MainNavbar.vue';
+import LightNavbar from '@/Components/LightNavbar.vue';
+import MainFooter from '@/Components/MainFooter.vue';
 
 const props = defineProps({
     availableRoles: Object,
@@ -30,41 +31,20 @@ const submit = () => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-50">
+    <div class="min-h-screen bg-white text-soft-black font-display antialiased selection:bg-primary/20 selection:text-primary">
+        <!-- Navigation -->
+        <LightNavbar />
+        
         <!-- Add Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-        <!-- TopNavBar -->
-        <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center backdrop-blur-sm shadow-sm bg-white/90">
-          <div class="flex items-center justify-between w-full max-w-7xl px-6 py-3">
-            <div class="flex items-center gap-8">
-              <div class="flex items-center gap-2 text-gray-800">
-                <i class="fas fa-gamepad text-3xl text-gray-400"></i>
-                <h2 class="text-gray-800 text-2xl font-display font-bold">GameOn</h2>
-              </div>
-              <nav class="hidden md:flex space-x-8">
-                <a href="/" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Accueil</a>
-                <a href="/search/rooms" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Salles</a>
-                <a href="/events" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Événements</a>
-              </nav>
-            </div>
-            <div class="flex items-center gap-3">
-              <a href="/login" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-200 text-gray-800 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 transition-colors">
-                <span class="truncate">Connexion</span>
-              </a>
-              <a :href="form.ref ? ('/register?ref=' + form.ref) : '/register'" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-800 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-700 transition-all">
-                <span class="truncate">S'inscrire</span>
-              </a>
-            </div>
-          </div>
-        </header>
 
-        <div class="relative flex min-h-screen w-full flex-col lg:flex-row pt-16">
+        <div class="relative flex min-h-screen w-full flex-col lg:flex-row pt-20">
             <!-- Côté gauche - Formulaire -->
             <div class="flex flex-1 items-center justify-center p-4 lg:p-8">
                 <div class="w-full max-w-md space-y-8 animate-fade-in-up">
                     <header>
-                        <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-gray-800">Créer un compte</h1>
-                        <p class="mt-2 text-gray-600">Rejoignez notre communauté de joueurs passionnés</p>
+                        <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-soft-black">Créer un compte</h1>
+                        <p class="mt-2 text-medium-grey">Rejoignez notre communauté de joueurs passionnés</p>
                     </header>
 
                     <div v-if="form.ref" class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
@@ -74,14 +54,14 @@ const submit = () => {
                     <form @submit.prevent="submit" class="space-y-6">
                         <!-- Nom complet -->
                         <div>
-                            <label class="text-sm font-medium text-gray-800" for="name">
+                            <label class="text-sm font-medium text-soft-black" for="name">
                                 Nom complet<span class="text-red-500">*</span>
                             </label>
                             <div class="mt-2">
                                 <input
                                     id="name"
                                     type="text"
-                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-white border border-gray-300 text-gray-800 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 h-12 px-4 text-base transition-colors"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-white border border-gray-300 text-soft-black placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 h-12 px-4 text-base transition-colors"
                                     placeholder="John Doe"
                                     v-model="form.name"
                                     required
@@ -94,14 +74,14 @@ const submit = () => {
 
                         <!-- Email -->
                         <div>
-                            <label class="text-sm font-medium text-gray-800" for="email">
+                            <label class="text-sm font-medium text-soft-black" for="email">
                                 Email<span class="text-red-500">*</span>
                             </label>
                             <div class="mt-2">
                                 <input
                                     id="email"
                                     type="email"
-                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-white border border-gray-300 text-gray-800 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 h-12 px-4 text-base transition-colors"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-white border border-gray-300 text-soft-black placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 h-12 px-4 text-base transition-colors"
                                     placeholder="vous@exemple.com"
                                     v-model="form.email"
                                     required
@@ -113,14 +93,14 @@ const submit = () => {
 
                         <!-- Mot de passe -->
                         <div>
-                            <label class="text-sm font-medium text-gray-800" for="password">
+                            <label class="text-sm font-medium text-soft-black" for="password">
                                 Mot de passe<span class="text-red-500">*</span>
                             </label>
                             <div class="mt-2">
                                 <input
                                     id="password"
                                     type="password"
-                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-white border border-gray-300 text-gray-800 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 h-12 px-4 text-base transition-colors"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-white border border-gray-300 text-soft-black placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 h-12 px-4 text-base transition-colors"
                                     placeholder="••••••••"
                                     v-model="form.password"
                                     required
@@ -132,14 +112,14 @@ const submit = () => {
 
                         <!-- Confirmation mot de passe -->
                         <div>
-                            <label class="text-sm font-medium text-gray-800" for="password_confirmation">
+                            <label class="text-sm font-medium text-soft-black" for="password_confirmation">
                                 Confirmer le mot de passe<span class="text-red-500">*</span>
                             </label>
                             <div class="mt-2">
                                 <input
                                     id="password_confirmation"
                                     type="password"
-                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-white border border-gray-300 text-gray-800 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 h-12 px-4 text-base transition-colors"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-white border border-gray-300 text-soft-black placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 h-12 px-4 text-base transition-colors"
                                     placeholder="••••••••"
                                     v-model="form.password_confirmation"
                                     required
@@ -151,7 +131,7 @@ const submit = () => {
 
                         <!-- Sélection du rôle -->
                         <div class="space-y-4 pt-2">
-                            <h3 class="text-center text-gray-800">Je m'inscris en tant que</h3>
+                            <h3 class="text-center text-soft-black">Je m'inscris en tant que</h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div class="group relative cursor-pointer">
                                     <input 
@@ -173,8 +153,8 @@ const submit = () => {
                                         ]"
                                     >
                                         <i class="fas fa-user text-4xl text-blue-500"></i>
-                                        <span class="mt-2 font-semibold text-gray-800">Client</span>
-                                        <span class="text-sm text-gray-600 text-center">Je veux réserver des salles</span>
+                                        <span class="mt-2 font-semibold text-soft-black">Client</span>
+                                        <span class="text-sm text-medium-grey text-center">Je veux réserver des salles</span>
                                     </label>
                                 </div>
                                 <div class="group relative cursor-pointer">
@@ -196,8 +176,8 @@ const submit = () => {
                                         ]"
                                     >
                                         <i class="fas fa-store text-4xl text-blue-500"></i>
-                                        <span class="mt-2 font-semibold text-gray-800">Promoteur</span>
-                                        <span class="text-sm text-gray-600 text-center">Je veux proposer des salles</span>
+                                        <span class="mt-2 font-semibold text-soft-black">Promoteur</span>
+                                        <span class="text-sm text-medium-grey text-center">Je veux proposer des salles</span>
                                     </label>
                                 </div>
                             </div>
@@ -225,7 +205,7 @@ const submit = () => {
                     </form>
 
                     <div class="text-center">
-                        <p class="text-sm text-gray-600">
+                        <p class="text-sm text-medium-grey">
                             Déjà inscrit ?
                             <Link :href="route('login')" class="font-medium text-blue-600 hover:underline transition-colors">
                                 Se connecter
@@ -246,6 +226,9 @@ const submit = () => {
                 </div>
             </div>
         </div>
+        
+        <!-- Footer -->
+        <MainFooter />
     </div>
 </template>
 

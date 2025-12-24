@@ -19,7 +19,7 @@ public function run()
         UserSeeder::class,
         RolePermissionSeeder::class,
         SalleSeeder::class,
-        EventSeeder::class,
+        AllEventTypesSeeder::class,
     ]);
 }
 }

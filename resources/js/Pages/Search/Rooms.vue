@@ -1,379 +1,259 @@
 <template>
-  <div class="min-h-screen text-gray-800 font-body">
-    <!-- TopNavBar -->
-    <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center backdrop-blur-sm shadow-sm bg-white/90">
-      <div class="flex items-center justify-between w-full max-w-7xl px-6 py-3">
-        <div class="flex items-center gap-8">
-          <div class="flex items-center gap-2 text-gray-800">
-            <i class="fas fa-gamepad text-3xl text-gray-400"></i>
-            <h2 class="text-gray-800 text-2xl font-display font-bold">GameOn</h2>
-          </div>
-          <nav class="hidden md:flex space-x-8">
-            <a href="/" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Accueil</a>
-            <a href="/search/rooms" class="text-blue-600 hover:text-blue-700 px-3 py-2 text-sm font-medium border-b-2 border-blue-600">Salles</a>
-            <a href="/events" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Événements</a>
-          </nav>
-        </div>
-        <div class="flex items-center gap-3">
-          <a href="/login" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-200 text-gray-800 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 transition-colors">
-            <span class="truncate">Connexion</span>
-          </a>
-          <a href="/register" class="flex min-w-[84px] items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gray-800 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-700 transition-all">
-            <span class="truncate">S'inscrire</span>
-          </a>
-        </div>
+  <div class="min-h-screen bg-white font-display antialiased selection:bg-primary/20 selection:text-primary">
+    <!-- Navigation -->
+    <MainNavbar />
+
+    <!-- Hero Section with Search -->
+    <section class="relative min-h-[500px] sm:min-h-[600px] pt-16 sm:pt-20 overflow-hidden">
+      <!-- Background Image with Overlay -->
+      <div class="absolute inset-0">
+        <img 
+          src="https://picsum.photos/seed/gaming-room-search/1920/800.jpg" 
+          alt="Gaming Room Background"
+          class="w-full h-full object-cover"
+        />
+        <div class="absolute inset-0 bg-gradient-to-br from-primary/90 via-blue-600/80 to-indigo-700/90"></div>
       </div>
-    </header>
-
-    <!-- Search Section -->
-    <section class="relative min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-20">
-      <!-- Overlay gradient pour la lisibilité -->
-      <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-white/60 z-5"></div>
       
-      <div class="relative z-10 max-w-4xl mx-auto px-4 py-12">
-          <!-- Bouton Retour -->
-          <div class="mb-6">
-            <a href="/" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors group">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
-              </svg>
-              <span class="text-lg text-gray-800">Retour à l'accueil</span>
-            </a>
-          </div>
-
-          <!-- Search Header -->
-          <div class="text-center mb-8 animate-fade-in-up">
-            <h1 class="text-gray-800 text-3xl sm:text-4xl md:text-5xl font-display font-bold leading-tight tracking-tighter mb-4">
-              Trouver une salle près de chez vous
-            </h1>
-            <p class="text-gray-600 text-lg font-normal leading-normal">
-              Entrez votre localisation pour découvrir les centres de loisirs disponibles
-            </p>
-          </div>
-
-        <!-- Search Form -->
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-600/20 animate-fade-in-up delay-200">
-          <div class="space-y-6">
-            <!-- Location Input -->
-            <div>
-              <label class="block text-gray-800 text-sm font-medium mb-2">
-                <svg class="w-4 h-4 mr-2 inline text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                </svg>
-                Votre localisation
-              </label>
-              <div class="flex gap-3">
-                <div class="flex-1">
-                  <input 
-                    v-model="searchQuery"
-                    type="text" 
-                    class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
-                    placeholder="Ville, code postal ou adresse..."
-                    @keyup.enter="searchRooms"
-                  />
-                </div>
+      <!-- Background Pattern -->
+      <div class="absolute inset-0 opacity-20">
+        <div class="absolute top-10 left-10 w-32 h-32 bg-white rounded-full blur-3xl"></div>
+        <div class="absolute top-1/2 right-20 w-40 h-40 bg-white rounded-full blur-3xl"></div>
+        <div class="absolute bottom-20 left-1/3 w-36 h-36 bg-white rounded-full blur-3xl"></div>
+      </div>
+      
+      <div class="relative z-10 max-w-[1320px] mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        <div class="text-center mb-12">
+          <h1 class="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] mb-4 sm:mb-6">
+            Trouvez votre salle<br/>de gaming parfaite
+          </h1>
+          <p class="text-white/80 text-lg md:text-xl font-normal leading-relaxed max-w-2xl mx-auto">
+            Découvrez les meilleures salles de gaming près de chez vous avec nos filtres avancés
+          </p>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="max-w-3xl mx-auto mb-8 sm:mb-12">
+          <div class="bg-white rounded-2xl shadow-2xl p-2">
+            <div class="flex flex-col md:flex-row gap-2">
+              <div class="flex-1 flex items-center px-4 py-3">
+                <span class="material-symbols-outlined text-2xl sm:text-3xl text-primary">search</span>
+                <input 
+                  v-model="searchQuery"
+                  type="text" 
+                  class="w-full text-soft-black placeholder-gray-500 outline-none text-sm"
+                  placeholder="Ville, code postal, ou adresse..."
+                  @keyup.enter="searchRooms"
+                />
+              </div>
+              <div class="flex gap-2">
                 <button 
                   @click="getCurrentLocation"
-                  class="px-4 py-3 bg-gray-200 text-gray-800 rounded-xl hover:bg-gray-300 transition-all duration-300"
+                  class="px-6 py-3 bg-gray-100 text-soft-black rounded-xl hover:bg-gray-200 transition-all duration-300 flex items-center gap-2"
                   title="Utiliser ma position actuelle"
                 >
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                  </svg>
+                  <span class="material-symbols-outlined">location_on</span>
+                  <span class="hidden sm:inline">Ma position</span>
+                </button>
+                <button 
+                  @click="searchRooms"
+                  class="px-8 py-3 bg-primary text-white rounded-xl hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 shadow-lg"
+                >
+                  <span class="material-symbols-outlined">search</span>
+                  Rechercher
                 </button>
               </div>
             </div>
-
-            <!-- Search Button -->
-            <button 
-              @click="searchRooms"
-              class="w-full py-4 bg-blue-600 text-white text-lg font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg flex items-center justify-center"
-            >
-              <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
-              </svg>
-              Rechercher des salles
-            </button>
           </div>
         </div>
-
         
-        <!-- Results -->
-        <!-- Results from geolocation -->
-        <div class="mt-8 animate-fade-in-up delay-400">
-          <h2 class="text-gray-800 text-2xl font-bold mb-6">
-            {{ searchResults.length }} salle{{ searchResults.length > 1 ? 's' : '' }} trouvée{{ searchResults.length > 1 ? 's' : '' }} près de vous
-          </h2>
-          
-          <div v-if="searchResults.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div 
-              v-for="salle in searchResults" 
-              :key="salle.id"
-              class="bg-white/90 backdrop-blur-sm rounded-xl p-6 border border-gray-200 hover:border-gray-300 transition-all duration-300 group"
-            >
-              <!-- Image -->
-              <div class="h-48 bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg mb-4 overflow-hidden">
-                <img 
-                  v-if="salle.image_url"
-                  :src="salle.image_url" 
-                  :alt="salle.nom"
-                  class="w-full h-full object-cover"
-                >
-                <div v-else class="w-full h-full flex items-center justify-center text-gray-500">
-                  <i class="fas fa-gamepad text-4xl text-gray-400"></i>
-                </div>
-              </div>
-
-              <div class="space-y-3">
-                <div class="flex items-center justify-between">
-                  <h3 class="text-gray-800 text-lg font-bold">{{ salle.nom }}</h3>
-                  <div v-if="salle.distance" class="flex items-center gap-1 bg-blue-100 px-2 py-1 rounded-full">
-                    <i class="fas fa-location-dot text-blue-600 text-xs"></i>
-                    <span class="text-blue-600 text-sm font-semibold">{{ salle.distance }} km</span>
-                  </div>
-                  <div v-else class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-full">
-                    <i class="fas fa-map-pin text-gray-600 text-xs"></i>
-                    <span class="text-gray-600 text-sm font-semibold">Localisation approx.</span>
-                  </div>
-                </div>
-                
-                <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                  <i class="fas fa-map-marker-alt text-gray-400"></i>
-                  <span class="text-gray-800">{{ salle.adresse }}</span>
-                </div>
-
-                <div class="flex items-center justify-between mb-2">
-                  <p class="text-lg font-bold text-blue-600">{{ formatPrice(salle.prix_heure) }}</p>
-                  <span class="text-sm text-gray-600">/heure</span>
-                </div>
-
-                <div class="grid grid-cols-1 gap-2 text-sm text-gray-600">
-                  <div class="flex items-center gap-1">
-                    <i class="fas fa-users text-gray-400"></i>
-                    <span class="font-semibold text-gray-800">{{ salle.capacite }} personnes</span>
-                  </div>
-                  <div class="flex items-center gap-1">
-                    <i class="fas fa-wifi text-gray-400"></i>
-                    <span>WiFi disponible</span>
-                  </div>
-                </div>
-
-                <div class="flex gap-2 pt-2">
-                  <Link 
-                    :href="`/salles/${salle.id}`"
-                    class="flex-1 py-2 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors text-center"
-                  >
-                    Voir détails
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Empty state -->
-        <div v-if="!isLoading && searchResults.length === 0" class="mt-8 text-center">
-          <div class="bg-white/90 backdrop-blur-sm rounded-xl p-8 border border-gray-200">
-            <i class="fas fa-map-location-dot text-4xl text-gray-400 mb-4"></i>
-            <h3 class="text-gray-800 text-lg font-bold mb-2">Aucune salle trouvée</h3>
-            <p class="text-gray-600 mb-4">Cliquez sur le bouton de localisation pour trouver les salles près de vous</p>
-            <button 
-              @click="getCurrentLocation"
-              class="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
-            >
-              <i class="fas fa-location-crosshairs"></i>
-              <span>DéTECTER MA POSITION</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Loading state -->
-        <div v-if="isLoading" class="mt-8 text-center">
-          <div class="bg-white/90 backdrop-blur-sm rounded-xl p-8 border border-gray-200">
-            <i class="fas fa-spinner fa-spin text-3xl text-blue-600 mb-4"></i>
-            <h3 class="text-gray-800 text-lg font-bold mb-2">Recherche en cours...</h3>
-            <p class="text-gray-600">Détection de votre position et recherche des salles nearby</p>
-          </div>
-        </div>
-
-        <!-- Original Results -->
-        <div v-if="salles.data.length > 0" class="mt-8">
-          <h2 class="text-gray-800 text-2xl font-bold mb-6">
-            {{ salles.total }} salle{{ salles.total > 1 ? 's' : '' }} disponible{{ salles.total > 1 ? 's' : '' }}
-          </h2>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div 
-              v-for="salle in salles.data" 
-              :key="salle.id"
-              class="bg-white/90 backdrop-blur-sm rounded-xl p-6 border border-gray-200 hover:border-gray-300 transition-all duration-300 group"
-            >
-              <!-- Image -->
-              <div class="h-48 bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg mb-4 overflow-hidden">
-                <img 
-                  v-if="salle.image_url"
-                  :src="salle.image_url.startsWith('http') ? salle.image_url : `/storage/${salle.image_url}`" 
-                  :alt="salle.nom"
-                  class="w-full h-full object-cover"
-                >
-                <div v-else class="w-full h-full flex items-center justify-center text-gray-500">
-                  <i class="fas fa-gamepad text-4xl text-gray-400"></i>
-                </div>
-              </div>
-
-              <div class="space-y-3">
-                <div class="flex items-center justify-between">
-                  <h3 class="text-gray-800 text-lg font-bold">{{ salle.nom }}</h3>
-                  <div v-if="salle.distance" class="flex items-center gap-1 bg-blue-100 px-2 py-1 rounded-full">
-                    <i class="fas fa-location-dot text-blue-600 text-xs"></i>
-                    <span class="text-blue-600 text-sm font-semibold">{{ salle.distance }} km</span>
-                  </div>
-                  <div v-else class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-full">
-                    <i class="fas fa-map-pin text-gray-600 text-xs"></i>
-                    <span class="text-gray-600 text-sm font-semibold">Localisation approx.</span>
-                  </div>
-                </div>
-                
-                <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                  <i class="fas fa-map-marker-alt text-gray-400"></i>
-                  <span class="text-gray-800">{{ salle.adresse || salle.ville }}</span>
-                </div>
-
-                <div class="flex items-center justify-between mb-2">
-                  <p class="text-lg font-bold text-blue-600">{{ formatPrice(salle.prix_heure) }}</p>
-                  <span class="text-sm text-gray-600">/heure</span>
-                </div>
-
-                <div class="grid grid-cols-1 gap-2 text-sm text-gray-600">
-                  <div class="flex items-center gap-1">
-                    <i class="fas fa-users text-gray-400"></i>
-                    <span class="font-semibold text-gray-800">{{ salle.capacite }} personnes</span>
-                  </div>
-                  <div class="flex items-center gap-1">
-                    <i class="fas fa-wifi text-gray-400"></i>
-                    <span>WiFi disponible</span>
-                  </div>
-                </div>
-
-                <p class="text-gray-600 text-sm mb-4">{{ salle.description }}</p>
-
-                <div class="flex gap-2 pt-2">
-                  <Link 
-                    :href="`/salles/${salle.id}`"
-                    class="flex-1 py-2 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors text-center"
-                  >
-                    Voir détails
-                  </Link>
-                  <Link 
-                    href="/login"
-                    class="flex-1 py-2 border border-gray-500 text-gray-400 rounded-xl hover:bg-gray-500/10 transition-colors text-center"
-                  >
-                    Réserver
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Pagination -->
-          <div v-if="salles.links && salles.links.length > 3" class="mt-8">
-            <div class="flex justify-center">
-              <div class="flex gap-2">
-                <template v-for="link in salles.links" :key="link.label">
-                  <Link 
-                    v-if="link.url && link.label !== '...' "
-                    :href="link.url"
-                    v-html="link.label"
-                    :class="[
-                      'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                      link.active 
-                        ? 'bg-gray-600 text-white' 
-                        : 'bg-[#1c1c27] text-gray-300 hover:bg-gray-600 border border-gray-600'
-                    ]"
-                  />
-                  <span 
-                    v-else-if="link.label === '...'"
-                    class="px-4 py-2 text-gray-500"
-                  >
-                    ...
-                  </span>
-                </template>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- No Results -->
-        <div v-else class="mt-8 text-center py-12">
-          <i class="fas fa-search text-6xl text-gray-500 mb-4"></i>
-          <h3 class="text-gray-800 text-xl font-bold mb-2">Aucune salle trouvée pour votre recherche.</h3>
-          <p class="text-gray-400">
-            Essayez de modifier vos critères de recherche
-          </p>
+        <!-- Quick Filters -->
+        <div class="flex flex-wrap justify-center gap-2 sm:gap-3">
+          <button 
+            v-for="city in popularCities" 
+            :key="city"
+            @click="searchByCity(city)"
+            class="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border border-white/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all"
+          >
+            {{ city }}
+          </button>
         </div>
       </div>
     </section>
+
+    <!-- Results Section -->
+    <section class="py-12 sm:py-16 bg-gray-50">
+      <div class="max-w-[1320px] mx-auto px-6 py-16">
+        <!-- Loading State -->
+        <div v-if="isLoading" class="text-center py-20">
+          <div class="inline-flex items-center gap-3">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <span class="text-soft-black text-lg">Recherche en cours...</span>
+          </div>
+        </div>
+
+        <!-- Search Results -->
+        <div v-else-if="hasResults">
+          <!-- Results Header -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div>
+              <h2 class="text-soft-black text-3xl font-bold tracking-tight mb-2">
+                {{ totalResults }} salle{{ totalResults > 1 ? 's' : '' }} trouvée{{ totalResults > 1 ? 's' : '' }}
+              </h2>
+              <p class="text-sm sm:text-base text-medium-grey">
+                {{ searchQuery ? `Résultats pour "${searchQuery}"` : 'Toutes les salles disponibles' }}
+              </p>
+            </div>
+            
+            <!-- Sort Dropdown -->
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-3">
+                <select class="bg-white border border-gray-200 rounded-lg px-3 sm:px-4 py-2 text-sm sm:text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                  <option>Trier par pertinence</option>
+                  <option>Prix croissant</option>
+                  <option>Prix décroissant</option>
+                  <option>Distance</option>
+                  <option>Note</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Results Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div 
+              v-for="salle in allRooms" 
+              :key="salle.id"
+              class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 group cursor-pointer"
+              @click="viewRoom(salle)"
+            >
+              <!-- Image -->
+              <div class="relative h-48 sm:h-56 overflow-hidden">
+                <img 
+                  :src="salle.image || 'https://picsum.photos/seed/room-' + salle.id + '/400/300.jpg'"
+                  :alt="salle.nom"
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                
+                <!-- Distance Badge -->
+                <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full flex items-center gap-1">
+                  <span class="material-symbols-outlined text-xs sm:text-sm text-primary">location_on</span>
+                  <span class="text-xs sm:text-sm font-medium text-gray-900">{{ salle.distance || '2.5' }} km</span>
+                </div>
+              </div>
+
+              <!-- Content -->
+              <div class="p-4 sm:p-6">
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex-1">
+                    <h3 class="text-lg sm:text-xl font-bold text-soft-black mb-2 group-hover:text-primary transition-colors">
+                      {{ salle.nom }}
+                    </h3>
+                    <div class="flex items-center gap-2 text-medium-grey text-sm mb-3">
+                      <span class="material-symbols-outlined text-[16px]">location_on</span>
+                      <span>{{ salle.ville }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Description -->
+                <p v-if="salle.description" class="text-medium-grey text-sm mb-4 line-clamp-2">
+                  {{ salle.description }}
+                </p>
+
+                <!-- Features -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                  <span v-if="salle.capacite_max" class="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium">
+                    {{ salle.capacite_max }} personnes
+                  </span>
+                  <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium">
+                    WiFi
+                  </span>
+                  <span v-if="salle.parking" class="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium">
+                    Parking
+                  </span>
+                </div>
+
+                <!-- Price and Action -->
+                <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <div>
+                    <div class="text-2xl sm:text-3xl font-bold text-soft-black mb-1">
+                      {{ formatPrice(salle.prix_heure) }}
+                    </div>
+                    <div class="text-medium-grey text-sm">/heure</div>
+                  </div>
+                  <div class="flex gap-2">
+                    <button 
+                      @click="viewRoom(salle)"
+                      class="px-4 py-2 border border-gray-200 text-soft-black rounded-xl hover:border-primary hover:text-primary transition-all text-sm font-semibold"
+                    >
+                      Détails
+                    </button>
+                    <button 
+                      @click="reserveRoom(salle)"
+                      class="px-4 py-2 bg-primary text-white rounded-xl hover:bg-blue-600 transition-all text-sm font-semibold"
+                    >
+                      Réserver
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Load More -->
+          <div v-if="hasMoreResults" class="text-center mt-8 sm:mt-12">
+            <button 
+              @click="loadMore"
+              class="bg-white hover:bg-gray-50 border border-gray-200 text-gray-900 px-6 sm:px-8 py-3 rounded-full text-sm sm:text-base font-medium transition-all"
+            >
+              Charger plus de résultats
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div v-else class="text-center py-20">
+          <div class="max-w-md mx-auto">
+            <div class="size-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <span class="material-symbols-outlined text-[40px] text-gray-400">search_off</span>
+            </div>
+            <h3 class="text-soft-black text-2xl font-bold mb-3">Aucune salle trouvée</h3>
+            <p class="text-medium-grey text-lg mb-8">
+              Essayez avec d'autres critères de recherche ou utilisez votre position actuelle
+            </p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+              <button 
+                @click="getCurrentLocation"
+                class="p-2 sm:p-2.5 hover:bg-gray-100 rounded-full transition-colors"
+                title="Utiliser ma position"
+              >
+                <span class="material-symbols-outlined text-xl sm:text-2xl text-primary">location_on</span>
+              </button>
+              <button 
+                @click="searchRooms"
+                class="bg-primary hover:bg-blue-600 text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-full font-bold text-sm sm:text-base transition-all shadow-lg shadow-primary/20"
+              >
+                Rechercher
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <MainFooter />
   </div>
 </template>
 
-<style scoped>
-/* Page Animations */
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slide-in-left {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.animate-fade-in-up {
-  animation: fade-in-up 0.8s ease-out forwards;
-  opacity: 0;
-}
-
-.animate-fade-in {
-  animation: fade-in 0.6s ease-out forwards;
-  opacity: 0;
-}
-
-.animate-slide-in-left {
-  animation: slide-in-left 0.8s ease-out forwards;
-  opacity: 0;
-}
-
-.delay-200 { animation-delay: 0.2s; }
-.delay-400 { animation-delay: 0.4s; }
-.delay-600 { animation-delay: 0.6s; }
-</style>
-
 <script setup>
+  // ...
+import { ref, computed, onMounted } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
 import axios from 'axios';
-import NotificationModal from '../../Components/NotificationModal.vue';
+import MainNavbar from '@/Components/MainNavbar.vue';
+import MainFooter from '@/Components/MainFooter.vue';
 
 const props = defineProps({
     salles: Object,
@@ -381,21 +261,35 @@ const props = defineProps({
     filters: Object
 });
 
-// États pour les modaux
-const showNotificationModal = ref(false);
-const notificationType = ref('error');
-const notificationTitle = ref('');
-const notificationMessage = ref('');
+// Reactive data
+const searchQuery = ref(props.filters?.search || '');
+const isLoading = ref(false);
+const searchResults = ref([]);
+const allRooms = ref([]);
+const isMobileMenuOpen = ref(false);
 
-const form = ref({
-    search: props.filters.search || '',
-    ville: props.filters.ville || '',
-    capacite_min: props.filters.capacite_min || ''
+// État d'authentification (à implémenter avec votre système d'auth)
+const authUser = ref(null);
+
+// Popular cities for quick filters
+const popularCities = ref([]);
+
+// Computed properties
+const totalResults = computed(() => {
+    return allRooms.value.length;
 });
 
+const hasResults = computed(() => {
+    return allRooms.value.length > 0;
+});
 
-// Formater le prix
+const hasMoreResults = computed(() => {
+    return false; // À implémenter avec la pagination
+});
+
+// Methods
 const formatPrice = (prix) => {
+    if (!prix) return 'Gratuit';
     return new Intl.NumberFormat('fr-FR', {
         style: 'currency',
         currency: 'XOF',
@@ -403,127 +297,183 @@ const formatPrice = (prix) => {
     }).format(prix);
 };
 
-// Formater la capacité
-const formatCapacity = (capacite) => {
-    return new Intl.NumberFormat('fr-FR').format(capacite);
-};
-
-// Watch pour les changements de filtres
-watch(form, (newFilters) => {
-    const params = new URLSearchParams();
-    
-    if (newFilters.search) params.append('search', newFilters.search);
-    if (newFilters.ville) params.append('ville', newFilters.ville);
-    if (newFilters.capacite_min) params.append('capacite_min', newFilters.capacite_min);
-    
-    window.location.href = `/search/rooms?${params.toString()}`;
-}, { deep: true });
-
-// Fonctions existantes pour la compatibilité
-const searchQuery = ref('');
-const isLoading = ref(false);
-const searchResults = ref([]);
-
 const getCurrentLocation = () => {
     if (navigator.geolocation) {
+        isLoading.value = true;
         navigator.geolocation.getCurrentPosition(
             (position) => {
-                searchQuery.value = `${position.coords.latitude}, ${position.coords.longitude}`;
                 searchNearbyRooms(position.coords.latitude, position.coords.longitude);
             },
             (error) => {
-                notificationType.value = 'error';
-                notificationTitle.value = 'Erreur de géolocalisation';
-                notificationMessage.value = 'Impossible d\'obtenir votre position. Veuillez entrer votre adresse manuellement.';
-                showNotificationModal.value = true;
+                console.error('Erreur de géolocalisation:', error);
+                isLoading.value = false;
+                // Fallback: utiliser une recherche par défaut
+                searchRooms();
             }
         );
     } else {
-        notificationType.value = 'error';
-        notificationTitle.value = 'Erreur de géolocalisation';
-        notificationMessage.value = 'La géolocalisation n\'est pas supportée par votre navigateur.';
-        showNotificationModal.value = true;
+        console.error('Géolocalisation non supportée');
+        searchRooms();
     }
 };
 
 const searchNearbyRooms = async (lat, lng) => {
-    isLoading.value = true;
-    
     try {
-        // Appel API pour récupérer les salles depuis la base de données
         const response = await axios.get('/api/search/nearby', {
             params: {
                 lat: lat,
                 lng: lng,
-                radius: 50 // rayon de 50km par défaut
+                radius: 50
             }
         });
         
-        searchResults.value = response.data.salles;
-        
-        if (response.data.salles.length === 0) {
-            // Aucune salle trouvée dans un rayon de 50km
-        }
+        allRooms.value = response.data.salles || [];
+        searchResults.value = response.data.salles || [];
     } catch (error) {
-        searchResults.value = [];
-        
-        // Message d'erreur plus convivial
-        if (error.response && error.response.status === 422) {
-            notificationType.value = 'error';
-            notificationTitle.value = 'Erreur de recherche';
-            notificationMessage.value = 'Coordonnées invalides. Veuillez réessayer.';
-            showNotificationModal.value = true;
-        } else {
-            notificationType.value = 'error';
-            notificationTitle.value = 'Erreur de recherche';
-            notificationMessage.value = 'Erreur lors de la recherche des salles. Veuillez réessayer plus tard.';
-            showNotificationModal.value = true;
-        }
+        console.error('Erreur recherche nearby:', error);
+        // Fallback: utiliser les salles existantes
+        loadExistingRooms();
     } finally {
         isLoading.value = false;
     }
 };
 
-const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Rayon de la Terre en km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-        Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    const distance = R * c;
-    
-    return Math.round(distance * 10) / 10; // Arrondir à 1 décimale
-};
-
 const searchRooms = async () => {
-    if (searchQuery.value) {
-        // Si la requête contient des coordonnées (lat, lng)
-        const coords = searchQuery.value.split(',').map(s => s.trim());
-        if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
-            await searchNearbyRooms(parseFloat(coords[0]), parseFloat(coords[1]));
-        } else {
-            // Sinon, recherche par texte via les filtres existants
-            form.value.search = searchQuery.value;
-        }
+    if (!searchQuery.value.trim()) {
+        loadExistingRooms();
+        return;
+    }
+    
+    isLoading.value = true;
+    
+    try {
+        // Simuler une recherche - en production, utiliser une vraie API
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Filtrer les salles existantes selon la recherche
+        const filtered = props.salles?.data?.filter(salle => 
+            salle.nom.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            salle.ville.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            salle.description?.toLowerCase().includes(searchQuery.value.toLowerCase())
+        ) || [];
+        
+        allRooms.value = filtered;
+        
+        // Update URL with search parameters
+        const url = new URL(window.location);
+        url.searchParams.set('search', searchQuery.value);
+        window.history.replaceState({}, '', url);
+        
+    } catch (error) {
+        console.error('Erreur recherche:', error);
+        loadExistingRooms();
+    } finally {
+        isLoading.value = false;
     }
 };
+
+const searchByCity = (city) => {
+    searchQuery.value = city;
+    searchRooms();
+};
+
+const loadExistingRooms = () => {
+    // Utiliser les salles existantes depuis les props
+    allRooms.value = props.salles?.data || [];
+};
+
+const resetSearch = () => {
+    searchQuery.value = '';
+    loadExistingRooms();
+    // Reset URL parameters
+    const url = new URL(window.location);
+    url.searchParams.delete('search');
+    url.searchParams.delete('ville');
+    url.searchParams.delete('capacite_min');
+    window.history.replaceState({}, '', url);
+    // Rechercher les salles existantes
+    searchRooms();
+};
+
+const viewRoom = (salle) => {
+    // Naviguer vers la page de détails de la salle
+    window.location.href = `/salles/${salle.id}`;
+};
+
+const reserveRoom = (salle) => {
+  // Vérifier si l'utilisateur est connecté
+  if (!authUser.value) {
+    // Rediriger vers la page de connexion
+    window.location.href = '/login';
+    return;
+  }
+  // Naviguer vers la page de réservation
+  window.location.href = `/salles/${salle.id}/reserver`;
+};
+
+const loadMore = () => {
+    // Implémenter le chargement de plus de résultats
+    console.log('Charger plus de résultats');
+    // À implémenter avec la pagination
+};
+
+// Lifecycle
+onMounted(() => {
+    loadExistingRooms();
+});
 </script>
 
-<style scoped>
-/* Custom styles */
-.group:hover .group-hover\:text-accent-cyan {
-  color: #00ffff;
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+.font-display {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Tailwind custom colors */
+:root {
+  --primary: #135bec;
+  --soft-black: #111827;
+  --medium-grey: #6B7280;
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.text-soft-black {
+  color: var(--soft-black);
+}
+
+.text-medium-grey {
+  color: var(--medium-grey);
+}
+
+.bg-soft-black {
+  background-color: var(--soft-black);
+}
+
+/* Material Symbols */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  display: -moz-box;
+  display: box;
+  -webkit-line-clamp: 2;
+  -moz-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  -moz-box-orient: vertical;
+  box-orient: vertical;
+  overflow: hidden;
 }
 </style>
-
-<!-- Notification Modal -->
-<NotificationModal
-  :show="showNotificationModal"
-  :type="notificationType"
-  :title="notificationTitle"
-  :message="notificationMessage"
-  @close="showNotificationModal = false"
-/>

@@ -95,111 +95,218 @@ const getEventType = (type) => {
       </div>
     </header>
 
-    <!-- Contenu principal -->
-    <main class="flex-1 pt-16">
-      <!-- Hero avec image -->
-      <div class="relative h-96 bg-blue-600">
-        <img 
-          v-if="evenement.image_affiche"
-          :src="evenement.image_affiche.startsWith('http') ? evenement.image_affiche : '/storage/' + evenement.image_affiche"
-          :alt="evenement.titre"
-          class="w-full h-full object-cover"
-        >
-        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-        
-        <!-- Contenu overlay -->
-        <div class="absolute bottom-0 left-0 right-0 p-8 text-white">
-          <div class="max-w-7xl mx-auto">
-            <div class="flex items-center gap-4 mb-4">
-              <span class="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-sm rounded-full font-medium">
-                {{ getEventType(evenement.type) }}
-              </span>
-              <span :class="getEventStatus(evenement.date_fin).class" class="px-3 py-1 text-sm rounded-full font-medium">
-                {{ getEventStatus(evenement.date_fin).text }}
-              </span>
+    <!-- Main Content -->
+    <main class="layout-container flex h-full grow flex-col pt-20">
+      <!-- Breadcrumb -->
+      <div class="bg-content-light border-b border-border-light">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <nav class="flex">
+            <Link href="/client/evenements" class="text-text-light/50 hover:text-text-light">
+              Événements
+            </Link>
+            <span class="mx-2 text-text-light/50">/</span>
+            <span class="text-text-light">{{ evenement.titre }}</span>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Contenu principal -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Colonne principale -->
+        <div class="lg:col-span-2">
+          <!-- Galerie d'images -->
+          <div class="mb-8">
+            <!-- Image principale -->
+            <div class="relative h-96 bg-gradient-to-br from-primary to-primary/70 rounded-xl overflow-hidden mb-4">
+              <img 
+                v-if="evenement.image_affiche"
+                :src="evenement.image_affiche.startsWith('http') ? evenement.image_affiche : '/storage/' + evenement.image_affiche"
+                :alt="evenement.titre"
+                class="w-full h-full object-cover"
+              >
+              <div v-else class="w-full h-full flex items-center justify-center">
+                <i class="fas fa-calendar-alt text-8xl text-white/50"></i>
+              </div>
+              
+              <!-- Badge de favoris -->
+              <div class="absolute top-4 right-4">
+                <button class="p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-colors">
+                  <i class="fas fa-heart text-primary"></i>
+                </button>
+              </div>
+              
+              <!-- Badges d'événement -->
+              <div class="absolute top-4 left-4 flex gap-2">
+                <span class="px-3 py-1 bg-white/90 backdrop-blur-sm text-primary text-sm rounded-full font-medium">
+                  {{ getEventType(evenement.type) }}
+                </span>
+                <span :class="getEventStatus(evenement.date_fin).class" class="px-3 py-1 text-sm rounded-full font-medium">
+                  {{ getEventStatus(evenement.date_fin).text }}
+                </span>
+              </div>
             </div>
-            <h1 class="text-4xl font-bold mb-4">{{ evenement.titre }}</h1>
-            <div class="flex items-center gap-6 text-white/90">
-              <div class="flex items-center gap-2">
-                <i class="fas fa-calendar"></i>
-                <span>{{ formatDate(evenement.date_debut) }}</span>
+            
+            <!-- Miniatures d'images supplémentaires -->
+            <div class="grid grid-cols-4 gap-2">
+              <div 
+                v-for="i in 4" 
+                :key="i"
+                class="aspect-video bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center hover:from-primary/30 hover:to-primary/20 transition-colors cursor-pointer"
+              >
+                <i class="fas fa-image text-primary/30"></i>
               </div>
-              <div class="flex items-center gap-2">
-                <i class="fas fa-clock"></i>
-                <span>{{ formatTime(evenement.date_debut) }} - {{ formatTime(evenement.date_fin) }}</span>
+            </div>
+          </div>
+
+          <!-- Informations de l'événement -->
+          <div class="bg-content-light rounded-xl p-6 mb-8">
+            <h1 class="text-3xl font-bold text-text-light mb-4">{{ evenement.titre }}</h1>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="flex items-center text-text-light/70">
+                <i class="fas fa-calendar-alt mr-3 text-primary"></i>
+                <div>
+                  <div class="font-medium">{{ formatDate(evenement.date_debut) }}</div>
+                  <div class="text-sm">{{ formatTime(evenement.date_debut) }} - {{ formatTime(evenement.date_fin) }}</div>
+                </div>
               </div>
-              <div class="flex items-center gap-2">
-                <i class="fas fa-map-marker-alt"></i>
-                <span>{{ evenement.lieu }}</span>
+              <div class="flex items-center text-text-light/70">
+                <i class="fas fa-map-marker-alt mr-3 text-primary"></i>
+                <div>
+                  <div class="font-medium">{{ evenement.lieu }}</div>
+                  <div class="text-sm">{{ evenement.salle?.nom || 'Lieu à déterminer' }}</div>
+                </div>
+              </div>
+              <div class="flex items-center text-text-light/70">
+                <i class="fas fa-users mr-3 text-primary"></i>
+                <div>
+                  <div class="font-medium">{{ evenement.capacite_max || 'Illimité' }} participants</div>
+                  <div class="text-sm">Capacité maximale</div>
+                </div>
+              </div>
+              <div class="flex items-center text-text-light/70">
+                <i class="fas fa-tag mr-3 text-primary"></i>
+                <div>
+                  <div class="font-medium">{{ formatPrice(evenement.prix) }}</div>
+                  <div class="text-sm">Prix par participant</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="bg-content-light rounded-xl p-6 mb-8">
+            <h2 class="text-2xl font-bold text-text-light mb-4">Description</h2>
+            <div class="prose prose-lg text-text-light/70">
+              <p>{{ evenement.description }}</p>
+            </div>
+          </div>
+
+          <!-- Informations supplémentaires -->
+          <div class="bg-content-light rounded-xl p-6">
+            <h2 class="text-2xl font-bold text-text-light mb-4">Informations pratiques</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div v-if="evenement.organisateur" class="flex items-start text-text-light/70">
+                <i class="fas fa-user mr-3 text-primary mt-1"></i>
+                <div>
+                  <div class="font-medium">Organisateur</div>
+                  <div class="text-sm">{{ evenement.organisateur }}</div>
+                </div>
+              </div>
+              <div v-if="evenement.contact" class="flex items-start text-text-light/70">
+                <i class="fas fa-envelope mr-3 text-primary mt-1"></i>
+                <div>
+                  <div class="font-medium">Contact</div>
+                  <div class="text-sm">{{ evenement.contact }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+              <!-- Colonne latérale -->
+        <div class="space-y-6">
+          <!-- Carte de réservation -->
+          <div class="bg-content-light rounded-xl p-6 sticky top-24">
+            <h3 class="text-xl font-bold text-text-light mb-4">Participer à l'événement</h3>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-text-light/70">Prix</span>
+                <span class="text-2xl font-bold text-primary">{{ formatPrice(evenement.prix) }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-text-light/70">Date</span>
+                <span class="font-medium text-text-light">{{ formatDate(evenement.date_debut) }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-text-light/70">Heure</span>
+                <span class="font-medium text-text-light">{{ formatTime(evenement.date_debut) }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-text-light/70">Lieu</span>
+                <span class="font-medium text-text-light">{{ evenement.lieu }}</span>
+              </div>
+              
+              <div class="border-t border-border-light pt-4">
+                <button class="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-lg font-medium transition-colors">
+                  Réserver ma place
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Informations de contact -->
+          <div class="bg-content-light rounded-xl p-6">
+            <h3 class="text-xl font-bold text-text-light mb-4">Contact</h3>
+            <div class="space-y-3">
+              <div v-if="evenement.contact" class="flex items-center text-text-light/70">
+                <i class="fas fa-envelope mr-3 text-primary"></i>
+                <span>{{ evenement.contact }}</span>
+              </div>
+              <div v-if="evenement.organisateur" class="flex items-center text-text-light/70">
+                <i class="fas fa-user mr-3 text-primary"></i>
+                <span>{{ evenement.organisateur }}</span>
+              </div>
+              <div class="flex items-center text-text-light/70">
+                <i class="fas fa-phone mr-3 text-primary"></i>
+                <span>Contact à venir</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Événements similaires -->
+          <div v-if="evenementsSimilaires && evenementsSimilaires.length > 0" class="bg-content-light rounded-xl p-6">
+            <h3 class="text-xl font-bold text-text-light mb-4">Événements similaires</h3>
+            <div class="space-y-4">
+              <div 
+                v-for="similaire in evenementsSimilaires.slice(0, 3)" 
+                :key="similaire.id"
+                class="border border-border-light rounded-lg p-4 hover:border-primary/50 transition-colors cursor-pointer"
+              >
+                <div class="flex gap-4">
+                  <div class="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-calendar-alt text-primary"></i>
+                  </div>
+                  <div class="flex-1">
+                    <h4 class="font-medium text-text-light mb-1">{{ similaire.titre }}</h4>
+                    <p class="text-sm text-text-light/70 mb-2">{{ formatDate(similaire.date_debut) }}</p>
+                    <div class="flex items-center justify-between">
+                      <span class="text-primary font-medium">{{ formatPrice(similaire.prix) }}</span>
+                      <Link 
+                        :href="'/client/evenements/' + similaire.id"
+                        class="text-sm text-primary hover:text-primary/80 transition-colors"
+                      >
+                        Voir →
+                      </Link>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Contenu détaillé -->
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <!-- Colonne principale -->
-          <div class="lg:col-span-2 space-y-8">
-            <!-- Description -->
-            <div class="bg-white rounded-2xl shadow-lg p-8">
-              <h2 class="text-2xl font-bold text-gray-900 mb-4">Description</h2>
-              <div class="prose prose-lg text-gray-700">
-                <p>{{ evenement.description }}</p>
-              </div>
-            </div>
-
-            <!-- Informations de la salle -->
-            <div v-if="evenement.salle" class="bg-white rounded-2xl shadow-lg p-8">
-              <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-gray-900">Salle : {{ evenement.salle.nom }}</h2>
-                <Link 
-                  :href="'/client/salles/' + evenement.salle.id"
-                  class="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
-                >
-                  <i class="fas fa-eye mr-2"></i>
-                  Voir la salle
-                </Link>
-              </div>
-              
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Image et description -->
-                <div>
-                  <div v-if="evenement.salle.image_url" class="mb-4">
-                    <img 
-                      :src="evenement.salle.image_url.startsWith('http') ? evenement.salle.image_url : '/storage/' + evenement.salle.image_url"
-                      :alt="evenement.salle.nom"
-                      class="w-full h-48 object-cover rounded-lg"
-                    >
-                  </div>
-                  <p class="text-gray-700">{{ evenement.salle.description }}</p>
-                </div>
-                
-                <!-- Informations de la salle -->
-                <div class="space-y-3">
-                  <div class="flex items-center gap-3">
-                    <i class="fas fa-map-marker-alt text-purple-600 w-5"></i>
-                    <div>
-                      <div class="font-medium">Adresse</div>
-                      <div class="text-gray-600">{{ evenement.salle.adresse }}</div>
-                      <div class="text-gray-600">{{ evenement.salle.ville }}, {{ evenement.salle.pays }}</div>
-                    </div>
-                  </div>
-                  
-                  <div class="flex items-center gap-3">
-                    <i class="fas fa-users text-purple-600 w-5"></i>
-                    <div>
-                      <div class="font-medium">Capacité</div>
-                      <div class="text-gray-600">{{ evenement.salle.capacite_max }} personnes maximum</div>
-                    </div>
-                  </div>
-                  
-                  <div class="flex items-center gap-3">
-                    <i class="fas fa-ruler-combined text-purple-600 w-5"></i>
-                    <div>
-                      <div class="font-medium">Surface</div>
-                      <div class="text-gray-600">{{ evenement.salle.surface || 'Non spécifiée' }} m²</div>
+    </main>
                     </div>
                   </div>
                   
