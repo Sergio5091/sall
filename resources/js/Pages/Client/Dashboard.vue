@@ -1,7 +1,14 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import Navbar from '@/Components/Navbar.vue';
+
+// Fonction de déconnexion
+const logout = () => {
+  if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+    router.post('/logout');
+  }
+};
 
 const props = defineProps({
   user: Object,
@@ -177,7 +184,8 @@ const closeHowItWorks = () => {
               <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
             </span>
           </button>
-          <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 bg-gray-300"></div>
+          <Link href="/client/profile" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 bg-gray-300 hover:opacity-80 transition-opacity cursor-pointer" title="Mon Profil">
+          </Link>
         </div>
       </div>
     </header>

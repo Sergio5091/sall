@@ -80,7 +80,7 @@ class SalleController extends Controller
             abort(404);
         }
 
-        // Charger la salle avec uniquement les champs nécessaires
+        // Charger la salle avec tous les champs nécessaires pour l'affichage
         $salle->load([
             'promoter:id,name',
             'evenements' => function($query) {
@@ -91,6 +91,26 @@ class SalleController extends Controller
                       ->select('id', 'salle_id', 'titre', 'description', 'date_debut', 'date_fin', 'statut');
             }
         ]);
+
+        // S'assurer que tous les champs nécessaires sont chargés
+        $salleArray = $salle->toArray();
+        // Ajouter les champs manquants s'ils ne sont pas déjà présents
+        $requiredFields = [
+            'wifi_gratuit', 'parking', 'climatisation', 'surveillance_24h',
+            'ecrans', 'consoles', 'systeme_audio', 'surface', 'air_conditionne',
+            'type', 'categorie', 'telephone', 'whatsapp', 'email', 'site_web',
+            'machines_arcade', 'casques_vr', 'pc_gaming', 'consoles_retro',
+            'flippers', 'tables_bowling', 'tables_billard', 'snack_bar',
+            'restaurant', 'bar', 'terrasse', 'vestiaires', 'accessibilite_pmr',
+            'point_repere', 'region', 'departement', 'quartier',
+            'image_couverture', 'images_galerie', 'images'
+        ];
+        
+        foreach ($requiredFields as $field) {
+            if (!array_key_exists($field, $salleArray)) {
+                $salleArray[$field] = null;
+            }
+        }
 
         // Salles similaires limitées
         $sallesSimilaires = Salle::where('statut', 'actif')
@@ -109,7 +129,7 @@ class SalleController extends Controller
         }
 
         return inertia('Client/SalleDetails', [
-            'salle' => $salle,
+            'salle' => $salleArray,
             'sallesSimilaires' => $sallesSimilaires,
             'aReserve' => $aReserve
         ]);

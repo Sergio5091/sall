@@ -14,6 +14,7 @@ const showNotificationModal = ref(false);
 const notificationType = ref('error');
 const notificationTitle = ref('');
 const notificationMessage = ref('');
+const showReservationModal = ref(false);
 
 const form = ref({
     date_heure: '',
@@ -61,6 +62,90 @@ const formatDateComplet = (dateString) => {
     });
 };
 
+// Labels pour les types et catégories
+const typesSalle = {
+    'arcade': 'Salle d\'arcade',
+    'vr': 'Centre VR',
+    'retro': 'Retro gaming',
+    'esports': 'E-sport',
+    'mixed': 'Mixte',
+    'bowling': 'Bowling',
+    'billard': 'Billard',
+    'laser': 'Laser game',
+    'escape': 'Escape game',
+    'karaoke': 'Karaoke',
+};
+
+const categoriesSalle = {
+    'bar': 'Bar',
+    'restaurant': 'Restaurant',
+    'club': 'Club',
+    'centre_commercial': 'Centre commercial',
+    'hotel': 'Hôtel',
+    'complexe_sportif': 'Complexe sportif',
+    'espace_jeux': 'Espace de jeux',
+    'loisir': 'Centre de loisirs',
+    'autre': 'Autre',
+};
+
+const getTypeLabel = (type) => {
+    return typesSalle[type] || type;
+};
+
+const getCategorieLabel = (categorie) => {
+    return categoriesSalle[categorie] || categorie;
+};
+
+// Gestion des images
+const mainImage = ref(null);
+
+// Obtenir les images de la galerie
+const getGalleryImages = () => {
+    const images = [];
+    
+    // Ajouter l'image de couverture d'abord
+    if (props.salle.image_couverture) {
+        images.push(props.salle.image_couverture);
+    } else if (props.salle.image_url) {
+        images.push(props.salle.image_url);
+    }
+    
+    // Ajouter les images de la galerie
+    if (props.salle.images_galerie && Array.isArray(props.salle.images_galerie)) {
+        images.push(...props.salle.images_galerie);
+    }
+    
+    // Ajouter les images supplémentaires si disponibles
+    if (props.salle.images && Array.isArray(props.salle.images)) {
+        images.push(...props.salle.images);
+    }
+    
+    // Limiter à 4 images maximum pour les miniatures
+    return images.slice(0, 4);
+};
+
+// Sélectionner l'image principale
+const selectMainImage = (image) => {
+    mainImage.value = image;
+};
+
+// Obtenir l'image principale à afficher
+const getMainImageSrc = () => {
+    if (mainImage.value) {
+        return mainImage.value.startsWith('http') ? mainImage.value : `/storage/${mainImage.value}`;
+    }
+    
+    if (props.salle.image_couverture) {
+        return props.salle.image_couverture.startsWith('http') ? props.salle.image_couverture : `/storage/${props.salle.image_couverture}`;
+    }
+    
+    if (props.salle.image_url) {
+        return props.salle.image_url.startsWith('http') ? props.salle.image_url : `/storage/${props.salle.image_url}`;
+    }
+    
+    return null;
+};
+
 // Calculer le prix total
 const prixTotal = ref(0);
 
@@ -69,7 +154,25 @@ watch(() => form.value.duree, (newDuree) => {
 });
 
 // Soumettre la réservation
-const reserver = () => {
+// Vérifier si la salle a des services
+const hasServices = () => {
+    return props.salle.snack_bar || props.salle.restaurant || props.salle.bar || 
+           props.salle.terrasse || props.salle.vestiaires || props.salle.accessibilite_pmr;
+};
+
+// Vérifier si la salle a des équipements gaming
+const hasGamingEquipment = () => {
+    return props.salle.pc_gaming || props.salle.consoles_retro || 
+           props.salle.casques_vr || props.salle.machines_arcade;
+};
+
+// Vérifier si la salle a des caractéristiques principales
+const hasMainFeatures = () => {
+    return hasServices() || hasGamingEquipment() || props.salle.point_repere || 
+           props.salle.adresse || props.salle.categorie || props.salle.description;
+};
+
+const submitReservation = () => {
     // Validation côté client
     if (!form.value.accepte_conditions) {
         notificationType.value = 'error';
@@ -106,9 +209,25 @@ const reserver = () => {
                 button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Réservation en cours...';
             }
         },
-        onSuccess: () => {
-            // Rediriger vers la page de détails avec un message de succès
-            router.reload();
+        onSuccess: (page) => {
+            // Afficher un message de succès
+            notificationType.value = 'success';
+            notificationTitle.value = 'Réservation envoyée';
+            notificationMessage.value = 'Votre demande de réservation a été envoyée avec succès. Vous recevrez une notification dès qu\'elle sera validée.';
+            showNotificationModal.value = true;
+            
+            // Fermer le modal et réinitialiser le formulaire
+            showReservationModal.value = false;
+            form.value = {
+                date_heure: '',
+                duree: 1,
+                nombre_personnes: 1,
+                message: '',
+                type_evenement: 'gaming',
+                besoins_speciaux: '',
+                contact_telephone: '',
+                accepte_conditions: false
+            };
         },
         onError: (errors) => {
             // Gérer les erreurs de validation
@@ -118,30 +237,43 @@ const reserver = () => {
             const button = document.querySelector('button[type="submit"]');
             if (button) {
                 button.disabled = false;
-                button.innerHTML = '<i class="fas fa-calendar-check mr-2"></i>Confirmer la réservation';
+                button.innerHTML = 'Envoyer la demande';
             }
             
             // Afficher les erreurs spécifiques
             if (errors.date_heure) {
                 notificationType.value = 'error';
                 notificationTitle.value = 'Erreur de date';
-                notificationMessage.value = 'Erreur de date: ' + errors.date_heure[0];
+                notificationMessage.value = errors.date_heure[0];
                 showNotificationModal.value = true;
             } else if (errors.nombre_personnes) {
                 notificationType.value = 'error';
                 notificationTitle.value = 'Erreur de participants';
-                notificationMessage.value = 'Erreur de participants: ' + errors.nombre_personnes[0];
+                notificationMessage.value = errors.nombre_personnes[0];
                 showNotificationModal.value = true;
             } else if (errors.capacite) {
                 notificationType.value = 'error';
                 notificationTitle.value = 'Erreur de capacité';
-                notificationMessage.value = 'Erreur de capacité: ' + errors.capacite[0];
+                notificationMessage.value = errors.capacite[0];
+                showNotificationModal.value = true;
+            } else if (errors.message) {
+                notificationType.value = 'error';
+                notificationTitle.value = 'Erreur de soumission';
+                notificationMessage.value = errors.message[0];
                 showNotificationModal.value = true;
             } else {
                 notificationType.value = 'error';
                 notificationTitle.value = 'Erreur de réservation';
-                notificationMessage.value = 'Une erreur est survenue lors de la réservation. Veuillez réessayer.';
+                notificationMessage.value = 'Une erreur est survenue. Veuillez vérifier tous les champs et réessayer.';
                 showNotificationModal.value = true;
+            }
+        },
+        onFinish: () => {
+            // Réactiver le bouton dans tous les cas
+            const button = document.querySelector('button[type="submit"]');
+            if (button) {
+                button.disabled = false;
+                button.innerHTML = 'Envoyer la demande';
             }
         }
     });
@@ -199,314 +331,653 @@ const reserver = () => {
       </div>
 
       <!-- Contenu principal -->
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Colonne principale -->
-        <div class="lg:col-span-2">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+        <!-- Hero Section avec galerie -->
+        <div class="mb-8 lg:mb-12">
           <!-- Galerie d'images -->
-          <div class="mb-8">
-            <!-- Image principale -->
-            <div class="relative h-96 bg-gradient-to-br from-primary to-primary/70 rounded-xl overflow-hidden mb-4">
-              <img 
-                v-if="salle.image_url"
-                :src="salle.image_url.startsWith('http') ? salle.image_url : `/storage/${salle.image_url}`" 
-                :alt="salle.nom"
-                class="w-full h-full object-cover"
-              >
-              <div v-else class="w-full h-full flex items-center justify-center">
-                <i class="fas fa-gamepad text-8xl text-white/50"></i>
+          <section class="rounded-lg lg:rounded-xl overflow-hidden flex flex-col gap-3 lg:gap-4 mb-6 lg:mb-8">
+            <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg lg:rounded-xl cursor-pointer hover:opacity-95 transition-opacity relative group" :style="getMainImageSrc() ? `background-image: url(${getMainImageSrc()})` : ''">
+              <div v-if="!getMainImageSrc()" class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary to-primary/70">
+                <i class="fas fa-gamepad text-6xl lg:text-9xl text-white/50"></i>
               </div>
               
               <!-- Badge de favoris -->
-              <div class="absolute top-4 right-4">
-                <button class="p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-colors">
-                  <i class="fas fa-heart text-primary"></i>
+              <div class="absolute top-4 lg:top-6 right-4 lg:right-6">
+                <button class="p-2 lg:p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-xl hover:bg-white transition-all duration-300 hover:scale-110">
+                  <i class="fas fa-heart text-primary text-lg lg:text-xl"></i>
                 </button>
               </div>
+              
+              <!-- Overlay d'informations -->
+              <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 lg:p-8">
+                <h1 class="text-2xl lg:text-5xl font-bold text-white mb-2 lg:mb-3">{{ salle.nom }}</h1>
+                <div class="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-8 text-white/90">
+                  <div class="flex items-center gap-2 lg:gap-3">
+                    <i class="fas fa-map-marker-alt text-sm lg:text-xl"></i>
+                    <span class="text-sm lg:text-lg">{{ salle.ville }}, {{ salle.pays }}</span>
+                  </div>
+                  <div class="flex items-center gap-2 lg:gap-3">
+                    <i class="fas fa-users text-sm lg:text-xl"></i>
+                    <span class="text-sm lg:text-lg">{{ formatCapacity(salle.capacite_max) }} personnes</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-star text-yellow-400 text-sm lg:text-xl"></i>
+                    <span class="text-sm lg:text-lg font-bold">4.92</span>
+                    <span class="hidden lg:block text-lg underline cursor-pointer hover:text-white">(128 avis)</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Bouton voir toutes les photos -->
+              <div class="absolute bottom-2 lg:bottom-4 right-2 lg:right-4 bg-white/90 dark:bg-black/70 px-2 lg:px-4 py-1 lg:py-2 rounded-lg lg:rounded-xl text-xs lg:text-sm font-bold shadow-sm backdrop-blur-sm flex items-center gap-1 lg:gap-2">
+                <i class="fas fa-images text-[14px] lg:text-[18px]"></i>
+                <span class="hidden lg:inline">Voir toutes les photos</span>
+                <span class="lg:hidden">Photos</span>
+              </div>
             </div>
             
-            <!-- Miniatures d'images supplémentaires -->
-            <div class="grid grid-cols-4 gap-2">
+            <!-- Miniatures d'images -->
+            <div class="grid grid-cols-4 lg:grid-cols-6 gap-2 lg:gap-3">
               <div 
-                v-for="i in 4" 
-                :key="i"
-                class="aspect-video bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center hover:from-primary/30 hover:to-primary/20 transition-colors cursor-pointer"
+                v-for="(image, index) in getGalleryImages()" 
+                :key="index"
+                class="w-full bg-center bg-no-repeat aspect-[4/3] bg-cover rounded-md lg:rounded-lg cursor-pointer hover:opacity-80 transition-opacity relative"
+                :style="image ? `background-image: url(${image.startsWith('http') ? image : `/storage/${image}`})` : ''"
+                @click="selectMainImage(image)"
               >
-                <i class="fas fa-image text-primary/30"></i>
+                <div v-if="!image" class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/10">
+                  <i class="fas fa-image text-primary/40 text-xl lg:text-2xl"></i>
+                </div>
+                <!-- Afficher +X si c'est la dernière miniature et qu'il y a plus d'images -->
+                <div v-if="index === 3 && getGalleryImages().length > 4" class="absolute inset-0 bg-black/40 flex items-center justify-center rounded-md lg:rounded-lg">
+                  <span class="text-white font-bold text-sm lg:text-lg">+{{ getGalleryImages().length - 4 }}</span>
+                </div>
               </div>
             </div>
+          </section>
+
+          <!-- Navigation rapide (desktop uniquement) -->
+          <div class="hidden lg:flex items-center gap-6 mb-8">
+            <a href="#contact" class="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+              <i class="fas fa-phone text-primary"></i>
+              <span class="font-medium">Contact</span>
+            </a>
+            <a href="#events" class="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+              <i class="fas fa-calendar text-primary"></i>
+              <span class="font-medium">Événements</span>
+            </a>
+            <a href="#details" class="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+              <i class="fas fa-info-circle text-primary"></i>
+              <span class="font-medium">Détails</span>
+            </a>
           </div>
+        </div>
 
-          <!-- Informations de la salle -->
-          <div class="bg-content-light rounded-xl p-6 mb-8">
-            <h1 class="text-3xl font-bold text-text-light mb-4">{{ salle.nom }}</h1>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div class="flex items-center text-text-light/70">
-                <i class="fas fa-map-marker-alt mr-3 text-primary"></i>
-                <div>
-                  <div class="font-medium">{{ salle.ville }}, {{ salle.pays }}</div>
-                  <div class="text-sm">{{ salle.adresse }}</div>
+        <!-- Layout principal -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+          <!-- Colonne principale -->
+          <div class="lg:col-span-8 space-y-6 lg:space-y-8">
+            <!-- Contact Information -->
+            <section id="contact" class="bg-white rounded-lg lg:rounded-xl shadow-lg p-4 lg:p-8">
+              <h3 class="text-xl lg:text-2xl font-bold mb-4 lg:mb-6 text-gray-900 flex items-center">
+                <i class="fas fa-phone-alt mr-2 lg:mr-3 text-primary"></i>
+                <span class="text-lg lg:text-xl">Contactez le propriétaire</span>
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4">
+                <div v-if="salle.telephone" class="flex items-center gap-3 lg:gap-4 p-3 lg:p-4 bg-blue-50 rounded-lg lg:rounded-xl border border-blue-200">
+                  <div class="p-2 lg:p-3 bg-blue-500 rounded-full">
+                    <i class="fas fa-phone text-white text-sm lg:text-xl"></i>
+                  </div>
+                  <div>
+                    <p class="text-xs lg:text-sm text-blue-600 font-medium">Téléphone</p>
+                    <p class="font-bold text-gray-900 text-sm lg:text-base">{{ salle.telephone }}</p>
+                  </div>
+                </div>
+                
+                <div v-if="salle.whatsapp" class="flex items-center gap-3 lg:gap-4 p-3 lg:p-4 bg-green-50 rounded-lg lg:rounded-xl border border-green-200">
+                  <div class="p-2 lg:p-3 bg-green-500 rounded-full">
+                    <i class="fab fa-whatsapp text-white text-sm lg:text-xl"></i>
+                  </div>
+                  <div>
+                    <p class="text-xs lg:text-sm text-green-600 font-medium">WhatsApp</p>
+                    <p class="font-bold text-gray-900 text-sm lg:text-base">{{ salle.whatsapp }}</p>
+                  </div>
+                </div>
+                
+                <div v-if="salle.email" class="flex items-center gap-3 lg:gap-4 p-3 lg:p-4 bg-purple-50 rounded-lg lg:rounded-xl border border-purple-200">
+                  <div class="p-2 lg:p-3 bg-purple-500 rounded-full">
+                    <i class="fas fa-envelope text-white text-sm lg:text-xl"></i>
+                  </div>
+                  <div>
+                    <p class="text-xs lg:text-sm text-purple-600 font-medium">Email</p>
+                    <p class="font-bold text-gray-900 text-sm lg:text-base">{{ salle.email }}</p>
+                  </div>
+                </div>
+                
+                <div v-if="salle.site_web" class="flex items-center gap-3 lg:gap-4 p-3 lg:p-4 bg-orange-50 rounded-lg lg:rounded-xl border border-orange-200">
+                  <div class="p-2 lg:p-3 bg-orange-500 rounded-full flex-shrink-0">
+                    <i class="fas fa-globe text-white text-sm lg:text-xl"></i>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-xs lg:text-sm text-orange-600 font-medium">Site web</p>
+                    <a :href="salle.site_web" target="_blank" class="font-bold text-blue-600 hover:underline text-sm lg:text-base truncate block">{{ salle.site_web }}</a>
+                  </div>
                 </div>
               </div>
               
-              <div class="flex items-center text-text-light/70">
-                <i class="fas fa-user mr-3 text-primary"></i>
-                <div>
-                  <div class="font-medium">Propriétaire</div>
-                  <div class="text-sm">{{ salle.promoter?.name || 'Non spécifié' }}</div>
+              <!-- Message si aucun contact -->
+              <div v-if="!salle.telephone && !salle.whatsapp && !salle.email && !salle.site_web" class="text-center py-8 lg:py-12">
+                <div class="bg-gray-50 rounded-lg lg:rounded-xl p-6 lg:p-8">
+                  <i class="fas fa-phone-slash text-gray-300 text-2xl lg:text-4xl mb-2 lg:mb-4"></i>
+                  <h4 class="text-base lg:text-lg font-medium text-gray-700 mb-1 lg:mb-2">Aucune information de contact disponible</h4>
+                  <p class="text-gray-500 text-sm lg:text-base">Contactez-nous pour obtenir plus d'informations.</p>
                 </div>
               </div>
-            </div>
+            </section>
 
-            <div class="prose max-w-none text-text-light/70 mb-8">
-              <p>{{ salle.description || 'Salle de gaming moderne équipée du meilleur matériel pour vos sessions de gaming.' }}</p>
-            </div>
+            <!-- Description -->
+            <section class="bg-white rounded-lg lg:rounded-xl shadow-lg p-4 lg:p-8">
+              <h3 class="text-xl lg:text-2xl font-bold mb-4 lg:mb-6 text-gray-900">À propos de cet espace</h3>
+              <p class="text-gray-700 text-base lg:text-lg leading-relaxed">
+                {{ salle.description || 'Plongez-vous dans un environnement de gaming de pointe conçu pour les professionnels et les passionnés. Cette suite VIP dispose d\'un matériel haut de gamme, incluant des stations RTX 4090 doubles, une zone VR dédiée et une insonorisation acoustique pour des sessions ininterrompues. Que vous diffusiez, concouriez ou vous détendiez, notre éclairage thématique cyberpunk crée l\'ambiance parfaite.' }}
+              </p>
+            </section>
 
-            <!-- Équipements et caractéristiques détaillées -->
-            <div class="space-y-6 mb-8">
-              <h3 class="text-xl font-bold text-text-light mb-4">Caractéristiques et équipements</h3>
+            <!-- Événements -->
+            <section id="events" class="bg-white rounded-lg lg:rounded-xl shadow-lg p-4 lg:p-8">
+              <div class="flex items-center justify-between mb-4 lg:mb-6">
+                <h3 class="text-xl lg:text-2xl font-bold text-gray-900">Événements à venir ici</h3>
+                <a class="text-primary text-sm font-bold hover:underline" href="#">Voir tout</a>
+              </div>
               
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="text-center p-4 bg-subtle-light rounded-lg">
-                  <i class="fas fa-users text-2xl text-primary mb-2"></i>
-                  <div class="font-medium text-text-light">{{ formatCapacity(salle.capacite_max) }}</div>
-                  <div class="text-sm text-text-light/50">Places</div>
-                </div>
-                
-                <div class="text-center p-4 bg-subtle-light rounded-lg">
-                  <i class="fas fa-ruler-combined text-2xl text-primary mb-2"></i>
-                  <div class="font-medium text-text-light">{{ salle.surface || 'Non spécifiée' }} m²</div>
-                  <div class="text-sm text-text-light/50">Surface</div>
-                </div>
-                
-                <div class="text-center p-4 bg-subtle-light rounded-lg">
-                  <i class="fas fa-wifi text-2xl text-primary mb-2"></i>
-                  <div class="font-medium text-text-light">WiFi</div>
-                  <div class="text-sm text-text-light/50">Inclus</div>
-                </div>
-                
-                <div class="text-center p-4 bg-subtle-light rounded-lg">
-                  <i class="fas fa-parking text-2xl text-primary mb-2"></i>
-                  <div class="font-medium text-text-light">Parking</div>
-                  <div class="text-sm text-text-light/50">{{ salle.parking ? 'Disponible' : 'Non disponible' }}</div>
-                </div>
-                
-                <div class="text-center p-4 bg-subtle-light rounded-lg">
-                  <i class="fas fa-shield-alt text-2xl text-primary mb-2"></i>
-                  <div class="font-medium text-text-light">Sécurisé</div>
-                  <div class="text-sm text-text-light/50">24/7</div>
-                </div>
-                
-                <div class="text-center p-4 bg-subtle-light rounded-lg">
-                  <i class="fas fa-snowflake text-2xl text-primary mb-2"></i>
-                  <div class="font-medium text-text-light">Climatisation</div>
-                  <div class="text-sm text-text-light/50">{{ salle.air_conditionne ? 'Oui' : 'Non' }}</div>
-                </div>
-                
-                <div class="text-center p-4 bg-subtle-light rounded-lg">
-                  <i class="fas fa-tv text-2xl text-primary mb-2"></i>
-                  <div class="font-medium text-text-light">Écrans</div>
-                  <div class="text-sm text-text-light/50">{{ salle.ecrans || 'Non spécifié' }}</div>
-                </div>
-                
-                <div class="text-center p-4 bg-subtle-light rounded-lg">
-                  <i class="fas fa-gamepad text-2xl text-primary mb-2"></i>
-                  <div class="font-medium text-text-light">Consoles</div>
-                  <div class="text-sm text-text-light/50">{{ salle.consoles || 'Non spécifié' }}</div>
-                </div>
-                
-                <div class="text-center p-4 bg-subtle-light rounded-lg">
-                  <i class="fas fa-volume-up text-2xl text-primary mb-2"></i>
-                  <div class="font-medium text-text-light">Système audio</div>
-                  <div class="text-sm text-text-light/50">{{ salle.systeme_audio || 'Non spécifié' }}</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tous les événements -->
-            <div class="mb-8">
-              <div class="flex items-center justify-between mb-6">
-                <h3 class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  Tous les événements
-                </h3>
-                <div class="flex items-center gap-2">
-                  <span class="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full font-medium">
-                    {{ salle.evenements?.length || 0 }} événements
-                  </span>
-                </div>
-              </div>
-
               <!-- Message si aucun événement -->
-              <div v-if="!salle.evenements || salle.evenements.length === 0" class="text-center py-12">
-                <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8">
-                  <i class="fas fa-calendar-xmark text-4xl text-purple-300 mb-4"></i>
-                  <h4 class="text-lg font-medium text-gray-700 mb-2">Aucun événement prévu</h4>
-                  <p class="text-gray-500">Cette salle n'a pas d'événements programmés pour le moment.</p>
+              <div v-if="!salle.evenements || salle.evenements.length === 0" class="text-center py-8 lg:py-12">
+                <div class="bg-gray-50 rounded-lg lg:rounded-xl p-6 lg:p-8">
+                  <i class="fas fa-calendar-xmark text-gray-300 text-2xl lg:text-4xl mb-2 lg:mb-4"></i>
+                  <h4 class="text-base lg:text-lg font-medium text-gray-700 mb-1 lg:mb-2">Aucun événement prévu</h4>
+                  <p class="text-gray-500 text-sm lg:text-base">Cette salle n'a pas d'événements programmés pour le moment.</p>
                 </div>
               </div>
-
+              
               <!-- Grille d'événements -->
-              <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div 
-                  v-for="event in salle.evenements" 
-                  :key="event.id"
-                  class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-purple-100"
-                >
-                  <!-- Header de l'événement -->
-                  <div class="bg-gradient-to-r from-purple-500 to-pink-500 p-4 text-white">
-                    <div class="flex justify-between items-start mb-2">
-                      <h4 class="font-bold text-lg flex-1">{{ event.titre }}</h4>
-                      <span class="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs rounded-full font-medium">
+              <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+                <div v-for="event in salle.evenements" :key="event.id" class="group bg-gray-50 rounded-lg lg:rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300">
+                  <!-- Image de l'événement -->
+                  <div class="h-32 lg:h-48 bg-cover bg-center relative">
+                    <img 
+                      v-if="event.image_url"
+                      :src="event.image_url.startsWith('http') ? event.image_url : `/storage/${event.image_url}`" 
+                      :alt="event.titre"
+                      class="w-full h-full object-cover"
+                    >
+                    <div v-else class="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500"></div>
+                    
+                    <!-- Badge de statut -->
+                    <div class="absolute top-3 lg:top-4 right-3 lg:right-4">
+                      <span class="px-2 lg:px-3 py-1 bg-white/90 backdrop-blur-sm text-xs font-medium rounded-full">
                         {{ event.statut || 'Actif' }}
                       </span>
                     </div>
-                    <p class="text-white/90 text-sm">{{ event.description }}</p>
                   </div>
                   
-                  <!-- Corps de l'événement -->
-                  <div class="p-6 space-y-4">
+                  <div class="p-4 lg:p-6">
                     <!-- Date et heure -->
-                    <div class="flex items-center gap-3 text-sm">
-                      <div class="flex items-center gap-2 text-purple-600">
-                        <i class="fas fa-calendar"></i>
-                        <span class="font-medium">{{ formatDateComplet(event.date_debut) }}</span>
-                      </div>
-                      <div v-if="event.date_fin" class="flex items-center gap-2 text-gray-500">
-                        <i class="fas fa-clock"></i>
-                        <span>{{ formatDateComplet(event.date_fin) }}</span>
+                    <div class="flex items-center gap-2 text-xs lg:text-sm text-gray-500 mb-2 lg:mb-3">
+                      <i class="fas fa-calendar"></i>
+                      <span>{{ formatDateComplet(event.date_debut) }}</span>
+                      <span v-if="event.date_fin">• {{ formatDateComplet(event.date_fin) }}</span>
+                    </div>
+                    
+                    <!-- Titre et description -->
+                    <h4 class="font-bold text-lg lg:text-xl text-gray-900 mb-2 lg:mb-3">{{ event.titre }}</h4>
+                    <p class="text-gray-600 text-sm lg:text-base mb-3 lg:mb-4 line-clamp-2 lg:line-clamp-none">{{ event.description }}</p>
+                    
+                    <!-- Informations supplémentaires -->
+                    <div class="flex items-center justify-between mb-3 lg:mb-4">
+                      <div class="flex items-center gap-2 lg:gap-4 text-gray-500">
+                        <div v-if="event.participants_max" class="flex items-center gap-1 lg:gap-2">
+                          <i class="fas fa-users text-xs lg:text-sm"></i>
+                          <span class="text-xs lg:text-sm">{{ event.participants_max }} max</span>
+                        </div>
+                        <div v-if="event.lieu" class="flex items-center gap-1 lg:gap-2">
+                          <i class="fas fa-map-marker-alt text-xs lg:text-sm"></i>
+                          <span class="text-xs lg:text-sm">{{ event.lieu }}</span>
+                        </div>
                       </div>
                     </div>
                     
-                    <!-- Informations complémentaires -->
-                    <div class="flex items-center justify-between text-sm">
-                      <div class="flex items-center gap-4 text-gray-600">
-                        <div v-if="event.participants_max" class="flex items-center gap-1">
-                          <i class="fas fa-users text-purple-500"></i>
-                          <span>{{ event.participants_max }} max</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                          <i class="fas fa-user-tie text-purple-500"></i>
-                          <span>{{ event.organisateur || 'Propriétaire' }}</span>
-                        </div>
+                    <!-- Prix et actions -->
+                    <div class="flex items-center justify-between">
+                      <div v-if="event.prix" class="text-lg lg:text-2xl font-bold text-primary">
+                        {{ formatPrice(event.prix) }}
                       </div>
-                    </div>
-                    
-                    <!-- Bouton d'action -->
-                    <div class="flex gap-3">
+                      <div v-else class="text-sm text-gray-500">Gratuit</div>
+                      
                       <Link 
-                        :href="`/events/${event.id}`"
-                        class="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 text-center"
+                        :href="`/client/evenements/${event.id}`"
+                        class="px-3 lg:px-4 py-1 lg:py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors"
                       >
-                        <i class="fas fa-eye mr-2"></i>
                         Voir détails
                       </Link>
-                      <button class="px-4 py-2 bg-purple-100 text-purple-700 text-sm font-medium rounded-lg hover:bg-purple-200 transition-colors">
-                        <i class="fas fa-share mr-2"></i>
-                        Partager
-                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </section>
 
-          <!-- Salles similaires -->
-          <div v-if="sallesSimilaires && sallesSimilaires.length > 0">
-            <h3 class="text-xl font-bold text-text-light mb-4">Salles similaires</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div 
-                v-for="salleSimilaire in sallesSimilaires" 
-                :key="salleSimilaire.id"
-                class="bg-content-light rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-                @click="$inertia.visit(`/client/salles/${salleSimilaire.id}`)"
-              >
-                <!-- Image de la salle similaire -->
-                <div class="h-40 bg-gradient-to-br from-primary to-primary/70 relative">
-                  <img 
-                    v-if="salleSimilaire.image_url"
-                    :src="salleSimilaire.image_url.startsWith('http') ? salleSimilaire.image_url : `/storage/${salleSimilaire.image_url}`" 
-                    :alt="salleSimilaire.nom"
-                    class="w-full h-full object-cover"
-                  >
-                  <div v-else class="w-full h-full flex items-center justify-center">
-                    <i class="fas fa-gamepad text-3xl text-white/50"></i>
+            <!-- Informations détaillées -->
+            <section id="details" class="bg-white rounded-lg lg:rounded-xl shadow-lg p-4 lg:p-8">
+              <h3 class="text-xl lg:text-2xl font-bold mb-4 lg:mb-6 text-gray-900">Informations détaillées</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+                <!-- Services -->
+                <div v-if="hasServices()" class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg lg:rounded-xl p-4 lg:p-6">
+                  <h4 class="font-semibold text-gray-900 mb-3 lg:mb-4 flex items-center">
+                    <i class="fas fa-concierge-bell mr-2 lg:mr-3 text-orange-600 text-lg lg:text-xl"></i>
+                    <span class="text-base lg:text-lg">Services</span>
+                  </h4>
+                  <div class="space-y-2">
+                    <div v-if="salle.snack_bar" class="flex items-center text-gray-700 p-2 rounded-lg hover:bg-orange-200 transition-colors">
+                      <i class="fas fa-check-circle mr-3 text-green-500"></i>
+                      <span class="font-medium text-sm">Snack bar</span>
+                    </div>
+                    <div v-if="salle.restaurant" class="flex items-center text-gray-700 p-2 rounded-lg hover:bg-orange-200 transition-colors">
+                      <i class="fas fa-check-circle mr-3 text-green-500"></i>
+                      <span class="font-medium text-sm">Restaurant</span>
+                    </div>
+                    <div v-if="salle.bar" class="flex items-center text-gray-700 p-2 rounded-lg hover:bg-orange-200 transition-colors">
+                      <i class="fas fa-check-circle mr-3 text-green-500"></i>
+                      <span class="font-medium text-sm">Bar</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Équipements -->
+                <div v-if="hasGamingEquipment()" class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg lg:rounded-xl p-4 lg:p-6">
+                  <h4 class="font-semibold text-gray-900 mb-3 lg:mb-4 flex items-center">
+                    <i class="fas fa-gamepad mr-2 lg:mr-3 text-purple-600 text-lg lg:text-xl"></i>
+                    <span class="text-base lg:text-lg">Équipements</span>
+                  </h4>
+                  <div class="space-y-2 lg:space-y-3">
+                    <div v-if="salle.pc_gaming" class="bg-white p-2 lg:p-3 rounded-lg text-center hover:bg-purple-200 transition-colors">
+                      <div class="text-lg lg:text-2xl font-bold text-purple-600">{{ salle.pc_gaming }}</div>
+                      <div class="text-xs lg:text-sm text-gray-600 font-medium">PC Gaming</div>
+                    </div>
+                    <div v-if="salle.consoles_retro" class="bg-white p-2 lg:p-3 rounded-lg text-center hover:bg-purple-200 transition-colors">
+                      <div class="text-lg lg:text-2xl font-bold text-purple-600">{{ salle.consoles_retro }}</div>
+                      <div class="text-xs lg:text-sm text-gray-600 font-medium">Consoles rétro</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Détails pratiques -->
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg lg:rounded-xl p-4 lg:p-6">
+                  <h4 class="font-semibold text-gray-900 mb-3 lg:mb-4 flex items-center">
+                    <i class="fas fa-info-circle mr-2 lg:mr-3 text-blue-600 text-lg lg:text-xl"></i>
+                    <span class="text-base lg:text-lg">Détails</span>
+                  </h4>
+                  <div class="space-y-2 lg:space-y-3">
+                    <div class="flex justify-between p-2 bg-white rounded-lg">
+                      <span class="text-gray-700 font-medium text-sm">Capacité</span>
+                      <span class="font-bold text-gray-900 text-sm">{{ formatCapacity(salle.capacite_max) }}</span>
+                    </div>
+                    <div class="flex justify-between p-2 bg-white rounded-lg">
+                      <span class="text-gray-700 font-medium text-sm">Tarif</span>
+                      <span class="font-bold text-gray-900 text-sm">{{ formatPrice(salle.prix_heure) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Horaires d'ouverture -->
+            <section v-if="salle.horaires_ouverture" class="bg-white rounded-lg lg:rounded-xl shadow-lg p-4 lg:p-8">
+              <h3 class="text-xl lg:text-2xl font-bold mb-4 lg:mb-6 text-gray-900 flex items-center">
+                <i class="fas fa-clock mr-2 lg:mr-3 text-green-600 text-lg lg:text-xl"></i>
+                <span class="text-base lg:text-lg">Horaires d'ouverture</span>
+              </h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4">
+                <div v-for="(horaire, jour) in salle.horaires_ouverture" :key="jour" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <span class="font-medium text-gray-700 capitalize">{{ jour }}</span>
+                  <span class="font-bold text-gray-900">{{ horaire }}</span>
+                </div>
+              </div>
+            </section>
+
+            <!-- Services (si disponibles) -->
+            <section v-if="salle.services && Object.keys(salle.services).length > 0" class="bg-white rounded-lg lg:rounded-xl shadow-lg p-4 lg:p-8">
+              <h3 class="text-xl lg:text-2xl font-bold mb-4 lg:mb-6 text-gray-900 flex items-center">
+                <i class="fas fa-concierge-bell mr-2 lg:mr-3 text-purple-600 text-lg lg:text-xl"></i>
+                <span class="text-base lg:text-lg">Services disponibles</span>
+              </h3>
+              
+              <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
+                <div v-for="(disponible, service) in salle.services" :key="service" v-show="disponible" class="flex items-center gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+                  <i class="fas fa-check-circle text-green-600"></i>
+                  <span class="text-sm font-medium text-gray-700 capitalize">{{ service.replace('_', ' ') }}</span>
+                </div>
+              </div>
+              
+              <!-- Message si aucun service disponible -->
+              <div v-if="!Object.values(salle.services).some(v => v)" class="text-center py-6 bg-gray-50 rounded-lg">
+                <i class="fas fa-info-circle text-gray-400 text-2xl mb-2"></i>
+                <p class="text-gray-500">Aucun service spécifique disponible</p>
+              </div>
+            </section>
+
+            <!-- Localisation Google Maps -->
+            <section class="bg-white rounded-lg lg:rounded-xl shadow-lg p-4 lg:p-8">
+              <h3 class="text-xl lg:text-2xl font-bold mb-4 lg:mb-6 text-gray-900 flex items-center">
+                <i class="fas fa-map mr-2 lg:mr-3 text-blue-600 text-lg lg:text-xl"></i>
+                <span class="text-base lg:text-lg">Localisation</span>
+              </h3>
+              
+              <!-- Adresse complète -->
+              <div class="p-3 lg:p-4 bg-gray-50 rounded-lg lg:rounded-xl mb-4 lg:mb-6">
+                <p class="text-gray-700 font-medium mb-2 text-sm lg:text-base">Adresse</p>
+                <p class="text-gray-600 text-sm lg:text-base">{{ salle.adresse || 'Non spécifiée' }}</p>
+                <p class="text-gray-600 text-sm lg:text-base">{{ salle.ville }}, {{ salle.pays }}</p>
+                <p v-if="salle.code_postal" class="text-gray-600 text-sm lg:text-base">{{ salle.code_postal }}</p>
+              </div>
+              
+              <!-- Carte Google Maps -->
+              <div class="relative">
+                <div class="w-full h-64 lg:h-96 bg-gray-200 rounded-lg lg:rounded-xl overflow-hidden">
+                  <iframe 
+                    v-if="salle.latitude && salle.longitude"
+                    :src="`https://maps.google.com/maps?q=${salle.latitude},${salle.longitude}&z=15&output=embed`"
+                    class="w-full h-full border-0"
+                    allowfullscreen=""
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade">
+                  </iframe>
+                  <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-green-100">
+                    <div class="text-center">
+                      <i class="fas fa-map-marked-alt text-3xl lg:text-5xl text-blue-500 mb-2 lg:mb-4"></i>
+                      <p class="text-gray-600 text-sm lg:text-base">Carte non disponible</p>
+                    </div>
                   </div>
                 </div>
                 
-                <div class="p-4">
-                  <h4 class="font-medium text-text-light mb-2">{{ salleSimilaire.nom }}</h4>
-                  <div class="text-sm text-text-light/70 mb-3">{{ salleSimilaire.ville }}</div>
-                  
-                  <!-- Caractéristiques principales -->
-                  <div class="flex items-center gap-4 text-sm text-text-light/60 mb-3">
-                    <div class="flex items-center gap-1">
-                      <i class="fas fa-users text-xs"></i>
-                      <span>{{ formatCapacity(salleSimilaire.capacite_max) }}</span>
-                    </div>
-                    <div class="flex items-center gap-1">
-                      <i class="fas fa-wifi text-xs"></i>
-                      <span>WiFi</span>
-                    </div>
-                  </div>
-                  
-                  <div class="flex justify-between items-center">
-                    <div>
-                      <span class="text-primary font-bold text-lg">{{ formatPrice(salleSimilaire.prix_heure) }}</span>
-                      <span class="text-text-light/50 text-xs">/heure</span>
-                    </div>
-                    <button class="px-3 py-1 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors">
-                      Voir détails
-                    </button>
+                <!-- Bouton pour ouvrir dans Google Maps -->
+                <a 
+                  v-if="salle.latitude && salle.longitude"
+                  :href="`https://www.google.com/maps/search/?api=1&query=${salle.latitude},${salle.longitude}`"
+                  target="_blank"
+                  class="absolute bottom-4 right-4 lg:bottom-6 lg:right-6 px-4 py-2 lg:px-6 lg:py-3 bg-white shadow-lg rounded-lg lg:rounded-xl text-sm lg:text-base font-medium hover:bg-gray-50 transition-colors flex items-center gap-2 lg:gap-3"
+                >
+                  <i class="fas fa-external-link-alt text-blue-600 text-sm lg:text-base"></i>
+                  <span>Ouvrir dans Maps</span>
+                </a>
+              </div>
+              
+              <!-- Point de repère -->
+              <div v-if="salle.point_repere" class="mt-4 lg:mt-6 p-3 lg:p-4 bg-blue-50 rounded-lg lg:rounded-xl">
+                <div class="flex items-start gap-2 lg:gap-3">
+                  <i class="fas fa-landmark text-blue-500 mt-1 text-sm lg:text-base"></i>
+                  <div>
+                    <p class="text-gray-700 font-medium mb-1 text-sm lg:text-base">Point de repère</p>
+                    <p class="text-gray-600 text-sm lg:text-base">{{ salle.point_repere }}</p>
                   </div>
                 </div>
+              </div>
+            </section>
+          </div>
+
+          <!-- Colonne latérale -->
+          <div class="lg:col-span-4">
+            <div class="sticky top-4 lg:top-8 space-y-4 lg:space-y-6">
+              <!-- Reservation Card -->
+              <div class="bg-white rounded-lg lg:rounded-xl shadow-lg lg:shadow-xl border border-gray-200 p-4 lg:p-8">
+                <div class="flex items-end gap-2 mb-4 lg:mb-6">
+                  <span class="text-2xl lg:text-4xl font-bold text-primary">{{ formatPrice(salle.prix_heure) }}</span>
+                  <span class="text-gray-500 mb-1 text-sm lg:text-base">/ heure</span>
+                </div>
+                
+                <div class="space-y-3 lg:space-y-4 mb-4 lg:mb-6">
+                  <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <div class="grid grid-cols-2">
+                      <div class="p-2 lg:p-3 border-r border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer" @click="showReservationModal = true">
+                        <label class="text-xs font-bold uppercase text-gray-500 block mb-1">Date</label>
+                        <span class="text-xs lg:text-sm font-bold text-gray-900">{{ form.date_heure ? formatDateComplet(form.date_heure) : 'Choisir une date' }}</span>
+                      </div>
+                      <div class="p-2 lg:p-3 hover:bg-gray-50 transition-colors cursor-pointer" @click="showReservationModal = true">
+                        <label class="text-xs font-bold uppercase text-gray-500 block mb-1">Heure</label>
+                        <span class="text-xs lg:text-sm font-bold text-gray-900">{{ form.date_heure ? new Date(form.date_heure).toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}) : 'Choisir une heure' }}</span>
+                      </div>
+                    </div>
+                    <div class="p-2 lg:p-3 border-t border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer" @click="showReservationModal = true">
+                      <label class="text-xs font-bold uppercase text-gray-500 block mb-1">Durée</label>
+                      <span class="text-xs lg:text-sm font-bold text-gray-900">{{ form.duree }} Heure(s)</span>
+                    </div>
+                  </div>
+                  
+                  <div class="p-2 lg:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer" @click="showReservationModal = true">
+                    <label class="text-xs font-bold uppercase text-gray-500 block mb-1">Invités</label>
+                    <span class="text-xs lg:text-sm font-bold text-gray-900">{{ form.nombre_personnes }} Personne(s)</span>
+                  </div>
+                </div>
+                
+                <button @click="showReservationModal = true" class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-3 lg:py-4 rounded-lg lg:rounded-xl text-base lg:text-lg transition-all shadow-lg shadow-blue-500/30 mb-3 lg:mb-4">
+                  Demander une réservation
+                </button>
+                
+                <p class="text-center text-xs text-gray-500 mb-4 lg:mb-6">Vous ne serez pas encore débité</p>
+                
+                <div class="border-t border-gray-200 pt-3 lg:pt-4">
+                  <div class="flex justify-between text-xs lg:text-sm text-gray-700 mb-2">
+                    <span>{{ formatPrice(salle.prix_heure) }} x 2 heures</span>
+                    <span>{{ formatPrice(parseInt(salle.prix_heure.replace(/[^0-9]/g, '')) * 2) }}</span>
+                  </div>
+                  <div class="flex justify-between text-xs lg:text-sm text-gray-700 mb-2">
+                    <span>Frais de service</span>
+                    <span>15€</span>
+                  </div>
+                  <div class="flex justify-between text-xs lg:text-sm text-gray-700 mb-3 lg:mb-4">
+                    <span>Frais de nettoyage</span>
+                    <span>10€</span>
+                  </div>
+                  
+                  <hr class="my-3 lg:my-4 border-gray-200"/>
+                  
+                  <div class="flex justify-between font-bold text-lg lg:text-xl text-gray-900">
+                    <span>Total</span>
+                    <span>{{ formatPrice(parseInt(salle.prix_heure.replace(/[^0-9]/g, '')) * 2 + 25) }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Actions -->
+              <div class="flex justify-center gap-3 lg:gap-4">
+                <button class="flex items-center gap-2 px-3 lg:px-4 py-2 lg:py-3 bg-gray-100 hover:bg-gray-200 rounded-lg lg:rounded-xl transition-colors">
+                  <i class="fas fa-share text-gray-700"></i>
+                  <span class="font-medium text-gray-700 text-sm">Partager</span>
+                </button>
+                <button class="flex items-center gap-2 px-3 lg:px-4 py-2 lg:py-3 bg-gray-100 hover:bg-gray-200 rounded-lg lg:rounded-xl transition-colors">
+                  <i class="fas fa-heart text-gray-700"></i>
+                  <span class="font-medium text-gray-700 text-sm">Sauvegarder</span>
+                </button>
+              </div>
+              
+              <!-- Signaler -->
+              <div class="text-center">
+                <button class="text-gray-500 hover:text-gray-700 transition-colors underline text-sm">
+                  Signaler cette annonce
+                </button>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Colonne latérale -->
-        <div class="lg:col-span-1">
-          <!-- Informations de contact -->
-          <div class="bg-content-light rounded-xl p-6 sticky top-6 shadow-lg">
-            <div class="mb-6">
-              <div class="text-3xl font-bold text-text-light">{{ formatPrice(salle.prix_heure) }}</div>
-              <div class="text-sm text-text-light/50">par heure</div>
-            </div>
-
-            <!-- Message si déjà réservé -->
-            <div v-if="aReserve" class="mb-6 p-4 bg-primary/10 rounded-lg">
-              <div class="flex items-center text-primary">
-                <i class="fas fa-check-circle mr-2"></i>
-                <span>Vous avez déjà réservé cette salle</span>
-              </div>
-            </div>
-
-            
-            <!-- Caractéristiques rapides -->
-            <div class="border-t border-border-light pt-4 mt-6">
-              <h3 class="text-lg font-medium text-text-light mb-3">Caractéristiques</h3>
-              <div class="space-y-2 text-sm text-text-light/70">
-                <div class="flex items-center">
-                  <i class="fas fa-users mr-2 text-primary"></i>
-                  <span>Capacité : {{ formatCapacity(salle.capacite_max) }} personnes</span>
-                </div>
-                <div class="flex items-center">
-                  <i class="fas fa-wifi mr-2 text-primary"></i>
-                  <span>WiFi inclus</span>
-                </div>
-                <div class="flex items-center">
-                  <i class="fas fa-parking mr-2 text-primary"></i>
-                  <span>Parking disponible</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
       </div>
     </main>
+
+  <!-- Modal de réservation -->
+  <div v-if="showReservationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white dark:bg-[#19202e] rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white">Demander une réservation</h3>
+          <button @click="showReservationModal = false" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <form @submit.prevent="submitReservation" class="space-y-4">
+          <!-- Date et heure -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date *</label>
+              <input 
+                v-model="form.date_heure" 
+                type="datetime-local" 
+                required
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              >
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Durée *</label>
+              <select 
+                v-model="form.duree" 
+                required
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              >
+                <option :value="1">1 heure</option>
+                <option :value="2">2 heures</option>
+                <option :value="3">3 heures</option>
+                <option :value="4">4 heures</option>
+                <option :value="5">5 heures</option>
+                <option :value="6">6 heures</option>
+                <option :value="8">8 heures (journée complète)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Nombre de personnes et type d'événement -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre de personnes *</label>
+              <input 
+                v-model="form.nombre_personnes" 
+                type="number" 
+                min="1" 
+                :max="salle.capacite_max"
+                required
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              >
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Maximum: {{ salle.capacite_max }} personnes</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type d'événement *</label>
+              <select 
+                v-model="form.type_evenement" 
+                required
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              >
+                <option v-for="type in typesEvenement" :key="type.value" :value="type.value">{{ type.label }}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Contact -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Téléphone de contact *</label>
+            <input 
+              v-model="form.contact_telephone" 
+              type="tel" 
+              required
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              placeholder="+221 33 123 45 67"
+            >
+          </div>
+
+          <!-- Message -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Message (optionnel)</label>
+            <textarea 
+              v-model="form.message" 
+              rows="3"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              placeholder="Décrivez votre projet, vos besoins spécifiques..."
+            ></textarea>
+          </div>
+
+          <!-- Besoins spéciaux -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Besoins spéciaux (optionnel)</label>
+            <textarea 
+              v-model="form.besoins_speciaux" 
+              rows="2"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              placeholder="Équipements spécifiques, accessibilité, etc."
+            ></textarea>
+          </div>
+
+          <!-- Conditions -->
+          <div>
+            <label class="flex items-start gap-3">
+              <input 
+                v-model="form.accepte_conditions" 
+                type="checkbox" 
+                required
+                class="mt-1 rounded border-gray-300 dark:border-gray-700 text-primary focus:ring-primary/50"
+              >
+              <span class="text-sm text-gray-700 dark:text-gray-300">
+                J'accepte les conditions générales de réservation et comprends que cette demande est soumise à validation par le propriétaire de la salle.
+              </span>
+            </label>
+          </div>
+
+          <!-- Récapitulatif du prix -->
+          <div class="bg-gray-50 dark:bg-[#2d3748] p-4 rounded-lg">
+            <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Récapitulatif du prix</h4>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400">{{ formatPrice(salle.prix_heure) }} × {{ form.duree }} heure(s)</span>
+                <span class="text-gray-900 dark:text-white font-medium">{{ formatPrice(parseInt(salle.prix_heure.replace(/[^0-9]/g, '')) * form.duree) }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400">Frais de service</span>
+                <span class="text-gray-900 dark:text-white font-medium">{{ formatPrice(1500) }}</span>
+              </div>
+              <div class="border-t border-gray-200 dark:border-gray-600 pt-2 mt-2">
+                <div class="flex justify-between font-semibold">
+                  <span class="text-gray-900 dark:text-white">Total estimé</span>
+                  <span class="text-gray-900 dark:text-white">{{ formatPrice(parseInt(salle.prix_heure.replace(/[^0-9]/g, '')) * form.duree + 1500) }}</span>
+                </div>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Le paiement ne sera demandé qu'après acceptation de votre réservation</p>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex gap-3 pt-4">
+            <button 
+              type="button"
+              @click="showReservationModal = false"
+              class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            >
+              Annuler
+            </button>
+            <button 
+              type="submit"
+              class="flex-1 px-4 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg transition-colors"
+            >
+              Envoyer la demande
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Modal -->
+  <NotificationModal 
+    v-if="showNotificationModal"
+    :type="notificationType"
+    :title="notificationTitle"
+    :message="notificationMessage"
+    @close="showNotificationModal = false"
+  />
   </div>
 </template>
 

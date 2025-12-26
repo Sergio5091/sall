@@ -115,6 +115,13 @@ Route::middleware(['auth', 'role:client'])->prefix('client')->name('client.')->g
     
     // Routes pour les réservations
     Route::get('/reservations', [App\Http\Controllers\Client\ReservationController::class, 'index'])->name('reservations');
+    
+    // Routes pour le profil
+    Route::get('/profile', [App\Http\Controllers\Client\ProfileController::class, 'index'])->name('profile');
+    Route::put('/profile', [App\Http\Controllers\Client\ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/password', [App\Http\Controllers\Client\ProfileController::class, 'updatePassword'])->name('password.update');
+    Route::get('/download-data', [App\Http\Controllers\Client\ProfileController::class, 'downloadData'])->name('download.data');
+    Route::delete('/profile', [App\Http\Controllers\Client\ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {

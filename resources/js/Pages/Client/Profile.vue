@@ -1,6 +1,99 @@
 <script setup>
-import { Head } from '@inertiajs/vue3';
+import { Head, router, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
+
+const props = defineProps({
+  auth: Object,
+  user: Object
+});
+
+// États pour le formulaire
+const form = ref({
+  name: props.user?.name || props.auth?.user?.name || '',
+  email: props.user?.email || props.auth?.user?.email || '',
+  telephone: props.user?.telephone || props.auth?.user?.telephone || '',
+  date_naissance: props.user?.date_naissance || props.auth?.user?.date_naissance || '',
+  newsletter: props.user?.newsletter || props.auth?.user?.newsletter || false,
+  notifications_email: props.user?.notifications_email || props.auth?.user?.notifications_email || true,
+  partage_profil: props.user?.partage_profil || props.auth?.user?.partage_profil || false
+});
+
+// États pour les préférences
+const preferences = ref({
+  jeux_preferes: props.user?.jeux_preferes || props.auth?.user?.jeux_preferes || [],
+  types_salles_preferes: props.user?.types_salles_preferes || props.auth?.user?.types_salles_preferes || []
+});
+
+// Fonction de déconnexion
+const logout = () => {
+  if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+    router.post('/logout');
+  }
+};
+
+// Fonction de sauvegarde du profil
+const updateProfile = () => {
+  router.put('/client/profile', form.value, {
+    onSuccess: () => {
+      // Notification de succès
+      alert('Profil mis à jour avec succès !');
+    },
+    onError: (errors) => {
+      console.error('Erreurs de validation:', errors);
+      alert('Une erreur est survenue lors de la mise à jour du profil.');
+    }
+  });
+};
+
+// Fonction de changement de mot de passe
+const changePassword = () => {
+  // Ouvrir un modal pour changer le mot de passe
+  const newPassword = prompt('Entrez votre nouveau mot de passe:');
+  if (newPassword) {
+    router.put('/client/password', { password: newPassword }, {
+      onSuccess: () => {
+        alert('Mot de passe changé avec succès !');
+      },
+      onError: () => {
+        alert('Erreur lors du changement du mot de passe.');
+      }
+    });
+  }
+};
+
+// Fonction de téléchargement des données
+const downloadData = () => {
+  router.get('/client/download-data', {}, {
+    onSuccess: (response) => {
+      // Créer un blob et télécharger le fichier
+      const blob = new Blob([JSON.stringify(response.props.data, null, 2)], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'mes-donnees-gameon.json';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
+  });
+};
+
+// Fonction de suppression du compte
+const deleteAccount = () => {
+  const confirmation = prompt('Pour supprimer votre compte, tapez "SUPPRIMER MON COMPTE" en majuscules:');
+  if (confirmation === 'SUPPRIMER MON COMPTE') {
+    router.delete('/client/account', {
+      onSuccess: () => {
+        alert('Votre compte a été supprimé. Redirection...');
+        router.push('/');
+      },
+      onError: () => {
+        alert('Erreur lors de la suppression du compte.');
+      }
+    });
+  } else if (confirmation) {
+    alert('Texte de confirmation incorrect. La suppression n\'a pas été effectuée.');
+  }
+};
 </script>
 
 <template>
@@ -27,7 +120,7 @@ import { ref } from 'vue';
             <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/dashboard">Dashboard</a>
             <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/salles">Salles</a>
             <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/evenements">Événements</a>
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/reservations">Mes Réservations</a>
+            <a class="text-black text-sm font-medium text-accent-cyan" href="/client/profile">Mon Profil</a>
           </nav>
         </div>
         <div class="flex items-center gap-3">
@@ -38,7 +131,8 @@ import { ref } from 'vue';
               <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
             </span>
           </button>
-          <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 bg-gray-300"></div>
+          <Link href="/client/profile" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 bg-gray-300 hover:opacity-80 transition-opacity cursor-pointer" title="Mon Profil">
+          </Link>
         </div>
       </div>
     </header>
@@ -65,20 +159,25 @@ import { ref } from 'vue';
               <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label class="block text-sm font-medium text-text-light/70 mb-2">Nom complet</label>
-                  <input type="text" value="Alex Johnson" class="w-full px-4 py-2 border border-border-light rounded-lg bg-subtle-light text-text-light focus:outline-none focus:ring-2 focus:ring-primary"/>
+                  <input v-model="form.name" type="text" class="w-full px-4 py-2 border border-border-light rounded-lg bg-subtle-light text-text-light focus:outline-none focus:ring-2 focus:ring-primary"/>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-text-light/70 mb-2">Email</label>
-                  <input type="email" value="alex.johnson@email.com" class="w-full px-4 py-2 border border-border-light rounded-lg bg-subtle-light text-text-light focus:outline-none focus:ring-2 focus:ring-primary"/>
+                  <input v-model="form.email" type="email" class="w-full px-4 py-2 border border-border-light rounded-lg bg-subtle-light text-text-light focus:outline-none focus:ring-2 focus:ring-primary"/>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-text-light/70 mb-2">Téléphone</label>
-                  <input type="tel" value="+33 6 12 34 56 78" class="w-full px-4 py-2 border border-border-light rounded-lg bg-subtle-light text-text-light focus:outline-none focus:ring-2 focus:ring-primary"/>
+                  <input v-model="form.telephone" type="tel" class="w-full px-4 py-2 border border-border-light rounded-lg bg-subtle-light text-text-light focus:outline-none focus:ring-2 focus:ring-primary"/>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-text-light/70 mb-2">Date de naissance</label>
-                  <input type="date" value="1995-06-15" class="w-full px-4 py-2 border border-border-light rounded-lg bg-subtle-light text-text-light focus:outline-none focus:ring-2 focus:ring-primary"/>
+                  <input v-model="form.date_naissance" type="date" class="w-full px-4 py-2 border border-border-light rounded-lg bg-subtle-light text-text-light focus:outline-none focus:ring-2 focus:ring-primary"/>
                 </div>
+              </div>
+              <div class="flex justify-end mt-4">
+                <button @click="updateProfile" class="px-6 py-2 bg-primary text-white rounded-full hover:bg-opacity-90 transition-colors">
+                  Sauvegarder les modifications
+                </button>
               </div>
             </div>
           </div>
@@ -96,8 +195,8 @@ import { ref } from 'vue';
                       <p class="font-medium">Notifications par email</p>
                       <p class="text-sm text-text-light/70">Recevoir des rappels de réservations</p>
                     </div>
-                    <button class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary">
-                      <span class="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-6"></span>
+                    <button @click="form.notifications_email = !form.notifications_email" :class="`relative inline-flex h-6 w-11 items-center rounded-full ${form.notifications_email ? 'bg-primary' : 'bg-gray-300'}`">
+                      <span :class="`inline-block h-4 w-4 transform rounded-full bg-white transition ${form.notifications_email ? 'translate-x-6' : 'translate-x-1'}`"></span>
                     </button>
                   </div>
                   <div class="flex items-center justify-between">
@@ -105,8 +204,8 @@ import { ref } from 'vue';
                       <p class="font-medium">Newsletter</p>
                       <p class="text-sm text-text-light/70">Nouveautés et événements spéciaux</p>
                     </div>
-                    <button class="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-300">
-                      <span class="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-1"></span>
+                    <button @click="form.newsletter = !form.newsletter" :class="`relative inline-flex h-6 w-11 items-center rounded-full ${form.newsletter ? 'bg-primary' : 'bg-gray-300'}`">
+                      <span :class="`inline-block h-4 w-4 transform rounded-full bg-white transition ${form.newsletter ? 'translate-x-6' : 'translate-x-1'}`"></span>
                     </button>
                   </div>
                   <div class="flex items-center justify-between">
@@ -114,8 +213,8 @@ import { ref } from 'vue';
                       <p class="font-medium">Partage de profil</p>
                       <p class="text-sm text-text-light/70">Autoriser les autres joueurs à voir votre profil</p>
                     </div>
-                    <button class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary">
-                      <span class="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-6"></span>
+                    <button @click="form.partage_profil = !form.partage_profil" :class="`relative inline-flex h-6 w-11 items-center rounded-full ${form.partage_profil ? 'bg-primary' : 'bg-gray-300'}`">
+                      <span :class="`inline-block h-4 w-4 transform rounded-full bg-white transition ${form.partage_profil ? 'translate-x-6' : 'translate-x-1'}`"></span>
                     </button>
                   </div>
                 </div>
@@ -158,7 +257,7 @@ import { ref } from 'vue';
                         <p class="text-sm text-text-light/70">Dernière modification : il y a 30 jours</p>
                       </div>
                     </div>
-                    <button class="px-4 py-2 text-sm font-bold bg-subtle-light rounded-full hover:bg-border-light">
+                    <button @click="changePassword" class="px-4 py-2 text-sm font-bold bg-subtle-light rounded-full hover:bg-border-light">
                       Modifier
                     </button>
                   </div>
@@ -207,7 +306,7 @@ import { ref } from 'vue';
               <div class="bg-content-light rounded-lg p-6 border border-border-light">
                 <h3 class="text-xl font-bold mb-4">Actions Rapides</h3>
                 <div class="space-y-3">
-                  <button class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-full bg-primary text-white">
+                  <button @click="downloadData" class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-full bg-primary text-white">
                     <i class="fas fa-download"></i>
                     <span>Télécharger mes données</span>
                   </button>
@@ -215,7 +314,7 @@ import { ref } from 'vue';
                     <i class="fas fa-share"></i>
                     <span>Partager mon profil</span>
                   </button>
-                  <button class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-full border border-red-500 text-red-500 hover:bg-red-50">
+                  <button @click="logout" class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-full border border-red-500 text-red-500 hover:bg-red-50">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Se déconnecter</span>
                   </button>
@@ -226,7 +325,7 @@ import { ref } from 'vue';
               <div class="bg-content-light rounded-lg p-6 border border-border-light">
                 <h3 class="text-xl font-bold mb-2 text-red-500">Danger Zone</h3>
                 <p class="text-sm text-text-light/70 mb-4">La suppression de votre compte est définitive et irréversible.</p>
-                <button class="w-full px-4 py-2 text-sm font-bold rounded-full border border-red-500 text-red-500 hover:bg-red-50">
+                <button @click="deleteAccount" class="w-full px-4 py-2 text-sm font-bold rounded-full border border-red-500 text-red-500 hover:bg-red-50">
                   Supprimer mon compte
                 </button>
               </div>
