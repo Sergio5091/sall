@@ -6,7 +6,7 @@
         <div class="size-6 flex items-center justify-center bg-soft-black rounded-md text-white">
           <span class="material-symbols-outlined text-[16px]">stadia_controller</span>
         </div>
-        <span class="text-soft-black font-bold tracking-tight">GameBook</span>
+        <span class="text-soft-black font-bold tracking-tight">GameOn</span>
       </div>
       <div class="flex gap-8 text-sm text-medium-grey font-medium">
         <a class="hover:text-primary transition-colors" href="#">À propos</a>
@@ -15,7 +15,7 @@
         <a class="hover:text-primary transition-colors" href="#">CGU</a>
       </div>
       <div class="text-sm text-gray-400">
-        2024 GameBook. Tous droits réservés.
+        2024 GameOn. Tous droits réservés.
       </div>
     </div>
   </footer>

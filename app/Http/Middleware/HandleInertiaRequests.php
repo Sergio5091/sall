@@ -47,6 +47,8 @@ class HandleInertiaRequests extends Middleware
                     'password_updated_at' => $request->user()->password_updated_at,
                     'created_at' => $request->user()->created_at,
                     'email_verified_at' => $request->user()->email_verified_at,
+                    'role' => $request->user()->role,
+                    'status' => $request->user()->status,
                 ] : null,
             ],
             'flash' => [

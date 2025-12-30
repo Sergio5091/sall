@@ -9,7 +9,7 @@
             <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <span class="text-white font-bold">GB</span>
             </div>
-            <h1 class="text-soft-black text-xl font-bold tracking-tight">GameBook</h1>
+            <h1 class="text-soft-black text-xl font-bold tracking-tight">GameOn</h1>
           </div>
           
           <!-- Desktop Menu -->
@@ -369,7 +369,7 @@
       <div class="max-w-[1320px] mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <h3 class="text-lg sm:text-xl font-bold mb-4">GameBook</h3>
+            <h3 class="text-lg sm:text-xl font-bold mb-4">GameOn</h3>
             <p class="text-sm sm:text-base text-gray-400 mb-6">
               La plateforme N°1 pour la réservation de salles de gaming et d'événements en Afrique.
             </p>
@@ -403,7 +403,7 @@
             <a class="text-sm sm:text-base text-gray-400 hover:text-primary transition-colors" href="#">CGU</a>
           </div>
           <div class="text-xs sm:text-sm text-gray-400">
-            2024 GameBook. Tous droits réservés.
+            2024 GameOn. Tous droits réservés.
           </div>
         </div>
       </div>

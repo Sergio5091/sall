@@ -8,7 +8,7 @@
           <div class="size-8 flex items-center justify-center bg-white rounded-lg text-primary">
             <span class="material-symbols-outlined text-[24px]">stadia_controller</span>
           </div>
-          <h1 class="text-white text-xl font-bold tracking-tight">GameBook</h1>
+          <h1 class="text-white text-xl font-bold tracking-tight">GameOn</h1>
         </div>
         
         <!-- Desktop Menu -->
@@ -20,12 +20,20 @@
         
         <!-- Desktop Right Actions -->
         <div class="hidden md:flex items-center gap-4">
-          <button class="text-white hover:text-white/80 text-sm font-semibold px-4 py-2 transition-colors">
+          <Link 
+            href="/login" 
+            @click="handleAuthClick($event, 'login')"
+            class="text-white hover:text-white/80 text-sm font-semibold px-4 py-2 transition-colors"
+          >
             Connexion
-          </button>
-          <button class="flex items-center justify-center rounded-full bg-primary hover:bg-blue-600 text-white text-sm font-bold px-6 py-2.5 transition-all shadow-lg shadow-primary/20">
+          </Link>
+          <Link 
+            href="/register" 
+            @click="handleAuthClick($event, 'register')"
+            class="flex items-center justify-center rounded-full bg-primary hover:bg-blue-600 text-white text-sm font-bold px-6 py-2.5 transition-all shadow-lg shadow-primary/20"
+          >
             Inscription
-          </button>
+          </Link>
         </div>
 
         <!-- Mobile Menu Button -->
@@ -48,12 +56,24 @@
       >
         <div class="py-4 border-t border-white/20">
           <div class="flex flex-col gap-4">
-            <a href="/" class="text-white/90 hover:text-white text-sm font-medium transition-colors py-2">Accueil</a>
-            <a href="/search/rooms" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2">Salles</a>
-            <a href="/events" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2">Événements</a>
+            <Link href="/" class="text-white/90 hover:text-white text-sm font-medium transition-colors py-2">Accueil</Link>
+            <Link href="/search/rooms" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2">Salles</Link>
+            <Link href="/events" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2">Événements</Link>
             <div class="flex gap-3 pt-4 border-t border-white/20">
-              <button class="flex-1 text-center text-white hover:text-white/80 text-sm font-semibold py-2 border border-white/20 rounded-lg">Connexion</button>
-              <button class="flex-1 text-center bg-primary hover:bg-blue-600 text-white text-sm font-bold py-2 rounded-lg transition-all shadow-lg shadow-primary/20">Inscription</button>
+              <Link 
+                href="/login" 
+                @click="handleAuthClick($event, 'login')"
+                class="flex-1 text-center text-white hover:text-white/80 text-sm font-semibold py-2 border border-white/20 rounded-lg"
+              >
+                Connexion
+              </Link>
+              <Link 
+                href="/register" 
+                @click="handleAuthClick($event, 'register')"
+                class="flex-1 text-center bg-primary hover:bg-blue-600 text-white text-sm font-bold py-2 rounded-lg transition-all shadow-lg shadow-primary/20"
+              >
+                Inscription
+              </Link>
             </div>
           </div>
         </div>
@@ -368,9 +388,32 @@
 
 <script setup>
 import { ref } from 'vue';
+import { Link, usePage } from '@inertiajs/vue3';
 import MainFooter from '@/Components/MainFooter.vue';
 
+const page = usePage();
 const isMobileMenuOpen = ref(false);
+
+// Vérifier si l'utilisateur est connecté
+const isLoggedIn = ref(!!page.props.auth?.user);
+
+// Fonction pour gérer le clic sur connexion/inscription
+const handleAuthClick = (event, type) => {
+  if (isLoggedIn.value) {
+    event.preventDefault();
+    
+    const user = page.props.auth.user;
+    let redirectRoute = '/client/dashboard'; // défaut
+    
+    if (user.role === 'admin') {
+      redirectRoute = '/admin/dashboard';
+    } else if (user.role === 'promoter') {
+      redirectRoute = '/promoter/dashboard';
+    }
+    
+    window.location.href = redirectRoute;
+  }
+};
 
 // Format numbers with separators
 const formatNumber = (num) => {

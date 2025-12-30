@@ -18,19 +18,26 @@ Route::get('/search/rooms', function () {
     return Inertia::render('Search/Rooms');
 })->name('search.rooms');
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route de test pour vérifier la redirection
+Route::get('/test-redirect', function () {
+    if (auth()->check()) {
+        $user = auth()->user();
+        return response()->json([
+            'authenticated' => true,
+            'user_id' => $user->id,
+            'role' => $user->role,
+            'redirect_to' => $user->role === 'admin' ? 'admin.dashboard' : 
+                           ($user->role === 'promoter' ? 'promoter.dashboard' : 'client.dashboard')
+        ]);
+    }
+    return response()->json(['authenticated' => false]);
+})->name('test.redirect');
 
 // Routes protégées par rôle (temporairement sans middleware de rôle pour tester)
 use App\Http\Controllers\Promoter\DashboardController;
 use App\Http\Controllers\Promoter\PromoterProfileController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\SalleController;
-use App\Http\Controllers\Admin\EventController;
-use App\Http\Controllers\Admin\NotificationController;
-use App\Http\Controllers\Admin\NewsController;
-use App\Http\Controllers\Promoter\AccountSwitchController;
 
 Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -45,13 +52,13 @@ Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(functi
     Route::get('/profile/stats', [PromoterProfileController::class, 'stats'])->name('profile.stats');
     
     // Routes pour la gestion des comptes promoteurs (API uniquement)
-    Route::get('/api/accounts', [AccountSwitchController::class, 'getAccounts'])->name('api.accounts');
-    Route::post('/accounts/add', [AccountSwitchController::class, 'addAccount'])->name('accounts.add');
-    Route::post('/accounts/switch/{accountId}', [AccountSwitchController::class, 'switch'])->name('accounts.switch');
-    Route::delete('/accounts/{accountId}', [AccountSwitchController::class, 'removeAccount'])->name('accounts.remove');
-    Route::patch('/accounts/{accountId}/nickname', [AccountSwitchController::class, 'updateNickname'])->name('accounts.update-nickname');
-    Route::get('/api/active-account', [AccountSwitchController::class, 'getActiveAccount'])->name('api.active-account');
-    Route::post('/accounts/store-link-session', [AccountSwitchController::class, 'storeLinkSession'])->name('accounts.store-link-session');
+    // Route::get('/api/accounts', [AccountSwitchController::class, 'getAccounts'])->name('api.accounts');
+    // Route::post('/accounts/add', [AccountSwitchController::class, 'addAccount'])->name('accounts.add');
+    // Route::post('/accounts/switch/{accountId}', [AccountSwitchController::class, 'switch'])->name('accounts.switch');
+    // Route::delete('/accounts/{accountId}', [AccountSwitchController::class, 'removeAccount'])->name('accounts.remove');
+    // Route::patch('/accounts/{accountId}/nickname', [AccountSwitchController::class, 'updateNickname'])->name('accounts.update-nickname');
+    // Route::get('/api/active-account', [AccountSwitchController::class, 'getActiveAccount'])->name('api.active-account');
+    // Route::post('/accounts/store-link-session', [AccountSwitchController::class, 'storeLinkSession'])->name('accounts.store-link-session');
     
     // Routes pour la gestion des salles
     Route::get('/venues', [App\Http\Controllers\Promoter\SalleController::class, 'index'])->name('venues');
@@ -101,7 +108,7 @@ Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(functi
     })->withoutMiddleware(['inertia']);
 });
 
-Route::middleware(['auth', 'role:client'])->prefix('client')->name('client.')->group(function () {
+Route::middleware(['auth'])->prefix('client')->name('client.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Client\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/salles', [App\Http\Controllers\Client\SalleController::class, 'index'])->name('salles');
     Route::get('/salles/{salle}', [App\Http\Controllers\Client\SalleController::class, 'show'])->name('salles.show');
@@ -143,14 +150,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/promoteurs', [UserController::class, 'promoters'])->name('promoteurs.index');
     Route::get('/promoteurs/{user}', [UserController::class, 'showPromoter'])->name('promoteurs.show');
     Route::patch('/promoteurs/{user}/toggle-status', [UserController::class, 'togglePromoterStatus'])->name('promoteurs.toggle-status');
-    Route::post('/promoters/{user}/notify', [NotificationController::class, 'sendToPromoter'])->name('promoters.notify');
+    // Route::post('/promoters/{user}/notify', [NotificationController::class, 'sendToPromoter'])->name('promoters.notify');
     Route::delete('/promoteurs/{user}', [UserController::class, 'destroy'])->name('promoteurs.destroy');
     
     // Routes pour la gestion des clients (admin)
     Route::get('/clients', [App\Http\Controllers\Admin\UserController::class, 'clients'])->name('clients.index');
     Route::get('/clients/{user}', [App\Http\Controllers\Admin\UserController::class, 'showClient'])->name('clients.show');
     Route::patch('/clients/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleClientStatus'])->name('clients.toggle-status');
-    Route::post('/clients/{user}/notify', [NotificationController::class, 'sendToClient'])->name('clients.notify');
+    // Route::post('/clients/{user}/notify', [NotificationController::class, 'sendToClient'])->name('clients.notify');
     
     // Routes pour la gestion des événements (admin)
     Route::get('/events', [App\Http\Controllers\Admin\EventController::class, 'index'])->name('events.index');
@@ -159,13 +166,13 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::patch('/events/{event}/toggle-status', [App\Http\Controllers\Admin\EventController::class, 'toggleStatus'])->name('events.toggle-status');
     
     // Routes pour la gestion des actualités (admin)
-    Route::get('/news', [NewsController::class, 'index'])->name('news.index');
-    Route::get('/news/create', [NewsController::class, 'create'])->name('news.create');
-    Route::post('/news', [NewsController::class, 'store'])->name('news.store');
-    Route::get('/news/{news}', [NewsController::class, 'show'])->name('news.show');
-    Route::get('/news/{news}/edit', [NewsController::class, 'edit'])->name('news.edit');
-    Route::put('/news/{news}', [NewsController::class, 'update'])->name('news.update');
-    Route::delete('/news/{news}', [NewsController::class, 'destroy'])->name('news.destroy');
+    // Route::get('/news', [NewsController::class, 'index'])->name('news.index');
+    // Route::get('/news/create', [NewsController::class, 'create'])->name('news.create');
+    // Route::post('/news', [NewsController::class, 'store'])->name('news.store');
+    // Route::get('/news/{news}', [NewsController::class, 'show'])->name('news.show');
+    // Route::get('/news/{news}/edit', [NewsController::class, 'edit'])->name('news.edit');
+    // Route::put('/news/{news}', [NewsController::class, 'update'])->name('news.update');
+    // Route::delete('/news/{news}', [NewsController::class, 'destroy'])->name('news.destroy');
     
     // Routes pour la gestion des sous-admins (admin)
     Route::get('/sub-admins', [App\Http\Controllers\Admin\SubAdminController::class, 'index'])->name('sub-admins.index');
@@ -245,6 +252,19 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/settings', function () {
         return Inertia::render('Admin/Settings');
     })->name('settings');
+});
+
+Route::middleware('guest')->group(function () {
+    Route::get('/register', [RegisteredUserController::class, 'create'])
+        ->name('register');
+
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])
+        ->name('login')
+        ->middleware('guest');
+
+    Route::post('/register', [RegisteredUserController::class, 'store']);
+
+    Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 });
 
 Route::middleware('auth')->group(function () {

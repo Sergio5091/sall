@@ -9,7 +9,7 @@
             <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <span class="text-white font-bold">GB</span>
             </div>
-            <h1 class="text-soft-black text-xl font-bold tracking-tight">GameBook</h1>
+            <h1 class="text-soft-black text-xl font-bold tracking-tight">GameOn</h1>
           </div>
           
           <!-- Central Menu -->

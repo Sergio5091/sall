@@ -7,7 +7,7 @@
         <div class="size-8 flex items-center justify-center bg-white rounded-lg text-primary">
           <span class="material-symbols-outlined text-[24px]">stadia_controller</span>
         </div>
-        <h1 class="text-white text-xl font-bold tracking-tight">GameBook</h1>
+        <h1 class="text-white text-xl font-bold tracking-tight">GameOn</h1>
       </div>
       
       <!-- Desktop Menu -->

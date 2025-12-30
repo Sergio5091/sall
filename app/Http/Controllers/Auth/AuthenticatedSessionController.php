@@ -30,13 +30,11 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
-        $request->session()->regenerate();
-
-        // Récupérer l'utilisateur connecté
+        
         $user = Auth::user();
-
-        // Vérifier si le compte est désactivé
+        $request->session()->regenerate();
+        
+        // Vérifier si l'utilisateur est désactivé
         if ($user->status === 'inactive') {
             Auth::logout();
             $request->session()->invalidate();

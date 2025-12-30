@@ -1,11 +1,21 @@
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import Navbar from '@/Components/Navbar.vue';
+import Navigation from '../../Components/Navigation.vue';
+import AlertModal from '../../Components/AlertModal.vue';
+import { useAlert } from '../../Composables/useAlert.js';
+
+// Alert composable
+const { alertState, showSuccess, showError, showConfirm } = useAlert();
 
 // Fonction de déconnexion
-const logout = () => {
-  if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+const logout = async () => {
+  const confirmed = await showConfirm(
+    'Déconnexion',
+    'Êtes-vous sûr de vouloir vous déconnecter ?'
+  );
+  
+  if (confirmed) {
     router.post('/logout');
   }
 };
@@ -115,6 +125,7 @@ const referralLink = computed(() => props.referral || 'gamecenter.com/invite/ale
 
 const copyState = ref('idle');
 const howItWorksOpen = ref(false);
+const mobileMenuOpen = ref(false);
 
 const copyReferralLink = async () => {
   if (!referralLink.value) return;
@@ -147,353 +158,308 @@ const openHowItWorks = () => {
 const closeHowItWorks = () => {
   howItWorksOpen.value = false;
 };
+
+const toggleMobileMenu = () => {
+  mobileMenuOpen.value = !mobileMenuOpen.value;
+};
+
+const closeMobileMenu = () => {
+  mobileMenuOpen.value = false;
+};
 </script>
 
 <template>
   <Head title="Tableau de bord Client" />
   
   <!-- Add Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <!-- Add Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light font-display">
-    <!-- Header - Same as Welcome page but with client navigation -->
-    <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center backdrop-blur-sm shadow-sm">
-      <div class="flex items-center justify-between w-full max-w-7xl px-6 py-3">
-        <div class="flex items-center gap-8">
-          <div class="flex items-center gap-2 text-black">
-            <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <i class="fas fa-gamepad text-3xl text-accent-cyan"></i>
-              <h2 class="text-black text-2xl font-display font-bold">GameOn</h2>
-            </a>
-          </div>
-          <!-- Client Navigation -->
-          <nav class="hidden md:flex items-center gap-6">
-            <a class="text-black text-sm font-medium text-accent-cyan" href="/client/dashboard">Dashboard</a>
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/salles">Salles</a>
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/evenements">Événements</a>
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/reservations">Mes Réservations</a>
-          </nav>
-        </div>
-        <div class="flex items-center gap-3">
-          <button class="flex relative cursor-pointer items-center justify-center overflow-hidden rounded-full size-10 bg-[#e5e7eb] text-black gap-2">
-            <i class="fas fa-bell"></i>
-            <span class="absolute top-1.5 right-1.5 flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-            </span>
-          </button>
-          <Link href="/client/profile" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 bg-gray-300 hover:opacity-80 transition-opacity cursor-pointer" title="Mon Profil">
-          </Link>
-        </div>
-      </div>
-    </header>
+  <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-gray-50 font-sans">
+    <!-- Navigation Component -->
+    <Navigation :user="user" current-page="dashboard" />
 
     <!-- Main Content -->
-    <main class="layout-container flex h-full grow flex-col pt-20">
-      <div class="px-4 sm:px-8 lg:px-16 2xl:px-40 flex flex-1 justify-center py-5">
-        <div class="layout-content-container flex flex-col w-full max-w-screen-xl flex-1 gap-8">
-          <!-- Welcome Section -->
-          <div class="flex flex-wrap justify-between gap-4 items-center">
-            <h1 class="text-4xl font-black leading-tight tracking-[-0.033em]">Bienvenue, {{ userName }}</h1>
-            <div class="flex items-center gap-2">
-              <button class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold rounded-full bg-subtle-light hover:bg-border-light">
-                <i class="fas fa-calendar text-lg"></i>
-                <span>Réserver une salle</span>
-              </button>
-              <Link href="/client/reseau" class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold rounded-full bg-subtle-light hover:bg-border-light">
-                <i class="fas fa-user-plus text-lg"></i>
-                <span>Inviter des amis</span>
-              </Link>
-              <button class="hidden md:flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold rounded-full bg-subtle-light hover:bg-border-light">
-                <i class="fas fa-history text-lg"></i>
-                <span>Voir mon historique</span>
-              </button>
-            </div>
+    <main class="pt-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Welcome Section -->
+        <div class="flex flex-wrap justify-between gap-6 items-center mb-8">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">Bonjour, {{ userName }} 👋</h1>
+            <p class="text-gray-600 mt-1">Voici votre activité récente</p>
           </div>
+          <div class="flex items-center gap-3">
+            <button class="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+              <i class="fas fa-calendar-plus"></i>
+              <span>Réserver</span>
+            </button>
+            <Link href="/client/reseau" class="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors">
+              <i class="fas fa-user-plus"></i>
+              <span>Inviter</span>
+            </Link>
+          </div>
+        </div>
 
-          <!-- Stats Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="flex flex-col justify-between gap-2 rounded-lg p-6 bg-content-light border border-border-light min-h-[120px]">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+            <div class="flex items-center justify-between">
               <div>
-                <p class="text-base font-medium">Prochaines Réservations</p>
-                <p class="tracking-light text-3xl font-bold mt-2">{{ nextReservations }}</p>
+                <p class="text-gray-600 text-sm font-medium">Prochaines Réservations</p>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ nextReservations }}</p>
               </div>
-              <div class="text-xs text-text-light/60">
-                <i class="fas fa-calendar-alt text-sm"></i>
-              </div>
-            </div>
-            <div class="flex flex-col justify-between gap-2 rounded-lg p-6 bg-content-light border border-border-light min-h-[120px]">
-              <div>
-                <p class="text-base font-medium">Filleuls directs</p>
-                <p class="tracking-light text-3xl font-bold mt-2">{{ invitationsPending }}</p>
-              </div>
-              <div class="text-xs text-text-light/60">
-                <i class="fas fa-user-plus text-sm"></i>
-              </div>
-            </div>
-            <div class="flex flex-col justify-between gap-2 rounded-lg p-6 bg-content-light border border-border-light min-h-[120px]">
-              <div>
-                <p class="text-base font-medium">Mes Points</p>
-                <p class="tracking-light text-3xl font-bold mt-2">{{ referralPoints }}</p>
-              </div>
-              <div class="text-xs text-text-light/60">
-                <i class="fas fa-star text-sm"></i>
+              <div class="p-3 rounded-md bg-blue-50">
+                <i class="fas fa-calendar-alt text-blue-600"></i>
               </div>
             </div>
           </div>
+          
+          <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Filleuls directs</p>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ invitationsPending }}</p>
+              </div>
+              <div class="p-3 rounded-md bg-green-50">
+                <i class="fas fa-users text-green-600"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Mes Points</p>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ referralPoints }}</p>
+              </div>
+              <div class="p-3 rounded-md bg-purple-50">
+                <i class="fas fa-star text-purple-600"></i>
+              </div>
+            </div>
+          </div>
+        </div>
 
-           <!-- Main Content Grid -->
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Column - Activity Feed -->
-            <div class="lg:col-span-2 flex flex-col gap-6">
-              <h2 class="text-2xl font-bold tracking-[-0.015em]">Flux d'activité personnalisé</h2>
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Left Column - Activity Feed -->
+          <div class="lg:col-span-2 space-y-8">
+            <!-- Recommended Events -->
+            <div>
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-900">Événements recommandés</h2>
+                <a href="/client/evenements" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+                  Voir tout →
+                </a>
+              </div>
               
-              <div class="flex flex-col gap-6">
+              <div class="space-y-6">
                 <template v-for="(evt, idx) in recommendedEvents" :key="evt.id ?? idx">
-                  <div class="flex flex-col sm:flex-row gap-6 p-4 rounded-lg bg-content-light border border-border-light">
-                    <div class="w-full sm:w-48 h-48 sm:h-auto bg-cover bg-center rounded" :style="`background-image: url('${evt.image || 'https://picsum.photos/seed/tournament/800/600'}')`"></div>
-                    <div class="flex flex-col justify-between flex-1">
-                      <div>
-                        <p class="text-xs font-bold uppercase text-primary">Événement disponible</p>
-                        <h3 class="text-xl font-bold mt-1">{{ evt.title }}</h3>
-                        <p class="text-sm mt-2 text-text-light/70">{{ evt.subtitle }}</p>
-                        <p v-if="evt.location" class="text-sm font-medium mt-2">📍 {{ evt.location }}</p>
+                  <div class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex flex-col sm:flex-row">
+                      <div class="sm:w-48 h-48 sm:h-auto bg-cover bg-center" :style="`background-image: url('${evt.image || 'https://picsum.photos/seed/tournament/800/600'}')`"></div>
+                      <div class="flex-1 p-6">
+                        <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-blue-50 text-blue-700 mb-3">
+                          Événement
+                        </span>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">{{ evt.title }}</h3>
+                        <p class="text-gray-600 text-sm mb-4">{{ evt.subtitle }}</p>
+                        <div class="flex items-center text-sm text-gray-500 mb-6">
+                          <i class="fas fa-map-marker-alt mr-2"></i>
+                          <span>{{ evt.location }}</span>
+                        </div>
+                        <div class="flex gap-3">
+                          <a :href="evt.href" class="flex-1 px-4 py-2.5 text-center text-sm font-medium rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
+                            Détails
+                          </a>
+                          <a :href="evt.href" class="flex-1 px-4 py-2.5 text-center text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+                            Réserver
+                          </a>
+                        </div>
                       </div>
-                      <div class="flex gap-2 mt-4">
-                        <a :href="evt.href" class="px-4 py-2 text-sm font-bold bg-subtle-light rounded-full w-full sm:w-auto text-center">Voir les détails</a>
-                        <a :href="evt.href" class="px-4 py-2 text-sm font-bold text-white bg-primary rounded-full w-full sm:w-auto text-center">Réserver</a>
-                      </div>
-                    </div>
-                  </div>
-                </template>
-              </div>
-
-              <!-- Upcoming Appointments -->
-              <h2 class="text-2xl font-bold tracking-[-0.015em] pt-4">Mes Prochains Rendez-vous</h2>
-              <div class="flex flex-col gap-3">
-                <template v-for="(appt, i) in upcomingList" :key="i">
-                  <div class="flex items-center p-4 rounded-lg bg-content-light border border-border-light">
-                    <div class="pr-4 border-r border-border-light text-center">
-                      <p class="text-sm font-bold text-primary">{{ appt.dayShort }}</p>
-                      <p class="text-2xl font-extrabold">{{ appt.dayNum }}</p>
-                    </div>
-                    <div class="flex-1 pl-4">
-                      <p class="font-bold">{{ appt.title }}</p>
-                      <p class="text-sm text-text-light/70">{{ appt.time }}</p>
-                    </div>
-                    <div class="flex -space-x-2">
-                      <div v-for="n in (appt.avatars || 3)" :key="n" class="inline-block size-8 rounded-full ring-2 ring-content-light bg-gray-300"></div>
                     </div>
                   </div>
                 </template>
               </div>
             </div>
 
-            <!-- Right Column - Sidebar -->
-            <div class="flex flex-col gap-6">
-              <!-- Referral Link -->
-              <div class="bg-content-light rounded-lg p-6 border border-border-light">
-                <div class="flex items-start justify-between gap-4">
-                  <h3 class="text-xl font-bold">Mon Lien de Recommandation</h3>
-                  <button
-                    type="button"
-                    @click="openHowItWorks"
-                    class="flex items-center justify-center gap-2 px-3 py-1.5 text-xs font-bold rounded-full bg-subtle-light hover:bg-border-light"
-                  >
-                    <i class="fas fa-circle-question"></i>
-                    <span>Comment ça marche ?</span>
-                  </button>
+                      </div>
+
+          <!-- Right Column - Sidebar -->
+          <div class="space-y-8">
+            <!-- Referral Link -->
+            <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+              <div class="flex items-start justify-between mb-4">
+                <div>
+                  <h3 class="text-lg font-bold text-gray-900 mb-1">Parrainez vos amis</h3>
+                  <p class="text-sm text-gray-600">Gagnez des points en invitant vos amis</p>
                 </div>
-                <p class="text-sm mt-2 text-text-light/70">Partagez ce lien et gagnez des points selon les générations de votre réseau.</p>
-                <div class="relative mt-4">
+                <button
+                  @click="openHowItWorks"
+                  class="p-2 rounded-md hover:bg-gray-100 transition-colors"
+                  title="Comment ça marche ?"
+                >
+                  <i class="fas fa-question-circle text-gray-400"></i>
+                </button>
+              </div>
+              
+              <div class="mb-6">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-sm font-medium text-gray-700">Lien de parrainage</span>
+                  <span v-if="copyState === 'copied'" class="text-xs text-green-600">
+                    <i class="fas fa-check mr-1"></i>Copié
+                  </span>
+                </div>
+                <div class="relative">
                   <input 
-                    class="w-full h-10 pr-12 rounded-full border-border-light bg-subtle-light text-sm px-4" 
+                    class="w-full h-11 pl-4 pr-12 rounded-md border border-gray-300 bg-gray-50 text-sm text-gray-700"
                     readonly 
                     type="text" 
                     :value="referralLink"
                   />
-                  <button type="button" @click="copyReferralLink" class="absolute top-1/2 right-2 -translate-y-1/2 p-1.5 rounded-full bg-primary text-white">
-                    <i class="fas fa-copy text-sm"></i>
+                  <button 
+                    @click="copyReferralLink"
+                    class="absolute top-1/2 right-2 -translate-y-1/2 p-2.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                    title="Copier le lien"
+                  >
+                    <i class="fas fa-copy"></i>
                   </button>
                 </div>
-                <p v-if="copyState === 'copied'" class="text-sm text-green-700 mt-2">Lien copié !</p>
-                <p v-else-if="copyState === 'error'" class="text-sm text-red-700 mt-2">Impossible de copier. Copiez manuellement.</p>
-                <div class="flex justify-center gap-4 mt-4">
-                  <button class="flex size-10 items-center justify-center rounded-full bg-subtle-light text-lg">f</button>
-                  <button class="flex size-10 items-center justify-center rounded-full bg-subtle-light text-lg">X</button>
-                  <button class="flex size-10 items-center justify-center rounded-full bg-subtle-light">
-                    <i class="fas fa-comments"></i>
-                  </button>
+              </div>
+
+              <div class="bg-gray-50 rounded-md p-4 mb-6">
+                <div class="grid grid-cols-2 gap-4 text-center">
+                  <div>
+                    <div class="text-2xl font-bold text-gray-900">{{ directReferralsCount }}</div>
+                    <div class="text-xs text-gray-600">Amis invités</div>
+                  </div>
+                  <div>
+                    <div class="text-2xl font-bold text-gray-900">{{ communitySize }}</div>
+                    <div class="text-xs text-gray-600">Communauté</div>
+                  </div>
                 </div>
-                <div class="mt-4 text-center">
-                  <p class="text-sm font-medium"><span class="font-bold text-primary">{{ directReferralsCount }}</span> ami(s) invité(s) | <span class="font-bold text-primary">{{ communitySize }}</span> dans la communauté</p>
+              </div>
+
+              <div class="space-y-3">
+                <p class="text-sm font-medium text-gray-700">Partager sur :</p>
+                <div class="flex gap-2">
+                  <button class="flex-1 py-2.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
+                    <i class="fab fa-facebook text-blue-600"></i>
+                  </button>
+                  <button class="flex-1 py-2.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
+                    <i class="fab fa-twitter text-sky-500"></i>
+                  </button>
+                  <button class="flex-1 py-2.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
+                    <i class="fab fa-whatsapp text-green-500"></i>
+                  </button>
+                  <button class="flex-1 py-2.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-envelope text-gray-600"></i>
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
+
+                      </div>
         </div>
       </div>
     </main>
 
+    <!-- Modal: Comment ça marche -->
     <div
       v-if="howItWorksOpen"
-      class="fixed inset-0 z-[60] flex items-center justify-center px-4"
+      class="fixed inset-0 z-50 flex items-center justify-center px-4"
       @click.self="closeHowItWorks"
     >
-      <div class="absolute inset-0 bg-black/50"></div>
-      <div class="relative w-full max-w-2xl rounded-lg bg-white border border-border-light shadow-2xl max-h-[85vh] overflow-hidden">
-        <div class="flex items-start justify-between gap-4 p-6 border-b border-border-light">
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+      <div class="relative w-full max-w-2xl rounded-lg bg-white shadow-2xl max-h-[85vh] overflow-hidden">
+        <div class="flex items-center justify-between p-6 border-b border-gray-200">
           <div>
-            <h3 class="text-xl font-bold">Comment ça marche ?</h3>
-            <p class="text-sm text-text-light/70 mt-1">Le parrainage et le calcul des points par génération.</p>
+            <h3 class="text-xl font-bold text-gray-900">Comment ça marche ?</h3>
+            <p class="text-sm text-gray-600 mt-1">Le parrainage et le calcul des points</p>
           </div>
-          <button type="button" class="p-2 rounded-full bg-subtle-light hover:bg-border-light" @click="closeHowItWorks">
-            <i class="fas fa-xmark"></i>
+          <button @click="closeHowItWorks" class="p-2 rounded-md hover:bg-gray-100 transition-colors">
+            <i class="fas fa-times text-gray-500"></i>
           </button>
         </div>
+        
         <div class="p-6 space-y-4 overflow-y-auto" style="max-height: calc(85vh - 140px);">
-          <div class="bg-subtle-light rounded-lg p-4 border border-border-light">
-            <div class="font-bold">1) Ton lien</div>
-            <div class="text-sm text-text-light/70 mt-1">
-              Partage ton lien. Toute inscription via ce lien devient ton filleul direct (génération 1).
+          <div class="bg-gray-50 rounded-md p-4 border border-gray-200">
+            <h4 class="font-semibold text-gray-900 mb-2">1. Votre lien de parrainage</h4>
+            <p class="text-sm text-gray-600">Partagez votre lien unique. Chaque inscription via ce lien devient votre filleul direct (génération 1).</p>
+          </div>
+
+          <div class="bg-gray-50 rounded-md p-4 border border-gray-200">
+            <h4 class="font-semibold text-gray-900 mb-2">2. Générations de votre réseau</h4>
+            <p class="text-sm text-gray-600">Les personnes invitées par vos filleuls forment la génération 2, et ainsi de suite.</p>
+          </div>
+
+          <div class="bg-gray-50 rounded-md p-4 border border-gray-200">
+            <h4 class="font-semibold text-gray-900 mb-2">3. Calcul des points</h4>
+            <p class="text-sm text-gray-600">Les points sont calculés uniquement sur les personnes actives dans votre réseau.</p>
+            <div class="mt-3 p-3 bg-white rounded-md border border-gray-200 font-mono text-sm">
+              Points par génération = Nombre de personnes × (0.5)^N
             </div>
           </div>
 
-          <div class="bg-subtle-light rounded-lg p-4 border border-border-light">
-            <div class="font-bold">2) Générations</div>
-            <div class="text-sm text-text-light/70 mt-1">
-              Si ton filleul invite quelqu’un, cette personne est génération 2 pour toi, puis génération 3, etc. (illimité).
-            </div>
-          </div>
-
-          <div class="bg-subtle-light rounded-lg p-4 border border-border-light">
-            <div class="font-bold">3) Points par génération</div>
-            <div class="text-sm text-text-light/70 mt-1">
-              On compte uniquement les personnes réelles présentes dans ton réseau.
-              <div class="mt-2 font-mono text-sm bg-white rounded-lg p-3 border border-border-light">PointsGenN = NombreDePersonnesGenN × (0.5)^N</div>
-            </div>
-          </div>
-
-          <details class="bg-subtle-light rounded-lg p-4 border border-border-light">
-            <summary class="font-bold cursor-pointer select-none">Schéma (exemple)</summary>
-            <div class="text-sm text-text-light/70 mt-3">
-              <div class="overflow-x-auto">
-                <svg viewBox="0 0 900 260" class="min-w-[700px] w-full h-auto">
-                  <defs>
-                    <linearGradient id="node_dash" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stop-color="#ffffff" />
-                      <stop offset="100%" stop-color="#f0f4f2" />
-                    </linearGradient>
-                  </defs>
-
-                  <text x="50" y="28" font-size="14" fill="#111813" font-weight="700">Parrain (racine)</text>
-                  <rect x="40" y="45" rx="14" ry="14" width="200" height="48" fill="url(#node_dash)" stroke="#dbe6df" />
-                  <text x="60" y="76" font-size="14" fill="#111813">Toi</text>
-
-                  <text x="330" y="28" font-size="14" fill="#111813" font-weight="700">Génération 1</text>
-                  <rect x="310" y="45" rx="14" ry="14" width="180" height="48" fill="url(#node_dash)" stroke="#dbe6df" />
-                  <text x="330" y="76" font-size="14" fill="#111813">Filleuls directs</text>
-                  <text x="310" y="112" font-size="12" fill="#3b82f6" font-weight="700">Points = count × (0.5)^1</text>
-
-                  <text x="610" y="28" font-size="14" fill="#111813" font-weight="700">Génération 2</text>
-                  <rect x="590" y="45" rx="14" ry="14" width="260" height="48" fill="url(#node_dash)" stroke="#dbe6df" />
-                  <text x="610" y="76" font-size="14" fill="#111813">Filleuls des filleuls</text>
-                  <text x="590" y="112" font-size="12" fill="#3b82f6" font-weight="700">Points = count × (0.5)^2</text>
-
-                  <line x1="240" y1="69" x2="310" y2="69" stroke="#3b82f6" stroke-width="3" />
-                  <line x1="490" y1="69" x2="590" y2="69" stroke="#3b82f6" stroke-width="3" />
-
-                  <circle cx="240" cy="69" r="5" fill="#3b82f6" />
-                  <circle cx="310" cy="69" r="5" fill="#3b82f6" />
-                  <circle cx="490" cy="69" r="5" fill="#3b82f6" />
-                  <circle cx="590" cy="69" r="5" fill="#3b82f6" />
-
-                  <text x="40" y="175" font-size="13" fill="#111813" font-weight="700">Règle :</text>
-                  <text x="96" y="175" font-size="13" fill="#111813">on compte seulement les personnes réelles dans chaque génération (pas de places théoriques).</text>
-                  <text x="40" y="205" font-size="13" fill="#111813" font-weight="700">Total points :</text>
-                  <text x="140" y="205" font-size="13" fill="#111813">somme des points de toutes les générations existantes.</text>
-                </svg>
-              </div>
-            </div>
-          </details>
-
-          <div class="bg-subtle-light rounded-lg p-4 border border-border-light">
-            <div class="font-bold">4) Total des points</div>
-            <div class="text-sm text-text-light/70 mt-1">
-              Ton total correspond à la somme des points de toutes les générations de ton réseau.
-            </div>
+          <div class="bg-gray-50 rounded-md p-4 border border-gray-200">
+            <h4 class="font-semibold text-gray-900 mb-2">4. Exemple concret</h4>
+            <p class="text-sm text-gray-600 mb-3">Si vous avez 5 filleuls directs et qu'ils invitent 10 personnes :</p>
+            <ul class="text-sm text-gray-600 space-y-2">
+              <li class="flex items-center">
+                <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold mr-2">1</div>
+                Génération 1 : 5 × 0.5 = 2.5 points
+              </li>
+              <li class="flex items-center">
+                <div class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold mr-2">2</div>
+                Génération 2 : 10 × 0.25 = 2.5 points
+              </li>
+              <li class="flex items-center">
+                <div class="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold mr-2">∑</div>
+                Total : 5 points
+              </li>
+            </ul>
           </div>
         </div>
-        <div class="p-6 border-t border-border-light flex justify-end">
-          <button type="button" class="px-4 py-2 text-sm font-bold rounded-full bg-primary text-white" @click="closeHowItWorks">
-            Fermer
+        
+        <div class="p-6 border-t border-gray-200">
+          <button @click="closeHowItWorks" class="w-full px-4 py-3 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+            J'ai compris, merci !
           </button>
         </div>
       </div>
     </div>
-  </div>
+    </div>
+
+    <!-- Alert Modal -->
+    <AlertModal
+      :show="alertState.show"
+      :type="alertState.type"
+      :title="alertState.title"
+      :message="alertState.message"
+      :confirm-text="alertState.confirmText"
+      :cancel-text="alertState.cancelText"
+      :show-cancel="alertState.showCancel"
+      @close="alertState.show = false"
+      @confirm="alertState.resolve"
+    />
 </template>
 
 <style scoped>
-/* Exact colors from the design */
-.bg-background-light { background-color: #f6f8f6; }
-.bg-content-light { background-color: #ffffff; }
-.bg-subtle-light { background-color: #f0f4f2; }
-.text-text-light { color: #111813; }
-.text-text-light\/70 { color: #111813; opacity: 0.7; }
-.text-primary { color: #3b82f6; }
-.bg-primary { background-color: #3b82f6; }
-.border-border-light { border-color: #dbe6df; }
-.hover\:bg-border-light:hover { background-color: #dbe6df; }
-
-/* Accent cyan color */
-.text-accent-cyan { color: #06b6d4; }
-.hover\:text-accent-cyan:hover { color: #06b6d4; }
-
-/* Material Icons configuration */
-.material-symbols-outlined {
-  font-variation-settings:
-    'FILL' 0,
-    'wght' 400,
-    'GRAD' 0,
-    'opsz' 24;
-  vertical-align: middle;
-}
-
-.material-icons-round {
-  font-family: 'Material Icons Round';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  display: inline-block;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  font-feature-settings: 'liga';
-  -webkit-font-smoothing: antialiased;
-}
-
 /* Font family */
-.font-display {
-  font-family: "Plus Jakarta Sans", sans-serif;
+.font-sans {
+  font-family: 'Inter', sans-serif;
 }
 
-/* Custom border radius values */
-.rounded-lg {
-  border-radius: 1rem;
+/* Smooth transitions */
+.transition-colors {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-.rounded-full {
-  border-radius: 9999px;
+.transition-shadow {
+  transition: box-shadow 0.2s ease;
 }
 
-/* Tracking utility */
-.tracking-light {
-  letter-spacing: -0.025em;
+.transition-opacity {
+  transition: opacity 0.2s ease;
 }
 </style>

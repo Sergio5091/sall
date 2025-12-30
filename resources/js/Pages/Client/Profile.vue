@@ -1,11 +1,17 @@
 <script setup>
 import { Head, router, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import Navigation from '../../Components/Navigation.vue';
+import AlertModal from '../../Components/AlertModal.vue';
+import { useAlert } from '../../Composables/useAlert.js';
 
 const props = defineProps({
   auth: Object,
   user: Object
 });
+
+// Alert composable
+const { alertState, showSuccess, showError, showConfirm } = useAlert();
 
 // États pour le formulaire
 const form = ref({
@@ -20,312 +26,408 @@ const form = ref({
 
 // États pour les préférences
 const preferences = ref({
-  jeux_preferes: props.user?.jeux_preferes || props.auth?.user?.jeux_preferes || [],
-  types_salles_preferes: props.user?.types_salles_preferes || props.auth?.user?.types_salles_preferes || []
+  jeux_preferes: [],
+  types_salles_preferes: []
+});
+
+// États UI
+const isSaving = ref(false);
+const showChangePasswordModal = ref(false);
+const showDeleteConfirmModal = ref(false);
+const passwordForm = ref({
+  current_password: '',
+  new_password: '',
+  new_password_confirmation: ''
+});
+
+// Initiales pour l'avatar
+const userInitials = computed(() => {
+  const name = props.user?.name || props.auth?.user?.name || '';
+  return name ? name.charAt(0).toUpperCase() : 'U';
 });
 
 // Fonction de déconnexion
-const logout = () => {
-  if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+const logout = async () => {
+  const confirmed = await showConfirm(
+    'Déconnexion', 
+    'Êtes-vous sûr de vouloir vous déconnecter ?'
+  );
+  
+  if (confirmed) {
     router.post('/logout');
   }
 };
 
 // Fonction de sauvegarde du profil
-const updateProfile = () => {
-  router.put('/client/profile', form.value, {
-    onSuccess: () => {
-      // Notification de succès
-      alert('Profil mis à jour avec succès !');
-    },
-    onError: (errors) => {
-      console.error('Erreurs de validation:', errors);
-      alert('Une erreur est survenue lors de la mise à jour du profil.');
-    }
-  });
+const updateProfile = async () => {
+  isSaving.value = true;
+  
+  try {
+    await router.patch('/client/profile', form.value);
+    await showSuccess('Profil mis à jour', 'Vos informations ont été enregistrées avec succès.');
+  } catch (error) {
+    await showError('Erreur', 'Une erreur est survenue lors de la mise à jour de votre profil.');
+  } finally {
+    isSaving.value = false;
+  }
 };
 
 // Fonction de changement de mot de passe
-const changePassword = () => {
-  // Ouvrir un modal pour changer le mot de passe
-  const newPassword = prompt('Entrez votre nouveau mot de passe:');
-  if (newPassword) {
-    router.put('/client/password', { password: newPassword }, {
+const changePassword = async () => {
+  try {
+    await router.put('/client/password', passwordForm.value, {
+      preserveScroll: true,
       onSuccess: () => {
-        alert('Mot de passe changé avec succès !');
+        showChangePasswordModal.value = false;
+        passwordForm.value = {
+          current_password: '',
+          new_password: '',
+          new_password_confirmation: ''
+        };
+        showSuccess('Mot de passe changé', 'Votre mot de passe a été mis à jour avec succès.');
       },
       onError: () => {
-        alert('Erreur lors du changement du mot de passe.');
+        showError('Erreur', 'Le mot de passe actuel est incorrect ou les nouveaux mots de passe ne correspondent pas.');
       }
     });
+  } catch (error) {
+    showError('Erreur', 'Une erreur est survenue lors du changement de mot de passe.');
   }
 };
 
 // Fonction de téléchargement des données
-const downloadData = () => {
-  router.get('/client/download-data', {}, {
-    onSuccess: (response) => {
-      // Créer un blob et télécharger le fichier
-      const blob = new Blob([JSON.stringify(response.props.data, null, 2)], { type: 'application/json' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'mes-donnees-gameon.json';
-      a.click();
-      window.URL.revokeObjectURL(url);
-    }
-  });
+const downloadData = async () => {
+  try {
+    const response = await router.get('/client/download-data');
+    const blob = new Blob([JSON.stringify(response.props.data, null, 2)], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'mes-donnees-gameon.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    showSuccess('Téléchargement réussi', 'Vos données ont été téléchargées avec succès.');
+  } catch (error) {
+    showError('Erreur', 'Une erreur est survenue lors du téléchargement de vos données.');
+  }
 };
 
 // Fonction de suppression du compte
-const deleteAccount = () => {
-  const confirmation = prompt('Pour supprimer votre compte, tapez "SUPPRIMER MON COMPTE" en majuscules:');
-  if (confirmation === 'SUPPRIMER MON COMPTE') {
-    router.delete('/client/account', {
+const deleteAccount = async () => {
+  const confirmed = await showConfirm(
+    'Suppression du compte',
+    'Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action est irréversible.'
+  );
+  
+  if (!confirmed) return;
+
+  try {
+    await router.delete('/client/account', {
+      preserveScroll: false,
       onSuccess: () => {
-        alert('Votre compte a été supprimé. Redirection...');
         router.push('/');
+        showSuccess('Compte supprimé', 'Votre compte a été supprimé avec succès.');
       },
       onError: () => {
-        alert('Erreur lors de la suppression du compte.');
+        showError('Erreur', 'Une erreur est survenue lors de la suppression de votre compte.');
       }
     });
-  } else if (confirmation) {
-    alert('Texte de confirmation incorrect. La suppression n\'a pas été effectuée.');
+  } catch (error) {
+    showError('Erreur', 'Une erreur est survenue lors de la suppression de votre compte.');
   }
 };
+
+// Fonction utilitaire pour les notifications
+const showToast = (message, type = 'info') => {
+  // Implémentation simple - peut être remplacée par un composant toast dédié
+  alert(`${type === 'success' ? '✅' : '❌'} ${message}`);
+};
+
 </script>
 
 <template>
   <Head title="Mon Profil" />
   
   <!-- Add Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <!-- Add Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light font-display">
-    <!-- Header - Same as Welcome page but with client navigation -->
-    <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center backdrop-blur-sm shadow-sm">
-      <div class="flex items-center justify-between w-full max-w-7xl px-6 py-3">
-        <div class="flex items-center gap-8">
-          <div class="flex items-center gap-2 text-black">
-            <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <i class="fas fa-gamepad text-3xl text-accent-cyan"></i>
-              <h2 class="text-black text-2xl font-display font-bold">GameOn</h2>
-            </a>
-          </div>
-          <!-- Client Navigation -->
-          <nav class="hidden md:flex items-center gap-6">
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/dashboard">Dashboard</a>
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/salles">Salles</a>
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/evenements">Événements</a>
-            <a class="text-black text-sm font-medium text-accent-cyan" href="/client/profile">Mon Profil</a>
-          </nav>
-        </div>
-        <div class="flex items-center gap-3">
-          <button class="flex relative cursor-pointer items-center justify-center overflow-hidden rounded-full size-10 bg-[#e5e7eb] text-black gap-2">
-            <i class="fas fa-bell"></i>
-            <span class="absolute top-1.5 right-1.5 flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-            </span>
-          </button>
-          <Link href="/client/profile" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 bg-gray-300 hover:opacity-80 transition-opacity cursor-pointer" title="Mon Profil">
-          </Link>
-        </div>
-      </div>
-    </header>
+  <div class="relative min-h-screen bg-gray-50 font-sans">
+    <!-- Navigation Component -->
+    <Navigation :user="user || auth?.user" current-page="profile" />
 
     <!-- Main Content -->
-    <main class="layout-container flex h-full grow flex-col pt-20">
-      <div class="px-4 sm:px-8 lg:px-16 2xl:px-40 flex flex-1 justify-center py-5">
-        <div class="layout-content-container flex flex-col w-full max-w-screen-xl flex-1 gap-8">
-          <!-- Profile Header -->
-          <div class="flex flex-col gap-6">
-            <h1 class="text-4xl font-black leading-tight tracking-[-0.033em]">Mon Profil</h1>
-            
+    <main class="pt-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-900">Mon Profil</h1>
+          <p class="text-gray-600 mt-2">Gérez vos informations personnelles et vos préférences</p>
+        </div>
+
+        <!-- Profile Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Left Column - Profile Info -->
+          <div class="lg:col-span-2 space-y-6">
             <!-- Profile Card -->
-            <div class="flex flex-col sm:flex-row gap-6 p-6 rounded-lg bg-content-light border border-border-light">
-              <!-- Avatar Section -->
-              <div class="flex flex-col items-center gap-4">
-                <div class="w-32 h-32 bg-cover bg-center rounded-full bg-gray-300"></div>
-                <button class="px-4 py-2 text-sm font-bold bg-primary text-white rounded-full">
-                  Changer la photo
-                </button>
+            <div class="bg-white shadow-sm overflow-hidden rounded-lg">
+              <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                  <h2 class="text-xl font-bold text-gray-900">Informations personnelles</h2>
+                  <button 
+                    @click="updateProfile" 
+                    :disabled="isSaving"
+                    class="px-4 py-2 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-lg"
+                  >
+                    <i class="fas fa-save mr-2"></i>
+                    {{ isSaving ? 'Sauvegarde...' : 'Sauvegarder' }}
+                  </button>
+                </div>
               </div>
               
-              <!-- Profile Info -->
-              <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label class="block text-sm font-medium text-text-light/70 mb-2">Nom complet</label>
-                  <input v-model="form.name" type="text" class="w-full px-4 py-2 border border-border-light rounded-lg bg-subtle-light text-text-light focus:outline-none focus:ring-2 focus:ring-primary"/>
+              <div class="p-6">
+                <!-- Avatar Section -->
+                <div class="flex items-center gap-6 mb-8">
+                  <div class="relative">
+                    <div class="w-20 h-20 bg-blue-500 flex items-center justify-center text-white text-2xl font-bold rounded-full">
+                      {{ userInitials }}
+                    </div>
+                    <button class="absolute bottom-0 right-0 p-2 bg-white shadow hover:bg-gray-100 transition-colors rounded-full">
+                      <i class="fas fa-camera text-gray-600 text-sm"></i>
+                    </button>
+                  </div>
+                  <div>
+                    <h3 class="font-semibold text-gray-900">{{ form.name }}</h3>
+                    <p class="text-sm text-gray-600">{{ form.email }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Membre depuis Jan 2024</p>
+                  </div>
                 </div>
-                <div>
-                  <label class="block text-sm font-medium text-text-light/70 mb-2">Email</label>
-                  <input v-model="form.email" type="email" class="w-full px-4 py-2 border border-border-light rounded-lg bg-subtle-light text-text-light focus:outline-none focus:ring-2 focus:ring-primary"/>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-text-light/70 mb-2">Téléphone</label>
-                  <input v-model="form.telephone" type="tel" class="w-full px-4 py-2 border border-border-light rounded-lg bg-subtle-light text-text-light focus:outline-none focus:ring-2 focus:ring-primary"/>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-text-light/70 mb-2">Date de naissance</label>
-                  <input v-model="form.date_naissance" type="date" class="w-full px-4 py-2 border border-border-light rounded-lg bg-subtle-light text-text-light focus:outline-none focus:ring-2 focus:ring-primary"/>
+
+                <!-- Form Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Nom complet <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                      v-model="form.name" 
+                      type="text" 
+                      class="w-full px-4 py-2.5 border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors rounded-lg"
+                      placeholder="Votre nom complet"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Email <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                      v-model="form.email" 
+                      type="email" 
+                      class="w-full px-4 py-2.5 border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors rounded-lg"
+                      placeholder="email@exemple.com"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Téléphone
+                    </label>
+                    <input 
+                      v-model="form.telephone" 
+                      type="tel" 
+                      class="w-full px-4 py-2.5 border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors rounded-lg"
+                      placeholder="+221 XX XXX XX XX"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Date de naissance
+                    </label>
+                    <input 
+                      v-model="form.date_naissance" 
+                      type="date" 
+                      class="w-full px-4 py-2.5 border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors rounded-lg"
+                    />
+                  </div>
                 </div>
               </div>
-              <div class="flex justify-end mt-4">
-                <button @click="updateProfile" class="px-6 py-2 bg-primary text-white rounded-full hover:bg-opacity-90 transition-colors">
-                  Sauvegarder les modifications
-                </button>
+            </div>
+
+            <!-- Notifications Card -->
+            <div class="bg-white shadow-sm rounded-lg">
+              <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-900">Notifications et confidentialité</h2>
+              </div>
+              
+              <div class="p-6 space-y-4">
+                <div class="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition-colors rounded-lg">
+                  <div class="flex items-center gap-3">
+                    <div class="p-2 bg-blue-100 rounded-lg">
+                      <i class="fas fa-envelope text-blue-600"></i>
+                    </div>
+                    <div>
+                      <p class="font-medium text-gray-900">Notifications par email</p>
+                      <p class="text-sm text-gray-600">Recevoir des rappels de réservations</p>
+                    </div>
+                  </div>
+                  <button 
+                    @click="form.notifications_email = !form.notifications_email"
+                    :class="[
+                      'relative inline-flex h-6 w-11 items-center transition-colors rounded-full',
+                      form.notifications_email ? 'bg-blue-600' : 'bg-gray-300'
+                    ]"
+                  >
+                    <span 
+                      :class="[
+                        'inline-block h-4 w-4 transform bg-white transition-transform rounded-full',
+                        form.notifications_email ? 'translate-x-6' : 'translate-x-1'
+                      ]"
+                    ></span>
+                  </button>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition-colors rounded-lg">
+                  <div class="flex items-center gap-3">
+                    <div class="p-2 bg-green-100 rounded-lg">
+                      <i class="fas fa-newspaper text-green-600"></i>
+                    </div>
+                    <div>
+                      <p class="font-medium text-gray-900">Newsletter</p>
+                      <p class="text-sm text-gray-600">Nouveautés et événements spéciaux</p>
+                    </div>
+                  </div>
+                  <button 
+                    @click="form.newsletter = !form.newsletter"
+                    :class="[
+                      'relative inline-flex h-6 w-11 items-center transition-colors rounded-full',
+                      form.newsletter ? 'bg-green-600' : 'bg-gray-300'
+                    ]"
+                  >
+                    <span 
+                      :class="[
+                        'inline-block h-4 w-4 transform bg-white transition-transform rounded-full',
+                        form.newsletter ? 'translate-x-6' : 'translate-x-1'
+                      ]"
+                    ></span>
+                  </button>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition-colors rounded-lg">
+                  <div class="flex items-center gap-3">
+                    <div class="p-2 bg-purple-100 rounded-lg">
+                      <i class="fas fa-user-friends text-purple-600"></i>
+                    </div>
+                    <div>
+                      <p class="font-medium text-gray-900">Partage de profil</p>
+                      <p class="text-sm text-gray-600">Autoriser les autres joueurs à voir votre profil</p>
+                    </div>
+                  </div>
+                  <button 
+                    @click="form.partage_profil = !form.partage_profil"
+                    :class="[
+                      'relative inline-flex h-6 w-11 items-center transition-colors rounded-full',
+                      form.partage_profil ? 'bg-purple-600' : 'bg-gray-300'
+                    ]"
+                  >
+                    <span 
+                      :class="[
+                        'inline-block h-4 w-4 transform bg-white transition-transform rounded-full',
+                        form.partage_profil ? 'translate-x-6' : 'translate-x-1'
+                      ]"
+                    ></span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Profile Sections Grid -->
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Column - Main Settings -->
-            <div class="lg:col-span-2 flex flex-col gap-6">
-              <!-- Preferences -->
-              <div class="bg-content-light rounded-lg p-6 border border-border-light">
-                <h3 class="text-xl font-bold mb-4">Préférences</h3>
-                <div class="space-y-4">
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <p class="font-medium">Notifications par email</p>
-                      <p class="text-sm text-text-light/70">Recevoir des rappels de réservations</p>
-                    </div>
-                    <button @click="form.notifications_email = !form.notifications_email" :class="`relative inline-flex h-6 w-11 items-center rounded-full ${form.notifications_email ? 'bg-primary' : 'bg-gray-300'}`">
-                      <span :class="`inline-block h-4 w-4 transform rounded-full bg-white transition ${form.notifications_email ? 'translate-x-6' : 'translate-x-1'}`"></span>
-                    </button>
-                  </div>
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <p class="font-medium">Newsletter</p>
-                      <p class="text-sm text-text-light/70">Nouveautés et événements spéciaux</p>
-                    </div>
-                    <button @click="form.newsletter = !form.newsletter" :class="`relative inline-flex h-6 w-11 items-center rounded-full ${form.newsletter ? 'bg-primary' : 'bg-gray-300'}`">
-                      <span :class="`inline-block h-4 w-4 transform rounded-full bg-white transition ${form.newsletter ? 'translate-x-6' : 'translate-x-1'}`"></span>
-                    </button>
-                  </div>
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <p class="font-medium">Partage de profil</p>
-                      <p class="text-sm text-text-light/70">Autoriser les autres joueurs à voir votre profil</p>
-                    </div>
-                    <button @click="form.partage_profil = !form.partage_profil" :class="`relative inline-flex h-6 w-11 items-center rounded-full ${form.partage_profil ? 'bg-primary' : 'bg-gray-300'}`">
-                      <span :class="`inline-block h-4 w-4 transform rounded-full bg-white transition ${form.partage_profil ? 'translate-x-6' : 'translate-x-1'}`"></span>
-                    </button>
-                  </div>
-                </div>
+          <!-- Right Column -->
+          <div class="space-y-6">
+            <!-- Security Card -->
+            <div class="bg-white shadow-sm rounded-lg">
+              <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-900">Sécurité</h2>
+                <p class="text-sm text-gray-600 mt-1">Protégez votre compte</p>
               </div>
-
-              <!-- Gaming Preferences -->
-              <div class="bg-content-light rounded-lg p-6 border border-border-light">
-                <h3 class="text-xl font-bold mb-4">Préférences de jeu</h3>
-                <div class="space-y-4">
-                  <div>
-                    <label class="block text-sm font-medium text-text-light/70 mb-2">Jeux préférés</label>
-                    <div class="flex flex-wrap gap-2">
-                      <span class="px-3 py-1 bg-primary text-white rounded-full text-sm">FIFA</span>
-                      <span class="px-3 py-1 bg-primary text-white rounded-full text-sm">Call of Duty</span>
-                      <span class="px-3 py-1 bg-primary text-white rounded-full text-sm">Mario Kart</span>
-                      <button class="px-3 py-1 border border-border-light rounded-full text-sm hover:bg-subtle-light">+ Ajouter</button>
+              
+              <div class="p-6 space-y-4">
+                <button 
+                  @click="showChangePasswordModal = true"
+                  class="w-full flex items-center justify-between p-4 border border-gray-200 hover:bg-gray-50 transition-colors rounded-lg"
+                >
+                  <div class="flex items-center gap-3">
+                    <div class="p-2 bg-blue-100 rounded-lg">
+                      <i class="fas fa-lock text-blue-600"></i>
+                    </div>
+                    <div class="text-left">
+                      <p class="font-medium text-gray-900">Mot de passe</p>
+                      <p class="text-sm text-gray-600">Changer régulièrement</p>
                     </div>
                   </div>
-                  <div>
-                    <label class="block text-sm font-medium text-text-light/70 mb-2">Type de salles préférées</label>
-                    <div class="flex flex-wrap gap-2">
-                      <span class="px-3 py-1 bg-subtle-light rounded-full text-sm">VR</span>
-                      <span class="px-3 py-1 bg-subtle-light rounded-full text-sm">Racing</span>
-                      <span class="px-3 py-1 bg-subtle-light rounded-full text-sm">FPS</span>
-                      <button class="px-3 py-1 border border-border-light rounded-full text-sm hover:bg-subtle-light">+ Ajouter</button>
+                  <i class="fas fa-chevron-right text-gray-400"></i>
+                </button>
+                
+                <button class="w-full flex items-center justify-between p-4 border border-gray-200 hover:bg-gray-50 transition-colors rounded-lg">
+                  <div class="flex items-center gap-3">
+                    <div class="p-2 bg-green-100 rounded-lg">
+                      <i class="fas fa-shield-alt text-green-600"></i>
+                    </div>
+                    <div class="text-left">
+                      <p class="font-medium text-gray-900">2FA</p>
+                      <p class="text-sm text-gray-600">Renforcer la sécurité</p>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              <!-- Security -->
-              <div class="bg-content-light rounded-lg p-6 border border-border-light">
-                <h3 class="text-xl font-bold mb-4">Sécurité</h3>
-                <div class="space-y-4">
-                  <div class="flex items-center justify-between p-4 border border-border-light rounded-lg">
-                    <div class="flex items-center gap-3">
-                      <i class="fas fa-lock text-primary"></i>
-                      <div>
-                        <p class="font-medium">Mot de passe</p>
-                        <p class="text-sm text-text-light/70">Dernière modification : il y a 30 jours</p>
-                      </div>
-                    </div>
-                    <button @click="changePassword" class="px-4 py-2 text-sm font-bold bg-subtle-light rounded-full hover:bg-border-light">
-                      Modifier
-                    </button>
-                  </div>
-                  <div class="flex items-center justify-between p-4 border border-border-light rounded-lg">
-                    <div class="flex items-center gap-3">
-                      <i class="fas fa-mobile-alt text-primary"></i>
-                      <div>
-                        <p class="font-medium">Authentification à deux facteurs</p>
-                        <p class="text-sm text-text-light/70">Non configurée</p>
-                      </div>
-                    </div>
-                    <button class="px-4 py-2 text-sm font-bold bg-primary text-white rounded-full">
-                      Activer
-                    </button>
-                  </div>
-                </div>
+                  <button class="px-3 py-1 text-xs font-medium bg-green-600 text-white rounded-lg">
+                    Activer
+                  </button>
+                </button>
               </div>
             </div>
 
-            <!-- Right Column - Stats & Actions -->
-            <div class="flex flex-col gap-6">
-              <!-- Stats Card -->
-              <div class="bg-content-light rounded-lg p-6 border border-border-light">
-                <h3 class="text-xl font-bold mb-4">Mes Statistiques</h3>
-                <div class="space-y-4">
-                  <div class="flex justify-between items-center">
-                    <span class="text-text-light/70">Total des réservations</span>
-                    <span class="font-bold">24</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-text-light/70">Heures de jeu</span>
-                    <span class="font-bold">156</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-text-light/70">Amis invités</span>
-                    <span class="font-bold">8</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-text-light/70">Crédits gagnés</span>
-                    <span class="font-bold text-primary">320</span>
-                  </div>
-                </div>
+            <!-- Quick Actions -->
+            <div class="bg-white shadow-sm rounded-lg">
+              <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-900">Actions</h2>
               </div>
-
-              <!-- Quick Actions -->
-              <div class="bg-content-light rounded-lg p-6 border border-border-light">
-                <h3 class="text-xl font-bold mb-4">Actions Rapides</h3>
-                <div class="space-y-3">
-                  <button @click="downloadData" class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-full bg-primary text-white">
-                    <i class="fas fa-download"></i>
-                    <span>Télécharger mes données</span>
-                  </button>
-                  <button class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-full bg-subtle-light hover:bg-border-light">
-                    <i class="fas fa-share"></i>
-                    <span>Partager mon profil</span>
-                  </button>
-                  <button @click="logout" class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-full border border-red-500 text-red-500 hover:bg-red-50">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Se déconnecter</span>
-                  </button>
-                </div>
+              
+              <div class="p-6 space-y-3">
+                <button 
+                  @click="downloadData"
+                  class="w-full flex items-center gap-3 px-4 py-3 border border-gray-200 hover:bg-gray-50 transition-colors rounded-lg"
+                >
+                  <i class="fas fa-download text-gray-600"></i>
+                  <span class="font-medium text-gray-700">Télécharger mes données</span>
+                </button>
+                
+                <button 
+                  @click="logout"
+                  class="w-full flex items-center gap-3 px-4 py-3 border border-gray-200 hover:bg-gray-50 transition-colors rounded-lg"
+                >
+                  <i class="fas fa-sign-out-alt text-gray-600"></i>
+                  <span class="font-medium text-gray-700">Se déconnecter</span>
+                </button>
               </div>
+            </div>
 
-              <!-- Delete Account -->
-              <div class="bg-content-light rounded-lg p-6 border border-border-light">
-                <h3 class="text-xl font-bold mb-2 text-red-500">Danger Zone</h3>
-                <p class="text-sm text-text-light/70 mb-4">La suppression de votre compte est définitive et irréversible.</p>
-                <button @click="deleteAccount" class="w-full px-4 py-2 text-sm font-bold rounded-full border border-red-500 text-red-500 hover:bg-red-50">
+            <!-- Delete Account -->
+            <div class="bg-white shadow-sm border border-gray-300 rounded-lg">
+              <div class="p-6 border-b bg-gray-50">
+                <h2 class="text-xl font-bold text-gray-700">Zone de danger</h2>
+              </div>
+              
+              <div class="p-6">
+                <p class="text-sm text-gray-600 mb-4">
+                  La suppression de votre compte est définitive. Toutes vos données seront supprimées.
+                </p>
+                <button 
+                  @click="showDeleteConfirmModal = true"
+                  class="w-full px-4 py-2.5 text-sm font-medium border border-gray-400 text-gray-700 hover:bg-gray-50 transition-colors rounded-lg"
+                >
                   Supprimer mon compte
                 </button>
               </div>
@@ -334,67 +436,160 @@ const deleteAccount = () => {
         </div>
       </div>
     </main>
+
+    <!-- Modal: Change Password -->
+    <div v-if="showChangePasswordModal" class="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showChangePasswordModal = false"></div>
+      <div class="relative w-full max-w-md bg-white shadow-2xl rounded-lg">
+        <div class="p-6 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-900">Changer le mot de passe</h3>
+            <button @click="showChangePasswordModal = false" class="p-2 hover:bg-gray-100 rounded-lg">
+              <i class="fas fa-times text-gray-500"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="p-6">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Mot de passe actuel
+              </label>
+              <input 
+                v-model="passwordForm.current_password"
+                type="password"
+                class="w-full px-4 py-2.5 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg"
+                placeholder="••••••••"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Nouveau mot de passe
+              </label>
+              <input 
+                v-model="passwordForm.new_password"
+                type="password"
+                class="w-full px-4 py-2.5 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg"
+                placeholder="••••••••"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Confirmer le nouveau mot de passe
+              </label>
+              <input 
+                v-model="passwordForm.new_password_confirmation"
+                type="password"
+                class="w-full px-4 py-2.5 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg"
+                placeholder="••••••••"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <div class="p-6 border-t border-gray-200 flex justify-end gap-3">
+          <button @click="showChangePasswordModal = false" class="px-4 py-2.5 text-sm font-medium border border-gray-300 hover:bg-gray-50 rounded-lg">
+            Annuler
+          </button>
+          <button @click="changePassword" class="px-4 py-2.5 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 rounded-lg">
+            Confirmer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Confirm Delete -->
+    <div v-if="showDeleteConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showDeleteConfirmModal = false"></div>
+      <div class="relative w-full max-w-md bg-white shadow-2xl rounded-lg">
+        <div class="p-6 border-b bg-gray-50">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-red-100 rounded-lg">
+              <i class="fas fa-exclamation-triangle text-red-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-red-700">Supprimer le compte</h3>
+          </div>
+        </div>
+        
+        <div class="p-6">
+          <p class="text-gray-700 mb-4">
+            Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action est irréversible.
+          </p>
+          <p class="text-sm text-gray-600 mb-6">
+            Tapez <span class="font-mono font-bold bg-gray-100 px-2 py-1 rounded">SUPPRIMER MON COMPTE</span> pour confirmer
+          </p>
+          
+          <input 
+            type="text" 
+            id="deleteConfirm"
+            class="w-full px-4 py-2.5 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 mb-4 rounded-lg"
+            placeholder="Tapez la phrase de confirmation..."
+          />
+          
+          <div class="flex justify-end gap-3">
+            <button @click="showDeleteConfirmModal = false" class="px-4 py-2.5 text-sm font-medium border border-gray-300 hover:bg-gray-50 rounded-lg">
+              Annuler
+            </button>
+            <button 
+              @click="deleteAccount"
+              :disabled="document.getElementById('deleteConfirm')?.value !== 'SUPPRIMER MON COMPTE'"
+              class="px-4 py-2.5 text-sm font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg"
+            >
+              Supprimer définitivement
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Alert Modal -->
+  <AlertModal
+    :show="alertState.show"
+    :type="alertState.type"
+    :title="alertState.title"
+    :message="alertState.message"
+    :confirm-text="alertState.confirmText"
+    :cancel-text="alertState.cancelText"
+    :show-cancel="alertState.showCancel"
+    @close="alertState.show = false"
+    @confirm="alertState.resolve"
+  />
 </template>
 
 <style scoped>
-/* Exact colors from the design */
-.bg-background-light { background-color: #f6f8f6; }
-.bg-content-light { background-color: #ffffff; }
-.bg-subtle-light { background-color: #f0f4f2; }
-.text-text-light { color: #111813; }
-.text-text-light\/70 { color: #111813; opacity: 0.7; }
-.text-primary { color: #13ec5b; }
-.bg-primary { background-color: #13ec5b; }
-.border-border-light { border-color: #dbe6df; }
-.hover\:bg-border-light:hover { background-color: #dbe6df; }
-
-/* Accent cyan color */
-.text-accent-cyan { color: #06b6d4; }
-.hover\:text-accent-cyan:hover { color: #06b6d4; }
-
-/* Material Icons configuration */
-.material-symbols-outlined {
-  font-variation-settings:
-    'FILL' 0,
-    'wght' 400,
-    'GRAD' 0,
-    'opsz' 24;
-  vertical-align: middle;
+/* Custom styles */
+.font-sans {
+  font-family: 'Inter', sans-serif;
 }
 
-.material-icons-round {
-  font-family: 'Material Icons Round';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  display: inline-block;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  font-feature-settings: 'liga';
-  -webkit-font-smoothing: antialiased;
+.transition-colors {
+  transition: all 0.2s ease;
 }
 
-/* Font family */
-.font-display {
-  font-family: "Plus Jakarta Sans", sans-serif;
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
 }
 
-/* Custom border radius values */
-.rounded-lg {
-  border-radius: 1rem;
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-.rounded-full {
-  border-radius: 9999px;
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
 }
 
-/* Tracking utility */
-.tracking-light {
-  letter-spacing: -0.025em;
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 </style>

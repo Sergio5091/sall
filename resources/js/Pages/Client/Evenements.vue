@@ -3,6 +3,7 @@ import { Head } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import NotificationModal from '../../Components/NotificationModal.vue';
+import Navigation from '../../Components/Navigation.vue';
 
 const props = defineProps({
     evenements: Object,
@@ -276,36 +277,8 @@ const sInscrire = (event) => {
   <Head title="Événements - GameOn" />
   
   <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light font-display">
-    <!-- Header - Same as Welcome page but with client navigation -->
-    <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center backdrop-blur-sm shadow-sm">
-      <div class="flex items-center justify-between w-full max-w-7xl px-6 py-3">
-        <div class="flex items-center gap-8">
-          <div class="flex items-center gap-2 text-black">
-            <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <i class="fas fa-gamepad text-3xl text-accent-cyan"></i>
-              <h2 class="text-black text-2xl font-display font-bold">GameOn</h2>
-            </a>
-          </div>
-          <!-- Client Navigation -->
-          <nav class="hidden md:flex items-center gap-6">
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/dashboard">Dashboard</a>
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/salles">Salles</a>
-            <a class="text-black text-sm font-medium text-accent-cyan" href="/client/evenements">Événements</a>
-            <a class="text-black text-sm font-medium hover:text-accent-cyan transition-colors" href="/client/reservations">Mes Réservations</a>
-          </nav>
-        </div>
-        <div class="flex items-center gap-3">
-          <button class="flex relative cursor-pointer items-center justify-center overflow-hidden rounded-full size-10 bg-[#e5e7eb] text-black gap-2">
-            <i class="fas fa-bell"></i>
-            <span class="absolute top-1.5 right-1.5 flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-            </span>
-          </button>
-          <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 bg-gray-300"></div>
-        </div>
-      </div>
-    </header>
+    <!-- Navigation Component -->
+    <Navigation :user="$page.props.auth?.user" current-page="evenements" />
 
     <!-- Contenu principal -->
     <main class="flex-1 pt-16">

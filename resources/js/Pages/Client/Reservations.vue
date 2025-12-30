@@ -2,15 +2,26 @@
 import { ref, computed } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import NotificationModal from '../../Components/NotificationModal.vue';
+import Navigation from '../../Components/Navigation.vue';
+import AlertModal from '../../Components/AlertModal.vue';
+import { useAlert } from '../../Composables/useAlert.js';
 
 const props = defineProps({
   reservations: Array,
   user: Object
 });
 
+// Alert composable
+const { alertState, showSuccess, showError, showConfirm } = useAlert();
+
 // Fonction de déconnexion
-const logout = () => {
-  if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+const logout = async () => {
+  const confirmed = await showConfirm(
+    'Déconnexion',
+    'Êtes-vous sûr de vouloir vous déconnecter ?'
+  );
+  
+  if (confirmed) {
     router.post('/logout');
   }
 };
@@ -118,22 +129,25 @@ const getStatusIcon = (status) => {
 };
 
 // Annuler une réservation
-const cancelReservation = (reservation) => {
-  if (confirm('Êtes-vous sûr de vouloir annuler cette réservation ?')) {
-    router.patch(`/client/reservations/${reservation.id}/cancel`, {}, {
+const cancelReservation = async (reservation) => {
+  const confirmed = await showConfirm(
+    'Annulation de réservation',
+    'Êtes-vous sûr de vouloir annuler cette réservation ?'
+  );
+  
+  if (!confirmed) return;
+
+  try {
+    await router.patch(`/client/reservations/${reservation.id}/cancel`, {}, {
       onSuccess: () => {
-        notificationType.value = 'success';
-        notificationTitle.value = 'Réservation annulée';
-        notificationMessage.value = 'Votre réservation a été annulée avec succès.';
-        showNotificationModal.value = true;
+        showSuccess('Réservation annulée', 'Votre réservation a été annulée avec succès.');
       },
       onError: () => {
-        notificationType.value = 'error';
-        notificationTitle.value = 'Erreur';
-        notificationMessage.value = 'Une erreur est survenue lors de l\'annulation de la réservation.';
-        showNotificationModal.value = true;
+        showError('Erreur', 'Une erreur est survenue lors de l\'annulation de la réservation.');
       }
     });
+  } catch (error) {
+    showError('Erreur', 'Une erreur est survenue lors de l\'annulation de la réservation.');
   }
 };
 
@@ -166,37 +180,8 @@ const stats = computed(() => {
   <Head title="Mes Réservations" />
   
   <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light font-display">
-    <!-- Header - Same as Dashboard page -->
-    <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center backdrop-blur-sm shadow-sm">
-      <div class="flex items-center justify-between w-full max-w-7xl px-6 py-3">
-        <div class="flex items-center gap-8">
-          <div class="flex items-center gap-2 text-black">
-            <Link href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <i class="fas fa-gamepad text-3xl text-accent-cyan"></i>
-              <h2 class="text-black text-2xl font-display font-bold">GameOn</h2>
-            </Link>
-          </div>
-          <!-- Client Navigation -->
-          <nav class="hidden md:flex items-center gap-6">
-            <Link href="/client/dashboard" class="text-black text-sm font-medium hover:text-accent-cyan transition-colors">Dashboard</Link>
-            <Link href="/client/salles" class="text-black text-sm font-medium hover:text-accent-cyan transition-colors">Salles</Link>
-            <Link href="/client/evenements" class="text-black text-sm font-medium hover:text-accent-cyan transition-colors">Événements</Link>
-            <Link href="/client/reservations" class="text-black text-sm font-medium text-accent-cyan">Mes Réservations</Link>
-          </nav>
-        </div>
-        <div class="flex items-center gap-3">
-          <button class="flex relative cursor-pointer items-center justify-center overflow-hidden rounded-full size-10 bg-[#e5e7eb] text-black gap-2">
-            <i class="fas fa-bell"></i>
-            <span class="absolute top-1.5 right-1.5 flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-            </span>
-          </button>
-          <Link href="/client/profile" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 bg-gray-300 hover:opacity-80 transition-opacity cursor-pointer" title="Mon Profil">
-          </Link>
-        </div>
-      </div>
-    </header>
+    <!-- Navigation Component -->
+    <Navigation :user="user" current-page="reservations" />
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Page Header -->
@@ -520,7 +505,19 @@ const stats = computed(() => {
       :message="notificationMessage"
       @close="showNotificationModal = false"
     />
-  </div>
+
+    <!-- Alert Modal -->
+    <AlertModal
+      :show="alertState.show"
+      :type="alertState.type"
+      :title="alertState.title"
+      :message="alertState.message"
+      :confirm-text="alertState.confirmText"
+      :cancel-text="alertState.cancelText"
+      :show-cancel="alertState.showCancel"
+      @close="alertState.show = false"
+      @confirm="alertState.resolve"
+    />
 </template>
 
 <style scoped>
