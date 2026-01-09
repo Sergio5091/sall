@@ -24,7 +24,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
 COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
-RUN npm install && npm run build
+RUN npm install --legacy-peer-deps && npm run build
 
 RUN php artisan key:generate
 RUN php artisan config:cache
