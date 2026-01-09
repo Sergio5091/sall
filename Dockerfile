@@ -10,7 +10,8 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    libzip-dev
+    libzip-dev \
+    nginx
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -34,6 +35,14 @@ RUN php artisan key:generate --force || true
 RUN php artisan config:cache
 RUN php artisan route:cache
 
-EXPOSE 9000
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/sites-available/default
 
-CMD ["php-fpm"]
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html
+RUN chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
+
+EXPOSE 80
+
+# Start nginx and php-fpm
+CMD service nginx start && php-fpm
