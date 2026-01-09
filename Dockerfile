@@ -1,4 +1,4 @@
-FROM php:8.2-fpm
+FROM php:8.2-cli
 
 WORKDIR /var/www/html
 
@@ -10,8 +10,7 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    libzip-dev \
-    nginx
+    libzip-dev
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -35,14 +34,11 @@ RUN php artisan key:generate --force || true
 RUN php artisan config:cache
 RUN php artisan route:cache
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/sites-available/default
-
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html
 RUN chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
 
-EXPOSE 80
+EXPOSE 8000
 
-# Start nginx and php-fpm
-CMD service nginx start && php-fpm
+# Start PHP development server
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
