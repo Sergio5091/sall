@@ -1,5 +1,5 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 
 const props = defineProps({
@@ -8,6 +8,7 @@ const props = defineProps({
 });
 
 const isMobileMenuOpen = ref(false);
+const showLogoutModal = ref(false);
 
 const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value;
@@ -15,6 +16,14 @@ const toggleMobileMenu = () => {
 
 const closeMobileMenu = () => {
   isMobileMenuOpen.value = false;
+};
+
+const logout = () => {
+  showLogoutModal.value = true;
+};
+
+const confirmLogout = () => {
+  router.post('/logout');
 };
 
 const userInitials = computed(() => {
@@ -161,18 +170,51 @@ const userInitials = computed(() => {
         
         <!-- Mobile Logout -->
         <div class="border-t border-gray-200 pt-3 mt-3">
-          <Link 
-            href="/logout" 
-            method="post"
-            as="button"
-            @click="closeMobileMenu"
+          <button 
+            @click="logout"
             class="w-full flex items-center gap-3 px-3 py-2 text-base font-medium text-red-600 hover:bg-red-50 transition-colors rounded-lg"
           >
             <i class="fas fa-sign-out-alt w-5"></i>
             Se déconnecter
-          </Link>
+          </button>
         </div>
       </nav>
+    </div>
+
+    <!-- Modal de confirmation de déconnexion -->
+    <div 
+      v-if="showLogoutModal" 
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      @click="showLogoutModal = false"
+    >
+      <div 
+        class="bg-white rounded-lg shadow-xl p-6 w-96"
+        @click.stop
+      >
+        <div class="text-center mb-4">
+          <i class="fas fa-sign-out-alt text-red-600 text-2xl mb-3"></i>
+          <h4 class="text-lg font-semibold text-gray-900 mb-2">
+            Confirmer la déconnexion
+          </h4>
+          <p class="text-sm text-gray-600">
+            Êtes-vous sûr de vouloir vous déconnecter ?
+          </p>
+        </div>
+        <div class="flex space-x-3">
+          <button
+            @click="showLogoutModal = false"
+            class="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-300 transition-colors"
+          >
+            Annuler
+          </button>
+          <button
+            @click="confirmLogout"
+            class="flex-1 bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors"
+          >
+            Se déconnecter
+          </button>
+        </div>
+      </div>
     </div>
   </header>
 </template>

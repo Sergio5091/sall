@@ -1,10 +1,11 @@
 <script setup>
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, Link, usePage, router } from '@inertiajs/vue3';
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 const page = usePage();
 const showUserMenu = ref(false);
 const isDarkMode = ref(false);
+const showLogoutModal = ref(false);
 
 const user = computed(() => page.props.auth.user);
 
@@ -19,6 +20,10 @@ const toggleUserMenu = () => {
 };
 
 const logout = () => {
+    showLogoutModal.value = true;
+};
+
+const confirmLogout = () => {
     router.post(route('logout'));
 };
 
@@ -145,6 +150,42 @@ onUnmounted(() => {
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <slot />
     </main>
+
+    <!-- Modal de confirmation de déconnexion -->
+    <div 
+      v-if="showLogoutModal" 
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      @click="showLogoutModal = false"
+    >
+      <div 
+        class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-96"
+        @click.stop
+      >
+        <div class="text-center mb-4">
+          <i class="fas fa-sign-out-alt text-red-600 text-2xl mb-3"></i>
+          <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            Confirmer la déconnexion
+          </h4>
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            Êtes-vous sûr de vouloir vous déconnecter ?
+          </p>
+        </div>
+        <div class="flex space-x-3">
+          <button
+            @click="showLogoutModal = false"
+            class="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-300 transition-colors"
+          >
+            Annuler
+          </button>
+          <button
+            @click="confirmLogout"
+            class="flex-1 bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors"
+          >
+            Se déconnecter
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

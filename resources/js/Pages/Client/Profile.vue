@@ -34,6 +34,7 @@ const preferences = ref({
 const isSaving = ref(false);
 const showChangePasswordModal = ref(false);
 const showDeleteConfirmModal = ref(false);
+const showLogoutModal = ref(false);
 const passwordForm = ref({
   current_password: '',
   new_password: '',
@@ -47,15 +48,12 @@ const userInitials = computed(() => {
 });
 
 // Fonction de déconnexion
-const logout = async () => {
-  const confirmed = await showConfirm(
-    'Déconnexion', 
-    'Êtes-vous sûr de vouloir vous déconnecter ?'
-  );
-  
-  if (confirmed) {
-    router.post('/logout');
-  }
+const logout = () => {
+  showLogoutModal.value = true;
+};
+
+const confirmLogout = () => {
+  router.post('/logout');
 };
 
 // Fonction de sauvegarde du profil
@@ -541,6 +539,42 @@ const showToast = (message, type = 'info') => {
               Supprimer définitivement
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de confirmation de déconnexion -->
+    <div 
+      v-if="showLogoutModal" 
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      @click="showLogoutModal = false"
+    >
+      <div 
+        class="bg-white rounded-lg shadow-xl p-6 w-96"
+        @click.stop
+      >
+        <div class="text-center mb-4">
+          <i class="fas fa-sign-out-alt text-red-600 text-2xl mb-3"></i>
+          <h4 class="text-lg font-semibold text-gray-900 mb-2">
+            Confirmer la déconnexion
+          </h4>
+          <p class="text-sm text-gray-600">
+            Êtes-vous sûr de vouloir vous déconnecter ?
+          </p>
+        </div>
+        <div class="flex space-x-3">
+          <button
+            @click="showLogoutModal = false"
+            class="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-300 transition-colors"
+          >
+            Annuler
+          </button>
+          <button
+            @click="confirmLogout"
+            class="flex-1 bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors"
+          >
+            Se déconnecter
+          </button>
         </div>
       </div>
     </div>

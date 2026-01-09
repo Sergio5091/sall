@@ -328,6 +328,42 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal de confirmation de déconnexion -->
+    <div 
+      v-if="showLogoutModal" 
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      @click="showLogoutModal = false"
+    >
+      <div 
+        class="bg-white dark:bg-slate-850 rounded-lg shadow-xl p-6 w-96"
+        @click.stop
+      >
+        <div class="text-center mb-4">
+          <i class="fas fa-sign-out-alt text-red-600 text-2xl mb-3"></i>
+          <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+            Confirmer la déconnexion
+          </h4>
+          <p class="text-sm text-slate-600 dark:text-slate-400">
+            Êtes-vous sûr de vouloir vous déconnecter ?
+          </p>
+        </div>
+        <div class="flex space-x-3">
+          <button
+            @click="showLogoutModal = false"
+            class="flex-1 bg-slate-200 text-slate-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-slate-300 transition-colors"
+          >
+            Annuler
+          </button>
+          <button
+            @click="confirmLogout"
+            class="flex-1 bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors"
+          >
+            Se déconnecter
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -363,7 +399,13 @@ const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value
 }
 
+const showLogoutModal = ref(false)
+
 const logout = () => {
+  showLogoutModal.value = true
+}
+
+const confirmLogout = () => {
   router.post(route('logout'))
 }
 
