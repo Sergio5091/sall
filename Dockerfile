@@ -23,10 +23,14 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
 
 COPY . .
 
+# Create .env file if it doesn't exist
+RUN if [ ! -f .env ]; then echo "APP_ENV=production" > .env; fi
+
 RUN composer install --no-dev --optimize-autoloader
 RUN npm install --legacy-peer-deps && npm run build
 
-RUN php artisan key:generate
+# Generate key only if .env exists and APP_KEY is empty
+RUN php artisan key:generate --force || true
 RUN php artisan config:cache
 RUN php artisan route:cache
 
