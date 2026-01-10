@@ -10,7 +10,8 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    libzip-dev
+    libzip-dev \
+    default-mysql-client
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -23,22 +24,32 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
 
 COPY . .
 
-# Create .env file if it doesn't exist
-RUN if [ ! -f .env ]; then echo "APP_ENV=production" > .env; fi
+# Create .env file for production
+RUN cp .env.example .env
+RUN sed -i 's/APP_ENV=local/APP_ENV=production/' .env
+RUN sed -i 's/APP_DEBUG=true/APP_DEBUG=false/' .env
+RUN sed -i 's/DB_CONNECTION=sqlite/# DB_CONNECTION=sqlite/' .env
+RUN sed -i 's/# DB_HOST=127.0.0.1/DB_HOST=${RENDER_DB_HOST}/' .env
+RUN sed -i 's/# DB_PORT=3306/DB_PORT=${RENDER_DB_PORT}/' .env
+RUN sed -i 's/# DB_DATABASE=laravel/DB_DATABASE=${RENDER_DB_NAME}/' .env
+RUN sed -i 's/# DB_USERNAME=root/DB_USERNAME=${RENDER_DB_USER}/' .env
+RUN sed -i 's/# DB_PASSWORD=/DB_PASSWORD=${RENDER_DB_PASSWORD}/' .env
+
+# Set permissions
+RUN chmod -R 777 storage bootstrap/cache
 
 RUN composer install --no-dev --optimize-autoloader
 RUN npm install --legacy-peer-deps && npm run build
 
-# Generate key only if .env exists and APP_KEY is empty
-RUN php artisan key:generate --force || true
+# Generate key
+RUN php artisan key:generate --force
 RUN php artisan config:cache
 RUN php artisan route:cache
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html
-RUN chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
+# Run migrations
+RUN php artisan migrate --force || true
 
-EXPOSE 8000
+EXPOSE 80
 
-# Start PHP development server
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Start PHP development server on port 80 for Render
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
