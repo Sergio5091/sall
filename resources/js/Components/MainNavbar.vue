@@ -7,7 +7,7 @@
         <div class="size-8 flex items-center justify-center bg-white rounded-lg text-primary">
           <span class="material-symbols-outlined text-[24px]">stadia_controller</span>
         </div>
-        <h1 class="text-white text-xl font-bold tracking-tight">GameOn</h1>
+        <h1 class="text-white text-xl font-bold tracking-tight">YOUPIHUB</h1>
       </div>
       
       <!-- Desktop Menu -->
@@ -47,9 +47,9 @@
     >
       <div class="py-4 border-t border-white/20">
         <div class="flex flex-col gap-4">
-          <a href="/" class="text-white/90 hover:text-white text-sm font-medium transition-colors py-2">Accueil</a>
-          <a href="/search/rooms" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2">Salles</a>
-          <a href="/events" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2">Événements</a>
+          <a href="/" class="text-white/90 hover:text-white text-sm font-medium transition-colors py-2 text-center">Accueil</a>
+          <a href="/search/rooms" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2 text-center">Salles</a>
+          <a href="/events" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2 text-center">Événements</a>
           <div class="flex gap-3 pt-4 border-t border-white/20">
             <a href="/login" class="flex-1 text-center text-white hover:text-white/80 text-sm font-semibold py-2 border border-white/20 rounded-lg">Connexion</a>
             <a href="/register" class="flex-1 text-center bg-primary hover:bg-blue-600 text-white text-sm font-bold py-2 rounded-lg transition-all shadow-lg shadow-primary/20">Inscription</a>

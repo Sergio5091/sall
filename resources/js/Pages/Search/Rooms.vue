@@ -12,7 +12,7 @@
           alt="Gaming Room Background"
           class="w-full h-full object-cover"
         />
-        <div class="absolute inset-0 bg-gradient-to-br from-primary/90 via-blue-600/80 to-indigo-700/90"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-primary/60 via-blue-600/50 to-indigo-700/60"></div>
       </div>
       
       <!-- Background Pattern -->
@@ -37,7 +37,7 @@
           <div class="bg-white rounded-2xl shadow-2xl p-2">
             <div class="flex flex-col md:flex-row gap-2">
               <div class="flex-1 flex items-center px-4 py-3">
-                <span class="material-symbols-outlined text-2xl sm:text-3xl text-primary">search</span>
+                <i class="fas fa-search text-2xl sm:text-3xl text-primary"></i>
                 <input 
                   v-model="searchQuery"
                   type="text" 
@@ -52,14 +52,14 @@
                   class="px-6 py-3 bg-gray-100 text-soft-black rounded-xl hover:bg-gray-200 transition-all duration-300 flex items-center gap-2"
                   title="Utiliser ma position actuelle"
                 >
-                  <span class="material-symbols-outlined">location_on</span>
+                  <i class="fas fa-location-dot"></i>
                   <span class="hidden sm:inline">Ma position</span>
                 </button>
                 <button 
                   @click="searchRooms"
                   class="px-8 py-3 bg-primary text-white rounded-xl hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 shadow-lg"
                 >
-                  <span class="material-symbols-outlined">search</span>
+                  <i class="fas fa-search"></i>
                   Rechercher
                 </button>
               </div>
@@ -137,7 +137,7 @@
                 
                 <!-- Distance Badge -->
                 <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full flex items-center gap-1">
-                  <span class="material-symbols-outlined text-xs sm:text-sm text-primary">location_on</span>
+                  <i class="fas fa-location-dot text-xs sm:text-sm text-primary"></i>
                   <span class="text-xs sm:text-sm font-medium text-gray-900">{{ salle.distance || '2.5' }} km</span>
                 </div>
               </div>
@@ -150,7 +150,7 @@
                       {{ salle.nom }}
                     </h3>
                     <div class="flex items-center gap-2 text-medium-grey text-sm mb-3">
-                      <span class="material-symbols-outlined text-[16px]">location_on</span>
+                      <i class="fas fa-map-marker-alt text-[16px]"></i>
                       <span>{{ salle.ville }}</span>
                     </div>
                   </div>
@@ -216,7 +216,7 @@
         <div v-else class="text-center py-20">
           <div class="max-w-md mx-auto">
             <div class="size-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span class="material-symbols-outlined text-[40px] text-gray-400">search_off</span>
+              <i class="fas fa-search text-[40px] text-gray-400"></i>
             </div>
             <h3 class="text-soft-black text-2xl font-bold mb-3">Aucune salle trouvée</h3>
             <p class="text-medium-grey text-lg mb-8">

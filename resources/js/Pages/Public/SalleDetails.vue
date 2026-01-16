@@ -47,7 +47,7 @@ const getCurrentImage = () => {
 </script>
 
 <template>
-  <Head :title="`${salle.nom} - GameOn`" />
+  <Head :title="`${salle.nom} - YOUPIHUB`" />
   
   <div class="min-h-screen bg-gray-50">
     <!-- Header Public -->
@@ -56,7 +56,7 @@ const getCurrentImage = () => {
         <div class="flex items-center gap-8">
           <div class="flex items-center gap-2 text-gray-800">
             <i class="fas fa-gamepad text-3xl text-gray-400"></i>
-            <h2 class="text-gray-800 text-2xl font-display font-bold">GameOn</h2>
+            <h2 class="text-gray-800 text-2xl font-display font-bold">YOUPIHUB</h2>
           </div>
           <nav class="hidden md:flex space-x-8">
             <a href="/" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Accueil</a>
@@ -327,7 +327,7 @@ const getCurrentImage = () => {
                   </div>
                   <div class="flex items-center gap-2">
                     <i class="fas fa-envelope text-red-600"></i>
-                    <span>support@gameon.com</span>
+                    <span>support@youpihub.com</span>
                   </div>
                 </div>
               </div>

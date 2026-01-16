@@ -5,7 +5,7 @@
       <div class="flex items-center gap-8">
         <Link :href="route('welcome')" class="flex items-center gap-2 text-white">
           <span class="material-icons-round text-3xl text-accent-cyan">sports_esports</span>
-          <h2 class="text-white text-2xl font-display font-bold">GameOn</h2>
+          <h2 class="text-white text-2xl font-display font-bold">YOUPIHUB</h2>
         </Link>
       </div>
 

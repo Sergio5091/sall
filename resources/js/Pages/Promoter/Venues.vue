@@ -1,8 +1,11 @@
 <script setup>
-import { ref, watch } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { ref, computed, watch } from 'vue';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import Sidebar from '../../Components/Promoter/Sidebar.vue';
 import GoogleMap from '../../Components/GoogleMap.vue';
+
+const page = usePage();
+const user = computed(() => page.props.auth?.user);
 
 const props = defineProps({
     salle: Object,
@@ -15,9 +18,15 @@ const showImagesModal = ref(false);
 const currentStep = ref(1);
 const totalSteps = ref(6);
 
-// Empêcher le scroll de la page quand la modal est ouverte
-watch(showImagesModal, (newValue) => {
-    if (newValue) {
+// Variables pour les modales
+const showSuccessModal = ref(false);
+const showErrorModal = ref(false);
+const showValidationModal = ref(false);
+const errorMessage = ref('');
+
+// Empêcher le scroll de la page quand les modales sont ouvertes
+watch([showImagesModal, showSuccessModal, showErrorModal, showValidationModal], (newValues) => {
+    if (newValues.some(val => val)) {
         document.body.style.overflow = 'hidden';
     } else {
         document.body.style.overflow = 'auto';
@@ -35,16 +44,14 @@ const newVenue = ref({
     rue: '',
     latitude: '',
     longitude: '',
-    heure_ouverture: '',
-    heure_fermeture: '',
     jours_ouverture: {
-        lundi: false,
-        mardi: false,
-        mercredi: false,
-        jeudi: false,
-        vendredi: false,
-        samedi: false,
-        dimanche: false
+        lundi: { ouvert: false, ouverture: '', fermeture: '' },
+        mardi: { ouvert: false, ouverture: '', fermeture: '' },
+        mercredi: { ouvert: false, ouverture: '', fermeture: '' },
+        jeudi: { ouvert: false, ouverture: '', fermeture: '' },
+        vendredi: { ouvert: false, ouverture: '', fermeture: '' },
+        samedi: { ouvert: false, ouverture: '', fermeture: '' },
+        dimanche: { ouvert: false, ouverture: '', fermeture: '' }
     },
     telephone: '',
     email: '',
@@ -57,13 +64,20 @@ const newVenue = ref({
     services: {
         playstation_4: false,
         playstation_5: false,
+        xbox_series: false,
+        nintendo_switch: false,
         pc_gaming: false,
-        simulateur_voiture: false,
-        vr: false,
-        billard: false,
-        baby_foot: false,
-        jeux_societe: false,
-        tournois_evenements: false
+        racing_sim: false,
+        flight_sim: false,
+        vr_gaming: false,
+        arcade_cabinets: false,
+        wifi: false,
+        climatisation: false,
+        snack_bar: false,
+        parking: false,
+        streaming_setup: false,
+        tournament_area: false,
+        lounge_area: false
     },
     banniere_file: null,
     galerie_files: [null, null, null, null, null],
@@ -79,8 +93,8 @@ const validateStep = (step) => {
         case 2:
             return newVenue.value.pays && newVenue.value.ville && newVenue.value.rue;
         case 3:
-            return newVenue.value.heure_ouverture && newVenue.value.heure_fermeture &&
-                   Object.values(newVenue.value.jours_ouverture).some(jour => jour);
+            return Object.values(newVenue.value.jours_ouverture).some(jour => jour.ouvert) &&
+                   Object.values(newVenue.value.jours_ouverture).filter(jour => jour.ouvert).every(jour => jour.ouverture && jour.fermeture);
         case 4:
             return newVenue.value.telephone && newVenue.value.email;
         case 5:
@@ -96,7 +110,7 @@ const validateStep = (step) => {
 const createVenue = () => {
     // Validation finale
     if (!validateStep(6)) {
-        alert('Veuillez remplir tous les champs obligatoires');
+        showValidationModal.value = true;
         return;
     }
 
@@ -137,6 +151,9 @@ const createVenue = () => {
         // Horaires et services - s'assurer qu'ils sont définis
         horaires: newVenue.value.jours_ouverture || {},
         services: newVenue.value.services || {},
+        
+        // Promoteur ID - important pour la liaison
+        promoter_id: user.value?.id,
         
         // Statut
         statut: 'actif',
@@ -234,26 +251,57 @@ const createVenue = () => {
         method: method,
         data: formData,
         onSuccess: (response) => {
-            alert(isEditing.value ? 'Salle mise à jour avec succès !' : 'Salle créée avec succès !');
-            // Redirection vers la page des salles pour voir les modifications
-            window.location.href = '/promoter/venues';
+            showSuccessModal.value = true;
         },
         onError: (errors) => {
-            let errorMessage = isEditing.value ? 
+            let errorMsg = isEditing.value ? 
                 'Une erreur est survenue lors de la mise à jour de votre salle:\n\n' :
                 'Une erreur est survenue lors de la création de votre salle:\n\n';
             
             if (typeof errors === 'object') {
                 Object.keys(errors).forEach(key => {
-                    errorMessage += `${key}: ${errors[key]}\n`;
+                    errorMsg += `${key}: ${errors[key]}\n`;
                 });
             } else {
-                errorMessage += errors;
+                errorMsg += errors;
             }
             
-            alert(errorMessage);
+            errorMessage.value = errorMsg;
+            showErrorModal.value = true;
         }
     });
+};
+
+const redirectToVenues = () => {
+    window.location.href = '/promoter/venues';
+};
+
+// Fonction pour convertir les clés de jours en noms français
+const getDayName = (key) => {
+    const days = {
+        'lundi': 'Lun',
+        'mardi': 'Mar',
+        'mercredi': 'Mer',
+        'jeudi': 'Jeu',
+        'vendredi': 'Ven',
+        'samedi': 'Sam',
+        'dimanche': 'Dim',
+        'monday': 'Lun',
+        'tuesday': 'Mar',
+        'wednesday': 'Mer',
+        'thursday': 'Jeu',
+        'friday': 'Ven',
+        'saturday': 'Sam',
+        'sunday': 'Dim'
+    };
+    return days[key] || key;
+};
+
+// Propriété calculée pour forcer la réactivité
+const getDisplayHours = (key) => {
+    const jour = newVenue.value.jours_ouverture[key];
+    if (!jour || !jour.ouvert) return '';
+    return `${jour.ouverture || '09:00'} - ${jour.fermeture || '22:00'}`;
 };
 
 const resetForm = () => {
@@ -281,26 +329,31 @@ const resetForm = () => {
         heure_ouverture: '',
         heure_fermeture: '',
         jours_ouverture: {
-            lundi: false,
-            mardi: false,
-            mercredi: false,
-            jeudi: false,
-            vendredi: false,
-            samedi: false,
-            dimanche: false
+            lundi: { ouvert: false, ouverture: '', fermeture: '' },
+            mardi: { ouvert: false, ouverture: '', fermeture: '' },
+            mercredi: { ouvert: false, ouverture: '', fermeture: '' },
+            jeudi: { ouvert: false, ouverture: '', fermeture: '' },
+            vendredi: { ouvert: false, ouverture: '', fermeture: '' },
+            samedi: { ouvert: false, ouverture: '', fermeture: '' },
+            dimanche: { ouvert: false, ouverture: '', fermeture: '' }
         },
         services: {
+            playstation_4: false,
+            playstation_5: false,
+            xbox_series: false,
+            nintendo_switch: false,
+            pc_gaming: false,
+            racing_sim: false,
+            flight_sim: false,
+            vr_gaming: false,
+            arcade_cabinets: false,
             wifi: false,
-            parking: false,
             climatisation: false,
-            accessibilite: false,
-            surveillance: false,
             snack_bar: false,
-            restaurant: false,
-            bar: false,
-            terrasse: false,
-            espace_fumeur: false,
-            vestiaires: false
+            parking: false,
+            streaming_setup: false,
+            tournament_area: false,
+            lounge_area: false
         },
         banniere_file: null,
         galerie_files: [null, null, null, null, null],
@@ -316,23 +369,39 @@ const editVenue = () => {
         
         // Extraire les jours d'ouverture correctement
         const horairesData = props.salle?.horaires;
+        // Préparer les jours d'ouverture avec la nouvelle structure
         let joursOuverture = {
-            lundi: false,
-            mardi: false,
-            mercredi: false,
-            jeudi: false,
-            vendredi: false,
-            samedi: false,
-            dimanche: false
+            lundi: { ouvert: false, ouverture: '09:00', fermeture: '22:00' },
+            mardi: { ouvert: false, ouverture: '09:00', fermeture: '22:00' },
+            mercredi: { ouvert: false, ouverture: '09:00', fermeture: '22:00' },
+            jeudi: { ouvert: false, ouverture: '09:00', fermeture: '22:00' },
+            vendredi: { ouvert: false, ouverture: '09:00', fermeture: '22:00' },
+            samedi: { ouvert: false, ouverture: '09:00', fermeture: '22:00' },
+            dimanche: { ouvert: false, ouverture: '09:00', fermeture: '22:00' }
         };
         
-        // Si les horaires sont au format {lundi: true, mardi: false, ...}
+        // Si les horaires sont au format {lundi: {ouvert: true, ouverture: '09:00', fermeture: '18:00'}, ...}
         if (horairesData && typeof horairesData === 'object') {
             if (horairesData.jours) {
                 joursOuverture = {...joursOuverture, ...horairesData.jours};
             } else {
-                // Si les jours sont directement dans horaires
-                joursOuverture = {...joursOuverture, ...horairesData};
+                // Si les jours sont directement dans horaires avec la nouvelle structure
+                Object.keys(horairesData).forEach(jour => {
+                    if (typeof horairesData[jour] === 'object' && horairesData[jour] !== null) {
+                        joursOuverture[jour] = {
+                            ouvert: true,
+                            ouverture: horairesData[jour].ouverture || '09:00',
+                            fermeture: horairesData[jour].fermeture || '22:00'
+                        };
+                    } else if (typeof horairesData[jour] === 'boolean') {
+                        // Ancien format {lundi: true, mardi: false, ...}
+                        joursOuverture[jour] = {
+                            ouvert: horairesData[jour],
+                            ouverture: horairesData.ouverture || '09:00',
+                            fermeture: horairesData.fermeture || '22:00'
+                        };
+                    }
+                });
             }
         }
         
@@ -364,17 +433,22 @@ const editVenue = () => {
             heure_fermeture: horairesData?.fermeture || '22:00',
             jours_ouverture: joursOuverture,
             services: props.salle.services || {
+                playstation_4: false,
+                playstation_5: false,
+                xbox_series: false,
+                nintendo_switch: false,
+                pc_gaming: false,
+                racing_sim: false,
+                flight_sim: false,
+                vr_gaming: false,
+                arcade_cabinets: false,
                 wifi: false,
-                parking: false,
                 climatisation: false,
-                accessibilite: false,
-                surveillance: false,
                 snack_bar: false,
-                restaurant: false,
-                bar: false,
-                terrasse: false,
-                espace_fumeur: false,
-                vestiaires: false
+                parking: false,
+                streaming_setup: false,
+                tournament_area: false,
+                lounge_area: false
             },
             banniere_file: null,
             galerie_files: [null, null, null, null, null],
@@ -461,7 +535,7 @@ const getStepTitle = (step) => {
     <Sidebar current-route="promoter.venues" />
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto transition-all duration-300">
+    <main class="flex-1 overflow-y-auto transition-all duration-300 lg:ml-64">
       <div class="p-8">
         <!-- Header -->
         <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
@@ -504,153 +578,480 @@ const getStepTitle = (step) => {
         </div>
 
         <!-- État : Salle existe -->
-        <div v-else-if="props.salle && !showCreateForm" class="space-y-6">
-          <!-- Carte principale de la salle -->
-          <div class="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
-            <div class="flex flex-wrap items-start justify-between gap-6 mb-6">
-              <div>
-                <h2 class="text-3xl font-bold text-gray-900 mb-2">{{ props.salle.nom }}</h2>
-                <div class="flex flex-wrap gap-3">
-                  <span class="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
-                    {{ props.salle.categorie }}
-                  </span>
-                  <span class="px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded-full">
-                    {{ props.salle.type }}
-                  </span>
-                  <span class="px-3 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">
-                    {{ props.salle.statut }}
-                  </span>
+        <div v-else-if="props.salle && !showCreateForm" class="space-y-8">
+          <!-- Header Section -->
+          <div class="bg-white border border-gray-100 rounded-xl overflow-hidden">
+            <!-- Hero Image Section -->
+            <div class="relative h-80 bg-gray-100">
+              <img 
+                v-if="props.salle.image_url" 
+                :src="props.salle.image_url.startsWith('salles/') ? `/storage/${props.salle.image_url}` : props.salle.image_url" 
+                :alt="props.salle.nom"
+                class="w-full h-full object-cover"
+              >
+              <div v-else class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                <div class="text-center">
+                  <div class="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-store text-gray-500 text-2xl"></i>
+                  </div>
+                  <p class="text-gray-500">Aucune image principale</p>
                 </div>
-              </div>
-              <div class="flex gap-3">
-                <button @click="editVenue" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                  Modifier
-                </button>
-                <button class="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors">
-                  Supprimer
-                </button>
-              </div>
-            </div>
-
-            <!-- Description -->
-            <div class="mb-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">Description</h3>
-              <p class="text-gray-600">{{ props.salle.description }}</p>
-            </div>
-
-            <!-- Informations de contact -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-3">Contact</h3>
-                <div class="space-y-2">
-                  <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
-                    </svg>
-                    <span class="text-gray-600">{{ props.salle.telephone }}</span>
-                  </div>
-                  <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
-                      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
-                    </svg>
-                    <span class="text-gray-600">{{ props.salle.email }}</span>
-                  </div>
-                  <div v-if="props.salle.site_web" class="flex items-center gap-3">
-                    <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z" clip-rule="evenodd"/>
-                    </svg>
-                    <a :href="props.salle.site_web" target="_blank" class="text-blue-600 hover:text-blue-700">
-                      {{ props.salle.site_web }}
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-3">Adresse</h3>
-                <div class="space-y-2">
-                  <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="text-gray-600">{{ props.salle.adresse }}</span>
-                  </div>
-                  <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="text-gray-600">{{ props.salle.code_postal }} {{ props.salle.ville }}</span>
-                  </div>
-                  <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="text-gray-600">{{ props.salle.pays }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Carte si coordonnées disponibles -->
-            <div v-if="props.coordinates" class="mb-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-3">Localisation</h3>
-              
-              <!-- Carte OpenStreetMap alternative -->
-              <div class="bg-gray-100 rounded-lg overflow-hidden" style="height: 400px;">
-                <iframe
-                  :src="`https://www.openstreetmap.org/export/embed.html?bbox=${props.coordinates.lng - 0.005},${props.coordinates.lat - 0.005},${props.coordinates.lng + 0.005},${props.coordinates.lat + 0.005}&layer=mapnik&marker=${props.coordinates.lat},${props.coordinates.lng}`"
-                  width="100%"
-                  height="400"
-                  frameborder="0"
-                  class="border-0"
-                ></iframe>
               </div>
               
-              <!-- Coordonnées affichées -->
-              <div class="mt-4 p-4 bg-gray-50 rounded-lg">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="text-sm text-gray-600">Latitude: <strong class="text-gray-900">{{ props.coordinates.lat.toFixed(6) }}</strong></span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="text-sm text-gray-600">Longitude: <strong class="text-gray-900">{{ props.coordinates.lng.toFixed(6) }}</strong></span>
-                  </div>
-                </div>
-                
-                <!-- Lien vers Google Maps -->
-                <div class="mt-3">
-                  <a 
-                    :href="`https://maps.google.com/?q=${props.coordinates.lat},${props.coordinates.lng}`"
-                    target="_blank"
-                    class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
-                  >
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM8 7a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1zm1 4a1 1 0 100 2v3a1 1 0 11-2 0v-3a1 1 0 011-1z"/>
-                    </svg>
-                    Voir sur Google Maps
-                  </a>
-                </div>
+              <!-- Overlay Actions -->
+              <div class="absolute top-6 right-6 flex gap-3">
+                <button 
+                  @click="editVenue" 
+                  class="bg-white/90 backdrop-blur-sm text-gray-700 px-4 py-2 rounded-lg shadow-lg hover:bg-white transition-all duration-200 flex items-center gap-2"
+                >
+                  <i class="fas fa-edit text-sm"></i>
+                  <span class="font-medium">Modifier</span>
+                </button>
+                <button class="bg-white/90 backdrop-blur-sm text-red-600 px-4 py-2 rounded-lg shadow-lg hover:bg-white transition-all duration-200 flex items-center gap-2">
+                  <i class="fas fa-trash text-sm"></i>
+                  <span class="font-medium">Supprimer</span>
+                </button>
+              </div>
+              
+              <!-- Status Badge -->
+              <div class="absolute bottom-6 left-6">
+                <span :class="props.salle.valide ? 'bg-green-100 text-green-800 border-green-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200'" 
+                      class="backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium border">
+                  {{ props.salle.valide ? 'Actif' : 'En attente de validation' }}
+                </span>
               </div>
             </div>
             
-            <!-- Bouton pour voir les images -->
-            <div class="mt-4">
-              <button 
-                @click="showImagesModal = true"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
-                </svg>
-                Voir les images
-              </button>
+            <!-- Venue Info -->
+            <div class="p-8">
+              <div class="mb-8">
+                <h1 class="text-3xl font-light text-gray-900 mb-3">{{ props.salle.nom }}</h1>
+                <div class="flex items-center gap-6 text-sm text-gray-600">
+                  <span class="flex items-center gap-2">
+                    <i class="fas fa-tag text-gray-400"></i>
+                    {{ props.salle.categorie }}
+                  </span>
+                  <span class="flex items-center gap-2">
+                    <i class="fas fa-gamepad text-gray-400"></i>
+                    {{ props.salle.type }}
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Description -->
+              <div class="mb-8">
+                <p class="text-gray-700 leading-relaxed">{{ props.salle.description }}</p>
+              </div>
+              
+              <!-- Contact, Address and Hours in same row -->
+              <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Contact -->
+                <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-6">
+                  <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i class="fas fa-phone text-primary"></i>
+                    Contact
+                  </h3>
+                  <div class="space-y-3">
+                    <div class="flex items-center gap-3 p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                      <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                        <i class="fas fa-phone text-blue-600 dark:text-blue-400 text-sm"></i>
+                      </div>
+                      <div class="flex-1">
+                        <p class="text-slate-900 dark:text-white font-medium text-sm">{{ props.salle.telephone || 'Non spécifié' }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Téléphone</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                      <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                        <i class="fas fa-envelope text-green-600 dark:text-green-400 text-sm"></i>
+                      </div>
+                      <div class="flex-1">
+                        <p class="text-slate-900 dark:text-white font-medium text-sm">{{ props.salle.email || 'Non spécifié' }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Email</p>
+                      </div>
+                    </div>
+                    <div v-if="props.salle.site_web" class="flex items-center gap-3 p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                      <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                        <i class="fas fa-globe text-purple-600 dark:text-purple-400 text-sm"></i>
+                      </div>
+                      <div class="flex-1">
+                        <a :href="props.salle.site_web" target="_blank" class="text-slate-900 dark:text-white font-medium text-sm hover:text-primary transition-colors">
+                          {{ props.salle.site_web }}
+                        </a>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Site web</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Address -->
+                <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-6">
+                  <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i class="fas fa-map-marker-alt text-primary"></i>
+                    Adresse
+                  </h3>
+                  <div class="space-y-3">
+                    <div class="flex items-start gap-3 p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                      <div class="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <i class="fas fa-home text-red-600 dark:text-red-400 text-sm"></i>
+                      </div>
+                      <div class="flex-1">
+                        <p class="text-slate-900 dark:text-white font-medium text-sm">{{ props.salle.adresse || 'Adresse non spécifiée' }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Adresse</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                      <div class="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
+                        <i class="fas fa-map-pin text-orange-600 dark:text-orange-400 text-sm"></i>
+                      </div>
+                      <div class="flex-1">
+                        <p class="text-slate-900 dark:text-white font-medium text-sm">
+                          {{ props.salle.code_postal || '00000' }} {{ props.salle.ville || 'Ville' }}
+                        </p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Code postal & Ville</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                      <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center">
+                        <i class="fas fa-flag text-indigo-600 dark:text-indigo-400 text-sm"></i>
+                      </div>
+                      <div class="flex-1">
+                        <p class="text-slate-900 dark:text-white font-medium text-sm">{{ props.salle.pays || 'Sénégal' }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Pays</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Hours -->
+                <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+                  <h3 class="text-sm font-medium text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i class="fas fa-clock text-primary"></i>
+                    Horaires d'ouverture
+                  </h3>
+                  <div v-if="props.salle.horaires && typeof props.salle.horaires === 'object'">
+                    <!-- Desktop: Compact circular design -->
+                    <div class="hidden lg:block">
+                      <div class="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+                        <!-- Compact week circle -->
+                        <div class="relative w-48 h-48 mx-auto">
+                          <!-- Center circle -->
+                          <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-20 h-20 bg-gradient-to-br from-primary to-blue-600 rounded-full flex flex-col items-center justify-center text-white shadow-lg">
+                              <i class="fas fa-store text-lg mb-1"></i>
+                              <span class="text-xs font-semibold">Semaine</span>
+                            </div>
+                          </div>
+                          
+                          <!-- Day circles around -->
+                          <div class="absolute inset-0">
+                            <!-- Lundi - Top -->
+                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                              <div class="relative group">
+                                <div v-if="props.salle.horaires.lundi && props.salle.horaires.lundi.ouvert" 
+                                     class="w-10 h-10 bg-green-500 rounded-full flex flex-col items-center justify-center text-white shadow hover:scale-110 transition-transform cursor-pointer">
+                                  <span class="text-xs font-bold">LUN</span>
+                                </div>
+                                <div v-else 
+                                     class="w-10 h-10 bg-red-500 rounded-full flex flex-col items-center justify-center text-white shadow hover:scale-110 transition-transform cursor-pointer">
+                                  <span class="text-xs font-bold">LUN</span>
+                                </div>
+                                <!-- Tooltip -->
+                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                  <div class="bg-slate-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                                    <span v-if="props.salle.horaires.lundi && props.salle.horaires.lundi.ouvert">
+                                      {{ props.salle.horaires.lundi.ouverture }} - {{ props.salle.horaires.lundi.fermeture }}
+                                    </span>
+                                    <span v-else>Fermé</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Mardi - Top Right -->
+                            <div class="absolute top-4 right-4">
+                              <div class="relative group">
+                                <div v-if="props.salle.horaires.mardi && props.salle.horaires.mardi.ouvert" 
+                                     class="w-10 h-10 bg-green-500 rounded-full flex flex-col items-center justify-center text-white shadow hover:scale-110 transition-transform cursor-pointer">
+                                  <span class="text-xs font-bold">MAR</span>
+                                </div>
+                                <div v-else 
+                                     class="w-10 h-10 bg-red-500 rounded-full flex flex-col items-center justify-center text-white shadow hover:scale-110 transition-transform cursor-pointer">
+                                  <span class="text-xs font-bold">MAR</span>
+                                </div>
+                                <!-- Tooltip -->
+                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                  <div class="bg-slate-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                                    <span v-if="props.salle.horaires.mardi && props.salle.horaires.mardi.ouvert">
+                                      {{ props.salle.horaires.mardi.ouverture }} - {{ props.salle.horaires.mardi.fermeture }}
+                                    </span>
+                                    <span v-else>Fermé</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Mercredi - Right -->
+                            <div class="absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-1/2">
+                              <div class="relative group">
+                                <div v-if="props.salle.horaires.mercredi && props.salle.horaires.mercredi.ouvert" 
+                                     class="w-10 h-10 bg-green-500 rounded-full flex flex-col items-center justify-center text-white shadow hover:scale-110 transition-transform cursor-pointer">
+                                  <span class="text-xs font-bold">MER</span>
+                                </div>
+                                <div v-else 
+                                     class="w-10 h-10 bg-red-500 rounded-full flex flex-col items-center justify-center text-white shadow hover:scale-110 transition-transform cursor-pointer">
+                                  <span class="text-xs font-bold">MER</span>
+                                </div>
+                                <!-- Tooltip -->
+                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                  <div class="bg-slate-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                                    <span v-if="props.salle.horaires.mercredi && props.salle.horaires.mercredi.ouvert">
+                                      {{ props.salle.horaires.mercredi.ouverture }} - {{ props.salle.horaires.mercredi.fermeture }}
+                                    </span>
+                                    <span v-else>Fermé</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Jeudi - Bottom Right -->
+                            <div class="absolute bottom-4 right-4">
+                              <div class="relative group">
+                                <div v-if="props.salle.horaires.jeudi && props.salle.horaires.jeudi.ouvert" 
+                                     class="w-10 h-10 bg-green-500 rounded-full flex flex-col items-center justify-center text-white shadow hover:scale-110 transition-transform cursor-pointer">
+                                  <span class="text-xs font-bold">JEU</span>
+                                </div>
+                                <div v-else 
+                                     class="w-10 h-10 bg-red-500 rounded-full flex flex-col items-center justify-center text-white shadow hover:scale-110 transition-transform cursor-pointer">
+                                  <span class="text-xs font-bold">JEU</span>
+                                </div>
+                                <!-- Tooltip -->
+                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                  <div class="bg-slate-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                                    <span v-if="props.salle.horaires.jeudi && props.salle.horaires.jeudi.ouvert">
+                                      {{ props.salle.horaires.jeudi.ouverture }} - {{ props.salle.horaires.jeudi.fermeture }}
+                                    </span>
+                                    <span v-else>Fermé</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Vendredi - Bottom -->
+                            <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
+                              <div class="relative group">
+                                <div v-if="props.salle.horaires.vendredi && props.salle.horaires.vendredi.ouvert" 
+                                     class="w-10 h-10 bg-green-500 rounded-full flex flex-col items-center justify-center text-white shadow hover:scale-110 transition-transform cursor-pointer">
+                                  <span class="text-xs font-bold">VEN</span>
+                                </div>
+                                <div v-else 
+                                     class="w-10 h-10 bg-red-500 rounded-full flex flex-col items-center justify-center text-white shadow hover:scale-110 transition-transform cursor-pointer">
+                                  <span class="text-xs font-bold">VEN</span>
+                                </div>
+                                <!-- Tooltip -->
+                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                  <div class="bg-slate-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                                    <span v-if="props.salle.horaires.vendredi && props.salle.horaires.vendredi.ouvert">
+                                      {{ props.salle.horaires.vendredi.ouverture }} - {{ props.salle.horaires.vendredi.fermeture }}
+                                    </span>
+                                    <span v-else>Fermé</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Samedi - Bottom Left -->
+                            <div class="absolute bottom-4 left-4">
+                              <div class="relative group">
+                                <div v-if="props.salle.horaires.samedi && props.salle.horaires.samedi.ouvert" 
+                                     class="w-10 h-10 bg-green-500 rounded-full flex flex-col items-center justify-center text-white shadow hover:scale-110 transition-transform cursor-pointer">
+                                  <span class="text-xs font-bold">SAM</span>
+                                </div>
+                                <div v-else 
+                                     class="w-10 h-10 bg-red-500 rounded-full flex flex-col items-center justify-center text-white shadow hover:scale-110 transition-transform cursor-pointer">
+                                  <span class="text-xs font-bold">SAM</span>
+                                </div>
+                                <!-- Tooltip -->
+                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                  <div class="bg-slate-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                                    <span v-if="props.salle.horaires.samedi && props.salle.horaires.samedi.ouvert">
+                                      {{ props.salle.horaires.samedi.ouverture }} - {{ props.salle.horaires.samedi.fermeture }}
+                                    </span>
+                                    <span v-else>Fermé</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Dimanche - Left -->
+                            <div class="absolute top-1/2 left-0 transform -translate-y-1/2 -translate-x-1/2">
+                              <div class="relative group">
+                                <div v-if="props.salle.horaires.dimanche && props.salle.horaires.dimanche.ouvert" 
+                                     class="w-10 h-10 bg-green-500 rounded-full flex flex-col items-center justify-center text-white shadow hover:scale-110 transition-transform cursor-pointer">
+                                  <span class="text-xs font-bold">DIM</span>
+                                </div>
+                                <div v-else 
+                                     class="w-10 h-10 bg-red-500 rounded-full flex flex-col items-center justify-center text-white shadow hover:scale-110 transition-transform cursor-pointer">
+                                  <span class="text-xs font-bold">DIM</span>
+                                </div>
+                                <!-- Tooltip -->
+                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                  <div class="bg-slate-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                                    <span v-if="props.salle.horaires.dimanche && props.salle.horaires.dimanche.ouvert">
+                                      {{ props.salle.horaires.dimanche.ouverture }} - {{ props.salle.horaires.dimanche.fermeture }}
+                                    </span>
+                                    <span v-else>Fermé</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <!-- Legend -->
+                        <div class="flex justify-center gap-4 text-xs mt-4">
+                          <div class="flex items-center gap-1">
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span class="text-slate-600 dark:text-slate-400">Ouvert</span>
+                          </div>
+                          <div class="flex items-center gap-1">
+                            <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                            <span class="text-slate-600 dark:text-slate-400">Fermé</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Mobile/Tablet: Card layout -->
+                    <div class="lg:hidden space-y-2">
+                      <template v-for="(jour, key) in props.salle.horaires" :key="key">
+                        <div v-if="jour.ouvert && jour.ouverture && jour.fermeture" 
+                             class="bg-white dark:bg-slate-700 rounded-lg p-2 border border-slate-200 dark:border-slate-600">
+                          <div class="flex items-center justify-between">
+                            <span class="font-semibold text-slate-900 dark:text-white text-xs">{{ getDayName(key) }}</span>
+                            <span class="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-2 py-0.5 rounded-full">
+                              Ouvert
+                            </span>
+                          </div>
+                          <p class="text-slate-600 dark:text-slate-400 text-xs mt-0.5">
+                            <i class="fas fa-door-open mr-1"></i>
+                            {{ jour.ouverture }} - {{ jour.fermeture }}
+                          </p>
+                        </div>
+                        <div v-else-if="!jour.ouvert" 
+                             class="bg-white dark:bg-slate-700 rounded-lg p-2 border border-slate-200 dark:border-slate-600">
+                          <div class="flex items-center justify-between">
+                            <span class="font-semibold text-slate-900 dark:text-white text-xs">{{ getDayName(key) }}</span>
+                            <span class="text-xs bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 px-2 py-0.5 rounded-full">
+                              Fermé
+                            </span>
+                          </div>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                  <p v-else class="text-slate-500 dark:text-slate-400 text-xs">Horaires non spécifiés</p>
+                </div>
+              </div>
+              
+              <!-- Services et Équipements -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Services -->
+                <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-6">
+                  <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i class="fas fa-concierge-bell text-primary"></i>
+                    Services disponibles
+                  </h3>
+                  <div v-if="props.salle.services && Object.keys(props.salle.services).length > 0" class="flex flex-wrap gap-2">
+                    <span v-for="(service, key) in props.salle.services" :key="key" v-show="service === true"
+                          class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border border-green-200 dark:border-green-800">
+                      <i class="fas fa-check-circle mr-1.5 text-xs"></i>
+                      {{ key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) }}
+                    </span>
+                  </div>
+                  <p v-else class="text-slate-500 dark:text-slate-400 text-sm">Aucun service spécifié</p>
+                </div>
+
+                <!-- Équipements -->
+                <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-6">
+                  <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i class="fas fa-gamepad text-primary"></i>
+                    Équipements
+                  </h3>
+                  <div v-if="props.salle.equipements && Array.isArray(props.salle.equipements) && props.salle.equipements.length > 0" class="flex flex-wrap gap-2">
+                    <span v-for="equipement in props.salle.equipements" :key="equipement" 
+                          class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                      <i class="fas fa-cube mr-1.5 text-xs"></i>
+                      {{ equipement }}
+                    </span>
+                  </div>
+                  <p v-else class="text-slate-500 dark:text-slate-400 text-sm">Aucun équipement spécifié</p>
+                </div>
+              </div>
+              
+              <!-- Map Section -->
+              <div v-if="props.coordinates" class="mb-8">
+                <h3 class="text-sm font-medium text-gray-900 mb-4 flex items-center gap-2">
+                  <i class="fas fa-map text-gray-400"></i>
+                  Localisation
+                </h3>
+                <div class="bg-gray-50 rounded-lg overflow-hidden" style="height: 300px;">
+                  <iframe
+                    :src="`https://www.openstreetmap.org/export/embed.html?bbox=${props.coordinates.lng - 0.005},${props.coordinates.lat - 0.005},${props.coordinates.lng + 0.005},${props.coordinates.lat + 0.005}&layer=mapnik&marker=${props.coordinates.lat},${props.coordinates.lng}`"
+                    width="100%"
+                    height="300"
+                    frameborder="0"
+                    class="border-0"
+                  ></iframe>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Gallery Section -->
+          <div class="bg-white border border-gray-100 rounded-xl overflow-hidden">
+            <div class="p-8">
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-light text-gray-900">Galerie</h2>
+                <button 
+                  @click="showImagesModal = true"
+                  class="text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2"
+                >
+                  <i class="fas fa-expand"></i>
+                  <span class="text-sm">Voir tout</span>
+                </button>
+              </div>
+              
+              <div v-if="props.salle.images && props.salle.images.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div v-for="(image, index) in props.salle.images.slice(0, 8)" :key="index" 
+                     class="aspect-square bg-gray-100 rounded-lg overflow-hidden group cursor-pointer"
+                     @click="showImagesModal = true">
+                  <img 
+                    :src="image.startsWith('salles/') ? `/storage/${image}` : image" 
+                    :alt="`${props.salle.nom} - Image ${index + 1}`"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  >
+                </div>
+                
+                <!-- Show More Button if more than 8 images -->
+                <div v-if="props.salle.images.length > 8" 
+                     class="aspect-square bg-gray-100 rounded-lg overflow-hidden group cursor-pointer flex items-center justify-center"
+                     @click="showImagesModal = true">
+                  <div class="text-center">
+                    <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2 group-hover:bg-gray-300 transition-colors">
+                      <i class="fas fa-plus text-gray-500"></i>
+                    </div>
+                    <p class="text-sm text-gray-600">+{{ props.salle.images.length - 8 }}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div v-else class="text-center py-12">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-images text-gray-400 text-xl"></i>
+                </div>
+                <p class="text-gray-500">Aucune image dans la galerie</p>
+              </div>
             </div>
           </div>
         </div>
@@ -750,7 +1151,7 @@ const getStepTitle = (step) => {
                     name="nom"
                     required
                     class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                    placeholder="GameOn Arena"
+                    placeholder="YOUPIHUB Arena"
                   >
                 </div>
                 <div>
@@ -764,15 +1165,15 @@ const getStepTitle = (step) => {
                     class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   >
                     <option value="">Sélectionner une catégorie</option>
-                    <option value="bar">Bar</option>
-                    <option value="restaurant">Restaurant</option>
-                    <option value="club">Club</option>
-                    <option value="centre_commercial">Centre commercial</option>
-                    <option value="hotel">Hôtel</option>
-                    <option value="complexe_sportif">Complexe sportif</option>
-                    <option value="espace_jeux">Espace de jeux</option>
-                    <option value="centre_loisirs">Centre de loisirs</option>
-                    <option value="autre">Autre</option>
+                    <option value="salle_gaming">Salle de gaming</option>
+                    <option value="centre_esport">Centre e-sport</option>
+                    <option value="arcade">Salle d'arcade</option>
+                    <option value="vr_centre">Centre VR</option>
+                    <option value="retro_gaming">Retro gaming</option>
+                    <option value="gaming_lounge">Gaming lounge</option>
+                    <option value="cybercafe">Cybercafé</option>
+                    <option value="gaming_bar">Gaming bar</option>
+                    <option value="complexe_jeux">Complexe de jeux</option>
                   </select>
                 </div>
                 <div>
@@ -786,16 +1187,14 @@ const getStepTitle = (step) => {
                     class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   >
                     <option value="">Sélectionner un type</option>
-                    <option value="arcade">Salle d'arcade</option>
-                    <option value="vr">Centre VR</option>
-                    <option value="retro">Retro gaming</option>
-                    <option value="esports">E-sport</option>
-                    <option value="mixed">Mixte</option>
-                    <option value="bowling">Bowling</option>
-                    <option value="billard">Billard</option>
-                    <option value="laser">Laser game</option>
-                    <option value="escape">Escape game</option>
-                    <option value="karaoke">Karaoke</option>
+                    <option value="pc_gaming">PC Gaming</option>
+                    <option value="console_gaming">Console Gaming</option>
+                    <option value="vr_gaming">VR Gaming</option>
+                    <option value="retro_gaming">Retro Gaming</option>
+                    <option value="esports_arena">E-sports Arena</option>
+                    <option value="gaming_hub">Gaming Hub</option>
+                    <option value="simulation">Simulation</option>
+                    <option value="mixed_gaming">Gaming Mixte</option>
                   </select>
                 </div>
               </div>
@@ -956,94 +1355,58 @@ const getStepTitle = (step) => {
                 <span class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-sm font-bold">3</span>
                 Horaires d'ouverture
               </h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Heure d'ouverture <span class="text-red-500">*</span>
-                  </label>
-                  <input 
-                    v-model="newVenue.heure_ouverture" 
-                    type="time" 
-                    name="heure_ouverture"
-                    required
-                    class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                  >
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Heure de fermeture <span class="text-red-500">*</span>
-                  </label>
-                  <input 
-                    v-model="newVenue.heure_fermeture" 
-                    type="time" 
-                    name="heure_fermeture"
-                    required
-                    class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                  >
+              
+              <div class="space-y-4">
+                <div v-for="(jour, key) in newVenue.jours_ouverture" :key="key" 
+                     class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                  <div class="flex items-center justify-between mb-3">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                      <input 
+                        v-model="jour.ouvert" 
+                        type="checkbox"
+                        class="w-5 h-5 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
+                      >
+                      <span class="font-medium text-gray-900 capitalize">{{ getDayName(key) }}</span>
+                    </label>
+                    
+                    <div v-if="jour.ouvert" class="flex items-center gap-2 text-sm text-gray-500">
+                      <i class="fas fa-clock"></i>
+                      <span>{{ getDisplayHours(key) }}</span>
+                    </div>
+                  </div>
+                  
+                  <div v-if="jour.ouvert" class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Ouverture
+                      </label>
+                      <input 
+                        v-model="jour.ouverture" 
+                        type="time" 
+                        :name="`${key}_ouverture`"
+                        class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                      >
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Fermeture
+                      </label>
+                      <input 
+                        v-model="jour.fermeture" 
+                        type="time" 
+                        :name="`${key}_fermeture`"
+                        class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                      >
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="mt-6">
-                <label class="block text-sm font-medium text-gray-300 mb-4">
-                  Jours d'ouverture <span class="text-red-500">*</span>
-                </label>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.jours_ouverture.lundi" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Lundi</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.jours_ouverture.mardi" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Mardi</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.jours_ouverture.mercredi" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Mercredi</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.jours_ouverture.jeudi" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Jeudi</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.jours_ouverture.vendredi" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Vendredi</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.jours_ouverture.samedi" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Samedi</span>
-                  </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
-                    <input 
-                      v-model="newVenue.jours_ouverture.dimanche" 
-                      type="checkbox"
-                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                    >
-                    <span>Dimanche</span>
-                  </label>
-                </div>
+              
+              <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                <p class="text-sm text-blue-700">
+                  <i class="fas fa-info-circle mr-2"></i>
+                  Cochez les jours d'ouverture et définissez les horaires spécifiques pour chaque jour.
+                </p>
               </div>
             </div>
 
@@ -1136,107 +1499,174 @@ const getStepTitle = (step) => {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Tarif horaire minimum (€) <span class="text-red-500">*</span>
+                    Tarif horaire (FCFA) <span class="text-red-500">*</span>
                   </label>
                   <input 
                     v-model="newVenue.tarif_minimum" 
                     type="number" 
-                    step="0.01"
+                    step="100"
                     name="tarif_minimum"
                     required
                     class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                    placeholder="15.00"
+                    placeholder="5000"
                   >
+                  <p class="text-xs text-gray-500 mt-1">Prix par heure en Francs CFA</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Tarif horaire maximum (€) (optionnel)
+                    Capacité maximum <span class="text-red-500">*</span>
                   </label>
                   <input 
-                    v-model="newVenue.tarif_maximum" 
+                    v-model="newVenue.capacite" 
                     type="number" 
-                    step="0.01"
+                    min="1"
+                    name="capacite"
+                    required
                     class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                    placeholder="25.00"
+                    placeholder="20"
                   >
+                  <p class="text-xs text-gray-500 mt-1">Nombre maximum de joueurs</p>
                 </div>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-4">
-                  Services disponibles
+                <label class="block text-sm font-medium text-gray-700 mb-4">
+                  Équipements et services disponibles
                 </label>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <!-- Consoles -->
+                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded">
                     <input 
                       v-model="newVenue.services.playstation_4" 
                       type="checkbox"
                       class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
                     >
-                    <span>PlayStation 4</span>
+                    <span class="text-sm">PlayStation 4</span>
                   </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
+                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded">
                     <input 
                       v-model="newVenue.services.playstation_5" 
                       type="checkbox"
                       class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
                     >
-                    <span>PlayStation 5</span>
+                    <span class="text-sm">PlayStation 5</span>
                   </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
+                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <input 
+                      v-model="newVenue.services.xbox_series" 
+                      type="checkbox"
+                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
+                    >
+                    <span class="text-sm">Xbox Series</span>
+                  </label>
+                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <input 
+                      v-model="newVenue.services.nintendo_switch" 
+                      type="checkbox"
+                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
+                    >
+                    <span class="text-sm">Nintendo Switch</span>
+                  </label>
+                  
+                  <!-- PC -->
+                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded">
                     <input 
                       v-model="newVenue.services.pc_gaming" 
                       type="checkbox"
                       class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
                     >
-                    <span>PC Gaming</span>
+                    <span class="text-sm">PC Gaming</span>
                   </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
+                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded">
                     <input 
-                      v-model="newVenue.services.simulateur_voiture" 
+                      v-model="newVenue.services.racing_sim" 
                       type="checkbox"
                       class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
                     >
-                    <span>Simulateur voiture</span>
+                    <span class="text-sm">Simulateur de course</span>
                   </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
+                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded">
                     <input 
-                      v-model="newVenue.services.vr" 
+                      v-model="newVenue.services.flight_sim" 
                       type="checkbox"
                       class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
                     >
-                    <span>VR</span>
+                    <span class="text-sm">Simulateur de vol</span>
                   </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
+                  
+                  <!-- VR -->
+                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded">
                     <input 
-                      v-model="newVenue.services.billard" 
+                      v-model="newVenue.services.vr_gaming" 
                       type="checkbox"
                       class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
                     >
-                    <span>Billard</span>
+                    <span class="text-sm">VR Gaming</span>
                   </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
+                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded">
                     <input 
-                      v-model="newVenue.services.baby_foot" 
+                      v-model="newVenue.services.arcade_cabinets" 
                       type="checkbox"
                       class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
                     >
-                    <span>Baby-foot</span>
+                    <span class="text-sm">Borne d'arcade</span>
                   </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
+                  
+                  <!-- Services -->
+                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded">
                     <input 
-                      v-model="newVenue.services.jeux_societe" 
+                      v-model="newVenue.services.wifi" 
                       type="checkbox"
                       class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
                     >
-                    <span>Jeux de société</span>
+                    <span class="text-sm">WiFi</span>
                   </label>
-                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
+                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded">
                     <input 
-                      v-model="newVenue.services.tournois_evenements" 
+                      v-model="newVenue.services.climatisation" 
                       type="checkbox"
                       class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
                     >
-                    <span>Tournois / Événements</span>
+                    <span class="text-sm">Climatisation</span>
+                  </label>
+                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <input 
+                      v-model="newVenue.services.snack_bar" 
+                      type="checkbox"
+                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
+                    >
+                    <span class="text-sm">Snack Bar</span>
+                  </label>
+                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <input 
+                      v-model="newVenue.services.parking" 
+                      type="checkbox"
+                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
+                    >
+                    <span class="text-sm">Parking</span>
+                  </label>
+                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <input 
+                      v-model="newVenue.services.streaming_setup" 
+                      type="checkbox"
+                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
+                    >
+                    <span class="text-sm">Setup Streaming</span>
+                  </label>
+                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <input 
+                      v-model="newVenue.services.tournament_area" 
+                      type="checkbox"
+                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
+                    >
+                    <span class="text-sm">Zone Tournoi</span>
+                  </label>
+                  <label class="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <input 
+                      v-model="newVenue.services.lounge_area" 
+                      type="checkbox"
+                      class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
+                    >
+                    <span class="text-sm">Espace détente</span>
                   </label>
                 </div>
               </div>
@@ -1379,10 +1809,20 @@ const getStepTitle = (step) => {
                 <button 
                   v-if="currentStep === totalSteps"
                   type="submit"
-                  class="w-full py-4 bg-gradient-to-r from-green-600 to-green-500 text-white font-semibold rounded-lg hover:from-green-500 hover:to-green-400 transition-all duration-300 transform hover:scale-105"
+                  class="group relative px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-lg hover:from-blue-500 hover:to-blue-400 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2"
                 >
-                  {{ isEditing ? 'Mettre à jour ma salle' : 'Soumettre ma salle' }}
+                  <svg v-if="!isEditing" class="w-4 h-4 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                  <svg v-else class="w-4 h-4 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                  </svg>
+                  <span>{{ isEditing ? 'Mettre à jour' : 'Créer' }}</span>
+                  <div class="absolute inset-0 rounded-lg bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                 </button>
+                <p v-if="currentStep === totalSteps" class="text-sm text-gray-500 mt-3">
+                  {{ isEditing ? 'Les modifications seront appliquées immédiatement' : 'Votre salle sera visible après validation' }}
+                </p>
               </div>
             </div>
           </form>
@@ -1556,6 +1996,67 @@ const getStepTitle = (step) => {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de succès -->
+  <div v-if="showSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-check text-green-600 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">
+          {{ isEditing ? 'Salle mise à jour !' : 'Salle créée avec succès !' }}
+        </h3>
+        <p class="text-gray-600 mb-6">
+          {{ isEditing ? 'Votre salle a été mise à jour avec succès.' : 'Votre salle a été ajoutée et est maintenant visible.' }}
+        </p>
+        <button 
+          @click="redirectToVenues" 
+          class="w-full bg-gradient-to-r from-green-600 to-green-500 text-white font-medium py-3 px-6 rounded-lg hover:from-green-500 hover:to-green-400 transition-all duration-300 transform hover:scale-105"
+        >
+          Voir ma salle
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal d'erreur -->
+  <div v-if="showErrorModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">Erreur</h3>
+        <p class="text-gray-600 mb-6">{{ errorMessage }}</p>
+        <button 
+          @click="showErrorModal = false" 
+          class="w-full bg-gradient-to-r from-red-600 to-red-500 text-white font-medium py-3 px-6 rounded-lg hover:from-red-500 hover:to-red-400 transition-all duration-300 transform hover:scale-105"
+        >
+          Fermer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de validation -->
+  <div v-if="showValidationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-info-circle text-yellow-600 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">Validation requise</h3>
+        <p class="text-gray-600 mb-6">Veuillez remplir tous les champs obligatoires avant de continuer.</p>
+        <button 
+          @click="showValidationModal = false" 
+          class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-white font-medium py-3 px-6 rounded-lg hover:from-yellow-500 hover:to-yellow-400 transition-all duration-300 transform hover:scale-105"
+        >
+          Compris
+        </button>
       </div>
     </div>
   </div>

@@ -79,7 +79,7 @@ const getTypeIcon = (salleType) => {
                     <div class="flex items-center space-x-8">
                         <a href="/" class="flex items-center space-x-2">
                             <i class="fas fa-gamepad text-2xl text-blue-600"></i>
-                            <span class="text-xl font-bold text-gray-900">GameOn</span>
+                            <span class="text-xl font-bold text-gray-900">YOUPIHUB</span>
                         </a>
                         <nav class="hidden md:flex space-x-6">
                             <Link href="/client/dashboard" class="text-gray-600 hover:text-gray-900 transition-colors">Tableau de bord</Link>

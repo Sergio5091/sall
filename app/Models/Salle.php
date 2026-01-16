@@ -88,10 +88,9 @@ class Salle extends Model
         
         // Statut et validation
         'statut',
-        'valide_par_admin',
+        'valide',
         'date_validation',
         'motif_rejet',
-        'valide',
         
         // Réservation et paiement
         'reservation_en_ligne',

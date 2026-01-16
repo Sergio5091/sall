@@ -41,7 +41,7 @@ const userInitials = computed(() => {
         <div class="flex items-center gap-8">
           <Link href="/client/dashboard" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <i class="fas fa-gamepad text-xl text-blue-600"></i>
-            <span class="text-lg font-bold text-gray-900">GameOn</span>
+            <span class="text-lg font-bold text-gray-900">YOUPIHUB</span>
           </Link>
           
           <!-- Desktop Navigation -->

@@ -117,29 +117,25 @@ const toggleSidebar = () => {
     <aside class="fixed top-0 left-0 w-64 h-screen bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 z-40 lg:translate-x-0"
            :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'">
       
-      <div class="p-6 border-b border-gray-200">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-            <i class="fas fa-gamepad text-white"></i>
-          </div>
-          <h1 class="text-xl font-bold text-gray-900">GameOn</h1>
+      <div class="p-6 flex items-center gap-3">
+        <div class="bg-primary size-10 rounded-full flex items-center justify-center text-white">
+          <i class="fas fa-gamepad"></i>
         </div>
+        <h1 class="text-slate-900 dark:text-white text-lg font-bold tracking-tight">YOUPIHUB</h1>
       </div>
       
-      <nav class="flex-1 p-4">
-        <div class="space-y-2">
+      <nav class="flex-1 overflow-y-auto custom-scrollbar px-4 py-2 flex flex-col gap-2">
           <Link v-for="item in menuItems" :key="item.name" :href="item.href" @click="handleNavigation"
-                class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors w-full"
-                :class="{ 'bg-blue-50 text-blue-600': currentRoute === item.route }">
-            <i :class="item.icon"></i>
-            <span>{{ item.name }}</span>
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group w-full text-left"
+                :class="{ 'bg-primary/10 text-primary dark:text-blue-400': currentRoute === item.route }">
+            <i :class="item.icon" class="group-hover:text-primary transition-colors"></i>
+            <span class="text-sm font-medium">{{ item.name }}</span>
             <span v-if="item.badge && item.badge > 0" 
                   class="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
               {{ item.badge }}
             </span>
           </Link>
-        </div>
-      </nav>
+        </nav>
       
       <div class="p-4 border-t border-gray-200">
         <div class="flex items-center gap-3 mb-3">

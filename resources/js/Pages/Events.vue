@@ -9,7 +9,7 @@
             <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <span class="text-white font-bold">GB</span>
             </div>
-            <h1 class="text-soft-black text-xl font-bold tracking-tight">GameOn</h1>
+            <h1 class="text-soft-black text-xl font-bold tracking-tight">YOUPIHUB</h1>
           </div>
           
           <!-- Desktop Menu -->
@@ -32,9 +32,8 @@
             @click="isMobileMenuOpen = !isMobileMenuOpen"
             class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <span class="material-symbols-outlined text-2xl text-soft-black">
-              {{ isMobileMenuOpen ? 'close' : 'menu' }}
-            </span>
+            <i class="fas fa-bars text-2xl text-soft-black" v-if="!isMobileMenuOpen"></i>
+            <i class="fas fa-times text-2xl text-soft-black" v-else></i>
           </button>
         </div>
 
@@ -47,9 +46,9 @@
         >
           <div class="py-4 border-t border-gray-100">
             <div class="flex flex-col gap-4">
-              <a href="/" class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2">Accueil</a>
-              <a href="/search/rooms" class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2">Salles</a>
-              <a href="/events" class="text-primary hover:text-primary text-sm font-medium transition-colors py-2">Événements</a>
+              <a href="/" class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2 text-center">Accueil</a>
+              <a href="/search/rooms" class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2 text-center">Salles</a>
+              <a href="/events" class="text-primary hover:text-primary text-sm font-medium transition-colors py-2 text-center">Événements</a>
               <div class="flex gap-3 pt-4 border-t border-gray-100">
                 <a href="/login" class="flex-1 text-center text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2 border border-gray-200 rounded-lg">Connexion</a>
                 <a href="/register" class="flex-1 text-center bg-primary hover:bg-blue-600 text-white text-sm font-bold py-2 rounded-lg transition-all shadow-lg shadow-primary/20">Inscription</a>
@@ -69,7 +68,7 @@
           alt="Gaming Events Background"
           class="w-full h-full object-cover"
         />
-        <div class="absolute inset-0 bg-gradient-to-br from-primary/90 via-purple-600/80 to-indigo-700/90"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-primary/60 via-purple-600/50 to-indigo-700/60"></div>
       </div>
       
       <!-- Background Pattern -->
@@ -94,7 +93,7 @@
           <div class="bg-white rounded-2xl shadow-2xl p-2">
             <div class="flex flex-col md:flex-row gap-2">
               <div class="flex-1 flex items-center px-4 py-3">
-                <span class="material-symbols-outlined text-2xl sm:text-3xl text-primary">search</span>
+                <i class="fas fa-search text-2xl sm:text-3xl text-primary"></i>
                 <input 
                   v-model="searchQuery"
                   type="text" 
@@ -107,7 +106,7 @@
                 @click="searchEvents"
                 class="bg-primary hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-bold text-base transition-all shadow-lg shadow-primary/20 flex items-center gap-2"
               >
-                <span class="material-symbols-outlined">search</span>
+                <i class="fas fa-search"></i>
                 Rechercher
               </button>
             </div>
@@ -369,7 +368,7 @@
       <div class="max-w-[1320px] mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <h3 class="text-lg sm:text-xl font-bold mb-4">GameOn</h3>
+            <h3 class="text-lg sm:text-xl font-bold mb-4">YOUPIHUB</h3>
             <p class="text-sm sm:text-base text-gray-400 mb-6">
               La plateforme N°1 pour la réservation de salles de gaming et d'événements en Afrique.
             </p>
@@ -403,7 +402,7 @@
             <a class="text-sm sm:text-base text-gray-400 hover:text-primary transition-colors" href="#">CGU</a>
           </div>
           <div class="text-xs sm:text-sm text-gray-400">
-            2024 GameOn. Tous droits réservés.
+            2024 YOUPIHUB. Tous droits réservés.
           </div>
         </div>
       </div>
@@ -639,7 +638,7 @@ onMounted(() => {
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
 .font-display {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -650,12 +649,6 @@ onMounted(() => {
   --primary: #135bec;
   --soft-black: #111827;
   --medium-grey: #6B7280;
-}
-
-/* Force primary color for all elements */
-.bg-primary,
-[class*="bg-primary"] {
-  background-color: #135bec !important;
 }
 
 .text-primary,
@@ -672,11 +665,6 @@ onMounted(() => {
   background-color: #2563eb !important;
 }
 
-/* Material Symbols */
-.material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-}
-
 /* Animations */
 @keyframes fade-in-up {
   from {
@@ -689,79 +677,15 @@ onMounted(() => {
   }
 }
 
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slide-in-left {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
 @keyframes bounce-in {
-  0% {
+  from {
     opacity: 0;
     transform: scale(0.3);
   }
-  50% {
-    opacity: 1;
-    transform: scale(1.05);
-  }
-  70% {
-    transform: scale(0.9);
-  }
-  100% {
+  to {
     opacity: 1;
     transform: scale(1);
   }
-}
-
-/* Animation classes */
-.animate-fade-in-up {
-  animation: fade-in-up 0.8s ease-out forwards;
-  opacity: 0;
-}
-
-.animate-fade-in {
-  animation: fade-in 0.6s ease-out forwards;
-  opacity: 0;
-}
-
-.animate-slide-in-left {
-  animation: slide-in-left 0.8s ease-out forwards;
-  opacity: 0;
-}
-
-.animate-scale-in {
-  animation: scale-in 0.5s ease-out forwards;
-  opacity: 0;
-}
-
-.animate-bounce-in {
-  animation: bounce-in 0.6s ease-out forwards;
-  opacity: 0;
 }
 
 /* Delays */

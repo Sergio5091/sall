@@ -83,11 +83,21 @@ class SalleController extends Controller
      */
     public function approve(Salle $salle)
     {
+        \Log::info('Tentative d\'approbation de la salle ID: ' . $salle->id);
+        \Log::info('Statut avant validation: valide = ' . $salle->valide . ', statut = ' . $salle->statut);
+        
         if ($salle->valide) {
+            \Log::warning('La salle est déjà validée');
             return back()->with('error', 'Cette salle est déjà validée.');
         }
 
-        $salle->update(['valide' => true]);
+        $result = $salle->update([
+            'valide' => true,
+            'statut' => 'actif'
+        ]);
+        
+        \Log::info('Résultat de la mise à jour: ' . ($result ? 'succès' : 'échec'));
+        \Log::info('Statut après validation: valide = ' . $salle->fresh()->valide . ', statut = ' . $salle->fresh()->statut);
 
         // Notifier le promoteur que la salle est validée
         \App\Models\Notification::createForUser(
@@ -99,7 +109,7 @@ class SalleController extends Controller
             $salle->id
         );
 
-        return back()->with('success', 'La salle a été validée avec succès.');
+        return back()->with('success', 'La salle a été validée et est maintenant visible par les utilisateurs.');
     }
 
     /**
@@ -242,8 +252,11 @@ class SalleController extends Controller
                 case 'validate':
                     Salle::whereIn('id', $salleIds)
                         ->where('valide', false)
-                        ->update(['valide' => true]);
-                    $message = 'Les salles sélectionnées ont été validées.';
+                        ->update([
+                            'valide' => true,
+                            'statut' => 'actif'
+                        ]);
+                    $message = 'Les salles sélectionnées ont été validées et sont maintenant visibles.';
                     break;
 
                 case 'disable':

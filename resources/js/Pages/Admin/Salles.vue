@@ -32,6 +32,36 @@ const showCreateModal = ref(false)
 const showDetailModal = ref(false)
 const selectedSalle = ref(null)
 
+// Fonction pour formater les noms des jours
+const formatDayName = (day) => {
+  const days = {
+    'lundi': 'Lundi',
+    'mardi': 'Mardi', 
+    'mercredi': 'Mercredi',
+    'jeudi': 'Jeudi',
+    'vendredi': 'Vendredi',
+    'samedi': 'Samedi',
+    'dimanche': 'Dimanche',
+    'monday': 'Lundi',
+    'tuesday': 'Mardi',
+    'wednesday': 'Mercredi',
+    'thursday': 'Jeudi',
+    'friday': 'Vendredi',
+    'saturday': 'Samedi',
+    'sunday': 'Dimanche'
+  }
+  return days[day] || day
+}
+
+// Fonction pour formater les services
+const formatServices = (services) => {
+  if (!services) return []
+  if (typeof services === 'object') {
+    return Object.keys(services).filter(key => services[key] === true)
+  }
+  return Array.isArray(services) ? services : []
+}
+
 const handleSearch = debounce(() => {
   updateFilters()
 }, 300)
@@ -108,6 +138,10 @@ const viewSalle = (salle) => {
 }
 
 const approveSalle = (salle) => {
+  console.log('Bouton valider cliqué pour la salle:', salle);
+  console.log('ID de la salle:', salle.id);
+  console.log('Statut valide:', salle.valide);
+  
   confirmTitle.value = 'Valider la salle';
   confirmMessage.value = `Êtes-vous sûr de vouloir valider la salle "${salle.nom}" ?`;
   confirmAction.value = 'approve';
@@ -136,20 +170,35 @@ const deleteSalle = (salle) => {
 const confirmActionHandler = () => {
   if (!confirmAction.value || !confirmData.value) return;
   
+  console.log('Action confirmée:', confirmAction.value);
+  console.log('Données de la salle:', confirmData.value);
+  
   if (confirmAction.value === 'approve') {
     const salle = confirmData.value;
+    console.log('Tentative d\'approbation de la salle ID:', salle.id);
+    console.log('Route appelée:', route('admin.salles.approve', salle.id));
+    
     router.patch(route('admin.salles.approve', salle.id), {}, {
       onSuccess: () => {
+        console.log('Approbation réussie pour la salle:', salle.nom);
         notificationType.value = 'success';
         notificationTitle.value = 'Succès';
-        notificationMessage.value = 'Salle validée avec succès !';
+        notificationMessage.value = `La salle "${salle.nom}" a été validée avec succès.`;
         showNotificationModal.value = true;
+        showConfirmModal.value = false;
+        
+        // Rafraîchir la page pour voir les changements
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       },
       onError: (errors) => {
+        console.log('Erreur lors de l\'approbation:', errors);
         notificationType.value = 'error';
         notificationTitle.value = 'Erreur';
-        notificationMessage.value = 'Une erreur est survenue lors de la validation.';
+        notificationMessage.value = 'Une erreur est survenue lors de la validation de la salle.';
         showNotificationModal.value = true;
+        showConfirmModal.value = false;
       }
     });
   } else if (confirmAction.value === 'toggle-status') {
@@ -416,191 +465,327 @@ const confirmActionHandler = () => {
           >
             Suivant
           </Link>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Modal de détails de la salle -->
-    <div v-if="showDetailModal && selectedSalle" class="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-50" @click.self="showDetailModal = false">
-      <div class="bg-white dark:bg-slate-850 rounded-xl max-w-5xl w-full max-h-[95vh] overflow-hidden flex flex-col">
-        <!-- Header du modal -->
-        <div class="sticky top-0 bg-white dark:bg-slate-850 border-b border-slate-200 dark:border-slate-800 p-6">
-          <div class="flex items-center justify-between">
-            <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Détails de la salle</h3>
-            <button @click="showDetailModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
-              <i class="fas fa-times text-xl"></i>
-            </button>
+      <!-- Modal de détails de la salle -->
+    <div v-if="showDetailModal && selectedSalle" class="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center p-4 z-50" @click.self="showDetailModal = false">
+      <div class="bg-white dark:bg-slate-850 rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden flex flex-col shadow-2xl">
+        <!-- Header avec image de fond -->
+        <div class="relative h-80 bg-gradient-to-br from-blue-600 to-purple-700 overflow-hidden">
+          <img v-if="selectedSalle.image_url" 
+               :src="selectedSalle.image_url.startsWith('http') ? selectedSalle.image_url : '/storage/' + selectedSalle.image_url" 
+               :alt="selectedSalle.nom" 
+               class="w-full h-full object-cover"
+               @error="$event.target.style.display='none'">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+          <div class="absolute inset-0 flex items-end p-10">
+            <div class="text-white">
+              <h3 class="text-5xl font-bold mb-4">{{ selectedSalle.nom }}</h3>
+              <div class="flex items-center gap-4">
+                <span :class="getStatusClass(selectedSalle)" class="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm">
+                  <span class="size-2 rounded-full inline-block mr-2" :class="getStatusDotClass(selectedSalle)"></span>
+                  {{ getStatusText(selectedSalle) }}
+                </span>
+                <span class="text-white/80 text-lg">{{ selectedSalle.type || 'Centre de loisirs' }}</span>
+              </div>
+            </div>
           </div>
+          <button @click="showDetailModal = false" class="absolute top-4 right-4 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors">
+            <i class="fas fa-times text-lg"></i>
+          </button>
         </div>
 
         <!-- Contenu du modal -->
-        <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4 bg-white dark:bg-slate-850">
-          <!-- Image et informations principales -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="md:col-span-1">
-              <div class="aspect-square bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden">
-                <img v-if="selectedSalle.image_url" :src="selectedSalle.image_url" :alt="selectedSalle.nom" class="w-full h-full object-cover">
-                <div v-else class="w-full h-full flex items-center justify-center">
-                  <i class="fas fa-store text-3xl text-slate-400"></i>
-                </div>
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-6 bg-white dark:bg-slate-850">
+          <!-- Image principale -->
+          <div v-if="selectedSalle.image_url" class="mb-8">
+            <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <i class="fas fa-image text-primary"></i>
+              Image principale
+            </h4>
+            <div class="relative h-96 bg-slate-100 dark:bg-slate-700 rounded-xl overflow-hidden group">
+              <img :src="selectedSalle.image_url.startsWith('http') ? selectedSalle.image_url : '/storage/' + selectedSalle.image_url" 
+                   :alt="selectedSalle.nom" 
+                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                   @error="$event.target.style.display='none'">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-slate-800">
+                <i class="fas fa-expand mr-1"></i>
+                Cliquez pour agrandir
               </div>
             </div>
-            
-            <div class="md:col-span-2 space-y-3">
-              <div>
-                <h4 class="text-lg font-semibold text-slate-900 dark:text-white">{{ selectedSalle.nom }}</h4>
-                <p class="text-sm text-slate-500 dark:text-slate-400">{{ selectedSalle.type || 'Centre de loisirs' }}</p>
-              </div>
-              
-              <div class="flex items-center gap-2">
-                <span :class="getStatusClass(selectedSalle)">
-                  <span class="size-1.5 rounded-full" :class="getStatusDotClass(selectedSalle)"></span>
-                  {{ getStatusText(selectedSalle) }}
-                </span>
-              </div>
+          </div>
 
-              <div class="grid grid-cols-2 gap-3">
-                <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
-                  <p class="text-xs text-slate-500 dark:text-slate-400">Capacité</p>
-                  <p class="text-base font-semibold text-slate-900 dark:text-white">{{ selectedSalle.capacite_max || 'N/A' }} pers.</p>
-                </div>
-                <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
-                  <p class="text-xs text-slate-500 dark:text-slate-400">Prix/heure</p>
-                  <p class="text-base font-semibold text-slate-900 dark:text-white">{{ selectedSalle.prix_heure ? selectedSalle.prix_heure + ' FCFA' : 'N/A' }}</p>
+          <!-- Galerie d'images -->
+          <div v-if="selectedSalle.images && selectedSalle.images.length > 0" class="mb-8">
+            <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <i class="fas fa-images text-primary"></i>
+              Galerie d'images
+            </h4>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div v-for="(image, index) in selectedSalle.images.slice(0, 8)" :key="index" 
+                   class="aspect-square rounded-lg overflow-hidden group cursor-pointer hover:shadow-lg transition-all">
+                <img :src="'/storage/' + image" :alt="`${selectedSalle.nom} - ${index + 1}`" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+              </div>
+              <div v-if="selectedSalle.images.length > 8" 
+                   class="aspect-square bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-lg flex items-center justify-center cursor-pointer hover:shadow-lg transition-all">
+                <div class="text-center">
+                  <span class="text-2xl font-bold text-slate-600 dark:text-slate-300">+{{ selectedSalle.images.length - 8 }}</span>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">photos</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Informations détaillées -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Localisation -->
-            <div class="space-y-2">
-              <h5 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
-                <i class="fas fa-map-marker-alt text-primary"></i>
-                Localisation
-              </h5>
-              <div class="space-y-1">
-                <p class="text-sm text-slate-600 dark:text-slate-400">{{ selectedSalle.adresse || 'Adresse non spécifiée' }}</p>
-                <p class="text-sm text-slate-600 dark:text-slate-400">{{ selectedSalle.ville || 'Ville non spécifiée' }}, {{ selectedSalle.pays || 'Sénégal' }}</p>
-              </div>
-            </div>
+      <!-- Informations principales en cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Card Statistiques -->
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
+          <div class="flex items-center justify-between mb-4">
+            <i class="fas fa-users text-blue-600 text-2xl"></i>
+            <span class="text-3xl font-bold text-blue-900 dark:text-blue-100">{{ selectedSalle.capacite_max || 'N/A' }}</span>
+          </div>
+          <p class="text-sm text-blue-700 dark:text-blue-300 font-medium">Capacité maximale</p>
+          <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">personnes</p>
+        </div>
 
-            <!-- Contact -->
-            <div class="space-y-2">
-              <h5 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
-                <i class="fas fa-phone text-primary"></i>
-                Contact
-              </h5>
-              <div class="space-y-1">
-                <p class="text-sm text-slate-600 dark:text-slate-400">{{ selectedSalle.telephone || 'Téléphone non spécifié' }}</p>
-                <p class="text-sm text-slate-600 dark:text-slate-400">{{ selectedSalle.email || 'Email non spécifié' }}</p>
+        <!-- Card Tarif -->
+        <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-6 border border-green-200 dark:border-green-800">
+          <div class="flex items-center justify-between mb-4">
+            <i class="fas fa-tag text-green-600 text-2xl"></i>
+            <span class="text-3xl font-bold text-green-900 dark:text-green-100">{{ selectedSalle.prix_heure || '0' }}</span>
+          </div>
+          <p class="text-sm text-green-700 dark:text-green-300 font-medium">Tarif par heure</p>
+          <p class="text-xs text-green-600 dark:text-green-400 mt-1">FCFA</p>
+        </div>
+
+        <!-- Card Statut -->
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
+          <div class="flex items-center justify-between mb-4">
+            <i class="fas fa-chart-line text-purple-600 text-2xl"></i>
+            <div class="text-right">
+              <span class="text-lg font-bold text-purple-900 dark:text-purple-100">{{ selectedSalle.nombre_vues || '0' }}</span>
+              <p class="text-xs text-purple-600 dark:text-purple-400">vues</p>
+            </div>
+          </div>
+          <p class="text-sm text-purple-700 dark:text-purple-300 font-medium">Popularité</p>
+          <div class="flex items-center gap-1 mt-2">
+            <i v-for="i in 5" :key="i" class="fas fa-star text-yellow-500 text-xs"></i>
+            <span class="text-xs text-purple-600 dark:text-purple-400 ml-1">{{ selectedSalle.note_moyenne || '0.0' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informations détaillées -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Localisation et Contact -->
+        <div class="space-y-6">
+          <!-- Localisation -->
+          <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-6">
+            <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <i class="fas fa-map-marker-alt text-primary"></i>
+              Localisation
+            </h4>
+            <div class="space-y-3">
+              <div class="flex items-start gap-3">
+                <i class="fas fa-home text-slate-400 mt-1"></i>
+                <div>
+                  <p class="text-slate-900 dark:text-white font-medium">{{ selectedSalle.adresse || 'Adresse non spécifiée' }}</p>
+                  <p class="text-slate-600 dark:text-slate-400 text-sm">{{ selectedSalle.code_postal }} {{ selectedSalle.ville }}, {{ selectedSalle.pays }}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <i class="fas fa-globe text-slate-400"></i>
+                <p class="text-slate-600 dark:text-slate-400 text-sm">
+                  {{ selectedSalle.latitude }}, {{ selectedSalle.longitude }}
+                </p>
               </div>
             </div>
           </div>
 
+          <!-- Contact -->
+          <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-6">
+            <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <i class="fas fa-phone text-primary"></i>
+              Contact
+            </h4>
+            <div class="space-y-3">
+              <div class="flex items-center gap-3">
+                <i class="fas fa-phone text-slate-400"></i>
+                <p class="text-slate-900 dark:text-white">{{ selectedSalle.telephone || 'Téléphone non spécifié' }}</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <i class="fas fa-envelope text-slate-400"></i>
+                <p class="text-slate-900 dark:text-white">{{ selectedSalle.email || 'Email non spécifié' }}</p>
+              </div>
+              <div v-if="selectedSalle.whatsapp" class="flex items-center gap-3">
+                <i class="fab fa-whatsapp text-green-500"></i>
+                <p class="text-slate-900 dark:text-white">{{ selectedSalle.whatsapp }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Promoteur et Réseaux -->
+        <div class="space-y-6">
           <!-- Promoteur -->
-          <div class="space-y-2">
-            <h5 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
+          <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-6">
+            <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
               <i class="fas fa-user-tie text-primary"></i>
               Promoteur
-            </h5>
-            <div v-if="selectedSalle.promoteur" class="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                  <i class="fas fa-user text-primary text-sm"></i>
-                </div>
-                <div>
-                  <p class="font-medium text-slate-900 dark:text-white text-sm">{{ selectedSalle.promoteur.name }}</p>
-                  <p class="text-xs text-slate-500 dark:text-slate-400">{{ selectedSalle.promoteur.email }}</p>
-                </div>
+            </h4>
+            <div v-if="selectedSalle.promoter || selectedSalle.promoteur" class="flex items-center gap-4 p-4 bg-white dark:bg-slate-700 rounded-lg">
+              <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                <i class="fas fa-user text-primary text-lg"></i>
+              </div>
+              <div class="flex-1">
+                <p class="font-semibold text-slate-900 dark:text-white">
+                  {{ selectedSalle.promoter?.name || selectedSalle.promoteur?.name || 'Promoteur inconnu' }}
+                </p>
+                <p class="text-sm text-slate-600 dark:text-slate-400">
+                  {{ selectedSalle.promoter?.email || selectedSalle.promoteur?.email || 'Email non disponible' }}
+                </p>
               </div>
             </div>
-            <div v-else class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-3 rounded-lg">
+            <div v-else class="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
               <p class="text-amber-800 dark:text-amber-300 flex items-center gap-2 text-sm">
-                <i class="fas fa-exclamation-triangle text-xs"></i>
-                Aucun promoteur assigné à cette salle
+                <i class="fas fa-exclamation-triangle"></i>
+                Promoteur ID: {{ selectedSalle.promoter_id || 'Non défini' }}
               </p>
             </div>
           </div>
 
-          <!-- Équipements et services -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Réseaux sociaux -->
+          <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-6">
+            <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <i class="fas fa-share-alt text-primary"></i>
+              Réseaux sociaux
+            </h4>
+            <div class="flex gap-3">
+              <a v-if="selectedSalle.facebook" :href="selectedSalle.facebook" class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors">
+                <i class="fab fa-facebook-f text-blue-600 dark:text-blue-400"></i>
+              </a>
+              <a v-if="selectedSalle.instagram" :href="selectedSalle.instagram" class="w-10 h-10 bg-pink-100 dark:bg-pink-900/30 rounded-full flex items-center justify-center hover:bg-pink-200 dark:hover:bg-pink-900/50 transition-colors">
+                <i class="fab fa-instagram text-pink-600 dark:text-pink-400"></i>
+              </a>
+              <a v-if="selectedSalle.site_web" :href="selectedSalle.site_web" class="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                <i class="fas fa-globe text-slate-600 dark:text-slate-400"></i>
+              </a>
+              <div v-if="!selectedSalle.facebook && !selectedSalle.instagram && !selectedSalle.site_web" class="text-slate-500 dark:text-slate-400 text-sm">
+                Aucun réseau social spécifié
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+          <!-- Services et Équipements -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Services -->
+            <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-6">
+              <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                <i class="fas fa-concierge-bell text-primary"></i>
+                Services disponibles
+              </h4>
+              <div v-if="formatServices(selectedSalle.services).length > 0" class="flex flex-wrap gap-2">
+                <span v-for="service in formatServices(selectedSalle.services)" :key="service" 
+                      class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border border-green-200 dark:border-green-800">
+                  <i class="fas fa-check-circle mr-1.5 text-xs"></i>
+                  {{ service.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) }}
+                </span>
+              </div>
+              <p v-else class="text-slate-500 dark:text-slate-400 text-sm">Aucun service spécifié</p>
+            </div>
+
             <!-- Équipements -->
-            <div class="space-y-2">
-              <h5 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
+            <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-6">
+              <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                 <i class="fas fa-gamepad text-primary"></i>
                 Équipements
-              </h5>
-              <div v-if="selectedSalle.equipements && Array.isArray(selectedSalle.equipements) && selectedSalle.equipements.length > 0" class="flex flex-wrap gap-1">
-                <span v-for="equipement in selectedSalle.equipements" :key="equipement" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+              </h4>
+              <div v-if="selectedSalle.equipements && Array.isArray(selectedSalle.equipements) && selectedSalle.equipements.length > 0" class="flex flex-wrap gap-2">
+                <span v-for="equipement in selectedSalle.equipements" :key="equipement" 
+                      class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                  <i class="fas fa-cube mr-1.5 text-xs"></i>
                   {{ equipement }}
                 </span>
               </div>
-              <p v-else class="text-sm text-slate-500 dark:text-slate-400">Aucun équipement spécifié</p>
-            </div>
-
-            <!-- Services -->
-            <div class="space-y-2">
-              <h5 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
-                <i class="fas fa-concierge-bell text-primary"></i>
-                Services
-              </h5>
-              <div v-if="selectedSalle.services && Array.isArray(selectedSalle.services) && selectedSalle.services.length > 0" class="flex flex-wrap gap-1">
-                <span v-for="service in selectedSalle.services" :key="service" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border border-green-200 dark:border-green-800">
-                  {{ service }}
-                </span>
-              </div>
-              <p v-else class="text-sm text-slate-500 dark:text-slate-400">Aucun service spécifié</p>
+              <p v-else class="text-slate-500 dark:text-slate-400 text-sm">Aucun équipement spécifié</p>
             </div>
           </div>
 
           <!-- Description -->
-          <div class="space-y-2">
-            <h5 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
+          <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-6 mb-8">
+            <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
               <i class="fas fa-info-circle text-primary"></i>
               Description
-            </h5>
-            <p class="text-sm text-slate-600 dark:text-slate-400">{{ selectedSalle.description || 'Aucune description disponible' }}</p>
+            </h4>
+            <p class="text-slate-700 dark:text-slate-300 leading-relaxed">{{ selectedSalle.description || 'Aucune description disponible' }}</p>
           </div>
 
           <!-- Horaires -->
-          <div class="space-y-2">
-            <h5 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
+          <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-6 mb-8">
+            <h4 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
               <i class="fas fa-clock text-primary"></i>
               Horaires d'ouverture
-            </h5>
-            <div v-if="selectedSalle.horaires && typeof selectedSalle.horaires === 'object'" class="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <div v-for="(horaire, jour) in selectedSalle.horaires" :key="jour" class="flex justify-between text-xs">
-                <span class="font-medium text-slate-700 dark:text-slate-300">{{ jour }}</span>
-                <span class="text-slate-600 dark:text-slate-400">{{ horaire }}</span>
-              </div>
+            </h4>
+            <div v-if="selectedSalle.horaires && typeof selectedSalle.horaires === 'object'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              <template v-for="(horaire, jour) in selectedSalle.horaires" :key="jour">
+                <div v-if="typeof horaire === 'object' && horaire.ouvert" 
+                     class="bg-white dark:bg-slate-700 rounded-lg p-3 border border-slate-200 dark:border-slate-600">
+                  <div class="flex items-center justify-between">
+                    <span class="font-semibold text-slate-900 dark:text-white text-sm">{{ formatDayName(jour) }}</span>
+                    <span class="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-2 py-1 rounded-full">
+                      Ouvert
+                    </span>
+                  </div>
+                  <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">
+                    <i class="fas fa-door-open mr-1"></i>
+                    {{ horaire.ouverture || '09:00' }} - {{ horaire.fermeture || '22:00' }}
+                  </p>
+                </div>
+                <div v-else-if="typeof horaire === 'boolean' && horaire" 
+                     class="bg-white dark:bg-slate-700 rounded-lg p-3 border border-slate-200 dark:border-slate-600">
+                  <div class="flex items-center justify-between">
+                    <span class="font-semibold text-slate-900 dark:text-white text-sm">{{ formatDayName(jour) }}</span>
+                    <span class="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-2 py-1 rounded-full">
+                      Ouvert
+                    </span>
+                  </div>
+                </div>
+              </template>
             </div>
-            <p v-else class="text-sm text-slate-500 dark:text-slate-400">Horaires non spécifiés</p>
+            <p v-else class="text-slate-500 dark:text-slate-400 text-sm">Horaires non spécifiés</p>
           </div>
 
           <!-- Actions -->
-          <div class="flex flex-wrap gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
-            <button @click="showDetailModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg font-medium transition-colors">
+          <div class="flex flex-wrap gap-4 p-6 bg-slate-50 dark:bg-slate-800 rounded-xl">
+            <button @click="showDetailModal = false" 
+                    class="px-6 py-3 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg font-medium transition-colors">
+              <i class="fas fa-times mr-2"></i>
               Fermer
             </button>
-            <button v-if="!selectedSalle.valide" @click="approveSalle(selectedSalle); showDetailModal = false" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
+            <button v-if="!selectedSalle.valide" 
+                    @click="approveSalle(selectedSalle); showDetailModal = false" 
+                    class="px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl">
               <i class="fas fa-check-circle mr-2"></i>
-              Approuver
+              Approuver la salle
             </button>
-            <button v-else-if="selectedSalle.statut === 'actif'" @click="toggleSalleStatus(selectedSalle, 'maintenance'); showDetailModal = false" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors">
-              <i class="fas fa-pause-circle mr-2"></i>
-              Désactiver
+            <button class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl">
+              <i class="fas fa-edit mr-2"></i>
+              Modifier
             </button>
-            <button v-else-if="selectedSalle.statut === 'maintenance'" @click="toggleSalleStatus(selectedSalle, 'actif'); showDetailModal = false" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
-              <i class="fas fa-play-circle mr-2"></i>
-              Réactiver
+            <button class="px-6 py-3 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl">
+              <i class="fas fa-trash mr-2"></i>
+              Supprimer
             </button>
           </div>
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <style scoped>

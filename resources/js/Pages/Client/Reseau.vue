@@ -55,7 +55,7 @@ const closeHowItWorks = () => {
 </script>
 
 <template>
-  <Head title="Mon Réseau - GameOn" />
+  <Head title="Mon Réseau - YOUPIHUB" />
 
   <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light font-display">
     <!-- Navigation Component -->

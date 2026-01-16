@@ -212,7 +212,7 @@ const props = defineProps({
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">URL personnalisée</label>
                 <div class="flex">
                   <span class="inline-flex items-center px-3 text-sm text-gray-900 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 border border-r-0 border-gray-300 dark:border-gray-700 rounded-l-lg">
-                    gameon.com/
+                    youpihub.com/
                   </span>
                   <input type="text" class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-r-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="cyberzone-arena">
                 </div>

@@ -10,6 +10,7 @@ const props = defineProps({
     filters: Object
 });
 
+
 // États pour les modaux
 const showDeleteModal = ref(false);
 const showDeleteAllModal = ref(false);

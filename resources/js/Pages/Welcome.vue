@@ -6,9 +6,9 @@
         <!-- Logo -->
         <div class="flex items-center gap-2">
           <div class="size-8 flex items-center justify-center bg-white rounded-lg text-primary">
-            <span class="material-symbols-outlined text-[24px]">stadia_controller</span>
+            <i class="fas fa-gamepad text-[24px]"></i>
           </div>
-          <h1 class="text-white text-xl font-bold tracking-tight">GameOn</h1>
+          <h1 class="text-white text-xl font-bold tracking-tight">YOUPIHUB</h1>
         </div>
         
         <!-- Desktop Menu -->
@@ -41,9 +41,8 @@
           @click="isMobileMenuOpen = !isMobileMenuOpen"
           class="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
         >
-          <span class="material-symbols-outlined text-2xl text-white">
-            {{ isMobileMenuOpen ? 'close' : 'menu' }}
-          </span>
+          <i class="fas fa-bars text-2xl text-white" v-if="!isMobileMenuOpen"></i>
+          <i class="fas fa-times text-2xl text-white" v-else></i>
         </button>
       </div>
 
@@ -56,9 +55,9 @@
       >
         <div class="py-4 border-t border-white/20">
           <div class="flex flex-col gap-4">
-            <Link href="/" class="text-white/90 hover:text-white text-sm font-medium transition-colors py-2">Accueil</Link>
-            <Link href="/search/rooms" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2">Salles</Link>
-            <Link href="/events" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2">Événements</Link>
+            <Link href="/" class="text-white/90 hover:text-white text-sm font-medium transition-colors py-2 text-center">Accueil</Link>
+            <Link href="/search/rooms" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2 text-center">Salles</Link>
+            <Link href="/events" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2 text-center">Événements</Link>
             <div class="flex gap-3 pt-4 border-t border-white/20">
               <Link 
                 href="/login" 
@@ -109,16 +108,16 @@
             @click="goToSearchRooms"
             class="w-full bg-white hover:bg-gray-50 text-soft-black p-4 rounded-full shadow-2xl flex items-center justify-center gap-3 transition-all hover:shadow-3xl group"
           >
-            <span class="material-symbols-outlined text-[24px] text-primary">search</span>
+            <i class="fas fa-search text-[24px] text-primary"></i>
             <span class="text-base font-medium">Trouver une salle de loisirs</span>
-            <span class="material-symbols-outlined text-[20px] text-primary group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            <i class="fas fa-arrow-right text-[20px] text-primary group-hover:translate-x-1 transition-transform"></i>
           </button>
         </div>
       </div>
       
       <!-- Scroll indicator -->
       <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce text-white/50">
-        <span class="material-symbols-outlined text-[32px]">keyboard_arrow_down</span>
+        <i class="fas fa-chevron-down text-[32px]"></i>
       </div>
     </header>
 
@@ -131,18 +130,19 @@
             <h2 class="text-soft-black text-3xl font-bold tracking-tight mb-2">À la une</h2>
             <p class="text-medium-grey text-base">Les dernières ouvertures et événements majeurs.</p>
           </div>
+          <!-- Carousel Controls -->
           <div class="flex gap-2">
             <button 
               @click="prevSlide"
               class="size-10 rounded-full border border-gray-200 flex items-center justify-center text-soft-black hover:border-primary hover:text-primary transition-colors"
             >
-              <span class="material-symbols-outlined">arrow_back</span>
+              <i class="fas fa-arrow-left"></i>
             </button>
             <button 
               @click="nextSlide"
               class="size-10 rounded-full border border-gray-200 flex items-center justify-center text-soft-black hover:border-primary hover:text-primary transition-colors"
             >
-              <span class="material-symbols-outlined">arrow_forward</span>
+              <i class="fas fa-arrow-right"></i>
             </button>
           </div>
         </div>
@@ -220,7 +220,7 @@
                   :alt="room.name"
                 />
                 <div class="absolute top-3 right-3 bg-white/90 backdropver-blur rounded-full px-2 py-1 flex items-center gap-1 shadow-sm">
-                  <span class="material-symbols-outlined text-yellow-500 text-[16px] fill-current">star</span>
+                  <i class="fas fa-star text-yellow-500 text-[16px]"></i>
                   <span class="text-xs font-bold text-soft-black">{{ room.rating }}</span>
                 </div>
               </div>
@@ -228,7 +228,7 @@
                 <div>
                   <h3 class="text-lg font-bold text-soft-black leading-tight">{{ room.name }}</h3>
                   <div class="flex items-center gap-1 text-medium-grey mt-1">
-                    <span class="material-symbols-outlined text-[16px]">location_on</span>
+                    <i class="fas fa-map-marker-alt text-[16px]"></i>
                     <span class="text-xs font-medium">{{ room.location }}</span>
                   </div>
                 </div>
@@ -249,7 +249,7 @@
           <div class="mt-12 text-center">
             <a href="/search/rooms" class="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full border border-gray-200 text-soft-black font-semibold hover:border-primary hover:text-primary transition-all">
               Voir toutes les salles
-              <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+              <i class="fas fa-arrow-right text-[20px]"></i>
             </a>
           </div>
         </div>
@@ -289,7 +289,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div class="text-center mb-12">
           <h2 class="text-white text-3xl md:text-4xl font-bold leading-tight tracking-tight mb-4 animate-fade-in-up">
-            GameOn accompagne les joueurs depuis 5 années
+            YOUPIHUB accompagne les joueurs depuis 5 années
           </h2>
           <p class="text-gray-300 text-lg animate-fade-in-up delay-300">
             La confiance de milliers de gamers pour leurs expériences gaming
@@ -329,7 +329,7 @@
           <!-- Step 1 -->
           <div class="text-center group">
             <div class="size-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors">
-              <span class="material-symbols-outlined text-[40px] text-primary">search</span>
+              <i class="fas fa-search text-[40px] text-primary"></i>
             </div>
             <div class="flex items-center justify-center gap-2 mb-4">
               <div class="size-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
@@ -343,7 +343,7 @@
           <!-- Step 2 -->
           <div class="text-center group">
             <div class="size-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors">
-              <span class="material-symbols-outlined text-[40px] text-primary">calendar_month</span>
+              <i class="fas fa-calendar-alt text-[40px] text-primary"></i>
             </div>
             <div class="flex items-center justify-center gap-2 mb-4">
               <div class="size-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">2</div>
@@ -357,7 +357,7 @@
           <!-- Step 3 -->
           <div class="text-center group">
             <div class="size-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors">
-              <span class="material-symbols-outlined text-[40px] text-primary">sports_esports</span>
+              <i class="fas fa-gamepad text-[40px] text-primary"></i>
             </div>
             <div class="flex items-center justify-center gap-2 mb-4">
               <div class="size-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">3</div>
@@ -535,7 +535,7 @@ const goToSearchRooms = () => {
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
 .font-display {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -626,14 +626,5 @@ const goToSearchRooms = () => {
     transform: translateY(0);
     animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
   }
-}
-
-/* Material Symbols */
-.material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-}
-
-.material-symbols-outlined.fill-current {
-  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 </style>

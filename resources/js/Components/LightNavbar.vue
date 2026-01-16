@@ -8,7 +8,7 @@
           <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <span class="text-white font-bold">GB</span>
           </div>
-          <h1 class="text-soft-black text-xl font-bold tracking-tight">GameOn</h1>
+          <h1 class="text-soft-black text-xl font-bold tracking-tight">YOUPIHUB</h1>
         </div>
         
         <!-- Desktop Menu -->
@@ -46,9 +46,9 @@
       >
         <div class="py-4 border-t border-gray-100">
           <div class="flex flex-col gap-4">
-            <a href="/" class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2">Accueil</a>
-            <a href="/search/rooms" class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2">Salles</a>
-            <a href="/events" class="text-primary hover:text-primary text-sm font-medium transition-colors py-2">Événements</a>
+            <a href="/" class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2 text-center">Accueil</a>
+            <a href="/search/rooms" class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2 text-center">Salles</a>
+            <a href="/events" class="text-primary hover:text-primary text-sm font-medium transition-colors py-2 text-center">Événements</a>
             <div class="flex gap-3 pt-4 border-t border-gray-100">
               <a href="/login" class="flex-1 text-center text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2 border border-gray-200 rounded-lg">Connexion</a>
               <a href="/register" class="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 rounded-lg transition-all shadow-lg shadow-blue-600/20">Inscription</a>

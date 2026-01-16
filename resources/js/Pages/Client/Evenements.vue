@@ -274,7 +274,7 @@ const sInscrire = (event) => {
 </script>
 
 <template>
-  <Head title="Événements - GameOn" />
+  <Head title="Événements - YOUPIHUB" />
   
   <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light font-display">
     <!-- Navigation Component -->

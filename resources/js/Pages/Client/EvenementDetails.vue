@@ -93,7 +93,7 @@ const toggleFavorite = () => {
 </script>
 
 <template>
-  <Head :title="`${evenement?.titre || 'Événement'} - GameOn`" />
+  <Head :title="`${evenement?.titre || 'Événement'} - YOUPIHUB`" />
   
   <div class="min-h-screen bg-gray-50 font-sans">
     <!-- Header -->
@@ -103,7 +103,7 @@ const toggleFavorite = () => {
           <div class="flex items-center gap-8">
             <Link href="/client/dashboard" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <i class="fas fa-gamepad text-xl text-blue-600"></i>
-              <span class="text-lg font-bold text-gray-900">GameOn</span>
+              <span class="text-lg font-bold text-gray-900">YOUPIHUB</span>
             </Link>
             <nav class="hidden md:flex items-center gap-6">
               <Link href="/client/dashboard" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">Dashboard</Link>
