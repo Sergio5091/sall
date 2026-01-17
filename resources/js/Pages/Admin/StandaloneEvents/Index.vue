@@ -1,6 +1,9 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
+
+defineOptions({ layout: AdminLayout });
 
 const props = defineProps({
     events: Array
@@ -42,40 +45,63 @@ const formatDate = (dateString) => {
 const isUpcoming = (eventDate) => {
     return new Date(eventDate) > new Date();
 };
+
+const confirmDelete = (event) => {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer l'événement "${event.title}" ? Cette action est irréversible.`)) {
+        router.delete(route('admin.standalone-events.destroy', event), {
+            onSuccess: () => {
+                // Success message handled by controller
+            },
+            onError: () => {
+                // Error handling
+            }
+        });
+    }
+};
+
+const toggleStatus = (event) => {
+    router.patch(route('admin.standalone-events.toggle-status', event), {}, {
+        onSuccess: () => {
+            // Success message handled by controller
+        },
+        onError: () => {
+            // Error handling
+        }
+    });
+};
 </script>
 
 <template>
   <Head title="Événements Ponctuels" />
   
-  <div class="p-6">
-    <!-- Header -->
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Événements Ponctuels</h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-1">Gérez les événements organisés par des tiers (concerts, hôtels, etc.)</p>
-    </div>
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Événements Ponctuels</h1>
+    <p class="text-gray-600 dark:text-gray-400 mt-1">Gérez les événements organisés par des tiers (concerts, hôtels, etc.)</p>
+  </div>
 
-    <!-- Actions -->
-    <div class="flex justify-between items-center mb-6">
-      <div class="flex items-center gap-4">
-        <div class="relative">
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Rechercher..."
-            class="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded Stone-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-          />
-          <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-        </div>
+  <!-- Actions -->
+  <div class="flex justify-between items-center mb-6">
+    <div class="flex items-center gap-4">
+      <div class="relative">
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Rechercher..."
+          class="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+        />
+        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
       </div>
-      
-      <button
-        @click="showCreateModal = true"
-        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-      >
-        <i class="fas fa-plus"></i>
-        Ajouter un événement
-      </button>
     </div>
+    
+    <Link
+      :href="route('admin.standalone-events.create')"
+      class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+    >
+      <i class="fas fa-plus"></i>
+      Ajouter un événement
+    </Link>
+  </div>
 
     <!-- Events Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -140,9 +166,23 @@ const isUpcoming = (eventDate) => {
               </Link>
             </div>
             
-            <button class="text-red-600 hover:text-red-800 text-sm font-medium">
-              Supprimer
-            </button>
+            <div class="flex gap-2">
+              <button 
+                @click="toggleStatus(event)"
+                :class="event.status === 'active' ? 'text-yellow-600 hover:text-yellow-800' : 'text-green-600 hover:text-green-800'"
+                class="text-sm font-medium"
+                :title="event.status === 'active' ? 'Désactiver' : 'Activer'"
+              >
+                <i :class="event.status === 'active' ? 'fas fa-pause' : 'fas fa-play'"></i>
+              </button>
+              <button 
+                @click="confirmDelete(event)"
+                class="text-red-600 hover:text-red-800 text-sm font-medium"
+                title="Supprimer"
+              >
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -156,5 +196,4 @@ const isUpcoming = (eventDate) => {
         Commencez par ajouter votre premier événement ponctuel
       </p>
     </div>
-  </div>
 </template>

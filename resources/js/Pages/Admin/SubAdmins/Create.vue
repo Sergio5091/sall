@@ -1,8 +1,8 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import SubAdminLayout from '@/Layouts/SubAdminLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 
-defineOptions({ layout: SubAdminLayout });
+defineOptions({ layout: AdminLayout });
 
 const form = useForm({
     name: '',

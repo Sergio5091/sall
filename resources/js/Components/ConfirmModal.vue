@@ -58,7 +58,7 @@ watch(() => props.show, (show) => {
 </script>
 
 <template>
-    <Teleport to="body">
+    <!-- <Teleport to="body"> -->
         <Transition
             enter-active-class="transition duration-300 ease-out"
             enter-from-class="transform scale-95 opacity-0"
@@ -67,7 +67,7 @@ watch(() => props.show, (show) => {
             leave-from-class="transform scale-100 opacity-100"
             leave-to-class="transform scale-95 opacity-0"
         >
-            <div v-if="show" class="fixed inset-0 z-[9999] overflow-y-auto">
+            <div v-if="show" class="fixed inset-0 z-[99999] overflow-y-auto">
                 <div class="flex min-h-screen items-center justify-center p-4">
                     <!-- Overlay -->
                     <div 
@@ -137,5 +137,5 @@ watch(() => props.show, (show) => {
                 </div>
             </div>
         </Transition>
-    </Teleport>
+    <!-- </Teleport> -->
 </template>

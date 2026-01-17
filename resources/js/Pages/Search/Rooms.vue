@@ -130,7 +130,7 @@
               <!-- Image -->
               <div class="relative h-48 sm:h-56 overflow-hidden">
                 <img 
-                  :src="salle.image || 'https://picsum.photos/seed/room-' + salle.id + '/400/300.jpg'"
+                  :src="salle.image_url ? '/storage/' + salle.image_url : 'https://picsum.photos/seed/room-' + salle.id + '/400/300.jpg'"
                   :alt="salle.nom"
                   class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />

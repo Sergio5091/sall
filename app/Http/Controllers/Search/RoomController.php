@@ -14,7 +14,7 @@ class RoomController extends Controller
     public function index(Request $request)
     {
         $query = Salle::where('statut', 'actif')
-            ->where('valide', true)
+            ->where('valide', 1)
             ->select('id', 'nom', 'ville', 'pays', 'capacite_max', 'prix_heure', 'description', 'image_url', 'promoter_id')
             ->with(['promoter:id,name'])
             ->orderBy('created_at', 'desc');
@@ -41,9 +41,28 @@ class RoomController extends Controller
 
         $salles = $query->paginate(12);
 
+        // Formater les salles pour l'affichage
+        $formattedSalles = $salles->getCollection()->map(function ($salle) {
+            return [
+                'id' => $salle->id,
+                'nom' => $salle->nom,
+                'ville' => $salle->ville,
+                'pays' => $salle->pays,
+                'capacite_max' => $salle->capacite_max,
+                'prix_heure' => $salle->prix_heure,
+                'description' => $salle->description,
+                'image_url' => $salle->image_url,
+                'promoter' => $salle->promoter,
+                'created_at' => $salle->created_at,
+            ];
+        });
+
+        // Remplacer la collection formatée
+        $salles->setCollection($formattedSalles);
+
         // Récupérer les villes uniques pour le filtre
         $villes = Salle::where('statut', 'actif')
-            ->where('valide', true)
+            ->where('valide', 1)
             ->distinct()
             ->pluck('ville')
             ->filter()
@@ -74,7 +93,7 @@ class RoomController extends Controller
 
         // Récupérer toutes les salles actives et validées (avec ou sans coordonnées)
         $salles = Salle::where('statut', 'actif')
-            ->where('valide', true)
+            ->where('valide', 1)
             ->select('id', 'nom', 'ville', 'pays', 'adresse', 'capacite_max', 'prix_heure', 'description', 'image_url', 'promoter_id', 'latitude', 'longitude')
             ->with(['promoter:id,name'])
             ->get();

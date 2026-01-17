@@ -3,6 +3,8 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
@@ -14,7 +16,12 @@
 
         <!-- Scripts -->
         @routes
-        @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
+        @if(app()->environment('production'))
+            <link rel="stylesheet" href="{{ asset('build/assets/app-ClGCl7rV.css') }}">
+            <script type="module" src="{{ asset('build/assets/app-tav4KXaI.js') }}"></script>
+        @else
+            @vite('resources/js/app.js')
+        @endif
         @inertiaHead
     </head>
     <body class="font-sans antialiased bg-white dark:bg-slate-900 text-slate-900 dark:text-white transition-colors duration-200">

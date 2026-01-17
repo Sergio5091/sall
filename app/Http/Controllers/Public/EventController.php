@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use App\Models\StandaloneEvent;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,8 +15,8 @@ class EventController extends Controller
      */
     public function index()
     {
-        // Récupérer uniquement les événements publiés
-        $events = Event::where('statut', 'publie')
+        // Récupérer uniquement les événements publiés (promoteurs)
+        $regularEvents = Event::where('statut', 'publie')
             ->orderBy('date_debut', 'desc')
             ->get()
             ->map(function ($event) {
@@ -41,20 +42,52 @@ class EventController extends Controller
                     'category_id' => 1,
                     'image' => $event->url_image_banniere,
                     'category' => $event->categorie,
-                    'statut' => $event->statut // Ajouter le statut pour le frontend
+                    'statut' => $event->statut,
+                    'type' => 'regular' // Pour distinguer des événements ponctuels
                 ];
             });
+
+        // Récupérer les événements ponctuels (admin)
+        $standaloneEvents = StandaloneEvent::where('status', 'active')
+            ->orderBy('event_date', 'desc')
+            ->get()
+            ->map(function ($event) {
+                return [
+                    'id' => $event->id,
+                    'name' => $event->title,
+                    'description' => $event->description,
+                    'date' => $event->event_date->toISOString(),
+                    'location' => $event->location . ', ' . $event->country,
+                    'game_type' => 'Événement ponctuel',
+                    'prize_pool' => $event->price ?: 0,
+                    'max_participants' => 100, // Valeur par défaut
+                    'current_participants' => 0, // Pas de suivi pour les événements ponctuels
+                    'status' => $event->event_date > now() ? 'upcoming' : 'completed',
+                    'category_id' => 5, // Catégorie spéciale pour événements ponctuels
+                    'image' => $event->image ? 'storage/' . $event->image : null,
+                    'category' => 'Événement ponctuel',
+                    'type' => 'standalone', // Pour distinguer
+                    'organizer_name' => $event->organizer_name,
+                    'organizer_email' => $event->organizer_email,
+                    'organizer_phone' => $event->organizer_phone,
+                    'price' => $event->price
+                ];
+            });
+
+        // Fusionner les deux types d'événements
+        $allEvents = $regularEvents->concat($standaloneEvents);
 
         $categories = [
             ['id' => 0, 'name' => 'Tous'],
             ['id' => 1, 'name' => 'Tournoi'],
             ['id' => 2, 'name' => 'Soirée'],
             ['id' => 3, 'name' => 'Atelier'],
-            ['id' => 4, 'name' => 'Lancement']
+            ['id' => 4, 'name' => 'Lancement'],
+            ['id' => 5, 'name' => 'Événements ponctuels']
         ];
 
         return Inertia::render('Events', [
-            'events' => $events,
+            'events' => $allEvents,
             'categories' => $categories
         ]);
     }

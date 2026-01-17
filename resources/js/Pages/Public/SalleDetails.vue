@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
 const props = defineProps({
     salle: Object,
@@ -8,6 +8,11 @@ const props = defineProps({
 });
 
 const currentImage = ref(0);
+
+// Initialiser la carte au montage du composant
+onMounted(() => {
+    initMap();
+});
 
 // Formater le prix
 const formatPrice = (prix) => {
@@ -43,6 +48,68 @@ const getCurrentImage = () => {
         return image.startsWith('http') ? image : `/storage/${image}`;
     }
     return props.salle.image_url ? (props.salle.image_url.startsWith('http') ? props.salle.image_url : `/storage/${props.salle.image_url}`) : null;
+};
+
+// Générer l'URL Google Maps
+const getGoogleMapsUrl = () => {
+    if (!props.salle.adresse && !props.salle.ville && !props.salle.pays) {
+        return null;
+    }
+    
+    const address = [
+        props.salle.adresse,
+        props.salle.ville,
+        props.salle.pays
+    ].filter(Boolean).join(', ');
+    
+    return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+};
+
+// Initialiser la carte Google Maps
+const initMap = () => {
+    if (!props.salle.latitude || !props.salle.longitude) {
+        return;
+    }
+    
+    window.initMap = () => {
+        const mapElement = document.getElementById('google-map');
+        if (mapElement && window.google && window.google.maps) {
+            const map = new window.google.maps.Map(mapElement, {
+                center: { 
+                    lat: parseFloat(props.salle.latitude), 
+                    lng: parseFloat(props.salle.longitude) 
+                },
+                zoom: 15,
+                styles: [
+                    {
+                        featureType: "poi",
+                        elementType: "labels",
+                        stylers: [{ visibility: "off" }]
+                    }
+                ]
+            });
+            
+            new window.google.maps.Marker({
+                position: { 
+                    lat: parseFloat(props.salle.latitude), 
+                    lng: parseFloat(props.salle.longitude) 
+                },
+                map: map,
+                title: props.salle.nom
+            });
+        }
+    };
+    
+    // Charger Google Maps API si nécessaire
+    if (!window.google || !window.google.maps) {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPx8Wj9tQbhV2QhR5q3B&callback=initMap`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+    } else {
+        window.initMap();
+    }
 };
 </script>
 
@@ -147,6 +214,27 @@ const getCurrentImage = () => {
                     <div class="font-medium">Propriétaire</div>
                     <div class="text-sm">{{ salle.promoter?.name || 'Non spécifié' }}</div>
                   </div>
+                </div>
+              </div>
+
+              <!-- Localisation -->
+              <div class="mb-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-3">Localisation</h3>
+                <div class="rounded-xl overflow-hidden shadow-sm border border-gray-200">
+                  <div id="google-map" class="w-full h-64 bg-gray-100"></div>
+                </div>
+                
+                <!-- Lien vers Google Maps pour navigation -->
+                <div v-if="getGoogleMapsUrl()" class="mt-3">
+                  <a 
+                    :href="getGoogleMapsUrl()" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
+                  >
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>Ouvrir dans Google Maps</span>
+                  </a>
                 </div>
               </div>
 

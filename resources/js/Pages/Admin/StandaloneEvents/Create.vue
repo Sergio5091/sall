@@ -121,6 +121,47 @@ const handleImageUpload = (event) => {
               </div>
             </div>
 
+            <!-- Date et prix -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Date de l'événement *
+                </label>
+                <input
+                  type="datetime-local"
+                  v-model="form.event_date"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                  required
+                >
+                <div v-if="form.errors.event_date" class="text-red-500 text-sm mt-1">
+                  {{ form.errors.event_date }}
+                </div>
+              </div>
+
+              <div>
+                <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Prix (FCFA)
+                </label>
+                <div class="relative">
+                  <input
+                    type="number"
+                    id="price"
+                    v-model="form.price"
+                    step="1"
+                    min="0"
+                    placeholder="0"
+                    class="w-full px-3 py-2 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                  <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">
+                    FCFA
+                  </span>
+                </div>
+                <div v-if="form.errors.price" class="mt-1 text-sm text-red-600">
+                  {{ form.errors.price }}
+                </div>
+              </div>
+            </div>
+
             <!-- Organisateur -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>

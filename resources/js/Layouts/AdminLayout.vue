@@ -1,7 +1,9 @@
 <template>
   <div class="flex h-screen w-full">
+     <!-- Ajoutez ces meta tags au début -->
+    
     <!-- Mobile Menu Overlay -->
-    <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-40 lg:hidden hidden" @click="closeMobileMenu"></div>
+    <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-50 lg:hidden hidden" @click="closeMobileMenu"></div>
     
     <!-- SideNavBar -->
     <aside 
@@ -62,6 +64,15 @@
         </Link>
         
         <Link
+          :href="route('admin.news.index')"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
+          :class="{ 'bg-primary/10 text-primary dark:text-blue-400': route().current('admin.news.*') }"
+        >
+          <i class="fas fa-newspaper group-hover:text-primary transition-colors"></i>
+          <span class="text-sm font-medium">Nouveautés</span>
+        </Link>
+        
+        <Link
           :href="route('admin.sub-admins.index')"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
           :class="{ 'bg-primary/10 text-primary dark:text-blue-400': route().current('admin.sub-admins.*') }"
@@ -75,7 +86,7 @@
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
           :class="{ 'bg-primary/10 text-primary dark:text-blue-400': route().current('admin.standalone-events.*') }"
         >
-          <i class="fas fa-calendar-star group-hover:text-primary transition-colors"></i>
+          <i class="fas fa-calendar-plus group-hover:text-primary transition-colors"></i>
           <span class="text-sm font-medium">Événements Ponctuels</span>
         </Link>
         
@@ -127,6 +138,7 @@
         <div class="flex items-center gap-4 flex-1">
           <button 
             @click.stop="toggleMobileMenu"
+            data-mobile-menu-toggle
             class="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 lg:hidden p-2"
           >
             <i class="fas fa-bars"></i>
@@ -178,7 +190,7 @@
 
 <script setup>
 import { Link, router, usePage } from '@inertiajs/vue3'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 
 const page = usePage()
 const searchQuery = ref('')
@@ -219,8 +231,11 @@ const closeMenus = (e) => {
     showUserMenu.value = false
   }
   
-  // Close mobile menu if clicking outside on mobile (but not on hamburger button)
-  if (window.innerWidth < 1024 && !e.target.closest('aside') && !e.target.closest('[data-mobile-menu-toggle]')) {
+  // Close mobile menu if clicking outside on mobile (but not on hamburger button or sidebar)
+  if (window.innerWidth < 1024 && 
+      !e.target.closest('aside') && 
+      !e.target.closest('[data-mobile-menu-toggle]') &&
+      !e.target.closest('#mobile-overlay')) {
     showMobileMenu.value = false
   }
 }
@@ -264,6 +279,18 @@ onMounted(() => {
   
   // Raccourci clavier pour la recherche (Ctrl+K)
   document.addEventListener('keydown', handleKeydown)
+})
+
+// Watch pour synchroniser l'overlay avec le menu mobile
+watch(showMobileMenu, (newValue) => {
+  const overlay = document.getElementById('mobile-overlay')
+  if (overlay) {
+    if (newValue) {
+      overlay.classList.remove('hidden')
+    } else {
+      overlay.classList.add('hidden')
+    }
+  }
 })
 
 onUnmounted(() => {

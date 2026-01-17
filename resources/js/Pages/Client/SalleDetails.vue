@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import NotificationModal from '../../Components/NotificationModal.vue';
 
 const props = defineProps({
@@ -278,6 +278,101 @@ const horairesFormatted = computed(() => {
         heures: heures || 'Fermé'
     }));
 });
+
+// Fonctions Google Maps
+const getGoogleMapsUrl = () => {
+    if (!props.salle?.adresse && !props.salle?.ville && !props.salle?.pays) {
+        return null;
+    }
+    
+    const address = [
+        props.salle?.adresse,
+        props.salle?.ville,
+        props.salle?.pays
+    ].filter(Boolean).join(', ');
+    
+    return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+};
+
+const initMap = () => {
+    window.initClientMap = () => {
+        const mapElement = document.getElementById('client-google-map');
+        
+        if (mapElement && window.google && window.google.maps) {
+            let centerLocation;
+            
+            // Si on a des coordonnées GPS, les utiliser
+            if (props.salle?.latitude && props.salle?.longitude) {
+                centerLocation = { 
+                    lat: parseFloat(props.salle.latitude), 
+                    lng: parseFloat(props.salle.longitude) 
+                };
+            } else {
+                // Sinon, utiliser le geocoding avec l'adresse
+                const address = [
+                    props.salle?.adresse,
+                    props.salle?.ville,
+                    props.salle?.pays
+                ].filter(Boolean).join(', ');
+                
+                const geocoder = new window.google.maps.Geocoder();
+                geocoder.geocode({ address: address }, (results, status) => {
+                    if (status === 'OK' && results[0]) {
+                        centerLocation = results[0].geometry.location;
+                        createMapAtLocation(centerLocation);
+                    } else {
+                        // Afficher un message d'erreur
+                        if (mapElement) {
+                            mapElement.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500"><i class="fas fa-map-marker-alt mr-2"></i>Localisation non disponible</div>';
+                        }
+                    }
+                });
+                return; // Sortir car le geocoding est asynchrone
+            }
+            
+            createMapAtLocation(centerLocation);
+        }
+    };
+    
+    const createMapAtLocation = (location) => {
+        const mapElement = document.getElementById('client-google-map');
+        if (!mapElement) return;
+        
+        const map = new window.google.maps.Map(mapElement, {
+            center: location,
+            zoom: 15,
+            styles: [
+                {
+                    featureType: "poi",
+                    elementType: "labels",
+                    stylers: [{ visibility: "off" }]
+                }
+            ]
+        });
+        
+        new window.google.maps.Marker({
+            position: location,
+            map: map,
+            title: props.salle?.nom || 'Salle'
+        });
+    };
+    
+    // Charger Google Maps API si nécessaire
+    if (!window.google || !window.google.maps) {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPx8Wj9tQbhV2QhR5q3B&callback=initClientMap`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+    } else {
+        window.initClientMap();
+    }
+};
+
+// Initialiser la carte au montage du composant
+onMounted(() => {
+    initMap();
+});
 </script>
 
 <template>
@@ -533,14 +628,22 @@ const horairesFormatted = computed(() => {
                   </div>
                 </div>
                 
-                <!-- Carte -->
+                <!-- Carte Google Maps -->
                 <div class="h-64 bg-gray-200 rounded-lg overflow-hidden">
-                  <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-green-100">
-                    <div class="text-center">
-                      <i class="fas fa-map-marker-alt text-4xl text-blue-500 mb-4"></i>
-                      <div class="text-gray-700">{{ salle?.ville }}, {{ salle?.pays }}</div>
-                    </div>
-                  </div>
+                  <div id="client-google-map" class="w-full h-full"></div>
+                </div>
+                
+                <!-- Lien vers Google Maps pour navigation -->
+                <div v-if="getGoogleMapsUrl()" class="mt-3">
+                  <a 
+                    :href="getGoogleMapsUrl()" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
+                  >
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>Ouvrir dans Google Maps</span>
+                  </a>
                 </div>
               </div>
             </div>

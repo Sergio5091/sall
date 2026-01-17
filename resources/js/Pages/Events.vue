@@ -203,6 +203,14 @@
                     {{ getStatusText(event.status) }}
                   </span>
                 </div>
+                
+                <!-- Event Type Badge -->
+                <div class="absolute top-3 left-3" v-if="event.type === 'standalone'">
+                  <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-bold">
+                    <i class="fas fa-star mr-1"></i>
+                    Ponctuel
+                  </span>
+                </div>
               </div>
 
               <!-- Content -->
@@ -238,10 +246,14 @@
                     <span class="material-symbols-outlined text-xs align-middle mr-1">emoji_events</span>
                     {{ event.prize_pool }}€
                   </span>
+                  <span v-if="event.type === 'standalone' && event.organizer_name" class="px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium">
+                    <span class="material-symbols-outlined text-xs align-middle mr-1">person</span>
+                    {{ event.organizer_name }}
+                  </span>
                 </div>
 
                 <!-- Participants Progress -->
-                <div class="mb-4">
+                <div class="mb-4" v-if="event.type !== 'standalone'">
                   <div class="flex items-center justify-between text-sm mb-1">
                     <span class="text-medium-grey">Participants</span>
                     <span class="text-soft-black font-medium">{{ event.current_participants }}/{{ event.max_participants }}</span>
@@ -258,7 +270,7 @@
                 <div class="flex items-center justify-between pt-4 border-t border-gray-100">
                   <div>
                     <div class="text-2xl sm:text-3xl font-bold text-soft-black mb-1">
-                      {{ event.price ? formatPrice(event.price) : 'Gratuit' }}
+                      {{ event.type === 'standalone' ? (event.price ? formatPrice(event.price) : 'Gratuit') : (event.price ? formatPrice(event.price) : 'Gratuit') }}
                     </div>
                     <div class="text-medium-grey text-sm">par participant</div>
                   </div>
@@ -270,11 +282,18 @@
                       Détails
                     </button>
                     <button 
-                      v-if="event.status === 'upcoming' && event.current_participants < event.max_participants"
+                      v-if="event.type !== 'standalone' && event.status === 'upcoming' && event.current_participants < event.max_participants"
                       @click.stop="registerForEvent(event)"
                       class="px-4 py-2 bg-primary text-white rounded-xl hover:bg-blue-600 transition-all text-sm font-semibold"
                     >
                       S'inscrire
+                    </button>
+                    <button 
+                      v-else-if="event.type === 'standalone'"
+                      class="px-4 py-2 bg-gray-300 text-gray-600 rounded-xl cursor-not-allowed text-sm font-semibold"
+                      disabled
+                    >
+                      Contact
                     </button>
                   </div>
                 </div>

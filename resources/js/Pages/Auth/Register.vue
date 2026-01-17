@@ -62,7 +62,7 @@ const submit = () => {
                                     id="name"
                                     type="text"
                                     class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-white border border-gray-300 text-soft-black placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 h-12 px-4 text-base transition-colors"
-                                    placeholder="John Doe"
+                                    placeholder="Entrez votre nom complet (ex: Jean Dupont)"
                                     v-model="form.name"
                                     required
                                     autofocus

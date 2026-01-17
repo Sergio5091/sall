@@ -1,9 +1,9 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-import SubAdminLayout from '@/Layouts/SubAdminLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 
-defineOptions({ layout: SubAdminLayout });
+defineOptions({ layout: AdminLayout });
 
 const props = defineProps({
     subAdmins: Array

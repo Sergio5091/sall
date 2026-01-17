@@ -164,13 +164,13 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::patch('/events/{event}/toggle-status', [App\Http\Controllers\Admin\EventController::class, 'toggleStatus'])->name('events.toggle-status');
     
     // Routes pour la gestion des actualités (admin)
-    // Route::get('/news', [NewsController::class, 'index'])->name('news.index');
-    // Route::get('/news/create', [NewsController::class, 'create'])->name('news.create');
-    // Route::post('/news', [NewsController::class, 'store'])->name('news.store');
-    // Route::get('/news/{news}', [NewsController::class, 'show'])->name('news.show');
-    // Route::get('/news/{news}/edit', [NewsController::class, 'edit'])->name('news.edit');
-    // Route::put('/news/{news}', [NewsController::class, 'update'])->name('news.update');
-    // Route::delete('/news/{news}', [NewsController::class, 'destroy'])->name('news.destroy');
+    Route::get('/news', [App\Http\Controllers\Admin\NewsController::class, 'index'])->name('news.index');
+    Route::get('/news/create', [App\Http\Controllers\Admin\NewsController::class, 'create'])->name('news.create');
+    Route::post('/news', [App\Http\Controllers\Admin\NewsController::class, 'store'])->name('news.store');
+    Route::get('/news/{news}', [App\Http\Controllers\Admin\NewsController::class, 'show'])->name('news.show');
+    Route::get('/news/{news}/edit', [App\Http\Controllers\Admin\NewsController::class, 'edit'])->name('news.edit');
+    Route::put('/news/{news}', [App\Http\Controllers\Admin\NewsController::class, 'update'])->name('news.update');
+    Route::delete('/news/{news}', [App\Http\Controllers\Admin\NewsController::class, 'destroy'])->name('news.destroy');
     
     // Routes pour la gestion des sous-admins (admin)
     Route::get('/sub-admins', [App\Http\Controllers\Admin\SubAdminController::class, 'index'])->name('sub-admins.index');

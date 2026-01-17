@@ -135,7 +135,94 @@ const formatDate = (date) => {
 const viewSalle = (salle) => {
   selectedSalle.value = salle
   showDetailModal.value = true
+  
+  // Initialiser la carte après un court délai pour que le modal soit visible
+  setTimeout(() => {
+    initMap();
+  }, 200);
 }
+
+// Fonctions Google Maps pour l'aperçu
+const getGoogleMapsUrl = (salle) => {
+  if (!salle.adresse && !salle.ville && !salle.pays) {
+    return null;
+  }
+  
+  const address = [
+    salle.adresse,
+    salle.ville,
+    salle.pays
+  ].filter(Boolean).join(', ');
+  
+  return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+};
+
+const initMap = () => {
+  console.log('🗺️ initMap appelée');
+  console.log('🗺️ selectedSalle:', selectedSalle.value);
+  console.log('🗺️ latitude:', selectedSalle.value?.latitude);
+  console.log('🗺️ longitude:', selectedSalle.value?.longitude);
+  
+  if (!selectedSalle.value?.latitude || !selectedSalle.value?.longitude) {
+    console.log('❌ Pas de coordonnées GPS');
+    return;
+  }
+  
+  // Attendre un peu que le modal soit visible
+  setTimeout(() => {
+    const mapElement = document.getElementById('admin-google-map');
+    console.log('🗺️ mapElement trouvé:', mapElement);
+    console.log('🗺️ window.google:', window.google);
+    
+    if (mapElement && window.google && window.google.maps) {
+      console.log('✅ Initialisation de la carte');
+      const map = new window.google.maps.Map(mapElement, {
+        center: { 
+          lat: parseFloat(selectedSalle.value.latitude), 
+          lng: parseFloat(selectedSalle.value.longitude) 
+        },
+        zoom: 15,
+        styles: [
+          {
+            featureType: "poi",
+            elementType: "labels",
+            stylers: [{ visibility: "off" }]
+          }
+        ]
+      });
+      
+      new window.google.maps.Marker({
+        position: { 
+          lat: parseFloat(selectedSalle.value.latitude), 
+          lng: parseFloat(selectedSalle.value.longitude) 
+        },
+        map: map,
+        title: selectedSalle.value.nom
+      });
+    } else {
+      console.log('❌ Google Maps pas chargé ou élément non trouvé');
+    }
+  }, 100);
+  
+  // Charger Google Maps API si nécessaire
+  if (!window.google || !window.google.maps) {
+    console.log('🔥 Chargement de Google Maps API');
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPx8Wj9tQbhV2QhR5q3B&callback=initMap`;
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  } else {
+    console.log('✅ Google Maps déjà chargé');
+  }
+};
+
+// Watcher pour initialiser la carte quand le modal s'ouvre
+watch(showDetailModal, (newValue) => {
+  if (newValue && selectedSalle.value) {
+    initMap();
+  }
+})
 
 const approveSalle = (salle) => {
   console.log('Bouton valider cliqué pour la salle:', salle);
@@ -147,6 +234,10 @@ const approveSalle = (salle) => {
   confirmAction.value = 'approve';
   confirmData.value = salle;
   showConfirmModal.value = true;
+  
+  console.log('🔥 Modal devrait s\'afficher:', showConfirmModal.value);
+  console.log('🔥 Titre:', confirmTitle.value);
+  console.log('🔥 Message:', confirmMessage.value);
 };
 
 const toggleSalleStatus = (salle, newStatus) => {
@@ -168,37 +259,51 @@ const deleteSalle = (salle) => {
 
 // Confirmer l'action
 const confirmActionHandler = () => {
-  if (!confirmAction.value || !confirmData.value) return;
+  console.log('🚀 confirmActionHandler appelé');
+  console.log('🚀 Action:', confirmAction.value);
+  console.log('🚀 Données:', confirmData.value);
+  console.log('🚀 Modal visible:', showConfirmModal.value);
   
-  console.log('Action confirmée:', confirmAction.value);
-  console.log('Données de la salle:', confirmData.value);
+  if (!confirmAction.value || !confirmData.value) {
+    console.log('❌ Action ou données manquantes');
+    return;
+  }
   
   if (confirmAction.value === 'approve') {
     const salle = confirmData.value;
-    console.log('Tentative d\'approbation de la salle ID:', salle.id);
-    console.log('Route appelée:', route('admin.salles.approve', salle.id));
+    console.log('📤 Début approbation salle ID:', salle.id);
+    console.log('📤 Route générée:', route('admin.salles.approve', salle.id));
+    console.log('📤 Token CSRF:', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')?.substring(0, 20) + '...');
+    
+    console.log('📤 Envoi requête PATCH...');
     
     router.patch(route('admin.salles.approve', salle.id), {}, {
-      onSuccess: () => {
-        console.log('Approbation réussie pour la salle:', salle.nom);
+      onSuccess: (page) => {
+        console.log('✅ Succès AJAX reçu:', page);
+        console.log('✅ Props reçues:', page.props);
+        console.log('✅ Salle dans les props:', page.props.salle);
+        
         notificationType.value = 'success';
         notificationTitle.value = 'Succès';
         notificationMessage.value = `La salle "${salle.nom}" a été validée avec succès.`;
         showNotificationModal.value = true;
         showConfirmModal.value = false;
         
-        // Rafraîchir la page pour voir les changements
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
+        // Forcer le rechargement
+        window.location.reload();
       },
       onError: (errors) => {
-        console.log('Erreur lors de l\'approbation:', errors);
         notificationType.value = 'error';
         notificationTitle.value = 'Erreur';
         notificationMessage.value = 'Une erreur est survenue lors de la validation de la salle.';
         showNotificationModal.value = true;
         showConfirmModal.value = false;
+      },
+      onStart: () => {
+        console.log('⏳ Requête démarrée');
+      },
+      onFinish: () => {
+        console.log('🏁 Requête terminée');
       }
     });
   } else if (confirmAction.value === 'toggle-status') {
@@ -604,6 +709,26 @@ const confirmActionHandler = () => {
                 </p>
               </div>
             </div>
+            
+            <!-- Carte Google Maps -->
+            <div v-if="selectedSalle.latitude && selectedSalle.longitude" class="mt-4">
+              <div class="rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700">
+                <div id="admin-google-map" class="w-full h-64 bg-slate-100 dark:bg-slate-700"></div>
+              </div>
+              
+              <!-- Lien vers Google Maps pour navigation -->
+              <div v-if="getGoogleMapsUrl(selectedSalle)" class="mt-3">
+                <a 
+                  :href="getGoogleMapsUrl(selectedSalle)" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
+                >
+                  <i class="fas fa-external-link-alt"></i>
+                  <span>Ouvrir dans Google Maps</span>
+                </a>
+              </div>
+            </div>
           </div>
 
           <!-- Contact -->
@@ -786,6 +911,31 @@ const confirmActionHandler = () => {
         </div>
       </div>
     </div>
+
+<!-- Modal de confirmation simple -->
+<div v-if="showConfirmModal" class="fixed inset-0 z-[99999] bg-black/50 flex items-center justify-center">
+  <div class="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-md w-full mx-4">
+    <h3 class="text-lg font-semibold mb-2">{{ confirmTitle }}</h3>
+    <p class="text-slate-600 dark:text-slate-400 mb-4">{{ confirmMessage }}</p>
+    <div class="flex gap-3 justify-end">
+      <button @click="showConfirmModal = false" class="px-4 py-2 text-slate-600 hover:text-slate-800">
+        Annuler
+      </button>
+      <button @click="confirmActionHandler" class="bg-primary text-white px-4 py-2 rounded hover:bg-blue-600">
+        Confirmer
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Modal -->
+<NotificationModal
+  :show="showNotificationModal"
+  :type="notificationType"
+  :title="notificationTitle"
+  :message="notificationMessage"
+  @close="showNotificationModal = false"
+/>
 </template>
 
 <style scoped>
@@ -811,21 +961,3 @@ const confirmActionHandler = () => {
 }
 </style>
 
-<!-- Confirm Modal -->
-<ConfirmModal
-  :show="showConfirmModal"
-  :title="confirmTitle"
-  :message="confirmMessage"
-  @confirm="confirmActionHandler"
-  @cancel="showConfirmModal = false"
-  @close="showConfirmModal = false"
-/>
-
-<!-- Notification Modal -->
-<NotificationModal
-  :show="showNotificationModal"
-  :type="notificationType"
-  :title="notificationTitle"
-  :message="notificationMessage"
-  @close="showNotificationModal = false"
-/>

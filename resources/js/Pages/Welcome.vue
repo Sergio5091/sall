@@ -149,7 +149,27 @@
         
         <!-- Cards Container with Auto-scroll -->
         <div class="relative overflow-hidden">
-          <div class="flex gap-6 animate-scroll-left">
+          <!-- Slide Indicators -->
+          <div class="flex justify-center gap-2 mb-4">
+            <button
+              v-for="(_, index) in Math.min(featuredItemsData.length, 6)"
+              :key="index"
+              @click="goToSlide(index)"
+              :class="[
+                'w-2 h-2 rounded-full transition-colors',
+                currentSlide === index ? 'bg-primary' : 'bg-gray-300'
+              ]"
+            />
+          </div>
+          
+          <div 
+            ref="carouselContainer"
+            :class="[
+              'flex gap-6',
+              isAutoScrolling ? 'animate-scroll-left' : 'transition-transform duration-300 ease-in-out'
+            ]"
+            :style="!isAutoScrolling ? { transform: `translateX(-${currentSlide * 424}px)` } : {}"
+          >
             <!-- Duplicate items for infinite scroll -->
             <div 
               v-for="(item, index) in [...featuredItemsData, ...featuredItemsData]" 
@@ -172,7 +192,7 @@
                 </div>
                 <img 
                   class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                  :src="item.image"
+                  :src="item.image ? '/storage/' + item.image : 'https://picsum.photos/seed/featured-' + item.id + '/400/300.jpg'"
                   :alt="item.title"
                 />
               </div>
@@ -216,7 +236,7 @@
               <div class="relative aspect-[3/2] overflow-hidden">
                 <img 
                   class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                  :src="room.image"
+                  :src="room.image ? '/storage/' + room.image : 'https://picsum.photos/seed/room-' + room.id + '/400/300.jpg'"
                   :alt="room.name"
                 />
                 <div class="absolute top-3 right-3 bg-white/90 backdropver-blur rounded-full px-2 py-1 flex items-center gap-1 shadow-sm">
@@ -391,6 +411,17 @@ import { ref } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import MainFooter from '@/Components/MainFooter.vue';
 
+const props = defineProps({
+    canLogin: Boolean,
+    canRegister: Boolean,
+    laravelVersion: String,
+    phpVersion: String,
+    featuredItems: Array,
+    popularRooms: Array,
+    stats: Object,
+    news: Array
+});
+
 const page = usePage();
 const isMobileMenuOpen = ref(false);
 
@@ -423,86 +454,45 @@ const formatNumber = (num) => {
 // État d'authentification (à implémenter avec votre système d'auth)
 const authUser = ref(null);
 
-// Mock data for stats
-const usersCount = ref(15420);
-const roomsCount = ref(89);
-const bookingsCount = ref(3247);
+// Utiliser les données réelles du contrôleur pour les stats
+const usersCount = ref(props.stats?.usersCount || 0);
+const roomsCount = ref(props.stats?.roomsCount || 0);
+const bookingsCount = ref(props.stats?.bookingsCount || 0);
 
-// Mock data for featured items
-const featuredItemsData = ref([
-  {
-    id: 1,
-    type: 'Nouveau',
-    title: 'Arena Gaming Paris',
-    description: 'Nouvelle salle de gaming dernière génération',
-    image: 'https://picsum.photos/seed/arena1/400/300.jpg'
-  },
-  {
-    id: 2,
-    type: 'Tournoi',
-    title: 'CS:GO Championship',
-    description: 'Tournoi national avec prix de 10 000€',
-    image: 'https://picsum.photos/seed/tournament1/400/300.jpg'
-  },
-  {
-    id: 3,
-    type: 'Événement',
-    title: 'LAN Party Weekend',
-    description: '48h de gaming non-stop',
-    image: 'https://picsum.photos/seed/lanparty1/400/300.jpg'
-  }
-]);
+// Utiliser les données réelles du contrôleur
+const featuredItemsData = ref(props.featuredItems || []);
 
-// Mock data for popular rooms
-const popularRoomsData = ref([
-  {
-    id: 1,
-    name: 'Elite Gaming Center',
-    location: 'Paris',
-    price: '25€/h',
-    rating: 4.8,
-    image: 'https://picsum.photos/seed/room1/400/300.jpg'
-  },
-  {
-    id: 2,
-    name: 'Pro Arena Lyon',
-    location: 'Lyon',
-    price: '20€/h',
-    rating: 4.6,
-    image: 'https://picsum.photos/seed/room2/400/300.jpg'
-  },
-  {
-    id: 3,
-    name: 'Battle Station Marseille',
-    location: 'Marseille',
-    price: '22€/h',
-    rating: 4.7,
-    image: 'https://picsum.photos/seed/room3/400/300.jpg'
-  },
-  {
-    id: 4,
-    name: 'Gaming Hub Bordeaux',
-    location: 'Bordeaux',
-    price: '18€/h',
-    rating: 4.5,
-    image: 'https://picsum.photos/seed/room4/400/300.jpg'
-  }
-]);
+// Utiliser les données réelles du contrôleur
+const popularRoomsData = ref(props.popularRooms || []);
 
 // Computed property for filtered rooms
 const filteredRooms = ref(popularRoomsData.value);
 
 // Carousel functionality
 const currentSlide = ref(0);
+const carouselContainer = ref(null);
+const isAutoScrolling = ref(true);
 const searchQuery = ref('');
 const selectedLocation = ref('Paris');
 
 const prevSlide = () => {
-  currentSlide.value = currentSlide.value === 0 ? featuredItemsData.value.length - 1 : currentSlide.value - 1;
+  isAutoScrolling.value = false;
+  if (currentSlide.value > 0) {
+    currentSlide.value--;
+  }
 };
 
 const nextSlide = () => {
-  currentSlide.value = (currentSlide.value + 1) % featuredItemsData.value.length;
+  isAutoScrolling.value = false;
+  const maxSlide = Math.max(0, featuredItemsData.value.length - 1);
+  if (currentSlide.value < maxSlide) {
+    currentSlide.value++;
+  }
+};
+
+const goToSlide = (index) => {
+  isAutoScrolling.value = false;
+  currentSlide.value = index;
 };
 
 const viewItem = (item) => {
@@ -535,7 +525,6 @@ const goToSearchRooms = () => {
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
 .font-display {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;

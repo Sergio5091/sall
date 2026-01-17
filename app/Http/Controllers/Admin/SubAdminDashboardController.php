@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\SubAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class SubAdminDashboardController extends Controller
