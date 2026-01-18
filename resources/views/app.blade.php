@@ -16,12 +16,7 @@
 
         <!-- Scripts -->
         @routes
-        @if(app()->environment('production'))
-            <link rel="stylesheet" href="{{ asset('build/assets/app-ClGCl7rV.css') }}">
-            <script type="module" src="{{ asset('build/assets/app-tav4KXaI.js') }}"></script>
-        @else
-            @vite('resources/js/app.js')
-        @endif
+        @vite('resources/js/app.js')
         @inertiaHead
     </head>
     <body class="font-sans antialiased bg-white dark:bg-slate-900 text-slate-900 dark:text-white transition-colors duration-200">
