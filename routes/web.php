@@ -196,18 +196,18 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/sub-admin-dashboard', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'index'])->name('sub-admins.dashboard');
     
     // Routes pour la gestion des salles par sous-admin
-    Route::get('/sub-admin/salles', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'sallesIndex'])->name('admin.sub-admin.salles.index');
-    Route::get('/sub-admin/salles/{salle}', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'showSalle'])->name('admin.sub-admin.salles.show');
-    Route::post('/sub-admin/salles/{salle}/validate', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'validateSalle'])->name('admin.sub-admin.salles.validate');
-    Route::post('/sub-admin/salles/{salle}/deactivate', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'deactivateSalle'])->name('admin.sub-admin.salles.deactivate');
-    Route::put('/sub-admin/salles/{salle}/update', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'updateSalle'])->name('admin.sub-admin.salles.update');
-    Route::post('/sub-admin/salles/{salle}/toggle-status', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'toggleSalleStatus'])->name('admin.sub-admin.salles.toggle-status');
+    Route::get('/sub-admin/salles', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'sallesIndex'])->name('sub-admin.salles.index');
+    Route::get('/sub-admin/salles/{salle}', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'showSalle'])->name('sub-admin.salles.show');
+    Route::post('/sub-admin/salles/{salle}/validate', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'validateSalle'])->name('sub-admin.salles.validate');
+    Route::post('/sub-admin/salles/{salle}/deactivate', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'deactivateSalle'])->name('sub-admin.salles.deactivate');
+    Route::put('/sub-admin/salles/{salle}/update', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'updateSalle'])->name('sub-admin.salles.update');
+    Route::post('/sub-admin/salles/{salle}/toggle-status', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'toggleSalleStatus'])->name('sub-admin.salles.toggle-status');
     
     // Routes pour la gestion des promoteurs par sous-admin
-    Route::get('/sub-admin/promoters', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'promotersIndex'])->name('admin.sub-admin.promoters.index');
-    Route::get('/sub-admin/promoters/{promoter}', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'showPromoter'])->name('admin.sub-admin.promoters.show');
-    Route::post('/sub-admin/promoters/{promoter}/toggle-status', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'togglePromoterStatus'])->name('admin.sub-admin.promoters.toggle-status');
-    Route::post('/sub-admin/promoters/{promoter}/reset-password', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'resetPromoterPassword'])->name('admin.sub-admin.promoters.reset-password');
+    Route::get('/sub-admin/promoters', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'promotersIndex'])->name('sub-admin.promoters.index');
+    Route::get('/sub-admin/promoters/{promoter}', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'showPromoter'])->name('sub-admin.promoters.show');
+    Route::post('/sub-admin/promoters/{promoter}/toggle-status', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'togglePromoterStatus'])->name('sub-admin.promoters.toggle-status');
+    Route::post('/sub-admin/promoters/{promoter}/reset-password', [App\Http\Controllers\Admin\SubAdminDashboardController::class, 'resetPromoterPassword'])->name('sub-admin.promoters.reset-password');
     
     // Routes pour le profil administrateur
     Route::get('/profile', function () {

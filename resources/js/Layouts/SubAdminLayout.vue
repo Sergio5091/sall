@@ -85,18 +85,18 @@ onUnmounted(() => {
               Tableau de bord
             </Link>
             <Link 
-              :href="route('admin.admin.sub-admin.salles.index')"
+              :href="route('admin.sub-admin.salles.index')"
               preserve-state="false"
               class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-              :class="{ 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-50': route().current('admin.admin.sub-admin.salles.index') }"
+              :class="{ 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-50': route().current('admin.sub-admin.salles.index') }"
             >
               Centres
             </Link>
             <Link 
-              :href="route('admin.admin.sub-admin.promoters.index')"
+              :href="route('admin.sub-admin.promoters.index')"
               preserve-state="false"
               class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-              :class="{ 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-50': route().current('admin.admin.sub-admin.promoters.index') }"
+              :class="{ 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-50': route().current('admin.sub-admin.promoters.index') }"
             >
               Promoteurs
             </Link>

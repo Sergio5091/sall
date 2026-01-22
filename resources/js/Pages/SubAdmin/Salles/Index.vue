@@ -21,11 +21,44 @@ const notificationType = ref('success');
 const notificationTitle = ref('');
 const notificationMessage = ref('');
 
+// Confirmation modal system
+const showConfirmModal = ref(false);
+const confirmAction = ref(null);
+const confirmTitle = ref('');
+const confirmMessage = ref('');
+const confirmButtonText = ref('Confirmer');
+const confirmButtonClass = ref('bg-blue-600 hover:bg-blue-700');
+
 const showNotification = (type, title, message) => {
   notificationType.value = type;
   notificationTitle.value = title;
   notificationMessage.value = message;
   showNotificationModal.value = true;
+};
+
+const showConfirm = (title, message, action, buttonText = 'Confirmer', buttonClass = 'bg-blue-600 hover:bg-blue-700') => {
+  confirmTitle.value = title;
+  confirmMessage.value = message;
+  confirmAction.value = action;
+  confirmButtonText.value = buttonText;
+  confirmButtonClass.value = buttonClass;
+  showConfirmModal.value = true;
+};
+
+const executeConfirmAction = () => {
+  if (confirmAction.value) {
+    confirmAction.value();
+  }
+  closeConfirmModal();
+};
+
+const closeConfirmModal = () => {
+  showConfirmModal.value = false;
+  confirmAction.value = null;
+  confirmTitle.value = '';
+  confirmMessage.value = '';
+  confirmButtonText.value = 'Confirmer';
+  confirmButtonClass.value = 'bg-blue-600 hover:bg-blue-700';
 };
 
 const filteredSalles = computed(() => {
@@ -66,6 +99,10 @@ const getStatusClass = (status) => {
     }
 };
 
+const getValidationClass = (valide) => {
+    return valide ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
+};
+
 const getStatusText = (status) => {
     switch(status) {
         case 'actif':
@@ -81,61 +118,96 @@ const getStatusText = (status) => {
     }
 };
 
+const getValidationText = (valide) => {
+    return valide ? 'Validée' : 'En attente';
+};
+
 const formatDate = (date) => {
     return new Date(date).toLocaleDateString('fr-FR');
 };
 
 const validateSalle = (salle) => {
-  if (confirm(`Êtes-vous sûr de vouloir valider le centre "${salle.nom}" ?`)) {
-    router.post(route('admin.admin.sub-admin.salles.validate', salle.id), {}, {
-      onSuccess: () => {
-        showNotification('success', 'Succès', 'Salle validée avec succès !');
-      },
-      onError: () => {
-        showNotification('error', 'Erreur', 'Une erreur est survenue lors de la validation.');
-      }
-    });
-  }
+  showConfirm(
+    'Valider le centre',
+    `Êtes-vous sûr de vouloir valider le centre "${salle.nom}" ? Cette action rendra le centre visible et activable.`,
+    () => {
+      router.post(route('admin.sub-admin.salles.validate', salle.id), {}, {
+        onSuccess: () => {
+          showNotification('success', 'Succès', 'Salle validée avec succès !');
+        },
+        onError: () => {
+          showNotification('error', 'Erreur', 'Une erreur est survenue lors de la validation.');
+        }
+      });
+    },
+    'Valider',
+    'bg-green-600 hover:bg-green-700'
+  );
 };
 
 const deactivateSalle = (salle) => {
-  if (confirm(`Êtes-vous sûr de vouloir désactiver le centre "${salle.nom}" ?`)) {
-    router.post(route('admin.admin.sub-admin.salles.deactivate', salle.id), {}, {
-      onSuccess: () => {
-        showNotification('success', 'Succès', 'Salle désactivée avec succès !');
-      },
-      onError: () => {
-        showNotification('error', 'Erreur', 'Une erreur est survenue lors de la désactivation.');
-      }
-    });
-  }
+  showConfirm(
+    'Désactiver le centre',
+    `Êtes-vous sûr de vouloir désactiver le centre "${salle.nom}" ? Cette action le rendra temporairement indisponible.`,
+    () => {
+      router.post(route('admin.sub-admin.salles.deactivate', salle.id), {}, {
+        onSuccess: () => {
+          showNotification('success', 'Succès', 'Salle désactivée avec succès !');
+        },
+        onError: () => {
+          showNotification('error', 'Erreur', 'Une erreur est survenue lors de la désactivation.');
+        }
+      });
+    },
+    'Désactiver',
+    'bg-red-600 hover:bg-red-700'
+  );
 };
 
 const toggleSalleStatus = (salle) => {
+  // Empêcher l'activation/désactivation si la salle n'est pas validée
+  if (!salle.valide) {
+    showNotification('error', 'Action non autorisée', 'Cette salle doit d\'abord être validée avant de pouvoir être activée ou désactivée.');
+    return;
+  }
+  
   const action = salle.statut === 'actif' ? 'désactiver' : 'activer';
   const actionText = salle.statut === 'actif' ? 'désactiver' : 'activer';
+  const buttonClass = salle.statut === 'actif' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700';
   
-  if (confirm(`Êtes-vous sûr de vouloir ${actionText} le centre "${salle.nom}" ?`)) {
-    router.post(route('admin.admin.sub-admin.salles.toggle-status', salle.id), {}, {
-      onSuccess: () => {
-        showNotification('success', 'Succès', `Centre ${actionText} avec succès !`);
-      },
-      onError: () => {
-        showNotification('error', 'Erreur', `Une erreur est survenue lors de la ${action}.`);
-      }
-    });
-  }
+  showConfirm(
+    `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} le centre`,
+    `Êtes-vous sûr de vouloir ${actionText} le centre "${salle.nom}" ?`,
+    () => {
+      router.post(route('admin.sub-admin.salles.toggle-status', salle.id), {}, {
+        onSuccess: () => {
+          showNotification('success', 'Succès', `Centre ${actionText} avec succès !`);
+        },
+        onError: () => {
+          showNotification('error', 'Erreur', `Une erreur est survenue lors de la ${action}.`);
+        }
+      });
+    },
+    actionText.charAt(0).toUpperCase() + actionText.slice(1),
+    buttonClass
+  );
 };
 
 const viewSalle = (salle) => {
-  window.location.href = route('admin.admin.sub-admin.salles.show', salle.id);
+  window.location.href = route('admin.sub-admin.salles.show', salle.id);
 };
 
 const sendNotification = (salle) => {
-  if (confirm(`Êtes-vous sûr de vouloir envoyer une notification au promoteur du centre "${salle.nom}" ?`)) {
-    // Simuler l'envoi de notification - à remplacer avec l'appel API réel
-    showNotification('success', 'Notification envoyée', `Une notification a été envoyée au promoteur du centre "${salle.nom}".`);
-  }
+  showConfirm(
+    'Envoyer une notification',
+    `Êtes-vous sûr de vouloir envoyer une notification au promoteur du centre "${salle.nom}" ?`,
+    () => {
+      // Simuler l'envoi de notification - à remplacer avec l'appel API réel
+      showNotification('success', 'Notification envoyée', `Une notification a été envoyée au promoteur du centre "${salle.nom}".`);
+    },
+    'Envoyer',
+    'bg-blue-600 hover:bg-blue-700'
+  );
 };
 </script>
 
@@ -260,6 +332,7 @@ const sendNotification = (salle) => {
                   <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden lg:table-cell" scope="col">Localisation</th>
                   <th class="px-6 py-4 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">Capacité</th>
                   <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">Statut</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">Validation</th>
                   <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">Actions</th>
                 </tr>
               </thead>
@@ -299,10 +372,20 @@ const sendNotification = (salle) => {
                       {{ getStatusText(salle.statut) }}
                     </span>
                   </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span :class="getValidationClass(salle.valide)" class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
+                      {{ getValidationText(salle.valide) }}
+                    </span>
+                  </td>
                   <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div class="flex items-center justify-end gap-2">
-                      <!-- Bouton unique d'activation/désactivation -->
-                      <button v-if="salle.statut === 'actif'" @click="toggleSalleStatus(salle)" class="text-gray-400 hover:text-red-600 dark:hover:text-red-500 transition-colors p-1" title="Désactiver">
+                      <!-- Bouton de validation pour les salles en attente -->
+                      <button v-if="!salle.valide" @click="validateSalle(salle)" class="text-yellow-600 hover:text-yellow-700 dark:hover:text-yellow-500 transition-colors p-1" title="Valider la salle">
+                        <i class="fas fa-check-circle icon-sm"></i>
+                      </button>
+                      
+                      <!-- Bouton unique d'activation/désactivation pour les salles validées -->
+                      <button v-else-if="salle.statut === 'actif'" @click="toggleSalleStatus(salle)" class="text-gray-400 hover:text-red-600 dark:hover:text-red-500 transition-colors p-1" title="Désactiver">
                         <i class="fas fa-ban icon-sm"></i>
                       </button>
                       
@@ -328,17 +411,63 @@ const sendNotification = (salle) => {
           </div>
         </div>
       </div>
-  </div>
-</template>
+      
+      <!-- Notification Modal -->
+      <NotificationModal
+        :show="showNotificationModal"
+        :type="notificationType"
+        :title="notificationTitle"
+        :message="notificationMessage"
+        @close="showNotificationModal = false"
+      />
 
-<!-- Notification Modal -->
-<NotificationModal
-  :show="showNotificationModal"
-  :type="notificationType"
-  :title="notificationTitle"
-  :message="notificationMessage"
-  @close="showNotificationModal = false"
-/>
+      <!-- Confirmation Modal -->
+      <div v-if="showConfirmModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+          <!-- Background overlay -->
+          <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="closeConfirmModal"></div>
+
+          <!-- Center modal -->
+          <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+          <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+            <div class="sm:flex sm:items-start">
+              <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 sm:mx-0 sm:h-10 sm:w-10">
+                <i class="fas fa-exclamation-triangle text-blue-600 dark:text-blue-400"></i>
+              </div>
+              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left flex-1">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
+                  {{ confirmTitle }}
+                </h3>
+                <div class="mt-2">
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ confirmMessage }}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse gap-3">
+              <button
+                type="button"
+                @click="executeConfirmAction"
+                :class="confirmButtonClass"
+                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors"
+              >
+                {{ confirmButtonText }}
+              </button>
+              <button
+                type="button"
+                @click="closeConfirmModal"
+                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</template>
 
 <style scoped>
 .icon-sm {

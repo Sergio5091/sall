@@ -139,7 +139,7 @@ const getStatusText = (status) => {
           
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link 
-              :href="route('admin.admin.sub-admin.salles.index')"
+              :href="route('admin.sub-admin.salles.index')"
               class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors group"
             >
               <div class="flex items-center gap-3">
@@ -154,7 +154,7 @@ const getStatusText = (status) => {
             </Link>
             
             <Link 
-              :href="route('admin.admin.sub-admin.promoters.index')"
+              :href="route('admin.sub-admin.promoters.index')"
               class="p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors group"
             >
               <div class="flex items-center gap-3">
@@ -193,7 +193,7 @@ const getStatusText = (status) => {
                   Centres récents
                 </h2>
                 <Link 
-                  :href="route('admin.admin.sub-admin.salles.index')"
+                  :href="route('admin.sub-admin.salles.index')"
                   class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                 >
                   Voir tout
@@ -222,7 +222,7 @@ const getStatusText = (status) => {
                       {{ getStatusText(salle.statut) }}
                     </span>
                     <Link 
-                      :href="route('admin.admin.sub-admin.salles.show', salle.id)"
+                      :href="route('admin.sub-admin.salles.show', salle.id)"
                       class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                     >
                       <i class="fas fa-eye text-sm"></i>
@@ -247,7 +247,7 @@ const getStatusText = (status) => {
                   Promoteurs récents
                 </h2>
                 <Link 
-                  :href="route('admin.admin.sub-admin.promoters.index')"
+                  :href="route('admin.sub-admin.promoters.index')"
                   class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                 >
                   Voir tout
@@ -276,7 +276,7 @@ const getStatusText = (status) => {
                       {{ getStatusText(promoter.status) }}
                     </span>
                     <Link 
-                      :href="route('admin.admin.sub-admin.promoters.show', promoter.id)"
+                      :href="route('admin.sub-admin.promoters.show', promoter.id)"
                       class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                     >
                       <i class="fas fa-eye text-sm"></i>
@@ -306,7 +306,7 @@ const getStatusText = (status) => {
           </div>
           
           <Link 
-            :href="route('admin.admin.sub-admin.salles.index')"
+            :href="route('admin.sub-admin.salles.index')"
             class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors"
           >
             <i class="fas fa-check-circle"></i>

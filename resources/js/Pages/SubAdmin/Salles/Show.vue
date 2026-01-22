@@ -13,7 +13,7 @@ const toggleSalleStatus = (salle) => {
   const actionText = salle.statut === 'actif' ? 'désactiver' : 'activer';
   
   if (confirm(`Êtes-vous sûr de vouloir ${actionText} le centre "${salle.nom}" ?`)) {
-    router.post(route('admin.admin.sub-admin.salles.toggle-status', salle.id), {}, {
+    router.post(route('admin.sub-admin.salles.toggle-status', salle.id), {}, {
       onSuccess: () => {
         location.reload();
       },
@@ -62,7 +62,7 @@ const getStatusText = (status) => {
   <div class="mb-6">
     <div class="flex items-center gap-4 mb-4">
       <Link 
-        :href="route('admin.admin.sub-admin.salles.index')"
+        :href="route('admin.sub-admin.salles.index')"
         class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
       >
         <i class="fas fa-arrow-left mr-2"></i>
@@ -192,7 +192,7 @@ const getStatusText = (status) => {
             </div>
           </div>
           <Link 
-            :href="route('admin.admin.sub-admin.promoters.show', salle.promoter?.id)"
+            :href="route('admin.sub-admin.promoters.show', salle.promoter?.id)"
             class="mt-4 block w-full text-center px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm font-medium"
           >
             Voir le promoteur
@@ -264,19 +264,19 @@ import { router } from '@inertiajs/vue3';
 
 const validateSalle = () => {
   if (confirm('Êtes-vous sûr de vouloir valider ce centre ?')) {
-    router.post(route('admin.admin.sub-admin.salles.validate', props.salle.id));
+    router.post(route('admin.sub-admin.salles.validate', props.salle.id));
   }
 };
 
 const deactivateSalle = () => {
   if (confirm('Êtes-vous sûr de vouloir désactiver ce centre ?')) {
-    router.post(route('admin.admin.sub-admin.salles.deactivate', props.salle.id));
+    router.post(route('admin.sub-admin.salles.deactivate', props.salle.id));
   }
 };
 
 const reactivateSalle = () => {
   if (confirm('Êtes-vous sûr de vouloir réactiver ce centre ?')) {
-    router.put(route('admin.admin.sub-admin.salles.update', props.salle.id), { status: 'active' });
+    router.put(route('admin.sub-admin.salles.update', props.salle.id), { status: 'active' });
   }
 };
 </script>

@@ -137,7 +137,7 @@ class WelcomeController extends Controller
                     'description' => $salle->description ? substr($salle->description, 0, 100) . '...' : '',
                     'image' => $salle->image_url,
                     'type' => 'Nouveau',
-                    'date' => $salle->validated_at?->format('d/m/Y'),
+                    'date' => $salle->validated_at ? \Carbon\Carbon::parse($salle->validated_at)->format('d/m/Y') : null,
                     'location' => $salle->ville,
                     'price' => $salle->prix_heure ? number_format($salle->prix_heure, 2, ',', '') . '€/h' : 'Prix sur demande',
                 ];

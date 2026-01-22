@@ -55,6 +55,15 @@
                   <i class="fas fa-location-dot"></i>
                   <span class="hidden sm:inline">Ma position</span>
                 </button>
+                <!-- Bouton de test pour débogage -->
+                <button 
+                  @click="testLocation"
+                  class="px-4 py-3 bg-yellow-100 text-yellow-800 rounded-xl hover:bg-yellow-200 transition-all duration-300 flex items-center gap-2"
+                  title="Test de géolocalisation"
+                >
+                  <i class="fas fa-bug"></i>
+                  <span class="hidden sm:inline">Test</span>
+                </button>
                 <button 
                   @click="searchRooms"
                   class="px-8 py-3 bg-primary text-white rounded-xl hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 shadow-lg"
@@ -297,27 +306,137 @@ const formatPrice = (prix) => {
     }).format(prix);
 };
 
+const testLocation = () => {
+    console.log('Test de géolocalisation...');
+    alert('Test: Le bouton fonctionne! Navigator disponible: ' + (navigator.geolocation ? 'OUI' : 'NON'));
+    
+    // Test avec des coordonnées fixes
+    console.log('Test avec coordonnées fixes: Cotonou (6.5, -2.5)');
+    searchNearbyRooms(6.5, -2.5);
+};
+
 const getCurrentLocation = () => {
-    if (navigator.geolocation) {
-        isLoading.value = true;
+    console.log('Détection de position demandée...');
+    console.log('Navigator geolocation:', navigator.geolocation);
+    console.log('Protocole actuel:', window.location.protocol);
+    console.log('URL actuelle:', window.location.href);
+    
+    // Vérifier si nous sommes en HTTP (problème pour la géolocalisation)
+    if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
+        console.warn('Attention: La géolocalisation peut ne pas fonctionner en HTTP sur les domaines non-localhost');
+    }
+    
+    if (!navigator.geolocation) {
+        console.error('Géolocalisation non supportée par ce navigateur');
+        alert('La géolocalisation n\'est pas supportée par votre navigateur. Veuillez utiliser une recherche manuelle.');
+        return;
+    }
+
+    isLoading.value = true;
+    
+    // Afficher une indication visuelle
+    const button = event?.currentTarget;
+    let originalHTML = '';
+    
+    if (button) {
+        originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span class="hidden sm:inline">Détection...</span>';
+        button.disabled = true;
+    }
+
+    // D'abord vérifier les permissions
+    navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+        console.log('État des permissions de géolocalisation:', result.state);
+        
+        if (result.state === 'denied') {
+            alert('L\'accès à la localisation a été refusé. Veuillez modifier les permissions dans les paramètres de votre navigateur.');
+            if (button) {
+                button.innerHTML = originalHTML;
+                button.disabled = false;
+            }
+            isLoading.value = false;
+            return;
+        }
+        
+        // Procéder à la demande de position
         navigator.geolocation.getCurrentPosition(
             (position) => {
+                console.log('Position obtenue:', position.coords);
+                console.log('Latitude:', position.coords.latitude, 'Longitude:', position.coords.longitude);
+                
+                if (button) {
+                    button.innerHTML = originalHTML;
+                    button.disabled = false;
+                }
+                
                 searchNearbyRooms(position.coords.latitude, position.coords.longitude);
             },
             (error) => {
                 console.error('Erreur de géolocalisation:', error);
+                console.error('Code erreur:', error.code);
+                console.error('Message erreur:', error.message);
+                
+                if (button) {
+                    button.innerHTML = originalHTML;
+                    button.disabled = false;
+                }
+                
                 isLoading.value = false;
+                
+                let errorMessage = 'Impossible d\'obtenir votre position. ';
+                
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage += 'Veuillez autoriser l\'accès à votre localisation dans les paramètres de votre navigateur.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage += 'Les informations de localisation ne sont pas disponibles.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage += 'La demande de localisation a expiré. Veuillez réessayer.';
+                        break;
+                    default:
+                        errorMessage += 'Erreur inconnue (code: ' + error.code + ')';
+                        break;
+                }
+                
+                alert(errorMessage);
                 // Fallback: utiliser une recherche par défaut
                 searchRooms();
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 15000, // Augmenté à 15 secondes
+                maximumAge: 300000 // 5 minutes
             }
         );
-    } else {
-        console.error('Géolocalisation non supportée');
-        searchRooms();
-    }
+    }).catch((error) => {
+   });
+};
+
+// Fallback si les permissions ne sont pas supportées
+const getCurrentPositionFallback = () => {
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            console.log('Position obtenue (fallback):', position.coords);
+            searchNearbyRooms(position.coords.latitude, position.coords.longitude);
+        },
+        (error) => {
+            console.error('Erreur de géolocalisation (fallback):', error);
+            isLoading.value = false;
+            alert('Erreur lors de l\'obtention de votre position. Veuillez réessayer.');
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 300000
+        }
+    );
 };
 
 const searchNearbyRooms = async (lat, lng) => {
+    console.log(`Recherche des salles près de ${lat}, ${lng}`);
+    
     try {
         const response = await axios.get('/api/search/nearby', {
             params: {
@@ -327,10 +446,41 @@ const searchNearbyRooms = async (lat, lng) => {
             }
         });
         
+        console.log('Réponse API:', response.data);
+        
         allRooms.value = response.data.salles || [];
         searchResults.value = response.data.salles || [];
+        
+        // Mettre à jour l'URL avec les paramètres de recherche
+        const url = new URL(window.location);
+        url.searchParams.set('lat', lat);
+        url.searchParams.set('lng', lng);
+        url.searchParams.set('search', 'près de moi');
+        window.history.replaceState({}, '', url);
+        
     } catch (error) {
         console.error('Erreur recherche nearby:', error);
+        
+        if (error.response) {
+            // Le serveur a répondu avec un statut d'erreur
+            console.error('Status:', error.response.status);
+            console.error('Data:', error.response.data);
+            
+            if (error.response.status === 422) {
+                alert('Erreur de validation: ' + JSON.stringify(error.response.data.errors));
+            } else {
+                alert('Erreur serveur lors de la recherche: ' + (error.response.data.message || 'Veuillez réessayer plus tard.'));
+            }
+        } else if (error.request) {
+            // La requête a été faite mais aucune réponse reçue
+            console.error('Pas de réponse du serveur');
+            alert('Impossible de contacter le serveur. Vérifiez votre connexion internet.');
+        } else {
+            // Erreur lors de la configuration de la requête
+            console.error('Erreur de configuration:', error.message);
+            alert('Erreur lors de la recherche: ' + error.message);
+        }
+        
         // Fallback: utiliser les salles existantes
         loadExistingRooms();
     } finally {
@@ -339,7 +489,10 @@ const searchNearbyRooms = async (lat, lng) => {
 };
 
 const searchRooms = async () => {
+    console.log('Recherche lancée avec:', searchQuery.value);
+    
     if (!searchQuery.value.trim()) {
+        console.log('Recherche vide, chargement des salles existantes');
         loadExistingRooms();
         return;
     }
@@ -350,13 +503,20 @@ const searchRooms = async () => {
         // Simuler une recherche - en production, utiliser une vraie API
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        // Filtrer les salles existantes selon la recherche
-        const filtered = props.salles?.data?.filter(salle => 
-            salle.nom.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            salle.ville.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            salle.description?.toLowerCase().includes(searchQuery.value.toLowerCase())
-        ) || [];
+        console.log('Filtrage des salles avec:', searchQuery.value);
+        console.log('Salles disponibles:', props.salles?.data?.length || 0);
         
+        // Filtrer les salles existantes selon la recherche
+        const filtered = props.salles?.data?.filter(salle => {
+            const searchLower = searchQuery.value.toLowerCase();
+            const matchName = salle.nom?.toLowerCase().includes(searchLower);
+            const matchCity = salle.ville?.toLowerCase().includes(searchLower);
+            const matchDescription = salle.description?.toLowerCase().includes(searchLower);
+            
+            return matchName || matchCity || matchDescription;
+        }) || [];
+        
+        console.log('Salles filtrées:', filtered.length);
         allRooms.value = filtered;
         
         // Update URL with search parameters

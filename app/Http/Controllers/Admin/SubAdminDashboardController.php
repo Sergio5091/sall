@@ -143,6 +143,20 @@ class SubAdminDashboardController extends Controller
         
         $salles = $sallesQuery->with('promoter')->latest()->get();
         
+        // Corriger automatiquement les salles non validées qui ont un statut "actif"
+        foreach ($salles as $salle) {
+            if (!$salle->valide && $salle->statut === 'actif') {
+                $salle->statut = 'inactif';
+                $salle->save();
+                \Log::info('Auto-corrected salle status', [
+                    'salle_id' => $salle->id,
+                    'old_status' => 'actif',
+                    'new_status' => 'inactif',
+                    'valide' => $salle->valide
+                ]);
+            }
+        }
+        
         // Log pour débogage - vérifier les statuts réels
         \Log::info('Salles loaded for sub-admin', [
             'sub_admin_id' => $subAdmin->id,
@@ -374,6 +388,11 @@ class SubAdminDashboardController extends Controller
             abort(403, 'Unauthorized access to this salle.');
         }
         
+        // Empêcher l'activation/désactivation si la salle n'est pas validée
+        if (!$salle->valide) {
+            return back()->with('error', 'Cette salle doit d\'abord être validée avant de pouvoir être activée ou désactivée.');
+        }
+        
         $oldStatus = $salle->statut;
         $salle->statut = $salle->statut === 'actif' ? 'inactif' : 'actif';
         $salle->save();
@@ -383,10 +402,11 @@ class SubAdminDashboardController extends Controller
             'salle_id' => $salle->id,
             'old_status' => $oldStatus,
             'new_status' => $salle->statut,
-            'sub_admin_id' => $subAdmin->id
+            'sub_admin_id' => $subAdmin->id,
+            'valide' => $salle->valide
         ]);
 
-        return redirect()->route('admin.admin.sub-admin.salles.index')
+        return redirect()->route('admin.sub-admin.salles.index')
             ->with('success', 'Statut de la salle mis à jour avec succès.');
     }
 
