@@ -55,15 +55,6 @@
                   <i class="fas fa-location-dot"></i>
                   <span class="hidden sm:inline">Ma position</span>
                 </button>
-                <!-- Bouton de test pour débogage -->
-                <button 
-                  @click="testLocation"
-                  class="px-4 py-3 bg-yellow-100 text-yellow-800 rounded-xl hover:bg-yellow-200 transition-all duration-300 flex items-center gap-2"
-                  title="Test de géolocalisation"
-                >
-                  <i class="fas fa-bug"></i>
-                  <span class="hidden sm:inline">Test</span>
-                </button>
                 <button 
                   @click="searchRooms"
                   class="px-8 py-3 bg-primary text-white rounded-xl hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 shadow-lg"
@@ -129,7 +120,7 @@
           </div>
 
           <!-- Results Grid -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
             <div 
               v-for="salle in allRooms" 
               :key="salle.id"
@@ -184,23 +175,23 @@
                 </div>
 
                 <!-- Price and Action -->
-                <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 pt-4 border-t border-gray-100">
                   <div>
                     <div class="text-2xl sm:text-3xl font-bold text-soft-black mb-1">
                       {{ formatPrice(salle.prix_heure) }}
                     </div>
                     <div class="text-medium-grey text-sm">/heure</div>
                   </div>
-                  <div class="flex gap-2">
+                  <div class="flex gap-2 w-full md:w-auto">
                     <button 
                       @click="viewRoom(salle)"
-                      class="px-4 py-2 border border-gray-200 text-soft-black rounded-xl hover:border-primary hover:text-primary transition-all text-sm font-semibold"
+                      class="flex-1 md:flex-none px-3 md:px-4 py-2 border border-gray-200 text-soft-black rounded-xl hover:border-primary hover:text-primary transition-all text-sm font-semibold"
                     >
                       Détails
                     </button>
                     <button 
                       @click="reserveRoom(salle)"
-                      class="px-4 py-2 bg-primary text-white rounded-xl hover:bg-blue-600 transition-all text-sm font-semibold"
+                      class="flex-1 md:flex-none px-3 md:px-4 py-2 bg-primary text-white rounded-xl hover:bg-blue-600 transition-all text-sm font-semibold"
                     >
                       Réserver
                     </button>
@@ -304,15 +295,6 @@ const formatPrice = (prix) => {
         currency: 'XOF',
         minimumFractionDigits: 0
     }).format(prix);
-};
-
-const testLocation = () => {
-    console.log('Test de géolocalisation...');
-    alert('Test: Le bouton fonctionne! Navigator disponible: ' + (navigator.geolocation ? 'OUI' : 'NON'));
-    
-    // Test avec des coordonnées fixes
-    console.log('Test avec coordonnées fixes: Cotonou (6.5, -2.5)');
-    searchNearbyRooms(6.5, -2.5);
 };
 
 const getCurrentLocation = () => {

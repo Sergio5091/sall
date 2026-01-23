@@ -64,9 +64,9 @@
         </Link>
         
         <Link
-          :href="route('admin.standalone-events.index')"
+          :href="route('admin.news.index')"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
-          :class="{ 'bg-primary/10 text-primary dark:text-blue-400': route().current('admin.standalone-events.*') }"
+          :class="{ 'bg-primary/10 text-primary dark:text-blue-400': route().current('admin.news.*') }"
         >
           <i class="fas fa-newspaper group-hover:text-primary transition-colors"></i>
           <span class="text-sm font-medium">Nouveautés</span>
@@ -197,99 +197,144 @@ const searchQuery = ref('')
 const showUserMenu = ref(false)
 const showMobileMenu = ref(false)
 const showLogoutModal = ref(false)
+const isDarkMode = ref(false)
 
 const handleSearch = () => {
-  if (searchQuery.value.trim()) {
-    // Rediriger vers la page de recherche globale
-    router.get(route('search'), { q: searchQuery.value })
+  try {
+    if (searchQuery.value.trim()) {
+      // Rediriger vers la page de recherche globale
+      router.get(route('search'), { q: searchQuery.value })
+    }
+  } catch (error) {
+    console.error('Erreur lors de la recherche:', error)
   }
 }
 
 const toggleUserMenu = () => {
-  showUserMenu.value = !showUserMenu.value
+  try {
+    showUserMenu.value = !showUserMenu.value
+  } catch (error) {
+    console.error('Erreur lors du basculement du menu utilisateur:', error)
+  }
 }
 
 const logout = () => {
-  showLogoutModal.value = true
+  try {
+    showLogoutModal.value = true
+  } catch (error) {
+    console.error('Erreur lors de la déconnexion:', error)
+  }
 }
 
 const confirmLogout = () => {
-  router.post(route('logout'))
+  try {
+    router.post(route('logout'))
+  } catch (error) {
+    console.error('Erreur lors de la confirmation de déconnexion:', error)
+  }
 }
 
 const toggleMobileMenu = () => {
-  showMobileMenu.value = !showMobileMenu.value
+  try {
+    showMobileMenu.value = !showMobileMenu.value
+  } catch (error) {
+    console.error('Erreur lors du basculement du menu mobile:', error)
+  }
 }
 
 const closeMobileMenu = () => {
-  showMobileMenu.value = false
+  try {
+    showMobileMenu.value = false
+  } catch (error) {
+    console.error('Erreur lors de la fermeture du menu mobile:', error)
+  }
 }
 
 const closeMenus = (e) => {
-  // Close user menu if clicking outside
-  if (!e.target.closest('.relative')) {
-    showUserMenu.value = false
-  }
-  
-  // Close mobile menu if clicking outside on mobile (but not on hamburger button or sidebar)
-  if (window.innerWidth < 1024 && 
-      !e.target.closest('aside') && 
-      !e.target.closest('[data-mobile-menu-toggle]') &&
-      !e.target.closest('#mobile-overlay')) {
-    showMobileMenu.value = false
+  try {
+    // Close user menu if clicking outside
+    if (!e.target.closest('.relative')) {
+      showUserMenu.value = false
+    }
+    
+    // Close mobile menu if clicking outside on mobile (but not on hamburger button or sidebar)
+    if (window.innerWidth < 1024 && 
+        !e.target.closest('aside') && 
+        !e.target.closest('[data-mobile-menu-toggle]') &&
+        !e.target.closest('#mobile-overlay')) {
+      showMobileMenu.value = false
+    }
+  } catch (error) {
+    console.error('Erreur lors de la fermeture des menus:', error)
   }
 }
 
 const handleKeydown = (e) => {
-  // Ctrl+K for search
-  if (e.ctrlKey && e.key === 'k') {
-    e.preventDefault()
-    const searchInput = document.querySelector('input[placeholder="Rechercher (Ctrl+K)"]')
-    if (searchInput) {
-      searchInput.focus()
+  try {
+    // Ctrl+K for search
+    if (e.ctrlKey && e.key === 'k') {
+      e.preventDefault()
+      const searchInput = document.querySelector('input[placeholder="Rechercher (Ctrl+K)"]')
+      if (searchInput) {
+        searchInput.focus()
+      }
     }
-  }
-  
-  // Escape to close mobile menu
-  if (e.key === 'Escape' && showMobileMenu.value) {
-    showMobileMenu.value = false
+    
+    // Escape to close mobile menu
+    if (e.key === 'Escape' && showMobileMenu.value) {
+      showMobileMenu.value = false
+    }
+  } catch (error) {
+    console.error('Erreur lors de la gestion des touches clavier:', error)
   }
 }
 
 const handleResize = () => {
-  if (window.innerWidth >= 1024) {
-    showMobileMenu.value = false
+  try {
+    if (window.innerWidth >= 1024) {
+      showMobileMenu.value = false
+    }
+  } catch (error) {
+    console.error('Erreur lors du redimensionnement:', error)
   }
 }
 
 // Initialiser le mode sombre
 onMounted(() => {
-  const savedDarkMode = localStorage.getItem('darkMode')
-  isDarkMode.value = savedDarkMode === 'true'
-  document.documentElement.classList.toggle('dark', isDarkMode.value)
-  
-  // Make toggleMobileMenu available globally
-  window.toggleMobileMenu = toggleMobileMenu;
-  
-  // Écouter les clics pour fermer les menus
-  document.addEventListener('click', closeMenus)
-  
-  // Handle resize
-  window.addEventListener('resize', handleResize)
-  
-  // Raccourci clavier pour la recherche (Ctrl+K)
-  document.addEventListener('keydown', handleKeydown)
+  try {
+    const savedDarkMode = localStorage.getItem('darkMode')
+    isDarkMode.value = savedDarkMode === 'true'
+    document.documentElement.classList.toggle('dark', isDarkMode.value)
+    
+    // Make toggleMobileMenu available globally
+    window.toggleMobileMenu = toggleMobileMenu;
+    
+    // Écouter les clics pour fermer les menus
+    document.addEventListener('click', closeMenus)
+    
+    // Handle resize
+    window.addEventListener('resize', handleResize)
+    
+    // Raccourci clavier pour la recherche (Ctrl+K)
+    document.addEventListener('keydown', handleKeydown)
+  } catch (error) {
+    console.error('Erreur lors de l\'initialisation du layout admin:', error)
+  }
 })
 
 // Watch pour synchroniser l'overlay avec le menu mobile
 watch(showMobileMenu, (newValue) => {
-  const overlay = document.getElementById('mobile-overlay')
-  if (overlay) {
-    if (newValue) {
-      overlay.classList.remove('hidden')
-    } else {
-      overlay.classList.add('hidden')
+  try {
+    const overlay = document.getElementById('mobile-overlay')
+    if (overlay) {
+      if (newValue) {
+        overlay.classList.remove('hidden')
+      } else {
+        overlay.classList.add('hidden')
+      }
     }
+  } catch (error) {
+    console.error('Erreur lors de la gestion de l\'overlay mobile:', error)
   }
 })
 
