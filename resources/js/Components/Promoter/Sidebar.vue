@@ -79,17 +79,23 @@ const menuItems = computed(() => [
         href: "/promoter/events"
     },
     {
+        name: "Réservations",
+        icon: "fas fa-calendar-check",
+        route: "promoter.reservations",
+        href: "/promoter/reservations"
+    },
+    {
+        name: "Conversations",
+        icon: "fas fa-comments",
+        route: "promoter.conversations",
+        href: "/promoter/conversations"
+    },
+    {
         name: "Notifications",
         icon: "fas fa-bell",
         route: "promoter.notifications",
         href: "/promoter/notifications",
         badge: unreadCount.value
-    },
-    {
-        name: "Messages",
-        icon: "fas fa-envelope",
-        route: "promoter.messages",
-        href: "/promoter/messages"
     },
     {
         name: "Mon Profil",

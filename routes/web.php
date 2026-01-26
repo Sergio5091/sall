@@ -98,6 +98,18 @@ Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(functi
     Route::post('/messages/{message}/send', [App\Http\Controllers\Promoter\MessageController::class, 'send'])->name('messages.send');
     Route::get('/api/messages/subscribers-count', [App\Http\Controllers\Promoter\MessageController::class, 'getSubscribersCount'])->name('api.messages.subscribers-count');
     
+    // Routes pour la gestion des réservations
+    Route::get('/reservations', [App\Http\Controllers\Promoter\ReservationController::class, 'index'])->name('reservations');
+    Route::get('/reservations/{reservation}', [App\Http\Controllers\Promoter\ReservationController::class, 'show'])->name('reservations.show');
+    Route::patch('/reservations/{reservation}/accept', [App\Http\Controllers\Promoter\ReservationController::class, 'accept'])->name('reservations.accept');
+    Route::patch('/reservations/{reservation}/reject', [App\Http\Controllers\Promoter\ReservationController::class, 'reject'])->name('reservations.reject');
+    
+    // Routes pour les conversations (chat)
+    Route::get('/conversations', [App\Http\Controllers\Promoter\ConversationController::class, 'index'])->name('conversations');
+    Route::get('/conversations/{conversation}', [App\Http\Controllers\Promoter\ConversationController::class, 'show'])->name('conversations.show');
+    Route::post('/conversations/{conversation}/messages', [App\Http\Controllers\Promoter\ConversationController::class, 'sendMessage'])->name('conversations.messages.send');
+    Route::get('/conversations/{conversation}/messages/new', [App\Http\Controllers\Promoter\ConversationController::class, 'getNewMessages'])->name('conversations.messages.new');
+    
     // API pour le compteur de notifications
     Route::get('/api/unread-count', function () {
         $user = Auth::user();
@@ -122,6 +134,12 @@ Route::middleware(['auth'])->prefix('client')->name('client.')->group(function (
     
     // Routes pour les réservations
     Route::get('/reservations', [App\Http\Controllers\Client\ReservationController::class, 'index'])->name('reservations');
+    
+    // Routes pour les conversations (chat)
+    Route::get('/conversations', [App\Http\Controllers\Client\ConversationController::class, 'index'])->name('conversations');
+    Route::get('/conversations/{conversation}', [App\Http\Controllers\Client\ConversationController::class, 'show'])->name('conversations.show');
+    Route::post('/conversations/{conversation}/messages', [App\Http\Controllers\Client\ConversationController::class, 'sendMessage'])->name('conversations.messages.send');
+    Route::get('/conversations/{conversation}/messages/new', [App\Http\Controllers\Client\ConversationController::class, 'getNewMessages'])->name('conversations.messages.new');
     
     // Routes pour le profil
     Route::get('/profile', [App\Http\Controllers\Client\ProfileController::class, 'index'])->name('profile');

@@ -161,8 +161,8 @@ const validateReservation = () => {
     
     if (!reservationForm.value.whatsapp.trim()) {
         errors.whatsapp = 'Le numéro WhatsApp est obligatoire';
-    } else if (!/^(?:\+221)?[77678]\d{7}$/.test(reservationForm.value.whatsapp.replace(/\s/g, ''))) {
-        errors.whatsapp = 'Format invalide. Ex: +221771234567 ou 771234567';
+    } else if (!/^\+\d{1,4}\d{6,14}$/.test(reservationForm.value.whatsapp.replace(/\s/g, ''))) {
+        errors.whatsapp = 'Format invalide. Ex: +221771234567 ou +2290160214760';
     }
     
     if (!reservationForm.value.email.trim()) {
@@ -574,11 +574,11 @@ const sInscrire = (event) => {
                 v-model="reservationForm.whatsapp"
                 type="tel" 
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                placeholder="+221 77 123 45 67"
+                placeholder="+229 01 60 21 47 60"
                 :class="{'border-red-500': reservationErrors.whatsapp}"
               >
               <p v-if="reservationErrors.whatsapp" class="mt-1 text-sm text-red-600">{{ reservationErrors.whatsapp }}</p>
-              <p class="mt-1 text-xs text-gray-500">Format: +221 XX XXX XX XX</p>
+              <p class="mt-1 text-xs text-gray-500">Format: +[indicatif] [numéro] (ex: +221771234567, +2290160214760)</p>
             </div>
 
             <!-- Email -->

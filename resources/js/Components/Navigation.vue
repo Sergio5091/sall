@@ -68,6 +68,20 @@ const userInitials = computed(() => {
               Événements
             </Link>
             <Link 
+              href="/client/conversations" 
+              class="text-sm font-medium transition-colors"
+              :class="currentPage === 'conversations' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'"
+            >
+              Conversations
+            </Link>
+            <Link 
+              href="/client/reservations" 
+              class="text-sm font-medium transition-colors"
+              :class="currentPage === 'reservations' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'"
+            >
+              Réservations
+            </Link>
+            <Link 
               href="/client/profile" 
               class="text-sm font-medium transition-colors"
               :class="currentPage === 'profile' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'"
@@ -144,6 +158,30 @@ const userInitials = computed(() => {
           <div class="flex items-center gap-3">
             <i class="fas fa-calendar w-5"></i>
             Événements
+          </div>
+        </Link>
+        
+        <Link 
+          href="/client/conversations" 
+          @click="closeMobileMenu"
+          class="block px-3 py-2 text-base font-medium transition-colors rounded-lg"
+          :class="currentPage === 'conversations' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'"
+        >
+          <div class="flex items-center gap-3">
+            <i class="fas fa-comments w-5"></i>
+            Conversations
+          </div>
+        </Link>
+        
+        <Link 
+          href="/client/reservations" 
+          @click="closeMobileMenu"
+          class="block px-3 py-2 text-base font-medium transition-colors rounded-lg"
+          :class="currentPage === 'reservations' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'"
+        >
+          <div class="flex items-center gap-3">
+            <i class="fas fa-calendar-check w-5"></i>
+            Réservations
           </div>
         </Link>
         

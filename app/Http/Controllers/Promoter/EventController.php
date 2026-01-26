@@ -506,13 +506,41 @@ class EventController extends Controller
     {
         // Vérifier que l'événement appartient au promoteur
         if ($event->promoter_id !== Auth::id()) {
-            abort(403);
+            abort(403, 'Non autorisé');
         }
 
-        // Pour l'instant, retourner une vue vide (à implémenter plus tard)
+        // Récupérer les participants avec les informations d'inscription
+        $participants = $event->inscriptions()
+            ->with('user')
+            ->orderBy('date_inscription', 'desc')
+            ->get()
+            ->map(function ($inscription) {
+                return [
+                    'id' => $inscription->id,
+                    'nom' => $inscription->nom,
+                    'whatsapp' => $inscription->whatsapp,
+                    'email' => $inscription->email,
+                    'date_inscription' => $inscription->date_inscription->format('d/m/Y H:i'),
+                    'statut' => $inscription->statut,
+                    'user' => [
+                        'name' => $inscription->user->name ?? null,
+                        'email' => $inscription->user->email ?? null,
+                        'telephone' => $inscription->user->telephone ?? null
+                    ]
+                ];
+            });
+
         return Inertia::render('Promoter/EventParticipants', [
-            'event' => $event,
-            'participants' => [] // Sera rempli plus tard avec les vrais participants
+            'event' => [
+                'id' => $event->id,
+                'titre' => $event->titre,
+                'date_debut' => $event->date_debut->format('d/m/Y H:i'),
+                'lieu' => $event->salle->nom ?? 'Lieu à définir',
+                'places_disponibles' => $event->places_disponibles,
+                'capacite_max' => $event->capacite_max,
+                'inscriptions_count' => $event->inscriptions->count()
+            ],
+            'participants' => $participants
         ]);
     }
 

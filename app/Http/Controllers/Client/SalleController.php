@@ -161,6 +161,23 @@ class SalleController extends Controller
             'message' => $validated['message'] ?? null
         ]);
 
+        // Créer la conversation automatiquement
+        $conversation = \App\Models\Conversation::create([
+            'reservation_id' => $reservation->id,
+            'user_id' => Auth::id(),
+            'promoter_id' => $salle->promoter_id,
+        ]);
+
+        // Notifier le promoteur
+        \App\Models\Notification::createForUser(
+            $salle->promoter_id,
+            'Nouvelle réservation',
+            "Une réservation a été faite pour votre salle '{$salle->nom}'",
+            'info',
+            'reservation',
+            $reservation->id
+        );
+
         return redirect()->route('client.salles.show', $salle->id)
             ->with('success', 'Réservation créée avec succès ! En attente de confirmation.');
     }

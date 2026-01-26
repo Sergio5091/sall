@@ -105,22 +105,29 @@ class EventController extends Controller
         
         $user = auth()->user();
         
+        // Validation des données
+        $validated = $request->validate([
+            'nom' => 'required|string|max:255',
+            'whatsapp' => 'required|string|max:20',
+            'email' => 'required|email|max:255'
+        ]);
+        
         // Vérifier si l'utilisateur est déjà inscrit
         if ($event->inscriptions()->where('user_id', $user->id)->exists()) {
             \Log::info('Utilisateur déjà inscrit');
-            return redirect('/client/evenements')->withErrors(['message' => 'Vous êtes déjà inscrit à cet événement.']);
+            return back()->withErrors(['message' => 'Vous êtes déjà inscrit à cet événement.']);
         }
         
         // Vérifier si l'événement est complet
         if ($event->places_disponibles <= 0) {
             \Log::info('Événement complet');
-            return redirect('/client/evenements')->withErrors(['message' => 'Cet événement est complet.']);
+            return back()->withErrors(['message' => 'Cet événement est complet.']);
         }
         
         // Vérifier si l'événement est publié
         if ($event->statut !== 'publie') {
             \Log::info('Événement non publié', ['statut' => $event->statut]);
-            return redirect('/client/evenements')->withErrors(['message' => 'Cet événement n\'est pas encore publié.']);
+            return back()->withErrors(['message' => 'Cet événement n\'est pas encore publié.']);
         }
         
         // Créer l'inscription avec les données du formulaire
@@ -129,9 +136,9 @@ class EventController extends Controller
             'user_id' => $user->id,
             'date_inscription' => now(),
             'statut' => 'confirme',
-            'nom' => $request->input('nom', $user->name),
-            'whatsapp' => $request->input('whatsapp', $user->telephone),
-            'email' => $request->input('email', $user->email)
+            'nom' => $validated['nom'],
+            'whatsapp' => $validated['whatsapp'],
+            'email' => $validated['email']
         ]);
         
         \Log::info('Inscription créée', ['inscription_id' => $inscription->id]);
@@ -139,7 +146,7 @@ class EventController extends Controller
         // Mettre à jour le nombre de places disponibles
         $event->decrement('places_disponibles');
         
-        return redirect('/client/evenements')->with('success', 'Inscription réussie !');
+        return back()->with('success', 'Inscription réussie !');
     }
     public function show(Event $event)
     {

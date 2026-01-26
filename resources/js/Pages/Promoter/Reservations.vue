@@ -47,7 +47,8 @@ const formatPrice = (price) => {
 
 // Filtrer les réservations
 const filteredReservations = computed(() => {
-  let filtered = props.reservations || [];
+  console.log('Props reservations:', props.reservations);
+  let filtered = props.reservations?.data || [];
 
   // Filtrer par salle
   if (selectedVenue.value !== 'all') {
@@ -70,6 +71,7 @@ const filteredReservations = computed(() => {
     );
   }
 
+  console.log('Filtered reservations:', filtered);
   return filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 });
 
@@ -127,6 +129,16 @@ const rejectReservation = (reservation) => {
       notificationTitle.value = 'Erreur';
       notificationMessage.value = 'Une erreur est survenue lors du refus de la réservation.';
       showNotificationModal.value = true;
+    }
+  });
+};
+
+// Aller à la conversation
+const goToConversation = (reservation) => {
+  // Trouver la conversation associée à cette réservation
+  router.get(`/promoter/conversations`, {
+    data: {
+      search: reservation.client_name
     }
   });
 };
@@ -270,6 +282,14 @@ const closeDetailsModal = () => {
                         title="Refuser"
                       >
                         <i class="fas fa-times"></i>
+                      </button>
+                      <button 
+                        v-if="reservation.has_conversation"
+                        @click="goToConversation(reservation)"
+                        class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
+                        title="Discuter"
+                      >
+                        <i class="fas fa-comments"></i>
                       </button>
                     </div>
                   </td>

@@ -37,6 +37,11 @@ class Reservation extends Model
         return $this->belongsTo(Salle::class);
     }
 
+    public function conversation()
+    {
+        return $this->hasOne(Conversation::class);
+    }
+
     // Statuts possibles
     public static function statuts()
     {

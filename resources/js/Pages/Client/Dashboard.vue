@@ -62,12 +62,29 @@ const recommendedEvents = computed(() => {
     if (!looksLikeEvent) continue;
 
     const id = item?.id;
+    
+    // Gestion correcte des images avec le préfixe /storage/
+    let imageUrl = null;
+    if (item?.image_affiche) {
+      imageUrl = item.image_affiche.startsWith('http') 
+        ? item.image_affiche 
+        : `/storage/${item.image_affiche}`;
+    } else if (item?.image) {
+      imageUrl = item.image.startsWith('http') 
+        ? item.image 
+        : `/storage/${item.image}`;
+    } else if (item?.image_url) {
+      imageUrl = item.image_url.startsWith('http') 
+        ? item.image_url 
+        : `/storage/${item.image_url}`;
+    }
+    
     events.push({
       id,
       title: item?.titre || item?.title || item?.name || 'Événement',
       subtitle: item?.subtitle || item?.description || item?.resume || '',
       location: item?.lieu || item?.location || item?.salle?.nom || '',
-      image: item?.image_affiche || item?.image || item?.image_url || null,
+      image: imageUrl,
       href: id ? `/client/evenements/${id}` : '/client/evenements'
     });
   }

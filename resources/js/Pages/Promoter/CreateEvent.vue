@@ -224,8 +224,16 @@ const createEvent = () => {
     // Envoyer la requête
     router.post('/promoter/events', formData, {
         onSuccess: () => {
-            alert('Événement créé avec succès ! Il est maintenant en brouillon.');
-            router.visit('/promoter/events');
+            // Afficher une modal de succès pendant quelques secondes
+            notificationType.value = 'success';
+            notificationTitle.value = 'Succès';
+            notificationMessage.value = 'Événement créé avec succès ! Il est maintenant en brouillon.';
+            showNotificationModal.value = true;
+            
+            // Rediriger après 3 secondes
+            setTimeout(() => {
+                router.visit('/promoter/events');
+            }, 3000);
         },
         onError: (errors) => {
             console.error('Erreurs de validation:', errors);
