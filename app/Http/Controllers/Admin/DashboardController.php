@@ -17,10 +17,12 @@ class DashboardController extends Controller
         // Statistiques générales
         $stats = [
             'total_users' => DB::table('users')->count(),
+            'total_clients' => DB::table('users')->where('role', 'client')->count(),
             'total_salles' => DB::table('salles')->count(),
             'salles_actives' => DB::table('salles')->where('valide', true)->count(),
             'salles_en_attente' => DB::table('salles')->where('valide', false)->count(),
             'total_reservations' => DB::table('reservations')->count(),
+            'total_products' => DB::table('products')->count(),
         ];
 
         // Évolution des inscriptions (7 derniers jours)

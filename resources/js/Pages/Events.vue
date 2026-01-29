@@ -17,6 +17,24 @@
             <a class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors" href="/">Accueil</a>
             <a class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors" href="/search/rooms">Salles</a>
             <a class="text-primary hover:text-primary text-sm font-medium transition-colors" href="/events">Événements</a>
+            <a 
+              :class="[
+                'text-sm font-medium transition-colors',
+                $page.url === '/products' ? 'text-primary hover:text-primary' : 'text-medium-grey hover:text-soft-black'
+              ]" 
+              href="/products"
+            >
+              Boutique
+            </a>
+            <a 
+              :class="[
+                'text-sm font-medium transition-colors',
+                $page.url === '/about' ? 'text-primary hover:text-primary' : 'text-medium-grey hover:text-soft-black'
+              ]" 
+              href="/about"
+            >
+              À propos
+            </a>
           </div>
           
           <!-- Desktop Auth Buttons -->
@@ -49,6 +67,24 @@
               <a href="/" class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2 text-center">Accueil</a>
               <a href="/search/rooms" class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2 text-center">Salles</a>
               <a href="/events" class="text-primary hover:text-primary text-sm font-medium transition-colors py-2 text-center">Événements</a>
+              <a 
+                :class="[
+                  'text-sm font-medium transition-colors py-2 text-center',
+                  $page.url === '/products' ? 'text-primary hover:text-primary' : 'text-medium-grey hover:text-soft-black'
+                ]" 
+                href="/products"
+              >
+                Boutique
+              </a>
+              <a 
+                :class="[
+                  'text-sm font-medium transition-colors py-2 text-center',
+                  $page.url === '/about' ? 'text-primary hover:text-primary' : 'text-medium-grey hover:text-soft-black'
+                ]" 
+                href="/about"
+              >
+                À propos
+              </a>
               <div class="flex gap-3 pt-4 border-t border-gray-100">
                 <a href="/login" class="flex-1 text-center text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2 border border-gray-200 rounded-lg">Connexion</a>
                 <a href="/register" class="flex-1 text-center bg-primary hover:bg-blue-600 text-white text-sm font-bold py-2 rounded-lg transition-all shadow-lg shadow-primary/20">Inscription</a>
@@ -409,6 +445,8 @@
               <a href="/" class="text-sm sm:text-base text-gray-400 hover:text-white transition-colors">Accueil</a>
               <a href="/search/rooms" class="text-sm sm:text-base text-gray-400 hover:text-white transition-colors">Salles</a>
               <a href="/events" class="text-sm sm:text-base text-gray-400 hover:text-white transition-colors">Événements</a>
+              <a href="/products" class="text-sm sm:text-base text-gray-400 hover:text-white transition-colors">Boutique</a>
+              <a href="/about" class="text-sm sm:text-base text-gray-400 hover:text-white transition-colors">À propos</a>
               <a href="#" class="text-sm sm:text-base text-gray-400 hover:text-white transition-colors">Contact</a>
               <a href="#" class="text-sm sm:text-base text-gray-400 hover:text-white transition-colors">Mentions légales</a>
               <a href="#" class="text-sm sm:text-base text-gray-400 hover:text-white transition-colors">CGU</a>

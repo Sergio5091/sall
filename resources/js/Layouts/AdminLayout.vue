@@ -37,6 +37,15 @@
         </Link>
         
         <Link
+          :href="route('admin.products.index')"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
+          :class="{ 'bg-primary/10 text-primary dark:text-blue-400': route().current('admin.products.*') }"
+        >
+          <i class="fas fa-shopping-bag group-hover:text-primary transition-colors"></i>
+          <span class="text-sm font-medium">Produits</span>
+        </Link>
+        
+        <Link
           :href="route('admin.promoteurs.index')"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
           :class="{ 'bg-primary/10 text-primary dark:text-blue-400': route().current('admin.promoteurs.*') }"
@@ -191,6 +200,9 @@
 <script setup>
 import { Link, router, usePage } from '@inertiajs/vue3'
 import { ref, onMounted, onUnmounted, watch } from 'vue'
+
+// Access route function globally
+const route = window.route;
 
 const page = usePage()
 const searchQuery = ref('')

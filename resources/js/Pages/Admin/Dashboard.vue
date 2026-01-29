@@ -105,13 +105,24 @@ console.log('Auth user:', window.auth?.user);
         </div>
       </div>
       
-      <!-- Card 4: Clients Total -->
+      <!-- Card 4: Produits -->
+      <div class="bg-white dark:bg-slate-850 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:shadow-md transition-all">
+        <div>
+          <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Produits</p>
+          <h3 class="text-2xl font-bold text-slate-800 dark:text-white">{{ props.stats?.total_products || 0 }}</h3>
+        </div>
+        <div class="w-12 h-12 rounded-lg bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+          <i class="fas fa-shopping-bag"></i>
+        </div>
+      </div>
+      
+      <!-- Card 5: Clients Total -->
       <div class="bg-white dark:bg-slate-850 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:shadow-md transition-all">
         <div>
           <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Clients Total</p>
-          <h3 class="text-2xl font-bold text-slate-800 dark:text-white">{{ props.stats?.total_users || 0 }}</h3>
+          <h3 class="text-2xl font-bold text-slate-800 dark:text-white">{{ props.stats?.total_clients || 0 }}</h3>
         </div>
-        <div class="w-12 h-12 rounded-lg bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+        <div class="w-12 h-12 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
           <i class="fas fa-users"></i>
         </div>
       </div>

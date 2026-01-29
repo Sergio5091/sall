@@ -113,6 +113,9 @@ Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(functi
     // API pour le compteur de notifications
     Route::get('/api/unread-count', function () {
         $user = Auth::user();
+        if (!$user) {
+            return response()->json(['count' => 0]);
+        }
         $count = \App\Models\Notification::where('user_id', $user->id)
             ->where('is_read', false)
             ->count();
@@ -161,6 +164,18 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('/salles/bulk-action', [App\Http\Controllers\Admin\SalleController::class, 'bulkAction'])->name('salles.bulk-action');
     Route::get('/salles/export', [App\Http\Controllers\Admin\SalleController::class, 'export'])->name('salles.export');
     Route::get('/salles/stats', [App\Http\Controllers\Admin\SalleController::class, 'getStats'])->name('salles.stats');
+    
+    // Routes pour la gestion des produits (admin)
+    Route::get('/products', [App\Http\Controllers\Admin\ProductController::class, 'index'])->name('products.index');
+    Route::get('/products/create', [App\Http\Controllers\Admin\ProductController::class, 'create'])->name('products.create');
+    Route::post('/products', [App\Http\Controllers\Admin\ProductController::class, 'store'])->name('products.store');
+    Route::get('/products/{product}', [App\Http\Controllers\Admin\ProductController::class, 'show'])->name('products.show');
+    Route::get('/products/{product}/edit', [App\Http\Controllers\Admin\ProductController::class, 'edit'])->name('products.edit');
+    Route::put('/products/{product}', [App\Http\Controllers\Admin\ProductController::class, 'update'])->name('products.update');
+    Route::delete('/products/{product}', [App\Http\Controllers\Admin\ProductController::class, 'destroy'])->name('products.destroy');
+    Route::post('/products/{product}/duplicate', [App\Http\Controllers\Admin\ProductController::class, 'duplicate'])->name('products.duplicate');
+    Route::post('/products/bulk-action', [App\Http\Controllers\Admin\ProductController::class, 'bulkAction'])->name('products.bulk-action');
+    Route::get('/products/export', [App\Http\Controllers\Admin\ProductController::class, 'export'])->name('products.export');
     
     // Routes pour la gestion des promoteurs (admin)
     Route::get('/promoteurs', [UserController::class, 'promoters'])->name('promoteurs.index');
@@ -292,8 +307,26 @@ Route::middleware('auth')->group(function () {
 // Routes publiques pour les événements
 Route::get('/events', [App\Http\Controllers\Public\EventController::class, 'index'])->name('events');
 Route::get('/events/{event}', [App\Http\Controllers\Public\EventController::class, 'show'])->name('events.show');
+Route::get('/evenements', [App\Http\Controllers\Public\EventController::class, 'index'])->name('evenements');
+Route::get('/evenements/{event}', [App\Http\Controllers\Public\EventController::class, 'show'])->name('evenements.show');
+
+// Routes publiques pour les salles
+Route::get('/salles', [App\Http\Controllers\Public\SalleController::class, 'index'])->name('salles');
 Route::get('/salles/{salle}', [App\Http\Controllers\Public\SalleController::class, 'show'])->name('public.salles.show');
 Route::middleware('auth')->post('/events/{event}/register', [App\Http\Controllers\Public\EventController::class, 'register'])->name('events.register');
+
+// Routes publiques pour les produits
+Route::get('/products', [App\Http\Controllers\Public\ProductController::class, 'index'])->name('products');
+Route::get('/products/{product}', [App\Http\Controllers\Public\ProductController::class, 'show'])->name('products.show');
+
+// Routes publiques supplémentaires
+Route::get('/about', function () {
+    return Inertia::render('Public/About');
+})->name('about');
+
+Route::get('/contact', function () {
+    return Inertia::render('Public/Contact');
+})->name('contact');
 
 
 // Routes pour la recherche de salles

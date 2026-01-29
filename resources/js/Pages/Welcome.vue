@@ -16,6 +16,24 @@
           <a class="text-white/90 hover:text-white text-sm font-medium transition-colors" href="/">Accueil</a>
           <a class="text-white/70 hover:text-white text-sm font-medium transition-colors" href="/search/rooms">Salles</a>
           <a class="text-white/70 hover:text-white text-sm font-medium transition-colors" href="/events">Événements</a>
+          <a 
+            :class="[
+              'text-sm font-medium transition-colors',
+              $page.url === '/products' ? 'text-white/90' : 'text-white/70 hover:text-white'
+            ]" 
+            href="/products"
+          >
+            Boutique
+          </a>
+          <a 
+            :class="[
+              'text-sm font-medium transition-colors',
+              $page.url === '/about' ? 'text-white/90' : 'text-white/70 hover:text-white'
+            ]" 
+            href="/about"
+          >
+            À propos
+          </a>
         </div>
         
         <!-- Desktop Right Actions -->
@@ -58,6 +76,24 @@
             <Link href="/" class="text-white/90 hover:text-white text-sm font-medium transition-colors py-2 text-center">Accueil</Link>
             <Link href="/search/rooms" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2 text-center">Salles</Link>
             <Link href="/events" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2 text-center">Événements</Link>
+            <Link 
+              :class="[
+                'text-sm font-medium transition-colors py-2 text-center',
+                $page.url === '/products' ? 'text-white/90' : 'text-white/70 hover:text-white'
+              ]" 
+              href="/products"
+            >
+              Boutique
+            </Link>
+            <Link 
+              :class="[
+                'text-sm font-medium transition-colors py-2 text-center',
+                $page.url === '/about' ? 'text-white/90' : 'text-white/70 hover:text-white'
+              ]" 
+              href="/about"
+            >
+              À propos
+            </Link>
             <div class="flex gap-3 pt-4 border-t border-white/20">
               <Link 
                 href="/login" 

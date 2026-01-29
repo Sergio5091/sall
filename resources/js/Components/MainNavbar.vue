@@ -15,6 +15,8 @@
         <a class="text-white/90 hover:text-white text-sm font-medium transition-colors" href="/">Accueil</a>
         <a class="text-white/70 hover:text-white text-sm font-medium transition-colors" href="/search/rooms">Salles</a>
         <a class="text-white/70 hover:text-white text-sm font-medium transition-colors" href="/events">Événements</a>
+        <a class="text-white/70 hover:text-white text-sm font-medium transition-colors" href="/products">Boutique</a>
+        <a class="text-white/70 hover:text-white text-sm font-medium transition-colors" href="/about">À propos</a>
       </div>
       
       <!-- Desktop Right Actions -->
@@ -50,6 +52,8 @@
           <a href="/" class="text-white/90 hover:text-white text-sm font-medium transition-colors py-2 text-center">Accueil</a>
           <a href="/search/rooms" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2 text-center">Salles</a>
           <a href="/events" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2 text-center">Événements</a>
+          <a href="/products" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2 text-center">Boutique</a>
+          <a href="/about" class="text-white/70 hover:text-white text-sm font-medium transition-colors py-2 text-center">À propos</a>
           <div class="flex gap-3 pt-4 border-t border-white/20">
             <a href="/login" class="flex-1 text-center text-white hover:text-white/80 text-sm font-semibold py-2 border border-white/20 rounded-lg">Connexion</a>
             <a href="/register" class="flex-1 text-center bg-primary hover:bg-blue-600 text-white text-sm font-bold py-2 rounded-lg transition-all shadow-lg shadow-primary/20">Inscription</a>

@@ -16,6 +16,8 @@
           <a class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors" href="/">Accueil</a>
           <a class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors" href="/search/rooms">Salles</a>
           <a class="text-primary hover:text-primary text-sm font-medium transition-colors" href="/events">Événements</a>
+          <a class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors" href="/products">Boutique</a>
+          <a class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors" href="/about">À propos</a>
         </div>
         
         <!-- Desktop Auth Buttons -->
@@ -49,6 +51,8 @@
             <a href="/" class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2 text-center">Accueil</a>
             <a href="/search/rooms" class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2 text-center">Salles</a>
             <a href="/events" class="text-primary hover:text-primary text-sm font-medium transition-colors py-2 text-center">Événements</a>
+            <a href="/products" class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2 text-center">Boutique</a>
+            <a href="/about" class="text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2 text-center">À propos</a>
             <div class="flex gap-3 pt-4 border-t border-gray-100">
               <a href="/login" class="flex-1 text-center text-medium-grey hover:text-soft-black text-sm font-medium transition-colors py-2 border border-gray-200 rounded-lg">Connexion</a>
               <a href="/register" class="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 rounded-lg transition-all shadow-lg shadow-blue-600/20">Inscription</a>

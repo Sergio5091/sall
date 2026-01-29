@@ -523,6 +523,7 @@ class EventController extends Controller
                     'date_inscription' => $inscription->date_inscription->format('d/m/Y H:i'),
                     'statut' => $inscription->statut,
                     'user' => [
+                        'id' => $inscription->user->id ?? null,
                         'name' => $inscription->user->name ?? null,
                         'email' => $inscription->user->email ?? null,
                         'telephone' => $inscription->user->telephone ?? null

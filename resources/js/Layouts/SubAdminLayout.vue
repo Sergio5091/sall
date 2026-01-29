@@ -2,6 +2,9 @@
 import { Head, Link, usePage, router } from '@inertiajs/vue3';
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
+// Access route function globally
+const route = window.route;
+
 const page = usePage();
 const showUserMenu = ref(false);
 const isDarkMode = ref(false);

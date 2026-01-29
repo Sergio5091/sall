@@ -16,6 +16,9 @@ class Inscription extends Model
         'date_inscription',
         'paiement_statut',
         'montant_paye',
+        'nom',
+        'whatsapp',
+        'email',
     ];
 
     protected $casts = [
