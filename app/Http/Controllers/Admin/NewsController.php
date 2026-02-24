@@ -84,17 +84,25 @@ class NewsController extends Controller
     public function update(Request $request, News $news)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'boolean'
         ]);
 
         $data = [
-            'title' => $validated['title'],
-            'description' => $validated['description'],
             'is_active' => $request->boolean('is_active', $news->is_active)
         ];
+
+        // Only update title if provided
+        if ($request->has('title')) {
+            $data['title'] = $validated['title'];
+        }
+        
+        // Only update description if provided
+        if ($request->has('description')) {
+            $data['description'] = $validated['description'];
+        }
 
         if ($request->hasFile('image')) {
             // Delete old image

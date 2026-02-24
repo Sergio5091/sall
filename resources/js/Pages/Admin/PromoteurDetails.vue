@@ -202,7 +202,7 @@ const formatDate = (dateString) => {
                 </div>
               </div>
               <Link 
-                :href="route('admin.salles.show', salle.id)"
+                :href="route('admin.salles.show', {id: salle.id})"
                 class="text-slate-400 hover:text-primary transition-colors p-2"
                 title="Voir les détails"
               >

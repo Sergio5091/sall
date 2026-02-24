@@ -20,7 +20,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.put(route('admin.news.update', props.news.id), {
+    form.put(route('admin.news.update', {id: props.news.id}), {
         onSuccess: () => {
             form.reset('image');
         }

@@ -18,7 +18,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.put(route('admin.sub-admins.update', props.subAdmin.id));
+    form.put(route('admin.sub-admins.update', {id: props.subAdmin.id}));
 };
 </script>
 

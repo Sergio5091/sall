@@ -95,21 +95,58 @@ class StandaloneEventController extends Controller
     public function update(Request $request, StandaloneEvent $standaloneEvent)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'organizer_name' => 'required|string|max:255',
+            'organizer_name' => 'sometimes|required|string|max:255',
             'organizer_email' => 'nullable|email|max:255',
             'organizer_phone' => 'nullable|string|max:20',
-            'location' => 'required|string|max:255',
-            'country' => 'required|string|max:255',
+            'location' => 'sometimes|required|string|max:255',
+            'country' => 'sometimes|required|string|max:255',
             'city' => 'nullable|string|max:255',
-            'event_date' => 'required|date|after:now',
+            'event_date' => 'sometimes|required|date|after:now',
             'price' => 'nullable|numeric|min:0',
-            'status' => 'required|in:active,inactive',
+            'status' => 'sometimes|required|in:active,inactive',
         ]);
 
-        $data = $validated;
+        $data = [];
+
+        // Only update fields that are provided
+        if ($request->has('title')) {
+            $data['title'] = $validated['title'];
+        }
+        if ($request->has('description')) {
+            $data['description'] = $validated['description'];
+        }
+        if ($request->has('organizer_name')) {
+            $data['organizer_name'] = $validated['organizer_name'];
+        }
+        if ($request->has('location')) {
+            $data['location'] = $validated['location'];
+        }
+        if ($request->has('country')) {
+            $data['country'] = $validated['country'];
+        }
+        if ($request->has('event_date')) {
+            $data['event_date'] = $validated['event_date'];
+        }
+        if ($request->has('price')) {
+            $data['price'] = $validated['price'];
+        }
+        if ($request->has('status')) {
+            $data['status'] = $validated['status'];
+        }
+        
+        // Handle optional fields
+        if ($request->has('organizer_email')) {
+            $data['organizer_email'] = $validated['organizer_email'];
+        }
+        if ($request->has('organizer_phone')) {
+            $data['organizer_phone'] = $validated['organizer_phone'];
+        }
+        if ($request->has('city')) {
+            $data['city'] = $validated['city'];
+        }
 
         // Handle image upload
         if ($request->hasFile('image')) {

@@ -2,6 +2,7 @@
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import ConfirmModal from '@/Components/ConfirmModal.vue';
 
 defineOptions({ layout: AdminLayout });
 
@@ -11,6 +12,8 @@ const props = defineProps({
 
 const searchQuery = ref('');
 const showCreateModal = ref(false);
+const showDeleteModal = ref(false);
+const eventToDelete = ref(null);
 
 const filteredEvents = computed(() => {
     if (!searchQuery.value) return props.events;
@@ -47,20 +50,32 @@ const isUpcoming = (eventDate) => {
 };
 
 const confirmDelete = (event) => {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer l'événement "${event.title}" ? Cette action est irréversible.`)) {
-        router.delete(route('admin.standalone-events.destroy', event), {
+    eventToDelete.value = event;
+    showDeleteModal.value = true;
+};
+
+const handleDelete = () => {
+    if (eventToDelete.value) {
+        router.delete(route('admin.standalone-events.destroy', {id: eventToDelete.value.id}), {
             onSuccess: () => {
-                // Success message handled by controller
+                eventToDelete.value = null;
+                showDeleteModal.value = false;
             },
             onError: () => {
-                // Error handling
+                eventToDelete.value = null;
+                showDeleteModal.value = false;
             }
         });
     }
 };
 
+const cancelDelete = () => {
+    eventToDelete.value = null;
+    showDeleteModal.value = false;
+};
+
 const toggleStatus = (event) => {
-    router.patch(route('admin.standalone-events.toggle-status', event), {}, {
+    router.patch(route('admin.standalone-events.toggle-status', {id: event.id}), {}, {
         onSuccess: () => {
             // Success message handled by controller
         },
@@ -156,11 +171,11 @@ const toggleStatus = (event) => {
           <!-- Actions -->
           <div class="mt-4 flex justify-between items-center">
             <div class="flex gap-2">
-              <Link :href="route('admin.standalone-events.show', event)" 
+              <Link :href="route('admin.standalone-events.show', {id: event.id})" 
                     class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                 Voir
               </Link>
-              <Link :href="route('admin.standalone-events.edit', event)" 
+              <Link :href="route('admin.standalone-events.edit', {id: event.id})" 
                     class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
                 Modifier
               </Link>
@@ -196,4 +211,17 @@ const toggleStatus = (event) => {
         Commencez par ajouter votre premier événement ponctuel
       </p>
     </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <ConfirmModal
+        :show="showDeleteModal"
+        title="Supprimer l'événement"
+        :message="eventToDelete ? `Êtes-vous sûr de vouloir supprimer l'événement '${eventToDelete.title}' ? Cette action est irréversible.` : ''"
+        confirm-text="Supprimer"
+        cancel-text="Annuler"
+        type="danger"
+        @confirm="handleDelete"
+        @cancel="cancelDelete"
+        @close="cancelDelete"
+    />
 </template>

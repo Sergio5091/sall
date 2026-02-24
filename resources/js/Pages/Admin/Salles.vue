@@ -272,12 +272,12 @@ const confirmActionHandler = () => {
   if (confirmAction.value === 'approve') {
     const salle = confirmData.value;
     console.log('📤 Début approbation salle ID:', salle.id);
-    console.log('📤 Route générée:', route('admin.salles.approve', salle.id));
+    console.log('📤 Route générée:', route('admin.salles.approve', {id: salle.id}));
     console.log('📤 Token CSRF:', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')?.substring(0, 20) + '...');
     
     console.log('📤 Envoi requête PATCH...');
     
-    router.patch(route('admin.salles.approve', salle.id), {}, {
+    router.patch(route('admin.salles.approve', {id: salle.id}), {}, {
       onSuccess: (page) => {
         console.log('✅ Succès AJAX reçu:', page);
         console.log('✅ Props reçues:', page.props);
@@ -308,7 +308,7 @@ const confirmActionHandler = () => {
     });
   } else if (confirmAction.value === 'toggle-status') {
     const { salle, newStatus } = confirmData.value;
-    router.patch(route('admin.salles.toggle-status', salle.id), { status: newStatus }, {
+    router.patch(route('admin.salles.toggle-status', {id: salle.id}), { status: newStatus }, {
       onSuccess: () => {
         notificationType.value = 'success';
         notificationTitle.value = 'Succès';
@@ -324,7 +324,7 @@ const confirmActionHandler = () => {
     });
   } else if (confirmAction.value === 'delete') {
     const salle = confirmData.value;
-    router.delete(route('admin.salles.destroy', salle.id), {
+    router.delete(route('admin.salles.destroy', {id: salle.id}), {
       onSuccess: () => {
         notificationType.value = 'success';
         notificationTitle.value = 'Succès';

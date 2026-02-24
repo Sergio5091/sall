@@ -248,7 +248,7 @@ const toggleClientStatus = (client) => {
                 </div>
                 <div class="flex items-center gap-2">
                   <Link 
-                    :href="route('admin.clients.show', client.id)"
+                    :href="route('admin.clients.show', {id: client.id})"
                     class="text-slate-400 hover:text-primary dark:hover:text-primary transition-colors p-2" 
                     title="Voir les détails"
                   >
@@ -298,7 +298,7 @@ const toggleClientStatus = (client) => {
               </div>
               <div class="flex items-center gap-2">
                 <Link 
-                  :href="route('admin.clients.show', client.id)"
+                  :href="route('admin.clients.show', {id: client.id})"
                   class="text-slate-400 hover:text-primary dark:hover:text-primary transition-colors p-2" 
                   title="Voir les détails"
                 >

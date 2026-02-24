@@ -174,21 +174,60 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
+            'name' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|required|string',
+            'price' => 'sometimes|required|numeric|min:0',
             'original_price' => 'nullable|numeric|min:0|gt:price',
-            'category' => 'required|string|max:100',
-            'stock' => 'required|integer|min:0',
+            'category' => 'sometimes|required|string|max:100',
+            'stock' => 'sometimes|required|integer|min:0',
             'featured' => 'boolean',
             'rating' => 'nullable|numeric|min:0|max:5',
             'specifications' => 'nullable|array',
-            'is_active' => 'required|boolean',
+            'is_active' => 'sometimes|required|boolean',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'images' => 'nullable|array',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'remove_images' => 'nullable|array',
         ]);
+
+        $data = [];
+
+        // Only update fields that are provided
+        if ($request->has('name')) {
+            $data['name'] = $validated['name'];
+        }
+        if ($request->has('description')) {
+            $data['description'] = $validated['description'];
+        }
+        if ($request->has('price')) {
+            $data['price'] = $validated['price'];
+        }
+        if ($request->has('original_price')) {
+            $data['original_price'] = $validated['original_price'];
+        }
+        if ($request->has('category')) {
+            $data['category'] = $validated['category'];
+        }
+        if ($request->has('stock')) {
+            $data['stock'] = $validated['stock'];
+        }
+        if ($request->has('featured')) {
+            $data['featured'] = $validated['featured'];
+        }
+        if ($request->has('rating')) {
+            $data['rating'] = $validated['rating'];
+        }
+        if ($request->has('specifications')) {
+            $data['specifications'] = $validated['specifications'];
+        }
+        if ($request->has('is_active')) {
+            $data['is_active'] = $validated['is_active'];
+        }
+        
+        // Handle optional fields
+        if ($request->has('remove_images')) {
+            $data['remove_images'] = $validated['remove_images'];
+        }
 
         // Gérer l'image principale
         if ($request->hasFile('image')) {

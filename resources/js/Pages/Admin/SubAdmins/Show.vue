@@ -70,7 +70,7 @@ const getPermissionText = (permission) => {
         
         <div class="flex gap-2">
           <Link
-            :href="route('admin.sub-admins.edit', subAdmin.id)"
+            :href="route('admin.sub-admins.edit', {id: subAdmin.id})"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
           >
             <i class="fas fa-edit"></i>
@@ -164,7 +164,7 @@ const getPermissionText = (permission) => {
         </h3>
         <div class="space-y-3">
           <Link
-            :href="route('admin.sub-admins.edit', subAdmin.id)"
+            :href="route('admin.sub-admins.edit', {id: subAdmin.id})"
             class="block w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-center"
           >
             <i class="fas fa-edit mr-2"></i>

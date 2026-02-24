@@ -99,7 +99,7 @@ const toggleEventStatus = (event) => {
   confirmTitle.value = 'Changer le statut'
   confirmMessage.value = `Êtes-vous sûr de vouloir ${event.status === 'active' ? 'désactiver' : 'activer'} cet événement ?`
   confirmAction.value = () => {
-    router.patch(route('admin.events.toggle-status', event.id), {}, {
+    router.patch(route('admin.events.toggle-status', {id: event.id}), {}, {
       onSuccess: () => {
         showNotification('success', 'Succès', 'Statut de l\'événement mis à jour avec succès')
       },
@@ -115,7 +115,7 @@ const deleteEvent = (event) => {
   confirmTitle.value = 'Supprimer l\'événement'
   confirmMessage.value = `Êtes-vous sûr de vouloir supprimer l'événement "${event.title}" ? Cette action est irréversible.`
   confirmAction.value = () => {
-    router.delete(route('admin.events.destroy', event.id), {
+    router.delete(route('admin.events.destroy', {id: event.id}), {
       onSuccess: () => {
         showNotification('success', 'Succès', 'Événement supprimé avec succès')
       },
@@ -320,7 +320,7 @@ const closeNotificationModal = () => {
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               <div class="flex items-center justify-end space-x-2">
                 <Link
-                  :href="route('admin.events.show', event.id)"
+                  :href="route('admin.events.show', {id: event.id})"
                   class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 p-2"
                   title="Voir les détails"
                 >

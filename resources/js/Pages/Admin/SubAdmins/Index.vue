@@ -121,10 +121,10 @@ const getStatusText = (status) => {
               {{ new Date(subAdmin.created_at).toLocaleDateString('fr-FR') }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-              <Link :href="route('admin.sub-admins.show', subAdmin)" class="text-blue-600 hover:text-blue-900 mr-3">
+              <Link :href="route('admin.sub-admins.show', {id: subAdmin.id})" class="text-blue-600 hover:text-blue-900 mr-3">
                 Voir
               </Link>
-              <Link :href="route('admin.sub-admins.edit', subAdmin)" class="text-indigo-600 hover:text-indigo-900 mr-3">
+              <Link :href="route('admin.sub-admins.edit', {id: subAdmin.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">
                 Modifier
               </Link>
               <button class="text-red-600 hover:text-red-900">

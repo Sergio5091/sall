@@ -50,7 +50,7 @@ const submit = () => {
     form.transform(data => ({
         ...data,
         _method: 'PUT'
-    })).post(route('admin.standalone-events.update', props.event), {
+    })).post(route('admin.standalone-events.update', {id: props.event.id}), {
         onSuccess: () => {
             // Success message handled by controller
         },

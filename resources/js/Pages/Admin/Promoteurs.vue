@@ -244,7 +244,7 @@ const togglePromoterStatus = (promoter) => {
               </div>
               <div class="flex items-center gap-2">
                 <Link 
-                  :href="route('admin.promoteurs.show', promoteur.id)"
+                  :href="route('admin.promoteurs.show', {id: promoteur.id})"
                   class="text-slate-400 hover:text-primary dark:hover:text-primary transition-colors p-2" 
                   title="Voir les détails"
                 >

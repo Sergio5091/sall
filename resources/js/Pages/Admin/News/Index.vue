@@ -1,9 +1,10 @@
 <script setup>
-import { Head } from '@inertiajs/vue3';
-import { Link, router } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { Head, router } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import { debounce } from 'lodash';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import ConfirmModal from '@/Components/ConfirmModal.vue';
 
 defineOptions({ layout: AdminLayout });
 
@@ -16,6 +17,8 @@ defineProps({
 
 const searchQuery = ref('');
 const statusFilter = ref('');
+const showDeleteModal = ref(false);
+const newsToDelete = ref(null);
 
 const handleSearch = debounce(() => {
     updateFilters();
@@ -51,16 +54,27 @@ const clearFilters = () => {
 
 const toggleNewsStatus = (newsItem) => {
     const newStatus = newsItem.is_active ? 0 : 1;
-    router.patch(`/admin/news/${newsItem.id}`, 
+    router.put(route('admin.news.update', {id: newsItem.id}), 
         { is_active: newStatus }, 
         { preserveScroll: true }
     );
 };
 
 const deleteNews = (newsItem) => {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer l'actualité "${newsItem.title}" ?`)) {
-        router.delete(`/admin/news/${newsItem.id}`);
+    newsToDelete.value = newsItem;
+    showDeleteModal.value = true;
+};
+
+const confirmDelete = () => {
+    if (newsToDelete.value) {
+        router.delete(route('admin.news.destroy', {id: newsToDelete.value.id}));
+        newsToDelete.value = null;
     }
+};
+
+const cancelDelete = () => {
+    newsToDelete.value = null;
+    showDeleteModal.value = false;
 };
 </script>
 
@@ -218,14 +232,14 @@ const deleteNews = (newsItem) => {
                                                 </div>
                                                 <div class="flex items-center gap-2">
                                                     <Link 
-                                                        :href="route('admin.news.show', newsItem.id)"
+                                                        :href="route('admin.news.show', {id: newsItem.id})"
                                                         class="text-slate-400 hover:text-primary dark:hover:text-primary transition-colors p-2" 
                                                         title="Voir les détails"
                                                     >
                                                         <i class="fas fa-eye icon-sm"></i>
                                                     </Link>
                                                     <Link 
-                                                        :href="route('admin.news.edit', newsItem.id)"
+                                                        :href="route('admin.news.edit', {id: newsItem.id})"
                                                         class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-500 transition-colors p-2" 
                                                         title="Modifier"
                                                     >
@@ -289,14 +303,14 @@ const deleteNews = (newsItem) => {
                                             </div>
                                             <div class="flex items-center gap-2">
                                                 <Link 
-                                                    :href="route('admin.news.show', newsItem.id)"
+                                                    :href="route('admin.news.show', {id: newsItem.id})"
                                                     class="text-slate-400 hover:text-primary dark:hover:text-primary transition-colors p-2" 
                                                     title="Voir les détails"
                                                 >
                                                     <i class="fas fa-eye icon-sm"></i>
                                                 </Link>
                                                 <Link 
-                                                    :href="route('admin.news.edit', newsItem.id)"
+                                                    :href="route('admin.news.edit', {id: newsItem.id})"
                                                     class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-500 transition-colors p-2" 
                                                     title="Modifier"
                                                 >
@@ -332,6 +346,19 @@ const deleteNews = (newsItem) => {
             </div>
         </div>
     </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <ConfirmModal
+        :show="showDeleteModal"
+        title="Supprimer l'actualité"
+        :message="newsToDelete ? `Êtes-vous sûr de vouloir supprimer l'actualité '${newsToDelete.title}' ? Cette action est irréversible.` : ''"
+        confirm-text="Supprimer"
+        cancel-text="Annuler"
+        type="danger"
+        @confirm="confirmDelete"
+        @cancel="cancelDelete"
+        @close="cancelDelete"
+    />
 </template>
 
     <style scoped>

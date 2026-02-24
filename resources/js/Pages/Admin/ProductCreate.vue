@@ -72,7 +72,7 @@ const parseSpecifications = () => {
 
 const submit = () => {
   parseSpecifications()
-  form.post('/admin/products', {
+  form.post(route('admin.products.store'), {
     onSuccess: () => {
       form.reset()
       imagePreview.value = null

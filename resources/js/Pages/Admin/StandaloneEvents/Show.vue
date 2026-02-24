@@ -160,7 +160,7 @@ const getStatusText = (status) => {
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Actions</h2>
         <div class="space-y-3">
           <Link
-            :href="route('admin.standalone-events.edit', event)"
+            :href="route('admin.standalone-events.edit', {id: event.id})"
             class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
           >
             <i class="fas fa-edit"></i>
@@ -176,7 +176,7 @@ const getStatusText = (status) => {
           </button>
           
           <Link
-            :href="route('admin.standalone-events.toggle-status', event)"
+            :href="route('admin.standalone-events.toggle-status', {id: event.id})"
             method="patch"
             as="button"
             class="w-full flex items-center justify-center gap-2 text-white px-4 py-2 rounded-lg transition-colors"

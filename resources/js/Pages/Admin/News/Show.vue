@@ -1,21 +1,37 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import ConfirmModal from '@/Components/ConfirmModal.vue';
 
 defineOptions({ layout: AdminLayout });
 
-defineProps({
+const props = defineProps({
     news: {
         type: Object,
         required: true
     }
 });
 
+const showDeleteModal = ref(false);
+const newsToDelete = ref(null);
+
 const deleteNews = (newsItem) => {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer l'actualité "${newsItem.title}" ?`)) {
-        router.delete(route('admin.news.destroy', newsItem));
+    newsToDelete.value = newsItem;
+    showDeleteModal.value = true;
+};
+
+const confirmDelete = () => {
+    if (newsToDelete.value) {
+        router.delete(route('admin.news.destroy', {id: newsToDelete.value.id}));
+        newsToDelete.value = null;
     }
+};
+
+const cancelDelete = () => {
+    newsToDelete.value = null;
+    showDeleteModal.value = false;
 };
 </script>
 
@@ -107,7 +123,7 @@ const deleteNews = (newsItem) => {
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                                 <Link
-                                    :href="route('admin.news.edit', news.id)"
+                                    :href="route('admin.news.edit', {id: news.id})"
                                     class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium transition-colors"
                                 >
                                     <i class="fas fa-edit icon-sm"></i>
@@ -133,6 +149,19 @@ const deleteNews = (newsItem) => {
             </div>
         </div>
     </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <ConfirmModal
+        :show="showDeleteModal"
+        title="Supprimer l'actualité"
+        :message="newsToDelete ? `Êtes-vous sûr de vouloir supprimer l'actualité '${newsToDelete.title}' ? Cette action est irréversible.` : ''"
+        confirm-text="Supprimer"
+        cancel-text="Annuler"
+        type="danger"
+        @confirm="confirmDelete"
+        @cancel="cancelDelete"
+        @close="cancelDelete"
+    />
 </template>
 
 <style scoped>

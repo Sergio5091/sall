@@ -98,7 +98,7 @@ const parseSpecifications = () => {
 
 const submit = () => {
   parseSpecifications()
-  form.put(`/admin/products/${props.product.id}`, {
+  form.put(route('admin.products.update', {id: props.product.id}), {
     onSuccess: () => {
       // Réinitialiser les champs de fichiers
       form.image = null
@@ -122,7 +122,7 @@ const submit = () => {
         </div>
         <div class="flex items-center gap-3">
           <Link
-            :href="`/admin/products/${product.id}`"
+            :href="route('admin.products.show', {id: product.id})"
             class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"
           >
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
