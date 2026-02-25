@@ -13,15 +13,20 @@ const form = useForm({
   name: '',
   description: '',
   price: '',
-  old_price: '',
+  original_price: '',
   category: '',
   stock: 0,
+  featured: false,
   rating: null,
-  is_active: true,
-  image: null
+  specifications: {},
+  status: 'draft',
+  image: null,
+  images: []
 })
 
 const imagePreview = ref(null)
+const imagePreviews = ref([])
+const specificationsInput = ref('')
 
 const handleImageChange = (event) => {
   const file = event.target.files[0]
@@ -35,11 +40,44 @@ const handleImageChange = (event) => {
   }
 }
 
+const handleImagesChange = (event) => {
+  const files = Array.from(event.target.files)
+  form.images = files
+  
+  files.forEach(file => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      imagePreviews.value.push(e.target.result)
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
+const removeImage = (index) => {
+  imagePreviews.value.splice(index, 1)
+  form.images.splice(index, 1)
+}
+
+const parseSpecifications = () => {
+  try {
+    if (specificationsInput.value.trim()) {
+      form.specifications = JSON.parse(specificationsInput.value)
+    } else {
+      form.specifications = {}
+    }
+  } catch (error) {
+    console.error('Invalid JSON:', error)
+  }
+}
+
 const submit = () => {
+  parseSpecifications()
   form.post(route('admin.products.store'), {
     onSuccess: () => {
       form.reset()
       imagePreview.value = null
+      imagePreviews.value = []
+      specificationsInput.value = ''
     }
   })
 }
@@ -136,19 +174,39 @@ const submit = () => {
                   Prix *
                 </label>
                 <div class="relative">
-                  <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">FCFA</span>
+                  <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">€</span>
                   <input
                     v-model="form.price"
                     type="number"
                     step="0.01"
                     min="0"
                     required
-                    class="w-full pl-16 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     placeholder="0.00"
                   />
                 </div>
                 <div v-if="form.errors.price" class="mt-1 text-sm text-red-600">
                   {{ form.errors.price }}
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Prix original
+                </label>
+                <div class="relative">
+                  <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">€</span>
+                  <input
+                    v-model="form.original_price"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div v-if="form.errors.original_price" class="mt-1 text-sm text-red-600">
+                  {{ form.errors.original_price }}
                 </div>
               </div>
             </div>
@@ -220,23 +278,86 @@ const submit = () => {
               </div>
             </div>
 
+            <!-- Images multiples -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Images additionnelles
+              </label>
+              <input
+                type="file"
+                @change="handleImagesChange"
+                accept="image/*"
+                multiple
+                class="hidden"
+                id="additional-images"
+              />
+              <label
+                for="additional-images"
+                class="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+              >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Ajouter des images
+              </label>
+              
+              <!-- Aperçu des images -->
+              <div v-if="imagePreviews.length > 0" class="mt-4 grid grid-cols-4 gap-2">
+                <div
+                  v-for="(preview, index) in imagePreviews"
+                  :key="index"
+                  class="relative group"
+                >
+                  <img
+                    :src="preview"
+                    alt="Aperçu"
+                    class="w-full h-20 object-cover rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    @click="removeImage(index)"
+                    class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div v-if="form.errors.images" class="mt-1 text-sm text-red-600">
+                {{ form.errors.images }}
+              </div>
+            </div>
 
             <!-- Options -->
             <div class="space-y-4">
+              <div class="flex items-center">
+                <input
+                  v-model="form.featured"
+                  type="checkbox"
+                  id="featured"
+                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <label for="featured" class="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                  Mettre en avant
+                </label>
+              </div>
+
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Statut *
                 </label>
                 <select
-                  v-model="form.is_active"
+                  v-model="form.status"
                   required
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 >
-                  <option :value="false">Inactif</option>
-                  <option :value="true">Actif</option>
+                  <option value="draft">Brouillon</option>
+                  <option value="active">Actif</option>
+                  <option value="inactive">Inactif</option>
                 </select>
-                <div v-if="form.errors.is_active" class="mt-1 text-sm text-red-600">
-                  {{ form.errors.is_active }}
+                <div v-if="form.errors.status" class="mt-1 text-sm text-red-600">
+                  {{ form.errors.status }}
                 </div>
               </div>
 
@@ -261,6 +382,24 @@ const submit = () => {
           </div>
         </div>
 
+        <!-- Spécifications -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Spécifications (JSON)
+          </label>
+          <textarea
+            v-model="specificationsInput"
+            rows="4"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono text-sm"
+            placeholder='{"couleur": "rouge", "taille": "M", "matière": "coton"}'
+          ></textarea>
+          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Format JSON. Ex: {"couleur": "rouge", "taille": "M"}
+          </p>
+          <div v-if="form.errors.specifications" class="mt-1 text-sm text-red-600">
+            {{ form.errors.specifications }}
+          </div>
+        </div>
 
         <!-- Boutons d'action -->
         <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">

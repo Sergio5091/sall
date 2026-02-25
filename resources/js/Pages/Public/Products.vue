@@ -18,12 +18,13 @@ const toggleMobileMenu = () => {
 const filteredProducts = computed(() => {
   // Récupérer les données depuis l'objet paginé Laravel
   let filtered = props.products?.data || []
-  console.log('Produits reçus:', props.products)
-  console.log('Données extraites:', filtered)
+  console.log('DEBUG - props.products complet:', props.products)
+  console.log('DEBUG - props.products.data:', props.products?.data)
+  console.log('DEBUG - nombre de produits reçus:', filtered?.length || 0)
   
   // Filtrer les produits null/undefined
   filtered = filtered.filter(product => product && product.id)
-  console.log('Produits après filtre null:', filtered)
+  console.log('DEBUG - produits après filtre null:', filtered.length)
   
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
@@ -37,6 +38,7 @@ const filteredProducts = computed(() => {
     filtered = filtered.filter(product => product.category === selectedCategory.value)
   }
   
+  console.log('DEBUG - produits finaux:', filtered.length)
   return filtered
 })
 

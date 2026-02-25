@@ -76,7 +76,8 @@ class Product extends Model
      */
     public function reviews()
     {
-        return $this->hasMany(ProductReview::class);
+        // return $this->hasMany(ProductReview::class);
+        return $this->hasMany(Review::class);
     }
 
     /**

@@ -61,6 +61,7 @@ class ProductController extends Controller
                 'is_active' => (bool) $product->is_active,
                 'is_featured' => (bool) $product->is_featured,
                 'rating' => (float) $product->rating,
+                'image' => $product->image,
                 'created_at' => $product->created_at->toISOString(),
                 'updated_at' => $product->updated_at->toISOString(),
             ];
@@ -107,10 +108,10 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
-            'original_price' => 'nullable|numeric|min:0|gt:price',
+            'old_price' => 'nullable|numeric|min:0|gt:price',
             'category' => 'required|string|max:100',
             'stock' => 'required|integer|min:0',
-            'featured' => 'boolean',
+            'is_featured' => 'boolean',
             'rating' => 'nullable|numeric|min:0|max:5',
             'specifications' => 'nullable|array',
             'is_active' => 'required|boolean',
@@ -119,10 +120,18 @@ class ProductController extends Controller
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        // Debug: Vérifions si l'image est bien envoyée
+        \Log::info('Image file exists: ' . ($request->hasFile('image') ? 'YES' : 'NO'));
+        if ($request->hasFile('image')) {
+            \Log::info('Image file: ' . $request->file('image')->getClientOriginalName());
+        }
+
         // Gérer l'image principale
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('products', 'public');
             $validated['image'] = $imagePath;
+        } else {
+            $validated['image'] = null; // Forcer le champ même si null
         }
 
         // Gérer les images multiples
@@ -135,12 +144,19 @@ class ProductController extends Controller
             $validated['images'] = $imagePaths;
         }
 
-        $validated['created_by'] = auth()->id();
+        // Supprimer les champs qui n'existent pas dans la base de données
+        unset($validated['featured']);
+        unset($validated['images']);
+        unset($validated['created_by']);
 
+        // Debug: Vérifions les données finales
+        $imageStatus = $validated['image'] ?? 'NULL';
+        
         Product::create($validated);
 
+        // Debug temporaire : affichons les données dans la session
         return redirect()->route('admin.products.index')
-            ->with('success', 'Produit créé avec succès');
+            ->with('success', 'Produit créé avec succès. Image: ' . $imageStatus);
     }
 
     /**
@@ -261,6 +277,11 @@ class ProductController extends Controller
         }
 
         $validated['images'] = array_values($currentImages);
+
+        // Supprimer les champs qui n'existent pas dans la base de données
+        unset($validated['featured']);
+        unset($validated['images']);
+        unset($validated['created_by']);
 
         $product->update($validated);
 

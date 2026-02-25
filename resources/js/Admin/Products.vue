@@ -474,12 +474,12 @@ const selectAllProducts = () => {
               </td>
               <td class="px-6 py-4">
                 <div class="text-sm">
-                  <span class="font-medium text-gray-900 dark:text-white">{{ parseFloat(product.price).toFixed(2) }} FCFA</span>
+                  <span class="font-medium text-gray-900 dark:text-white">{{ parseFloat(product.price).toFixed(2) }} €</span>
                   <span
                     v-if="product.original_price && parseFloat(product.original_price) > parseFloat(product.price)"
                     class="ml-2 text-sm text-gray-500 line-through"
                   >
-                    {{ parseFloat(product.original_price).toFixed(2) }} FCFA
+                    {{ parseFloat(product.original_price).toFixed(2) }} €
                   </span>
                 </div>
               </td>

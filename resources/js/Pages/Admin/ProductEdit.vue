@@ -11,36 +11,21 @@ const props = defineProps({
 })
 
 const form = useForm({
-  name: props.product.name,
-  description: props.product.description,
-  price: props.product.price,
-  original_price: props.product.original_price || '',
-  category: props.product.category,
-  stock: props.product.stock,
-  featured: props.product.featured || false,
+  name: props.product.name || '',
+  description: props.product.description || '',
+  price: props.product.price || '',
+  old_price: props.product.old_price || '',
+  category: props.product.category || '',
+  stock: props.product.stock || 0,
   rating: props.product.rating || null,
-  specifications: props.product.specifications || {},
-  status: props.product.status,
-  image: null,
-  images: [],
-  remove_images: []
+  is_active: props.product.is_active ?? true,
+  is_featured: props.product.is_featured ?? false,
+  image: null
 })
 
 const imagePreview = ref(props.product.image ? `/storage/${props.product.image}` : null)
-const imagePreviews = ref([])
-const specificationsInput = ref('')
-
-// Initialiser les aperçus d'images existantes
-onMounted(() => {
-  if (props.product.images && Array.isArray(props.product.images)) {
-    imagePreviews.value = props.product.images.map(img => `/storage/${img}`)
-  }
-  
-  // Initialiser les spécifications
-  if (props.product.specifications) {
-    specificationsInput.value = JSON.stringify(props.product.specifications, null, 2)
-  }
-})
+console.log('DEBUG ProductEdit - props.product:', props.product)
+console.log('DEBUG ProductEdit - props.product.image:', props.product.image)
 
 const handleImageChange = (event) => {
   const file = event.target.files[0]
@@ -54,56 +39,11 @@ const handleImageChange = (event) => {
   }
 }
 
-const handleImagesChange = (event) => {
-  const files = Array.from(event.target.files)
-  form.images = files
-  
-  files.forEach(file => {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      imagePreviews.value.push(e.target.result)
-    }
-    reader.readAsDataURL(file)
-  })
-}
-
-const removeExistingImage = (index) => {
-  if (props.product.images && props.product.images[index]) {
-    form.remove_images.push(props.product.images[index])
-    imagePreviews.value.splice(index, 1)
-  }
-}
-
-const removeNewImage = (index) => {
-  const existingImagesCount = props.product.images ? props.product.images.length : 0
-  const actualIndex = index - existingImagesCount
-  
-  if (actualIndex >= 0 && actualIndex < form.images.length) {
-    imagePreviews.value.splice(index, 1)
-    form.images.splice(actualIndex, 1)
-  }
-}
-
-const parseSpecifications = () => {
-  try {
-    if (specificationsInput.value.trim()) {
-      form.specifications = JSON.parse(specificationsInput.value)
-    } else {
-      form.specifications = {}
-    }
-  } catch (error) {
-    console.error('Invalid JSON:', error)
-  }
-}
-
 const submit = () => {
-  parseSpecifications()
   form.put(route('admin.products.update', {id: props.product.id}), {
     onSuccess: () => {
       // Réinitialiser les champs de fichiers
       form.image = null
-      form.images = []
-      form.remove_images = []
     }
   })
 }
@@ -212,14 +152,14 @@ const submit = () => {
                   Prix *
                 </label>
                 <div class="relative">
-                  <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">€</span>
+                  <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">FCFA</span>
                   <input
                     v-model="form.price"
                     type="number"
                     step="0.01"
                     min="0"
                     required
-                    class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    class="w-full pl-16 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     placeholder="0.00"
                   />
                 </div>
@@ -233,18 +173,18 @@ const submit = () => {
                   Prix original
                 </label>
                 <div class="relative">
-                  <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">€</span>
+                  <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">FCFA</span>
                   <input
-                    v-model="form.original_price"
+                    v-model="form.old_price"
                     type="number"
                     step="0.01"
                     min="0"
-                    class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    class="w-full pl-16 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     placeholder="0.00"
                   />
                 </div>
-                <div v-if="form.errors.original_price" class="mt-1 text-sm text-red-600">
-                  {{ form.errors.original_price }}
+                <div v-if="form.errors.old_price" class="mt-1 text-sm text-red-600">
+                  {{ form.errors.old_price }}
                 </div>
               </div>
             </div>
@@ -316,62 +256,12 @@ const submit = () => {
               </div>
             </div>
 
-            <!-- Images multiples -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Images additionnelles
-              </label>
-              <input
-                type="file"
-                @change="handleImagesChange"
-                accept="image/*"
-                multiple
-                class="hidden"
-                id="additional-images"
-              />
-              <label
-                for="additional-images"
-                class="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
-              >
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Ajouter des images
-              </label>
-              
-              <!-- Aperçu des images -->
-              <div v-if="imagePreviews.length > 0" class="mt-4 grid grid-cols-4 gap-2">
-                <div
-                  v-for="(preview, index) in imagePreviews"
-                  :key="index"
-                  class="relative group"
-                >
-                  <img
-                    :src="preview"
-                    alt="Aperçu"
-                    class="w-full h-20 object-cover rounded-lg"
-                  />
-                  <button
-                    type="button"
-                    @click="index < (product.images?.length || 0) ? removeExistingImage(index) : removeNewImage(index)"
-                    class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              <div v-if="form.errors.images" class="mt-1 text-sm text-red-600">
-                {{ form.errors.images }}
-              </div>
-            </div>
 
             <!-- Options -->
             <div class="space-y-4">
               <div class="flex items-center">
                 <input
-                  v-model="form.featured"
+                  v-model="form.is_featured"
                   type="checkbox"
                   id="featured"
                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
@@ -386,16 +276,15 @@ const submit = () => {
                   Statut *
                 </label>
                 <select
-                  v-model="form.status"
+                  v-model="form.is_active"
                   required
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 >
-                  <option value="draft">Brouillon</option>
-                  <option value="active">Actif</option>
-                  <option value="inactive">Inactif</option>
+                  <option :value="true">Actif</option>
+                  <option :value="false">Inactif</option>
                 </select>
-                <div v-if="form.errors.status" class="mt-1 text-sm text-red-600">
-                  {{ form.errors.status }}
+                <div v-if="form.errors.is_active" class="mt-1 text-sm text-red-600">
+                  {{ form.errors.is_active }}
                 </div>
               </div>
 
@@ -420,24 +309,6 @@ const submit = () => {
           </div>
         </div>
 
-        <!-- Spécifications -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Spécifications (JSON)
-          </label>
-          <textarea
-            v-model="specificationsInput"
-            rows="4"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono text-sm"
-            placeholder='{"couleur": "rouge", "taille": "M", "matière": "coton"}'
-          ></textarea>
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Format JSON. Ex: {"couleur": "rouge", "taille": "M"}
-          </p>
-          <div v-if="form.errors.specifications" class="mt-1 text-sm text-red-600">
-            {{ form.errors.specifications }}
-          </div>
-        </div>
 
         <!-- Boutons d'action -->
         <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
