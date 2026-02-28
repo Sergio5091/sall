@@ -40,8 +40,8 @@ const isLoading = ref(true);
 const hasError = ref(false);
 const errorMessage = ref('');
 
-// Clé Google Maps API
-const API_KEY = 'AIzaSyC5ZH8Ysj0RhqMJEBbQgub-yUbtKX77_z4';
+// Clé Google Maps API (injectée via Vite env: VITE_GOOGLE_MAPS_KEY)
+const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_KEY || '';
 
 // Nettoyer les callbacks précédents
 const cleanup = () => {

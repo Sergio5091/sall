@@ -2,6 +2,11 @@
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, watch, computed, onMounted } from 'vue';
 import NotificationModal from '../../Components/NotificationModal.vue';
+import AlertModal from '../../Components/AlertModal.vue';
+import { SERVICE_FEE, CLEANING_FEE } from '../../config/pricing.js';
+
+// Google Maps API key (set via Vite env: VITE_GOOGLE_MAPS_KEY)
+const GOOGLE_MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_KEY || '';
 
 const props = defineProps({
     salle: Object,
@@ -17,6 +22,10 @@ const notificationMessage = ref('');
 const showReservationModal = ref(false);
 const isFavorite = ref(false);
 const showAllPhotos = ref(false);
+const showAlertModal = ref(false);
+const alertModalType = ref('success');
+const alertModalTitle = ref('');
+const alertModalMessage = ref('');
 
 const form = ref({
     date_heure: '',
@@ -113,8 +122,8 @@ const mainImageSrc = computed(() => {
 const prixTotal = computed(() => {
     const prixHeure = parseInt(props.salle?.prix_heure) || 0;
     const duree = form.value.duree || 1;
-    const fraisService = 1500;
-    const fraisNettoyage = 1000;
+    const fraisService = SERVICE_FEE;
+    const fraisNettoyage = CLEANING_FEE;
     return (prixHeure * duree) + fraisService + fraisNettoyage;
 });
 
@@ -155,7 +164,9 @@ const toggleFavorite = () => {
 
 // Soumettre la réservation
 const submitReservation = async () => {
-    if (!form.value.accepte_conditions) {
+  console.log('submitReservation called', { salleId: props.salle?.id, form: form.value });
+
+  if (!form.value.accepte_conditions) {
         showNotification('error', 'Conditions requises', 
             'Vous devez accepter les conditions générales pour continuer.'
         );
@@ -175,37 +186,52 @@ const submitReservation = async () => {
     });
 
     try {
-        await router.post(`/client/salles/${props.salle.id}/reserver`, formData, {
-            onSuccess: () => {
-                showNotification('success', 'Réservation envoyée', 
-                    'Votre demande de réservation a été envoyée. Vous recevrez une confirmation par email.'
-                );
-                showReservationModal.value = false;
-                form.value = {
-                    date_heure: '',
-                    duree: 1,
-                    nombre_personnes: 1,
-                    message: '',
-                    type_evenement: 'gaming',
-                    besoins_speciaux: '',
-                    contact_telephone: '',
-                    accepte_conditions: false
-                };
+      console.log('Posting reservation to server...', `/client/salles/${props.salle.id}/reserver`);
+      // Debug: log FormData contents
+      for (const pair of formData.entries()) {
+        console.log('FormData entry:', pair[0], pair[1]);
+      }
+
+      await router.post(`/client/salles/${props.salle.id}/reserver`, formData, {
+        onStart: () => console.log('Reservation onStart'),
+        onProgress: (progress) => console.log('Reservation onProgress', progress),
+        onFinish: () => console.log('Reservation onFinish'),
+        onCancel: () => console.log('Reservation onCancel'),
+        onSuccess: (page) => {
+          console.log('Reservation onSuccess', page);
+          // Close reservation modal and show confirmation alert modal
+          showReservationModal.value = false;
+          alertModalType.value = 'success';
+          alertModalTitle.value = 'Réservation envoyée';
+          alertModalMessage.value = 'Votre demande de réservation a été envoyée. Vous recevrez une confirmation par email.';
+          showAlertModal.value = true;
+          form.value = {
+            date_heure: '',
+            duree: 1,
+            nombre_personnes: 1,
+            message: '',
+            type_evenement: 'gaming',
+            besoins_speciaux: '',
+            contact_telephone: '',
+            accepte_conditions: false
+          };
             },
-            onError: (errors) => {
-                if (errors.date_heure) {
-                    showNotification('error', 'Erreur de date', errors.date_heure[0]);
-                } else if (errors.capacite) {
-                    showNotification('error', 'Erreur de capacité', errors.capacite[0]);
-                } else {
-                    showNotification('error', 'Erreur', 
-                        'Une erreur est survenue. Veuillez réessayer.'
-                    );
-                }
-            }
-        });
+        onError: (errors) => {
+          console.log('Reservation onError', errors);
+          if (errors?.date_heure) {
+            showNotification('error', 'Erreur de date', errors.date_heure[0]);
+          } else if (errors?.capacite) {
+            showNotification('error', 'Erreur de capacité', errors.capacite[0]);
+          } else {
+            showNotification('error', 'Erreur', 
+              'Une erreur est survenue. Veuillez réessayer.'
+            );
+          }
+        }
+      });
     } catch (error) {
-        showNotification('error', 'Erreur', 'Une erreur est survenue.');
+      console.error('Reservation exception', error);
+      showNotification('error', 'Erreur', 'Une erreur est survenue.');
     }
 };
 
@@ -359,13 +385,14 @@ const initMap = () => {
     
     // Charger Google Maps API si nécessaire
     if (!window.google || !window.google.maps) {
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPx8Wj9tQbhV2QhR5q3B&callback=initClientMap`;
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
+      const script = document.createElement('script');
+      const key = GOOGLE_MAPS_KEY;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&callback=initClientMap`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
     } else {
-        window.initClientMap();
+      window.initClientMap();
     }
 };
 
@@ -846,11 +873,11 @@ onMounted(() => {
                 </div>
                 <div class="flex justify-between">
                   <span class="text-gray-600">Frais de service</span>
-                  <span class="font-medium">{{ formatPrice(1500) }}</span>
+                  <span class="font-medium">{{ formatPrice(fraisService) }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-gray-600">Frais de nettoyage</span>
-                  <span class="font-medium">{{ formatPrice(1000) }}</span>
+                  <span class="font-medium">{{ formatPrice(fraisNettoyage) }}</span>
                 </div>
                 <div class="border-t border-gray-200 pt-2 mt-2">
                   <div class="flex justify-between font-bold text-lg">
@@ -900,11 +927,22 @@ onMounted(() => {
 
     <!-- Notification Modal -->
     <NotificationModal 
-      v-if="showNotificationModal"
+      :show="showNotificationModal"
       :type="notificationType"
       :title="notificationTitle"
       :message="notificationMessage"
       @close="showNotificationModal = false"
+    />
+
+    <!-- Confirmation Alert Modal (centered) -->
+    <AlertModal
+      :show="showAlertModal"
+      :type="alertModalType"
+      :title="alertModalTitle"
+      :message="alertModalMessage"
+      confirm-text="OK"
+      @close="showAlertModal = false"
+      @confirm="showAlertModal = false"
     />
   </div>
 </template>

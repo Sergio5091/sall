@@ -241,7 +241,7 @@ const submitForm = () => {
   <div class="flex h-screen bg-gray-50">
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto lg:ml-64">
+    <main class="flex-1 overflow-y-auto">
       <div
         class="sticky top-0 z-10 bg-white/80 dark:bg-[#19202e]/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-8 py-4">
         <div class="flex flex-wrap items-center justify-between gap-4">
@@ -417,6 +417,6 @@ const submitForm = () => {
   </div>
 
   <!-- Notification Modal -->
-  <NotificationModal v-if="showNotificationModal" :type="notificationType" :title="notificationTitle"
+  <NotificationModal :show="showNotificationModal" :type="notificationType" :title="notificationTitle"
     :message="notificationMessage" @close="showNotificationModal = false" />
 </template>

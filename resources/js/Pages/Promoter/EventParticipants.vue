@@ -16,7 +16,7 @@ const props = defineProps({
   
   <div class="flex h-screen bg-gray-50">
 
-    <main class="flex-1 overflow-y-auto lg:ml-64">
+    <main class="flex-1 overflow-y-auto">
       <div class="p-8">
         <!-- Header -->
         <div class="mb-8">

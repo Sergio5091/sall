@@ -119,6 +119,44 @@ const recommendedEvents = computed(() => {
   ];
 });
 
+// Prefer showing real venues (salles) as recommendations on the dashboard
+const recommendedVenues = computed(() => {
+  let source = (props.newVenues && props.newVenues.length)
+    ? props.newVenues
+    : ((props.nearby && props.nearby.length) ? props.nearby : []);
+
+  // Fallback to placeholder newVenuesList if no real venues provided
+  if (!source || source.length === 0) {
+    source = newVenuesList.value || [];
+  }
+
+  const venues = [];
+  for (const item of source) {
+    const id = item?.id;
+    let imageUrl = null;
+    if (item?.image_couverture) {
+      imageUrl = item.image_couverture.startsWith('http') ? item.image_couverture : `/storage/${item.image_couverture}`;
+    } else if (item?.image) {
+      imageUrl = item.image.startsWith('http') ? item.image : `/storage/${item.image}`;
+    } else if (item?.image_url) {
+      imageUrl = item.image_url.startsWith('http') ? item.image_url : `/storage/${item.image_url}`;
+    } else {
+      imageUrl = 'https://picsum.photos/seed/venue/800/600';
+    }
+
+    venues.push({
+      id,
+      title: item?.nom || item?.title || item?.name || 'Salle',
+      subtitle: item?.description || item?.subtitle || '',
+      location: item?.ville || item?.location || '',
+      image: imageUrl,
+      href: id ? `/client/salles/${id}` : '/client/salles'
+    });
+  }
+
+  return venues.slice(0, 3);
+});
+
 const newVenuesList = computed(() => (props.newVenues && props.newVenues.length) ? props.newVenues : [
   {
     title: 'VR Universe',
@@ -168,6 +206,41 @@ const copyReferralLink = async () => {
   }
 };
 
+// Share referral link to social platforms
+const shareReferral = (platform) => {
+  const url = referralLink.value;
+  if (!url) return;
+
+  // Try Web Share API first
+  if (navigator.share) {
+    navigator.share({ title: 'Invitation', text: 'Rejoins-moi sur YOUPIHUB', url }).catch(() => {});
+    return;
+  }
+
+  let shareUrl = null;
+  switch (platform) {
+    case 'facebook':
+      shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+      break;
+    case 'twitter':
+      shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent('Rejoins-moi sur YOUPIHUB: ' + url)}`;
+      break;
+    case 'whatsapp':
+      shareUrl = `https://wa.me/?text=${encodeURIComponent(url)}`;
+      break;
+    case 'email':
+      shareUrl = `mailto:?subject=${encodeURIComponent('Invitation YOUPIHUB')}&body=${encodeURIComponent(url)}`;
+      break;
+  }
+
+  if (shareUrl) window.open(shareUrl, '_blank', 'noopener');
+};
+
+const goToReseau = (e) => {
+  if (e && e.preventDefault) e.preventDefault();
+  router.get('/client/reseau');
+};
+
 const openHowItWorks = () => {
   howItWorksOpen.value = true;
 };
@@ -206,16 +279,16 @@ const closeMobileMenu = () => {
             <h1 class="text-3xl font-bold text-gray-900">Bonjour, {{ userName }} 👋</h1>
             <p class="text-gray-600 mt-1">Voici votre activité récente</p>
           </div>
-          <div class="flex items-center gap-3">
-            <button class="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors">
-              <i class="fas fa-calendar-plus"></i>
-              <span>Réserver</span>
-            </button>
-            <Link href="/client/reseau" class="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors">
-              <i class="fas fa-user-plus"></i>
-              <span>Inviter</span>
-            </Link>
-          </div>
+            <div class="flex items-center gap-3">
+              <Link href="/client/salles" class="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+                <i class="fas fa-calendar-plus"></i>
+                <span>Réserver</span>
+              </Link>
+              <Link href="/client/reseau" @click.prevent="goToReseau" class="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors">
+                <i class="fas fa-user-plus"></i>
+                <span>Inviter</span>
+              </Link>
+            </div>
         </div>
 
         <!-- Stats Cards -->
@@ -263,41 +336,41 @@ const closeMobileMenu = () => {
           <div class="lg:col-span-2 space-y-8">
             <!-- Recommended Events -->
             <div>
-              <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold text-gray-900">Événements recommandés</h2>
-                <a href="/client/evenements" class="text-sm font-medium text-blue-600 hover:text-blue-800">
-                  Voir tout →
-                </a>
-              </div>
-              
-              <div class="space-y-6">
-                <template v-for="(evt, idx) in recommendedEvents" :key="evt.id ?? idx">
-                  <div class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div class="flex flex-col sm:flex-row">
-                      <div class="sm:w-48 h-48 sm:h-auto bg-cover bg-center" :style="`background-image: url('${evt.image || 'https://picsum.photos/seed/tournament/800/600'}')`"></div>
-                      <div class="flex-1 p-6">
-                        <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-blue-50 text-blue-700 mb-3">
-                          Événement
-                        </span>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">{{ evt.title }}</h3>
-                        <p class="text-gray-600 text-sm mb-4">{{ evt.subtitle }}</p>
-                        <div class="flex items-center text-sm text-gray-500 mb-6">
-                          <i class="fas fa-map-marker-alt mr-2"></i>
-                          <span>{{ evt.location }}</span>
-                        </div>
-                        <div class="flex gap-3">
-                          <a :href="evt.href" class="flex-1 px-4 py-2.5 text-center text-sm font-medium rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
-                            Détails
-                          </a>
-                          <a :href="evt.href" class="flex-1 px-4 py-2.5 text-center text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors">
-                            Réserver
-                          </a>
+                <div class="flex items-center justify-between mb-6">
+                  <h2 class="text-xl font-bold text-gray-900">Salles recommandées</h2>
+                  <a href="/client/salles" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+                    Voir tout →
+                  </a>
+                </div>
+
+                <div class="space-y-6">
+                  <template v-for="(venue, idx) in recommendedVenues" :key="venue.id ?? idx">
+                    <div class="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                      <div class="flex flex-col sm:flex-row">
+                        <div class="sm:w-48 h-48 sm:h-auto bg-cover bg-center" :style="`background-image: url('${venue.image || 'https://picsum.photos/seed/venue/800/600'}')`"></div>
+                        <div class="flex-1 p-6">
+                          <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-blue-50 text-blue-700 mb-3">
+                            Salle
+                          </span>
+                          <h3 class="text-lg font-bold text-gray-900 mb-2">{{ venue.title }}</h3>
+                          <p class="text-gray-600 text-sm mb-4">{{ venue.subtitle }}</p>
+                          <div class="flex items-center text-sm text-gray-500 mb-6">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            <span>{{ venue.location }}</span>
+                          </div>
+                          <div class="flex gap-3">
+                            <a :href="venue.href" class="flex-1 px-4 py-2.5 text-center text-sm font-medium rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
+                              Détails
+                            </a>
+                            <a :href="venue.href" class="flex-1 px-4 py-2.5 text-center text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+                              Réserver
+                            </a>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </template>
-              </div>
+                  </template>
+                </div>
             </div>
 
                       </div>
@@ -360,16 +433,16 @@ const closeMobileMenu = () => {
               <div class="space-y-3">
                 <p class="text-sm font-medium text-gray-700">Partager sur :</p>
                 <div class="flex gap-2">
-                  <button class="flex-1 py-2.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
+                  <button @click="shareReferral('facebook')" class="flex-1 py-2.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
                     <i class="fab fa-facebook text-blue-600"></i>
                   </button>
-                  <button class="flex-1 py-2.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
+                  <button @click="shareReferral('twitter')" class="flex-1 py-2.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
                     <i class="fab fa-twitter text-sky-500"></i>
                   </button>
-                  <button class="flex-1 py-2.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
+                  <button @click="shareReferral('whatsapp')" class="flex-1 py-2.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
                     <i class="fab fa-whatsapp text-green-500"></i>
                   </button>
-                  <button class="flex-1 py-2.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
+                  <button @click="shareReferral('email')" class="flex-1 py-2.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition-colors">
                     <i class="fas fa-envelope text-gray-600"></i>
                   </button>
                 </div>

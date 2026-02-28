@@ -208,7 +208,8 @@ const initMap = () => {
   if (!window.google || !window.google.maps) {
     console.log('🔥 Chargement de Google Maps API');
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPx8Wj9tQbhV2QhR5q3B&callback=initMap`;
+    const key = import.meta.env.VITE_GOOGLE_MAPS_KEY || '';
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&callback=initMap`;
     script.async = true;
     script.defer = true;
     document.head.appendChild(script);

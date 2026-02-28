@@ -276,7 +276,7 @@ const deleteEvent = (evt) => {
   
   <div class="flex h-screen bg-gray-50">
 
-    <main class="flex-1 overflow-y-auto lg:ml-64">
+    <main class="flex-1 overflow-y-auto">
       <div class="p-8">
         <!-- Messages flash -->
         <div v-if="success" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">

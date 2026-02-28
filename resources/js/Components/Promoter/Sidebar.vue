@@ -50,13 +50,6 @@ const fetchUnreadCount = async () => {
     }
 };
 
-// Charger au montage et rafraîchir périodiquement
-onMounted(() => {
-    fetchUnreadCount();
-    // Rafraîchir toutes les 30 secondes
-    setInterval(fetchUnreadCount, 30000);
-});
-
 const isSidebarOpen = ref(false);
 const isMobile = ref(false);
 
@@ -67,13 +60,52 @@ const checkScreenSize = () => {
     }
 };
 
+const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+        isSidebarOpen.value = false;
+    }
+};
+
+const closeSidebar = (e) => {
+    if (isMobile.value && !e.target.closest('aside')) {
+        isSidebarOpen.value = false;
+    }
+};
+
 onMounted(() => {
+  try {
+    fetchUnreadCount();
+    // Rafraîchir toutes les 30 secondes
+    setInterval(fetchUnreadCount, 30000);
+    
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
-});
-
-onUnmounted(() => {
-    window.removeEventListener("resize", checkScreenSize);
+    document.addEventListener('click', closeSidebar);
+    document.addEventListener('keydown', handleKeyDown);
+    
+    // Exposer globalement pour le layout
+    window.toggleSidebar = toggleSidebar;
+    window.isSidebarOpen = isSidebarOpen;
+    
+    // Surveiller les changements et mettre à jour la variable globale
+    const updateGlobalState = () => {
+      window.isSidebarOpen = isSidebarOpen.value;
+    };
+    
+    // Créer un watcher pour synchroniser avec la variable globale
+    const unwatch = watch(isSidebarOpen, updateGlobalState);
+    
+    // Nettoyer au démontage
+    onUnmounted(() => {
+      unwatch();
+      window.removeEventListener("resize", checkScreenSize);
+      document.removeEventListener('click', closeSidebar);
+      document.removeEventListener('keydown', handleKeyDown);
+    });
+    
+  } catch (error) {
+    console.error('Erreur lors du montage du composant:', error)
+  }
 });
 
 const menuItems = computed(() => [

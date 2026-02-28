@@ -195,7 +195,7 @@ const handleImageUpload = (event) => {
   <div class="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
     <Sidebar current-route="promoter.events" />
     
-    <main class="flex-1 overflow-y-auto transition-all duration-300 lg:ml-64">
+    <main class="flex-1 overflow-y-auto transition-all duration-300">
       <div class="p-8">
         <!-- Header -->
         <div class="flex items-center justify-between mb-8">

@@ -161,48 +161,46 @@ const closeDetailsModal = () => {
 <template>
   <Head title="Gestion des Réservations" />
 
-  <div class="flex h-screen bg-gray-50">
-
-    <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto lg:ml-64">
-      <!-- Header -->
-      <div class="sticky top-0 z-10 bg-white/80 dark:bg-[#19202e]/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-8 py-4">
-        <div class="flex flex-wrap items-center justify-between gap-4">
-          <div class="flex min-w-72 flex-col gap-1">
-            <p class="text-gray-900 dark:text-white text-xl font-bold leading-tight tracking-tight">Gestion des Réservations</p>
-            <p class="text-gray-600 dark:text-gray-400 text-sm font-normal leading-normal">Consultez et gérez les demandes de réservation</p>
+  <div class="relative flex min-h-screen w-full bg-gray-50 font-display text-gray-800">
+    <main class="flex-1 overflow-y-auto transition-all duration-300">
+      <!-- Conteneur principal responsive -->
+      <div class="w-full sm:max-w-full md:max-w-4xl lg:max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-8">
+        <!-- Header -->
+        <div class="sticky top-0 z-10 bg-white/80 backdrop-blur-md border border-gray-200 rounded-lg px-4 sm:px-6 py-4 mb-6">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex flex-col gap-1">
+              <p class="text-gray-900 text-xl sm:text-2xl font-bold leading-tight tracking-tight">Gestion des Réservations</p>
+              <p class="text-gray-600 text-sm font-normal leading-normal">Consultez et gérez les demandes de réservation</p>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div class="p-8">
         <!-- Filtres -->
-        <div class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl p-6 mb-6">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 mb-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Recherche</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Recherche</label>
               <input 
                 v-model="searchQuery"
                 type="text" 
-                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
                 placeholder="Nom, email, téléphone..."
               >
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Salle</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Salle</label>
               <select 
                 v-model="selectedVenue"
-                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
               >
                 <option value="all">Toutes les salles</option>
                 <option v-for="venue in venues" :key="venue.id" :value="venue.id">{{ venue.nom }}</option>
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Statut</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
               <select 
                 v-model="selectedStatus"
-                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#19202e] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
               >
                 <option value="all">Tous les statuts</option>
                 <option value="en_attente">En attente</option>
@@ -212,7 +210,7 @@ const closeDetailsModal = () => {
               </select>
             </div>
             <div class="flex items-end">
-              <div class="text-sm text-gray-600 dark:text-gray-400">
+              <div class="text-sm text-gray-600">
                 <span class="font-medium">{{ filteredReservations.length }}</span> réservation(s) trouvée(s)
               </div>
             </div>
@@ -220,50 +218,50 @@ const closeDetailsModal = () => {
         </div>
 
         <!-- Liste des réservations -->
-        <div class="bg-white dark:bg-[#19202e] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
           <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead class="bg-gray-50 dark:bg-[#1a202c] border-b border-gray-200 dark:border-gray-700">
+            <table class="w-full min-w-[600px]">
+              <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Client</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Salle</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date/Heure</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Durée</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Montant</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Statut</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                  <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                  <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salle</th>
+                  <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date/Heure</th>
+                  <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durée</th>
+                  <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                  <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                  <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                <tr v-for="reservation in filteredReservations" :key="reservation.id" class="hover:bg-gray-50 dark:hover:bg-[#2d3748] transition-colors">
-                  <td class="px-6 py-4 whitespace-nowrap">
+              <tbody class="divide-y divide-gray-200">
+                <tr v-for="reservation in filteredReservations" :key="reservation.id" class="hover:bg-gray-50 transition-colors">
+                  <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div class="text-sm font-medium text-gray-900 dark:text-white">{{ reservation.client_name || 'N/A' }}</div>
-                      <div class="text-sm text-gray-500 dark:text-gray-400">{{ reservation.client_email || 'N/A' }}</div>
+                      <div class="text-sm font-medium text-gray-900">{{ reservation.client_name || 'N/A' }}</div>
+                      <div class="text-sm text-gray-500">{{ reservation.client_email || 'N/A' }}</div>
                     </div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900 dark:text-white">{{ reservation.venue_name || 'N/A' }}</div>
+                  <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">{{ reservation.venue_name || 'N/A' }}</div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900 dark:text-white">{{ formatDate(reservation.date_heure) }}</div>
+                  <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">{{ formatDate(reservation.date_heure) }}</div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900 dark:text-white">{{ reservation.duree }} heure(s)</div>
+                  <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">{{ reservation.duree }} heure(s)</div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ formatPrice(reservation.montant_total) }}</div>
+                  <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">{{ formatPrice(reservation.montant_total) }}</div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
+                  <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
                     <span :class="`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(reservation.statut)}`">
                       {{ getStatusLabel(reservation.statut) }}
                     </span>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div class="flex gap-2">
+                  <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div class="flex gap-1 sm:gap-2">
                       <button 
                         @click="viewReservationDetails(reservation)"
-                        class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
+                        class="text-blue-600 hover:text-blue-900 p-1"
                         title="Voir les détails"
                       >
                         <i class="fas fa-eye"></i>
@@ -271,7 +269,7 @@ const closeDetailsModal = () => {
                       <button 
                         v-if="reservation.statut === 'en_attente'"
                         @click="acceptReservation(reservation)"
-                        class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300"
+                        class="text-green-600 hover:text-green-900 p-1"
                         title="Accepter"
                       >
                         <i class="fas fa-check"></i>
@@ -279,7 +277,7 @@ const closeDetailsModal = () => {
                       <button 
                         v-if="reservation.statut === 'en_attente'"
                         @click="rejectReservation(reservation)"
-                        class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                        class="text-red-600 hover:text-red-900 p-1"
                         title="Refuser"
                       >
                         <i class="fas fa-times"></i>
@@ -287,7 +285,7 @@ const closeDetailsModal = () => {
                       <button 
                         v-if="reservation.has_conversation"
                         @click="goToConversation(reservation)"
-                        class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
+                        class="text-blue-600 hover:text-blue-900 p-1"
                         title="Discuter"
                       >
                         <i class="fas fa-comments"></i>
@@ -390,7 +388,7 @@ const closeDetailsModal = () => {
           </div>
 
           <!-- Actions -->
-          <div v-if="selectedReservation.statut === 'en_attente'" class="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div v-if="selectedReservation.statut === 'en_attente'" class="flex gap-3 pt-4 border-t border-gray-200">
             <button 
               @click="acceptReservation(selectedReservation)"
               class="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
@@ -413,7 +411,7 @@ const closeDetailsModal = () => {
 
   <!-- Notification Modal -->
   <NotificationModal 
-    v-if="showNotificationModal"
+    :show="showNotificationModal"
     :type="notificationType"
     :title="notificationTitle"
     :message="notificationMessage"

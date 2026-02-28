@@ -1,9 +1,10 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
-import { ref, watch, onMounted, nextTick, computed } from 'vue';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { ref, watch, onMounted, onUnmounted, nextTick, computed } from 'vue';
 import axios from 'axios';
 import NotificationModal from '../../Components/NotificationModal.vue';
 import Navigation from '../../Components/Navigation.vue';
+import { debounce } from 'lodash';
 
 const props = defineProps({
     salles: Object,
@@ -146,6 +147,24 @@ const searchRooms = async () => {
     }
 };
 
+// Debounced automatic search when user types (e.g., city name)
+const debouncedSearch = debounce(() => {
+  searchRooms();
+}, 500);
+
+watch(searchQuery, (val) => {
+  // If the input is empty, clear search
+  if (!val || val.trim() === '') {
+    resetSearch();
+    return;
+  }
+  debouncedSearch();
+});
+
+onUnmounted(() => {
+  debouncedSearch.cancel();
+});
+
 // Réinitialiser la recherche
 const resetSearch = () => {
     searchQuery.value = '';
@@ -216,13 +235,14 @@ const formatDate = (dateString) => {
 
 // Watch pour les changements de filtres
 watch(form, (newFilters) => {
-    const params = new URLSearchParams();
-    
-    if (newFilters.search) params.append('search', newFilters.search);
-    if (newFilters.ville) params.append('ville', newFilters.ville);
-    if (newFilters.capacite_min) params.append('capacite_min', newFilters.capacite_min);
-    
-    window.location.href = `/search/rooms?${params.toString()}`;
+  const params = {};
+
+  if (newFilters.search) params.search = newFilters.search;
+  if (newFilters.ville) params.ville = newFilters.ville;
+  if (newFilters.capacite_min) params.capacite_min = newFilters.capacite_min;
+
+  // Use Inertia to request the same path so we stay on /client/salles
+  router.get(window.location.pathname, params, { preserveState: true, replace: true });
 }, { deep: true });
 
 // Charger les favoris au démarrage
@@ -305,7 +325,11 @@ onMounted(() => {
               >
                 <i class="fas fa-times"></i>
               </button>
+              
+              
             </div>
+            
+            
           </div>
         </div>
       </div>

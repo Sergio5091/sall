@@ -65,6 +65,9 @@ const getGoogleMapsUrl = () => {
     return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
 };
 
+  // Google Maps API key (set via Vite env: VITE_GOOGLE_MAPS_KEY)
+  const GOOGLE_MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_KEY || '';
+
 // Initialiser la carte Google Maps
 const initMap = () => {
     if (!props.salle.latitude || !props.salle.longitude) {
@@ -102,13 +105,14 @@ const initMap = () => {
     
     // Charger Google Maps API si nécessaire
     if (!window.google || !window.google.maps) {
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPx8Wj9tQbhV2QhR5q3B&callback=initMap`;
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
+      const script = document.createElement('script');
+      const key = GOOGLE_MAPS_KEY;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&callback=initMap`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
     } else {
-        window.initMap();
+      window.initMap();
     }
 };
 </script>

@@ -215,7 +215,7 @@ const showNotification = (type, title, message) => {
 
   <!-- Notification Modal -->
   <NotificationModal 
-    v-if="showNotificationModal"
+    :show="showNotificationModal"
     :type="notificationType"
     :title="notificationTitle"
     :message="notificationMessage"

@@ -139,15 +139,27 @@ const viewSalle = (notification) => {
 
 <template>
   <Head title="Notifications" />
-  
-  <!-- Add Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <div class="flex h-screen bg-gray-50">
+  <div class="relative flex min-h-screen w-full bg-gray-50 font-display text-gray-800">
+    <main class="flex-1 overflow-y-auto transition-all duration-300">
+      <!-- Conteneur principal responsive -->
+      <div class="w-full sm:max-w-full md:max-w-4xl lg:max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-8">
+        <!-- Messages flash -->
+        <div v-if="$page.props.success" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div class="flex items-center">
+            <i class="fas fa-check-circle text-green-600 mr-2"></i>
+            <p class="text-green-800">{{ $page.props.success }}</p>
+          </div>
+        </div>
+        
+        <div v-if="$page.props.error" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div class="flex items-center">
+            <i class="fas fa-exclamation-circle text-red-600 mr-2"></i>
+            <p class="text-red-800">{{ $page.props.error }}</p>
+          </div>
+        </div>
 
-    <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto lg:ml-64">
-      <div class="p-8">
         <!-- Header -->
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -257,7 +269,7 @@ const viewSalle = (notification) => {
                     </h4>
                     <div class="flex items-center gap-2">
                       <span v-if="!notification.is_read" class="w-2 h-2 bg-blue-500 rounded-full"></span>
-                      <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                      <button @click="deleteNotification(notification)" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                         <i class="fas fa-times"></i>
                       </button>
                     </div>

@@ -109,11 +109,14 @@ class WelcomeController extends Controller
             ->take(4)
             ->get()
             ->map(function ($news) {
+                $imagePath = $news->image ? 'news/' . $news->image : null;
+                $fullPath = $imagePath ? storage_path('app/public/' . $imagePath) : null;
+                
                 return [
                     'id' => $news->id,
                     'title' => $news->title,
                     'description' => $news->description ? substr($news->description, 0, 120) . '...' : '',
-                    'image' => $news->image,
+                    'image' => ($imagePath && $fullPath && file_exists($fullPath)) ? $imagePath : null,
                     'type' => 'Nouveauté',
                     'date' => $news->created_at->format('d/m/Y'),
                     'location' => 'Actualité',

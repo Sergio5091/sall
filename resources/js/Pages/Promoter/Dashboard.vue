@@ -93,9 +93,9 @@ const getBarHeight = (count) => {
   
   <div class="relative flex min-h-screen w-full bg-gray-50 font-display text-gray-800">
 
-    <main class="flex-1 overflow-y-auto transition-all duration-300 lg:ml-64">
-      <!-- use same horizontal padding as layout header for alignment -->
-      <div class="px-6 py-8">
+    <main class="flex-1 overflow-y-auto transition-all duration-300">
+      <!-- Conteneur principal responsive -->
+      <div class="w-full sm:max-w-full md:max-w-4xl lg:max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-8">
         <!-- Messages flash -->
         <div v-if="success" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
           <div class="flex items-center">
@@ -144,54 +144,52 @@ const getBarHeight = (count) => {
           </div>
         </div>
 
-        <!-- KPI Cards -->
-        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div class="bg-white dark:bg-slate-850 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:shadow-md transition-all">
+        <!-- Conteneur principal avec grille unifiée -->
+        <div class="grid grid-cols-12 gap-6">
+          <!-- KPI Cards -->
+          <div class="col-span-12 xs:col-span-6 sm:col-span-6 md:col-span-6 lg:col-span-3 xl:col-span-3 bg-white dark:bg-slate-850 p-4 md:p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:shadow-md transition-all">
             <div>
               <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Événements totaux</p>
               <h3 class="text-2xl font-bold text-slate-800 dark:text-white">{{ stats?.total || 0 }}</h3>
             </div>
-            <div class="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-              <i class="fas fa-calendar"></i>
+            <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+              <i class="fas fa-calendar text-sm md:text-base"></i>
             </div>
           </div>
           
-          <div class="bg-white dark:bg-slate-850 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:shadow-md transition-all">
+          <div class="col-span-12 xs:col-span-6 sm:col-span-6 md:col-span-6 lg:col-span-3 xl:col-span-3 bg-white dark:bg-slate-850 p-4 md:p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:shadow-md transition-all">
             <div>
               <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Événements publiés</p>
               <h3 class="text-2xl font-bold text-slate-800 dark:text-white">{{ stats?.publies || 0 }}</h3>
             </div>
-            <div class="w-12 h-12 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 flex items-center justify-center">
-              <i class="fas fa-check-circle"></i>
+            <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 flex items-center justify-center">
+              <i class="fas fa-check-circle text-sm md:text-base"></i>
             </div>
           </div>
           
-          <div class="bg-white dark:bg-slate-850 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:shadow-md transition-all relative overflow-hidden">
+          <div class="col-span-12 xs:col-span-6 sm:col-span-6 md:col-span-6 lg:col-span-3 xl:col-span-3 bg-white dark:bg-slate-850 p-4 md:p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:shadow-md transition-all relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
             <div class="pl-2">
               <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Brouillons</p>
               <h3 class="text-2xl font-bold text-slate-800 dark:text-white">{{ stats?.brouillons || 0 }}</h3>
             </div>
-            <div class="w-12 h-12 rounded-lg bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 flex items-center justify-center">
-              <i class="fas fa-file-alt"></i>
+            <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 flex items-center justify-center">
+              <i class="fas fa-file-alt text-sm md:text-base"></i>
             </div>
           </div>
           
-          <div class="bg-white dark:bg-slate-850 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:shadow-md transition-all">
+          <div class="col-span-12 xs:col-span-6 sm:col-span-6 md:col-span-6 lg:col-span-3 xl:col-span-3 bg-white dark:bg-slate-850 p-4 md:p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:shadow-md transition-all">
             <div>
               <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Mes salles</p>
               <h3 class="text-2xl font-bold text-slate-800 dark:text-white">{{ stats?.total_salles || 0 }}</h3>
             </div>
-            <div class="w-12 h-12 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-              <i class="fas fa-building"></i>
+            <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+              <i class="fas fa-building text-sm md:text-base"></i>
             </div>
           </div>
-        </section>
 
-        <!-- Section B: Charts -->
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <!-- Line chart for events evolution -->
-          <div class="bg-white dark:bg-slate-850 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
+          <div class="col-span-12 lg:col-span-7 bg-white dark:bg-slate-850 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
             <div class="flex items-center justify-between mb-6">
               <h3 class="text-lg font-bold text-slate-800 dark:text-white">Évolution des événements</h3>
             </div>
@@ -218,7 +216,7 @@ const getBarHeight = (count) => {
           </div>
 
           <!-- Donut chart for status distribution -->
-          <div class="bg-white dark:bg-slate-850 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col">
+          <div class="col-span-12 lg:col-span-5 bg-white dark:bg-slate-850 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col">
             <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-6">Répartition des statuts</h3>
             <div class="flex items-center justify-center flex-1">
               <div 
@@ -252,48 +250,48 @@ const getBarHeight = (count) => {
               </div>
             </div>
           </div>
-        </section>
 
-        <!-- Section C: Recent Activity -->
-        <section class="bg-white dark:bg-slate-850 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 mb-8">
-          <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-            <h3 class="text-lg font-bold text-slate-800 dark:text-white">Activité Récente</h3>
-            <Link href="/promoter/events" class="text-primary text-sm font-medium hover:underline">Voir tout</Link>
-          </div>
-          <div class="p-0">
-            <div 
-              v-for="(activity, index) in props.recentActivity || []" 
-              :key="index"
-              class="flex items-start gap-4 p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-50 dark:border-slate-800/50"
-              :class="{ 'border-b-0': index === (props.recentActivity?.length || 0) - 1 }"
-            >
+          <!-- Section C: Recent Activity -->
+          <div class="col-span-12 bg-white dark:bg-slate-850 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
+            <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <h3 class="text-lg font-bold text-slate-800 dark:text-white">Activité Récente</h3>
+              <Link href="/promoter/events" class="text-primary text-sm font-medium hover:underline">Voir tout</Link>
+            </div>
+            <div class="p-0">
               <div 
-                class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-                :class="{
-                  'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400': activity.color === 'green',
-                  'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400': activity.color === 'blue',
-                  'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400': activity.color === 'orange',
-                  'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400': activity.color === 'purple'
-                }"
+                v-for="(activity, index) in props.recentActivity || []" 
+                :key="index"
+                class="flex items-start gap-4 p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-50 dark:border-slate-800/50"
+                :class="{ 'border-b-0': index === (props.recentActivity?.length || 0) - 1 }"
               >
-                <i :class="activity.icon"></i>
-              </div>
-              <div class="flex-1">
-                <div class="flex items-center justify-between mb-1">
-                  <p class="text-sm font-medium text-slate-800 dark:text-white">{{ activity.title }}</p>
-                  <span class="text-xs text-slate-400">{{ activity.time }}</span>
+                <div 
+                  class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                  :class="{
+                    'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400': activity.color === 'green',
+                    'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400': activity.color === 'blue',
+                    'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400': activity.color === 'orange',
+                    'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400': activity.color === 'purple'
+                  }"
+                >
+                  <i :class="activity.icon"></i>
                 </div>
-                <p class="text-sm text-slate-500 dark:text-slate-400">{{ activity.description }}</p>
+                <div class="flex-1">
+                  <div class="flex items-center justify-between mb-1">
+                    <p class="text-sm font-medium text-slate-800 dark:text-white">{{ activity.title }}</p>
+                    <span class="text-xs text-slate-400">{{ activity.time }}</span>
+                  </div>
+                  <p class="text-sm text-slate-500 dark:text-slate-400">{{ activity.description }}</p>
+                </div>
               </div>
-            </div>
-            <div v-if="props.recentActivity?.length === 0" class="p-8 text-center">
-              <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                <i class="fas fa-inbox text-slate-400 text-xl"></i>
+              <div v-if="props.recentActivity?.length === 0" class="p-8 text-center">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                  <i class="fas fa-inbox text-slate-400 text-xl"></i>
+                </div>
+                <p class="text-slate-500 dark:text-slate-400">Aucune activité récente</p>
               </div>
-              <p class="text-slate-500 dark:text-slate-400">Aucune activité récente</p>
             </div>
           </div>
-        </section>
+        </div>
       </div>
     </main>
   </div>

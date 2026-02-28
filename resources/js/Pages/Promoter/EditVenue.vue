@@ -18,7 +18,7 @@ const props = defineProps({
   <div class="flex h-screen bg-gray-50">
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto lg:ml-64">
+    <main class="flex-1 overflow-y-auto transition-all duration-300">
       <div class="sticky top-0 z-10 bg-background-dark/80 backdrop-blur-md border-b border-white/10 px-8 py-4">
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div class="flex min-w-72 flex-col gap-1">

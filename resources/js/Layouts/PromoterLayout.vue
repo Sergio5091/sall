@@ -1,9 +1,10 @@
 <script setup>
 import { Head, Link, usePage } from "@inertiajs/vue3";
-import { computed } from "vue";
+import { computed, ref, onMounted, onUnmounted, watch } from "vue";
 import Sidebar from '../Components/Promoter/Sidebar.vue';
 
 const page = usePage();
+
 const props = defineProps({
     stats: Object,
     venues: Array,
@@ -46,6 +47,101 @@ const formatDate = (dateString) => {
         year: 'numeric'
     });
 };
+
+// Gestion simplifiée du menu mobile - approche directe
+const toggleMobileMenu = () => {
+  // Appeler directement la fonction du composant Sidebar
+  if (window.toggleSidebar) {
+    window.toggleSidebar();
+  }
+};
+
+const closeMobileMenu = () => {
+  console.log('closeMobileMenu called - window.isSidebarOpen:', window.isSidebarOpen);
+  
+  // Fermer directement via le composant Sidebar
+  if (window.toggleSidebar && window.isSidebarOpen === true) {
+    window.toggleSidebar();
+    console.log('Sidebar toggled to close');
+  }
+  
+  // Forcer la synchronisation immédiate de l'overlay
+  setTimeout(() => {
+    const overlay = document.getElementById('mobile-overlay');
+    if (overlay) {
+      overlay.classList.add('hidden');
+      console.log('Overlay force-hidden');
+    }
+  }, 10);
+};
+
+const closeMenus = (e) => {
+  // Fermer uniquement en mobile
+  if (window.innerWidth < 1024) {
+    // Clic sur l'overlay
+    if (e.target.id === 'mobile-overlay' || e.target.closest('#mobile-overlay')) {
+      closeMobileMenu();
+      return;
+    }
+    
+    // Clic extérieur (sauf sidebar et hamburger)
+    if (!e.target.closest('aside') && 
+        !e.target.closest('[data-mobile-menu-toggle]')) {
+      closeMobileMenu();
+    }
+  }
+};
+
+const handleKeyDown = (e) => {
+  if (e.key === 'Escape') {
+    closeMobileMenu();
+  }
+};
+
+const handleResize = () => {
+  if (window.innerWidth >= 1024) {
+    closeMobileMenu();
+  }
+};
+
+onMounted(() => {
+  document.addEventListener('click', closeMenus);
+  document.addEventListener('keydown', handleKeyDown);
+  window.addEventListener('resize', handleResize);
+  
+  // Exposer globalement
+  window.toggleMobileMenu = toggleMobileMenu;
+  
+  // Synchroniser l'overlay avec l'état du sidebar
+  const syncOverlay = () => {
+    const overlay = document.getElementById('mobile-overlay');
+    if (overlay) {
+      // Debug: afficher l'état actuel
+      console.log('Sync overlay - window.isSidebarOpen:', window.isSidebarOpen);
+      
+      if (window.isSidebarOpen === true) {
+        overlay.classList.remove('hidden');
+        console.log('Overlay: SHOW');
+      } else {
+        overlay.classList.add('hidden');
+        console.log('Overlay: HIDE');
+      }
+    } else {
+      console.log('Overlay: NOT FOUND');
+    }
+  };
+  
+  // Vérifier périodiquement l'état
+  const intervalId = setInterval(syncOverlay, 50);
+  
+  // Nettoyer au démontage
+  onUnmounted(() => {
+    clearInterval(intervalId);
+    document.removeEventListener('click', closeMenus);
+    document.removeEventListener('keydown', handleKeyDown);
+    window.removeEventListener('resize', handleResize);
+  });
+});
 </script>
 
 <template>
@@ -53,6 +149,9 @@ const formatDate = (dateString) => {
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <div class="min-h-screen flex bg-gray-50">
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-50 lg:hidden hidden" @click="closeMobileMenu"></div>
+    
     <!-- Sidebar intégré au layout -->
     <Sidebar />
 
@@ -62,6 +161,14 @@ const formatDate = (dateString) => {
       <header class="sticky top-0 z-50 bg-white border-b border-gray-200 px-6 py-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-4">
+            <!-- Menu Hamburger pour mobile -->
+            <button 
+              @click.stop="toggleMobileMenu"
+              data-mobile-menu-toggle
+              class="text-gray-500 hover:text-gray-700 lg:hidden p-2"
+            >
+              <i class="fas fa-bars"></i>
+            </button>
             <h1 class="text-2xl font-semibold text-gray-900">Tableau de bord</h1>
           </div>
           
@@ -195,7 +302,7 @@ const formatDate = (dateString) => {
               </div>
               <span class="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded">New</span>
             </div>
-            <div class="text-xl font-bold text-gray-900">{{ formatNumber(props.notifications?.filter(n => !n.is_read).length || 0) }}</div>
+            <div class="text-xl font-bold text-gray-900">{{ formatNumber(Array.isArray(props.notifications) ? props.notifications.filter(n => !n.is_read).length : 0) }}</div>
             <div class="text-xs text-gray-500 mt-1">Notifications</div>
           </div>
         </div>

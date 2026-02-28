@@ -502,7 +502,7 @@ const stats = computed(() => {
 
     <!-- Notification Modal -->
     <NotificationModal 
-      v-if="showNotificationModal"
+      :show="showNotificationModal"
       :type="notificationType"
       :title="notificationTitle"
       :message="notificationMessage"

@@ -24,10 +24,11 @@ const totalSteps = ref(6);
 const showSuccessModal = ref(false);
 const showErrorModal = ref(false);
 const showValidationModal = ref(false);
+const showDeleteModal = ref(false);
 const errorMessage = ref('');
 
 // Empêcher le scroll de la page quand les modales sont ouvertes
-watch([showImagesModal, showSuccessModal, showErrorModal, showValidationModal], (newValues) => {
+watch([showImagesModal, showSuccessModal, showErrorModal, showValidationModal, showDeleteModal], (newValues) => {
     if (newValues.some(val => val)) {
         document.body.style.overflow = 'hidden';
     } else {
@@ -509,6 +510,36 @@ const getProgressPercentage = () => {
     return (currentStep.value / totalSteps.value) * 100;
 };
 
+// Fonctions pour la suppression de salle
+const confirmDeleteVenue = () => {
+    showDeleteModal.value = true;
+};
+
+const deleteVenue = () => {
+    if (!props.salle?.id) {
+        console.error('ID de salle non trouvé');
+        return;
+    }
+
+    router.delete(`/promoter/venues/${props.salle.id}`, {
+        onSuccess: () => {
+            showDeleteModal.value = false;
+            // Rediriger vers la liste des venues
+            window.location.href = '/promoter/venues';
+        },
+        onError: (errors) => {
+            console.error('Erreur lors de la suppression:', errors);
+            showDeleteModal.value = false;
+            errorMessage.value = 'Une erreur est survenue lors de la suppression de la salle.';
+            showErrorModal.value = true;
+        }
+    });
+};
+
+const cancelDelete = () => {
+    showDeleteModal.value = false;
+};
+
 const isStepCompleted = (step) => {
     return currentStep.value > step;
 };
@@ -536,7 +567,7 @@ const getStepTitle = (step) => {
     <!-- Sidebar Component -->
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto transition-all duration-300 lg:ml-64">
+    <main class="flex-1 overflow-y-auto transition-all duration-300">
       <div class="p-8">
         <!-- Header -->
         <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
@@ -608,7 +639,10 @@ const getStepTitle = (step) => {
                   <i class="fas fa-edit text-sm"></i>
                   <span class="font-medium">Modifier</span>
                 </button>
-                <button class="bg-white/90 backdrop-blur-sm text-red-600 px-4 py-2 rounded-lg shadow-lg hover:bg-white transition-all duration-200 flex items-center gap-2">
+                <button 
+                  @click="confirmDeleteVenue"
+                  class="bg-white/90 backdrop-blur-sm text-red-600 px-4 py-2 rounded-lg shadow-lg hover:bg-white transition-all duration-200 flex items-center gap-2"
+                >
                   <i class="fas fa-trash text-sm"></i>
                   <span class="font-medium">Supprimer</span>
                 </button>
@@ -1931,7 +1965,10 @@ const getStepTitle = (step) => {
                         </svg>
                         Modifier
                       </button>
-                      <button class="bg-red-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2">
+                      <button 
+                        @click="confirmDeleteVenue"
+                        class="bg-red-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
+                      >
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                           <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
                         </svg>
@@ -2058,6 +2095,36 @@ const getStepTitle = (step) => {
         >
           Compris
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de confirmation de suppression -->
+  <div v-if="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">Confirmer la suppression</h3>
+        <p class="text-gray-600 mb-6">
+          Êtes-vous sûr de vouloir supprimer la salle "<strong>{{ props.salle?.nom || 'cette salle' }}</strong>" ? 
+          Cette action est irréversible et toutes les données associées seront perdues.
+        </p>
+        <div class="flex gap-3">
+          <button 
+            @click="cancelDelete" 
+            class="flex-1 bg-gray-200 text-gray-800 font-medium py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors"
+          >
+            Annuler
+          </button>
+          <button 
+            @click="deleteVenue" 
+            class="flex-1 bg-red-600 text-white font-medium py-3 px-6 rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Supprimer
+          </button>
+        </div>
       </div>
     </div>
   </div>
