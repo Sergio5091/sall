@@ -1,6 +1,8 @@
 <script setup>
 import { Head } from '@inertiajs/vue3';
-import Sidebar from '../../Components/Promoter/Sidebar.vue';
+
+import PromoterLayout from '@/Layouts/PromoterLayout.vue';
+defineOptions({ layout: PromoterLayout });
 
 const props = defineProps({
     salle: Object,
@@ -13,7 +15,6 @@ const props = defineProps({
   
   <div class="min-h-screen bg-gray-50 flex">
     <!-- Sidebar -->
-    <Sidebar current-route="promoter.venues" />
 
     <!-- Contenu principal -->
     <main class="flex-1 lg:ml-64">

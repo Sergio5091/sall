@@ -1,7 +1,9 @@
 <script setup>
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue';
-import Sidebar from '../../Components/Promoter/Sidebar.vue';
+
+import PromoterLayout from '@/Layouts/PromoterLayout.vue';
+defineOptions({ layout: PromoterLayout });
 
 const page = usePage();
 const props = defineProps({
@@ -108,7 +110,6 @@ const formatDate = (date) => {
   <Head title="Profil - Promoteur" />
   
   <div class="flex h-screen bg-gray-50">
-    <Sidebar current-route="promoter.profile" />
     
     <main class="flex-1 overflow-y-auto lg:ml-64">
       <div class="p-8">

@@ -1,8 +1,10 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import Sidebar from '../../Components/Promoter/Sidebar.vue';
+
 import GoogleMap from '../../Components/GoogleMap.vue';
+import PromoterLayout from '@/Layouts/PromoterLayout.vue';
+defineOptions({ layout: PromoterLayout });
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
@@ -532,7 +534,6 @@ const getStepTitle = (step) => {
   
   <div class="relative flex min-h-screen w-full bg-gray-50 font-display text-gray-800">
     <!-- Sidebar Component -->
-    <Sidebar current-route="promoter.venues" />
 
     <!-- Main Content -->
     <main class="flex-1 overflow-y-auto transition-all duration-300 lg:ml-64">

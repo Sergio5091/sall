@@ -2,6 +2,8 @@
 import { ref, computed } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import Sidebar from '../../Components/Promoter/Sidebar.vue';
+import PromoterLayout from '@/Layouts/PromoterLayout.vue';
+defineOptions({ layout: PromoterLayout });
 import ConfirmModal from '../../Components/ConfirmModal.vue';
 import NotificationModal from '../../Components/NotificationModal.vue';
 

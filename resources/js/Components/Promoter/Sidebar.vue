@@ -3,12 +3,29 @@ import { Link, usePage, router } from "@inertiajs/vue3";
 import { computed, ref, onMounted, onUnmounted } from "vue";
 
 const props = defineProps({
-    currentRoute: String,
+    currentRoute: {
+        type: String,
+        default: null,
+    },
     mainAccount: Object,
     allAccounts: Array,
     activeAccount: Object,
     isMainAccount: Boolean,
 });
+
+// determine current route using Ziggy if not provided
+const computedCurrent = computed(() => {
+    if (props.currentRoute) return props.currentRoute;
+    if (typeof window !== 'undefined' && window.route) {
+        try {
+            return window.route().current();
+        } catch {
+            return '';
+        }
+    }
+    return '';
+});
+
 
 const page = usePage();
 const notifications = computed(() => page.props.notifications?.data || []);
@@ -133,7 +150,7 @@ const toggleSidebar = () => {
       <nav class="flex-1 overflow-y-auto custom-scrollbar px-4 py-2 flex flex-col gap-2">
           <Link v-for="item in menuItems" :key="item.name" :href="item.href" @click="handleNavigation"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group w-full text-left"
-                :class="{ 'bg-primary/10 text-primary dark:text-blue-400': currentRoute === item.route }">
+                :class="{ 'bg-primary/10 text-primary dark:text-blue-400': computedCurrent === item.route }">
             <i :class="item.icon" class="group-hover:text-primary transition-colors"></i>
             <span class="text-sm font-medium">{{ item.name }}</span>
             <span v-if="item.badge && item.badge > 0" 

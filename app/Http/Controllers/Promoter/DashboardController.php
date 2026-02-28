@@ -22,22 +22,67 @@ class DashboardController extends Controller
         // Récupérer les salles du promoteur
         $salles = Salle::where('promoter_id', $user->id)->get();
         
-        // Récupérer les événements du promoteur
-        $events = Event::where('promoter_id', $user->id)
+        // Base query pour les événements du promoteur
+        $eventsQuery = Event::where('promoter_id', $user->id);
+        
+        // Récupérer seulement les 5 plus récents pour l'affichage
+        $events = (clone $eventsQuery)
                       ->orderBy('date_debut', 'desc')
                       ->take(5)
                       ->get();
         
-        // Calculer les statistiques
+        // Calculer les statistiques sur l'ensemble des événements
+        $allEvents = $eventsQuery->get();
         $stats = [
-            'total' => $events->count(),
-            'publies' => $events->where('statut', 'publie')->count(),
-            'brouillons' => $events->where('statut', 'brouillon')->count(),
-            'avenir' => $events->where('date_debut', '>', now())->count(),
-            'en_cours' => $events->where('date_debut', '<=', now())
+            'total' => $allEvents->count(),
+            'publies' => $allEvents->where('statut', 'publie')->count(),
+            'brouillons' => $allEvents->where('statut', 'brouillon')->count(),
+            'annules' => $allEvents->where('statut', 'annule')->count(),
+            'avenir' => $allEvents->where('date_debut', '>', now())->count(),
+            'en_cours' => $allEvents->where('date_debut', '<=', now())
                                ->where('date_fin', '>=', now())->count(),
-            'passes' => $events->where('date_fin', '<', now())->count(),
+            'passes' => $allEvents->where('date_fin', '<', now())->count(),
+            'total_salles' => $salles->count(),
         ];
+
+        // Évolution de la création d'événements (7 derniers jours)
+        $eventsEvolution = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i)->format('Y-m-d');
+            $count = Event::where('promoter_id', $user->id)
+                          ->whereDate('created_at', $date)
+                          ->count();
+            $eventsEvolution[] = [
+                'date' => now()->subDays($i)->format('D'),
+                'count' => $count,
+            ];
+        }
+
+        // Répartition des statuts
+        $totalEvents = $allEvents->count();
+        $statusDistrib = [
+            'publie' => $allEvents->where('statut', 'publie')->count(),
+            'brouillon' => $allEvents->where('statut', 'brouillon')->count(),
+            'annule' => $allEvents->where('statut', 'annule')->count(),
+            'termine' => $allEvents->where('statut', 'termine')->count(),
+        ];
+
+        // Activité récente: événements créés / modifiés
+        $recentActivity = [];
+        $recentEvents = (clone $eventsQuery)
+            ->orderBy('updated_at', 'desc')
+            ->limit(5)
+            ->get();
+        foreach ($recentEvents as $evt) {
+            $recentActivity[] = [
+                'type' => 'event',
+                'title' => 'Événement : ' . $evt->titre,
+                'description' => 'Statut ' . $evt->statut,
+                'time' => \Carbon\Carbon::parse($evt->updated_at)->diffForHumans(),
+                'icon' => 'fa-calendar-alt',
+                'color' => $evt->statut === 'publie' ? 'green' : 'blue',
+            ];
+        }
         
         // Données pour le système multi-comptes
         if ($user->role === 'promoter') {
@@ -67,6 +112,9 @@ class DashboardController extends Controller
             'events' => $events,
             'notifications' => $notifications,
             'unreadCount' => $unreadCount,
+            'eventsEvolution' => $eventsEvolution,
+            'statusDistrib' => $statusDistrib,
+            'recentActivity' => $recentActivity,
             // Données multi-comptes - toujours définies pour les promoteurs
             'mainAccount' => $user->role === 'promoter' ? ($user->isMainPromoter() ? $user : $user->getMainAccount()) : null,
             'allAccounts' => $user->role === 'promoter' ? ($user->isMainPromoter() ? $user->getAllPromoterAccounts() : collect([$user])) : collect([]),

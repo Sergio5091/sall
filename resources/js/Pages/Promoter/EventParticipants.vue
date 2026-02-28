@@ -1,6 +1,8 @@
 <script setup>
 import { Head, Link } from "@inertiajs/vue3";
-import Sidebar from '../../Components/Promoter/Sidebar.vue';
+
+import PromoterLayout from '@/Layouts/PromoterLayout.vue';
+defineOptions({ layout: PromoterLayout });
 
 const props = defineProps({
     event: Object,
@@ -13,7 +15,6 @@ const props = defineProps({
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <div class="flex h-screen bg-gray-50">
-    <Sidebar current-route="promoter.events" />
 
     <main class="flex-1 overflow-y-auto lg:ml-64">
       <div class="p-8">

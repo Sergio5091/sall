@@ -1,7 +1,9 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import Sidebar from '../../Components/Promoter/Sidebar.vue';
+
+import PromoterLayout from '@/Layouts/PromoterLayout.vue';
+defineOptions({ layout: PromoterLayout });
 import NotificationModal from '../../Components/NotificationModal.vue';
 
 const props = defineProps({
@@ -173,7 +175,6 @@ onUnmounted(() => {
   <Head title="Conversation" />
 
   <div class="flex h-screen bg-gray-50">
-    <Sidebar current-route="promoter.conversations" />
 
     <!-- Main Content -->
     <main class="flex-1 overflow-y-auto lg:ml-64">

@@ -52,11 +52,14 @@ const formatDate = (dateString) => {
   <Head title="Tableau de bord" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <div class="min-h-screen bg-gray-50">
-    <!-- Contenu principal (sans sidebar - géré par les pages individuelles) -->
-    <main class="flex-1">
+  <div class="min-h-screen flex bg-gray-50">
+    <!-- Sidebar intégré au layout -->
+    <Sidebar />
+
+    <!-- Contenu principal -->
+    <main class="flex-1 lg:ml-64">
       <!-- Dashboard Header - Affiché sur toutes les pages -->
-      <header class="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-4">
+      <header class="sticky top-0 z-50 bg-white border-b border-gray-200 px-6 py-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-4">
             <h1 class="text-2xl font-semibold text-gray-900">Tableau de bord</h1>
