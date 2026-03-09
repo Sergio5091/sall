@@ -40,7 +40,7 @@ const heroImageUrl = computed(() => {
         const img = salle?.image_url || salle?.image || null;
         if (!img) continue;
         if (typeof img === 'string' && img.startsWith('http')) return img;
-        return '/storage/' + String(img).replace(/^\/?storage\//, '');
+        return '/uploads/' + String(img).replace(/^\/?uploads\//, '');
     }
     return '/images/default-event.jpg';
 });
@@ -373,7 +373,7 @@ onMounted(() => {
               <div class="h-48 bg-gradient-to-br from-primary to-primary/70 rounded-lg overflow-hidden">
                 <img 
                   v-if="salle.image_url"
-                  :src="salle.image_url.startsWith('http') ? salle.image_url : `/storage/${salle.image_url}`" 
+                  :src="salle.image_url.startsWith('http') ? salle.image_url : `/uploads/${salle.image_url}`" 
                   :alt="salle.nom"
                   class="w-full h-full object-cover"
                 >

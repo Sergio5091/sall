@@ -26,13 +26,22 @@ class WelcomeController extends Controller
             ->take(8)
             ->get()
             ->map(function ($salle) {
+                $imageUrl = $salle->image_url;
+
+                if ($imageUrl && !str_starts_with($imageUrl, 'http')) {
+                    // Utiliser uploads/ direct
+                    $imageUrl = url('uploads/' . $imageUrl);
+                } elseif (!$imageUrl) {
+                    $imageUrl = 'https://picsum.photos/seed/salle-' . $salle->id . '/800/600.jpg';
+                }
+
                 return [
                     'id' => $salle->id,
                     'name' => $salle->nom,
                     'location' => $salle->ville,
                     'price' => $salle->prix_heure ? number_format($salle->prix_heure, 2, ',', '') : '0',
                     'rating' => $salle->note_moyenne && $salle->note_moyenne > 0 ? number_format($salle->note_moyenne, 1) : '4.5',
-                    'image' => $salle->image_url,
+                    'image' => $imageUrl,
                     'slug' => $salle->slug,
                     'description' => $salle->description ? substr($salle->description, 0, 100) . '...' : '',
                     'equipements' => $salle->services ?? [],
@@ -49,11 +58,20 @@ class WelcomeController extends Controller
             ->take(6)
             ->get()
             ->map(function ($event) {
+                $imageUrl = $event->url_image_affiche;
+
+                if ($imageUrl && !str_starts_with($imageUrl, 'http')) {
+                    // Utiliser url() qui s'adapte automatiquement
+                    $imageUrl = url('storage/' . $imageUrl);
+                } elseif (!$imageUrl) {
+                    $imageUrl = 'https://picsum.photos/seed/event-' . $event->id . '/400/300.jpg';
+                }
+
                 return [
                     'id' => $event->id,
                     'title' => $event->titre,
                     'description' => $event->description ? substr($event->description, 0, 120) . '...' : '',
-                    'image' => $event->url_image_affiche,
+                    'image' => $imageUrl,
                     'date_debut' => $event->date_debut->format('d/m/Y H:i'),
                     'lieu' => $event->lieu ?? $event->salle->nom ?? 'En ligne',
                     'prix' => $event->prix_formatte,
@@ -66,14 +84,23 @@ class WelcomeController extends Controller
         $standaloneEvents = StandaloneEvent::where('status', 'active')
             ->where('event_date', '>', now())
             ->orderBy('event_date', 'asc')
-            ->take(3)
+            ->take(value: 3)
             ->get()
             ->map(function ($event) {
+                $imageUrl = $event->image;
+
+                if ($imageUrl && !str_starts_with($imageUrl, 'http')) {
+                    // Utiliser uploads/ direct
+                    $imageUrl = url('uploads/' . $imageUrl);
+                } elseif (!$imageUrl) {
+                    $imageUrl = 'https://picsum.photos/seed/standalone-' . $event->id . '/400/300.jpg';
+                }
+
                 return [
                     'id' => $event->id,
                     'title' => $event->title,
                     'description' => $event->description ? substr($event->description, 0, 120) . '...' : '',
-                    'image' => $event->image,
+                    'image' => $imageUrl,
                     'type' => 'Événement Ponctuel',
                     'date' => $event->event_date->format('d/m/Y H:i'),
                     'location' => $event->location . ', ' . $event->country,
@@ -90,11 +117,20 @@ class WelcomeController extends Controller
             ->take(3)
             ->get()
             ->map(function ($event) {
+                $imageUrl = $event->image_affiche ? 'events/affiches/' . $event->image_affiche : null;
+
+                if ($imageUrl && !str_starts_with($imageUrl, 'http')) {
+                    // Utiliser uploads/ direct
+                    $imageUrl = url('uploads/' . $imageUrl);
+                } elseif (!$imageUrl) {
+                    $imageUrl = 'https://picsum.photos/seed/event-' . $event->id . '/400/300.jpg';
+                }
+
                 return [
                     'id' => $event->id,
                     'title' => $event->titre,
                     'description' => $event->description ? substr($event->description, 0, 120) . '...' : '',
-                    'image' => $event->image_affiche ? 'events/affiches/' . $event->image_affiche : null,
+                    'image' => $imageUrl,
                     'type' => $event->categorie_texte,
                     'date' => $event->date_debut->format('d/m/Y H:i'),
                     'location' => $event->lieu ?? $event->salle->nom ?? 'En ligne',
@@ -109,14 +145,19 @@ class WelcomeController extends Controller
             ->take(4)
             ->get()
             ->map(function ($news) {
-                $imagePath = $news->image ? 'news/' . $news->image : null;
-                $fullPath = $imagePath ? storage_path('app/public/' . $imagePath) : null;
-                
+                if ($news->image) {
+                    // L'image en BDD contient déjà "news/nom_fichier"
+                    $imageUrl = url('uploads/' . $news->image);
+                } else {
+                    // Fallback si pas d'image
+                    $imageUrl = 'https://picsum.photos/seed/news-' . $news->id . '/400/300.jpg';
+                }
+
                 return [
                     'id' => $news->id,
                     'title' => $news->title,
                     'description' => $news->description ? substr($news->description, 0, 120) . '...' : '',
-                    'image' => ($imagePath && $fullPath && file_exists($fullPath)) ? $imagePath : null,
+                    'image' => $imageUrl,
                     'type' => 'Nouveauté',
                     'date' => $news->created_at->format('d/m/Y'),
                     'location' => 'Actualité',
@@ -162,19 +203,19 @@ class WelcomeController extends Controller
             'eventsCount' => Event::where('statut', 'publie')->count(),
         ];
 
-        
+
         return Inertia::render('Welcome', [
             'canLogin' => Route::has('login'),
             'canRegister' => Route::has('register'),
             'laravelVersion' => app()->version(),
             'phpVersion' => PHP_VERSION,
-            
+
             // Données réelles pour la page d'accueil
             'popularRooms' => $popularRooms,
             'featuredEvents' => $featuredEvents,
             'featuredItems' => $featuredItems,
             'stats' => $stats,
-            
+
             // Garder pour compatibilité
             'news' => $featuredItems,
         ]);
@@ -193,7 +234,7 @@ class WelcomeController extends Controller
             ->where('statut', 'actif')
             ->when($query, function ($q) use ($query) {
                 $q->where('nom', 'LIKE', "%{$query}%")
-                  ->orWhere('description', 'LIKE', "%{$query}%");
+                    ->orWhere('description', 'LIKE', "%{$query}%");
             })
             ->when($location, function ($q) use ($location) {
                 $q->where('ville', 'LIKE', "%{$location}%");

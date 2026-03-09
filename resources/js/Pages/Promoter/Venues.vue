@@ -193,10 +193,10 @@ const createVenue = () => {
     // Ajouter les images de la galerie comme tableau avec chemins corrects
     if (venueData.images && Array.isArray(venueData.images)) {
         venueData.images.forEach((image, index) => {
-            // S'assurer que le chemin commence par /storage/ pour les images locales
+            // S'assurer que le chemin commence par /uploads/ pour les images locales
             let imagePath = image;
             if (image && image.startsWith('salles/')) {
-                imagePath = `/storage/${image}`;
+                imagePath = `/uploads/${image}`;
             }
             formData.append(`images[${index}]`, imagePath);
         });
@@ -206,7 +206,7 @@ const createVenue = () => {
     if (venueData.image_url) {
         let bannerPath = venueData.image_url;
         if (bannerPath && bannerPath.startsWith('salles/')) {
-            bannerPath = `/storage/${bannerPath}`;
+            bannerPath = `/uploads/${bannerPath}`;
         }
         formData.append('image_url', bannerPath);
     }
@@ -224,7 +224,7 @@ const createVenue = () => {
     if (!newVenue.value.logo_file && venueData.logo) {
         let logoPath = venueData.logo;
         if (logoPath && logoPath.startsWith('salles/')) {
-            logoPath = `/storage/${logoPath}`;
+            logoPath = `/uploads/${logoPath}`;
         }
         formData.append('logo', logoPath);
     }
@@ -457,9 +457,9 @@ const editVenue = () => {
             galerie_files: [null, null, null, null, null],
             logo_file: null,
             // Garder les URLs des images existantes avec chemins corrects
-            banniere_url: props.salle.image_url && props.salle.image_url.startsWith('salles/') ? `/storage/${props.salle.image_url}` : props.salle.image_url || null,
-            galerie_urls: (props.salle.images || []).map(img => img && img.startsWith('salles/') ? `/storage/${img}` : img),
-            logo_url: props.salle.logo && props.salle.logo.startsWith('salles/') ? `/storage/${props.salle.logo}` : props.salle.logo || null
+            banniere_url: props.salle.image_url && props.salle.image_url.startsWith('salles/') ? `/uploads/${props.salle.image_url}` : props.salle.image_url || null,
+            galerie_urls: (props.salle.images || []).map(img => img && img.startsWith('salles/') ? `/uploads/${img}` : img),
+            logo_url: props.salle.logo && props.salle.logo.startsWith('salles/') ? `/uploads/${props.salle.logo}` : props.salle.logo || null
         };
         
         console.log('Formulaire pré-rempli:', newVenue.value);
@@ -617,7 +617,7 @@ const getStepTitle = (step) => {
             <div class="relative h-80 bg-gray-100">
               <img 
                 v-if="props.salle.image_url" 
-                :src="props.salle.image_url.startsWith('salles/') ? `/storage/${props.salle.image_url}` : props.salle.image_url" 
+                :src="props.salle.image_url.startsWith('salles/') ? `/uploads/${props.salle.image_url}` : props.salle.image_url" 
                 :alt="props.salle.nom"
                 class="w-full h-full object-cover"
               >
@@ -1062,7 +1062,7 @@ const getStepTitle = (step) => {
                      class="aspect-square bg-gray-100 rounded-lg overflow-hidden group cursor-pointer"
                      @click="showImagesModal = true">
                   <img 
-                    :src="image.startsWith('salles/') ? `/storage/${image}` : image" 
+                    :src="image.startsWith('salles/') ? `/uploads/${image}` : image" 
                     :alt="`${props.salle.nom} - Image ${index + 1}`"
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   >
@@ -1888,7 +1888,7 @@ const getStepTitle = (step) => {
             <h4 class="text-lg font-medium text-gray-900 mb-4">Bannière principale</h4>
             <div v-if="props.salle?.image_url && props.salle.image_url !== 'placeholder_banniere.jpg'" class="relative group">
               <img 
-                :src="props.salle.image_url.startsWith('http') ? props.salle.image_url : `/storage/${props.salle.image_url}`" 
+                :src="props.salle.image_url.startsWith('http') ? props.salle.image_url : `/uploads/${props.salle.image_url}`" 
                 alt="Bannière" 
                 class="w-full h-64 object-cover rounded-lg shadow-lg"
               >
@@ -1950,7 +1950,7 @@ const getStepTitle = (step) => {
               <!-- Image mise en avant -->
               <div class="relative group overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
                 <img 
-                  :src="props.salle.images[0].startsWith('salles/') ? `/storage/${props.salle.images[0]}` : props.salle.images[0]" 
+                  :src="props.salle.images[0].startsWith('salles/') ? `/uploads/${props.salle.images[0]}` : props.salle.images[0]" 
                   alt="Image principale" 
                   class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
                 >
@@ -1983,7 +1983,7 @@ const getStepTitle = (step) => {
               <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div v-for="(image, index) in props.salle.images.slice(1)" :key="index" class="relative group overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
                   <img 
-                    :src="image.startsWith('salles/') ? `/storage/${image}` : image" 
+                    :src="image.startsWith('salles/') ? `/uploads/${image}` : image" 
                     :alt="'Image ' + (index + 2)" 
                     class="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
                   >

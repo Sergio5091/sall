@@ -344,7 +344,7 @@ const handleImageUpload = (event) => {
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Image de bannière</label>
               <div v-if="props.event.image_banniere" class="mb-4">
-                <img :src="`/storage/events/bannieres/${props.event.image_banniere}`" alt="Image actuelle" class="h-32 object-cover rounded">
+                <img :src="`/uploads/events/bannieres/${props.event.image_banniere}`" alt="Image actuelle" class="h-32 object-cover rounded">
                 <p class="text-sm text-gray-500 mt-2">Image actuelle</p>
               </div>
               <input type="file" @change="handleImageUpload" accept="image/*" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-[#1a1f2e]">

@@ -41,7 +41,7 @@ const hasService = (service) => {
 };
 
 const mainImage = computed(() => {
-    return props.salle.image_url ? `/storage/${props.salle.image_url}` : 'https://picsum.photos/seed/salle-' + props.salle.id + '/800/600.jpg';
+    return props.salle.image_url ? `/uploads/${props.salle.image_url}` : 'https://picsum.photos/seed/salle-' + props.salle.id + '/800/600.jpg';
 });
 
 const galleryImages = computed(() => {
@@ -50,14 +50,14 @@ const galleryImages = computed(() => {
     if (typeof props.salle.images === 'string') {
         try {
             const parsed = JSON.parse(props.salle.images);
-            return Array.isArray(parsed) ? parsed.map(img => `/storage/${img}`) : [];
+            return Array.isArray(parsed) ? parsed.map(img => `/uploads/${img}`) : [];
         } catch (e) {
             return [];
         }
     }
     // Si c'est déjà un tableau
     if (Array.isArray(props.salle.images)) {
-        return props.salle.images.map(img => `/storage/${img}`);
+        return props.salle.images.map(img => `/uploads/${img}`);
     }
     return [];
 });

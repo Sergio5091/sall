@@ -45,9 +45,9 @@ const prevImage = () => {
 const getCurrentImage = () => {
     if (props.salle.images && props.salle.images.length > 0) {
         const image = props.salle.images[currentImage.value];
-        return image.startsWith('http') ? image : `/storage/${image}`;
+        return image.startsWith('http') ? image : `/uploads/${image}`;
     }
-    return props.salle.image_url ? (props.salle.image_url.startsWith('http') ? props.salle.image_url : `/storage/${props.salle.image_url}`) : null;
+    return props.salle.image_url ? (props.salle.image_url.startsWith('http') ? props.salle.image_url : `/uploads/${props.salle.image_url}`) : null;
 };
 
 // Générer l'URL Google Maps
@@ -287,7 +287,7 @@ const initMap = () => {
                     class="cursor-pointer rounded-lg overflow-hidden aspect-square"
                   >
                     <img 
-                      :src="image.startsWith('http') ? image : `/storage/${image}`" 
+                      :src="image.startsWith('http') ? image : `/uploads/${image}`" 
                       :alt="`${salle.nom} - Image ${index + 1}`"
                       class="w-full h-full object-cover hover:scale-110 transition-transform"
                     >
@@ -346,7 +346,7 @@ const initMap = () => {
                   <div class="h-32 bg-gray-200 rounded-lg mb-4 overflow-hidden">
                     <img 
                       v-if="salleSimilaire.image_url"
-                      :src="salleSimilaire.image_url.startsWith('http') ? salleSimilaire.image_url : `/storage/${salleSimilaire.image_url}`" 
+                      :src="salleSimilaire.image_url.startsWith('http') ? salleSimilaire.image_url : `/uploads/${salleSimilaire.image_url}`" 
                       :alt="salleSimilaire.nom"
                       class="w-full h-full object-cover"
                     >

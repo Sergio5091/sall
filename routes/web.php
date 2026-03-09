@@ -342,4 +342,32 @@ Route::middleware('auth')->group(function () {
     Route::delete('/api/favorites/{salleId}', [App\Http\Controllers\Api\FavoriteController::class, 'destroy']);
 });
 
+// Route pour servir les images du storage (solution pour serveur mutualisé)
+Route::get('storage/{path}', function($path) {
+    // Sécurité : empêcher la traversée de répertoires
+    if (str_contains($path, '..') || str_contains($path, '//')) {
+        abort(403);
+    }
+    
+    // Sécurité : vérifier les extensions autorisées
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+    $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+    
+    if (!in_array($extension, $allowedExtensions)) {
+        abort(403);
+    }
+    
+    $file = storage_path('app/public/' . $path);
+    
+    if (!file_exists($file)) {
+        abort(404);
+    }
+    
+    // Servir le fichier avec le bon type MIME et cache
+    return response()->file($file, [
+        'Cache-Control' => 'public, max-age=31536000', // Cache 1 an
+        'Expires' => gmdate('D, d M Y H:i:s \G\M\T', time() + 31536000),
+    ]);
+})->where('path', '.*');
+
 require __DIR__.'/auth.php';

@@ -228,7 +228,7 @@
                 </div>
                 <img 
                   class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                  :src="item.image ? '/storage/' + item.image : 'https://picsum.photos/seed/featured-' + item.id + '/400/300.jpg'"
+                  :src="item.image || 'https://picsum.photos/seed/featured-' + item.id + '/400/300.jpg'"
                   :alt="item.title"
                 />
               </div>
@@ -272,7 +272,7 @@
               <div class="relative aspect-[3/2] overflow-hidden">
                 <img 
                   class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                  :src="room.image ? '/storage/' + room.image : 'https://picsum.photos/seed/room-' + room.id + '/400/300.jpg'"
+                  :src="room.image || 'https://picsum.photos/seed/room-' + room.id + '/400/300.jpg'"
                   :alt="room.name"
                 />
                 <div class="absolute top-3 right-3 bg-white/90 backdropver-blur rounded-full px-2 py-1 flex items-center gap-1 shadow-sm">

@@ -64,7 +64,7 @@ class EventController extends Controller
                     'current_participants' => 0, // Pas de suivi pour les événements ponctuels
                     'status' => $event->event_date > now() ? 'upcoming' : 'completed',
                     'category_id' => 5, // Catégorie spéciale pour événements ponctuels
-                    'image' => $event->image ? 'storage/' . $event->image : null,
+                    'image' => $event->image ? 'uploads/' . $event->image : null,
                     'category' => 'Événement ponctuel',
                     'type' => 'standalone', // Pour distinguer
                     'organizer_name' => $event->organizer_name,
