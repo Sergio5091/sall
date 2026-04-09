@@ -271,6 +271,9 @@ const closeDetailsModal = () => {
                     </div>
                   </td>
                 </tr>
+                <tr v-for="reservation in filteredReservations" :key="reservation.id">
+                  <td class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 sm:py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-2 sm:gap-3">
                       <div class="text-xs sm:text-sm font-medium text-gray-900 truncate">{{ reservation.client_name || 'N/A' }}</div>
                       <div class="text-xs sm:text-sm text-gray-500 truncate hidden sm:block">{{ reservation.client_email || 'N/A' }}</div>
                     </div>
@@ -390,7 +393,8 @@ const closeDetailsModal = () => {
             </div>
           </div>
         </div>
-    </main>
+    </div>
+  </main>
   </div>
 
   <!-- Modal de détails de réservation -->

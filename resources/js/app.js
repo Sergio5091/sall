@@ -7,6 +7,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, h } from 'vue';
+import WhatsAppButton from '@/Components/WhatsAppButton.vue';
 
 // Add global fallback function to prevent ReferenceError
 window.toggleMobileMenu = function() {
@@ -150,7 +151,7 @@ createInertiaApp({
             import.meta.glob('./Pages/**/*.vue'),
         ),
     setup({ el, App, props, plugin }) {
-        const app = createApp({ render: () => h(App, props) })
+        const app = createApp({ render: () => h('div', [h(App, props), h(WhatsAppButton)]) })
             .use(plugin);
         
         // Make route function available globally in all Vue components

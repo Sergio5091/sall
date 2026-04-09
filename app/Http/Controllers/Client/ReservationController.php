@@ -35,6 +35,23 @@ class ReservationController extends Controller
 
         $reservations = $query->paginate(10);
 
+        $reservations->getCollection()->transform(function ($reservation) {
+            return [
+                'id' => $reservation->id,
+                'venue_name' => $reservation->salle->nom,
+                'salle_id' => $reservation->salle->id,
+                'date_heure' => $reservation->date_heure?->toISOString(),
+                'duree' => $reservation->duree,
+                'nombre_personnes' => $reservation->nombre_personnes,
+                'montant_total' => $reservation->prix_total,
+                'statut' => $reservation->statut,
+                'message' => $reservation->message,
+                'created_at' => $reservation->created_at?->toISOString(),
+                'type_evenement' => $reservation->type_evenement ?? null,
+                'besoins_speciaux' => $reservation->besoins_speciaux ?? null,
+            ];
+        });
+
         // Statistiques
         $stats = [
             'total' => $user->reservations()->count(),

@@ -1,11 +1,14 @@
 <script setup>
-import { Link, router } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 
 const props = defineProps({
   user: Object,
   currentPage: String
 });
+
+const page = usePage();
+const currentUser = computed(() => props.user || page.props.value.auth?.user);
 
 const isMobileMenuOpen = ref(false);
 const showLogoutModal = ref(false);
@@ -27,7 +30,7 @@ const confirmLogout = () => {
 };
 
 const userInitials = computed(() => {
-  const name = props.user?.name || '';
+  const name = currentUser.value?.name || '';
   return name ? name.charAt(0).toUpperCase() : 'U';
 });
 </script>

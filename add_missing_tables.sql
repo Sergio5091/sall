@@ -15,7 +15,6 @@ CREATE TABLE IF NOT EXISTS `conversations` (
   KEY `conversations_reservation_id_index` (`reservation_id`),
   KEY `conversations_last_message_at_index` (`last_message_at`),
   CONSTRAINT `conversations_promoter_id_foreign` FOREIGN KEY (`promoter_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `conversations_reservation_id_foreign` FOREIGN KEY (`reservation_id`) REFERENCES `reservations` (`id`) ON DELETE CASCADE,
   CONSTRAINT `conversations_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

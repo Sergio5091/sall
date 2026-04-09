@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import NotificationModal from '../../Components/NotificationModal.vue';
+import Navigation from '../../Components/Navigation.vue';
 
 const props = defineProps({
   conversations: Object
@@ -73,38 +74,10 @@ const showNotification = (type, title, message) => {
   <Head title="Conversations" />
 
   <div class="min-h-screen bg-gray-50 font-sans">
-    <!-- Header -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <div class="flex items-center gap-8">
-            <Link href="/client/dashboard" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <i class="fas fa-gamepad text-xl text-blue-600"></i>
-              <span class="text-lg font-bold text-gray-900">YOUPIHUB</span>
-            </Link>
-            <nav class="hidden md:flex items-center gap-6">
-              <Link href="/client/dashboard" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">Dashboard</Link>
-              <Link href="/client/salles" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">Salles</Link>
-              <Link href="/client/evenements" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">Événements</Link>
-              <Link href="/client/conversations" class="text-sm font-medium text-blue-600">Conversations</Link>
-              <Link href="/client/reservations" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">Réservations</Link>
-            </nav>
-          </div>
-          <div class="flex items-center gap-3">
-            <button class="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
-              <i class="fas fa-bell text-gray-600"></i>
-              <span class="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full"></span>
-            </button>
-            <Link href="/client/profile" class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold">
-              {{ $page.props.auth?.user?.name?.charAt(0)?.toUpperCase() || 'U' }}
-            </Link>
-          </div>
-        </div>
-      </div>
-    </header>
+    <Navigation :user="$page.props.auth?.user" current-page="conversations" />
 
     <!-- Main Content -->
-    <main class="pt-16">
+    <main class="pt-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Header -->
         <div class="mb-8">

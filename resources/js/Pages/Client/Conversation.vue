@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import NotificationModal from '../../Components/NotificationModal.vue';
+import Navigation from '../../Components/Navigation.vue';
 
 const props = defineProps({
   conversation: Object,
@@ -172,41 +173,10 @@ onUnmounted(() => {
   <Head title="Conversation" />
 
   <div class="min-h-screen bg-gray-50 font-sans">
-    <!-- Header -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <div class="flex items-center gap-8">
-            <Link href="/client/conversations" class="text-gray-600 hover:text-gray-900 transition-colors">
-              <i class="fas fa-arrow-left"></i>
-            </Link>
-            <div class="flex-1">
-              <h1 class="text-xl font-bold text-gray-900">
-                {{ props.conversation.promoter.name }}
-              </h1>
-              <p class="text-sm text-gray-600">
-                {{ props.conversation.venue.name }} • 
-                <span :class="'px-2 py-1 rounded-full text-xs font-medium ' + getStatusClass(props.conversation.reservation_status)">
-                {{ getStatusLabel(props.conversation.reservation_status) }}
-              </span>
-              </p>
-            </div>
-          </div>
-          <div class="flex items-center gap-3">
-            <button class="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
-              <i class="fas fa-bell text-gray-600"></i>
-              <span class="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full"></span>
-            </button>
-            <Link href="/client/profile" class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold">
-              {{ $page.props.auth?.user?.name?.charAt(0)?.toUpperCase() || 'U' }}
-            </Link>
-          </div>
-        </div>
-      </div>
-    </header>
+    <Navigation :user="$page.props.auth?.user" current-page="conversations" />
 
     <!-- Messages -->
-    <main class="pt-16 h-screen flex flex-col">
+    <main class="pt-20 h-screen flex flex-col">
       <div class="flex-1 overflow-y-auto p-4 md:p-8">
         <div ref="messagesContainer" class="max-w-4xl mx-auto space-y-4">
           <div 

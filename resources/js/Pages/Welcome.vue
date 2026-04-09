@@ -166,21 +166,6 @@
             <h2 class="text-soft-black text-3xl font-bold tracking-tight mb-2">À la une</h2>
             <p class="text-medium-grey text-base">Les dernières ouvertures et événements majeurs.</p>
           </div>
-          <!-- Carousel Controls -->
-          <div class="flex gap-2">
-            <button 
-              @click="prevSlide"
-              class="size-10 rounded-full border border-gray-200 flex items-center justify-center text-soft-black hover:border-primary hover:text-primary transition-colors"
-            >
-              <i class="fas fa-arrow-left"></i>
-            </button>
-            <button 
-              @click="nextSlide"
-              class="size-10 rounded-full border border-gray-200 flex items-center justify-center text-soft-black hover:border-primary hover:text-primary transition-colors"
-            >
-              <i class="fas fa-arrow-right"></i>
-            </button>
-          </div>
         </div>
         
         <!-- Cards Container with Auto-scroll -->
@@ -198,19 +183,17 @@
             />
           </div>
           
-          <div 
+                  <div 
             ref="carouselContainer"
-            :class="[
-              'flex gap-6',
-              isAutoScrolling ? 'animate-scroll-left' : 'transition-transform duration-300 ease-in-out'
-            ]"
-            :style="!isAutoScrolling ? { transform: `translateX(-${currentSlide * 424}px)` } : {}"
+            class="flex gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory touch-pan-x md:overflow-hidden"
+            :class="isAutoScrolling ? 'animate-scroll-left' : 'transition-transform duration-300 ease-in-out'"
+            :style="carouselStyle"
           >
             <!-- Duplicate items for infinite scroll -->
             <div 
               v-for="(item, index) in [...featuredItemsData, ...featuredItemsData]" 
               :key="`${index}-duplicate`"
-              class="group relative flex flex-col gap-4 cursor-pointer min-w-[320px] md:min-w-[400px]"
+              class="group relative flex flex-col gap-4 cursor-pointer min-w-[280px] max-w-[280px] sm:min-w-[320px] sm:max-w-[320px] md:min-w-[400px] md:max-w-[400px] flex-shrink-0 snap-start"
               @click="viewItem(item)"
             >
               <div class="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-sm">
@@ -443,7 +426,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import MainFooter from '@/Components/MainFooter.vue';
 
@@ -508,8 +491,23 @@ const filteredRooms = ref(popularRoomsData.value);
 const currentSlide = ref(0);
 const carouselContainer = ref(null);
 const isAutoScrolling = ref(true);
+const isMobileView = ref(false);
 const searchQuery = ref('');
 const selectedLocation = ref('Paris');
+
+const carouselStyle = computed(() => {
+  if (isAutoScrolling.value || isMobileView.value) {
+    return {};
+  }
+  return { transform: `translateX(-${currentSlide.value * 424}px)` };
+});
+
+const updateMobileView = () => {
+  isMobileView.value = window.innerWidth < 768;
+  if (isMobileView.value) {
+    isAutoScrolling.value = false;
+  }
+};
 
 const prevSlide = () => {
   isAutoScrolling.value = false;
@@ -530,6 +528,15 @@ const goToSlide = (index) => {
   isAutoScrolling.value = false;
   currentSlide.value = index;
 };
+
+onMounted(() => {
+  updateMobileView();
+  window.addEventListener('resize', updateMobileView);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateMobileView);
+});
 
 const viewItem = (item) => {
   console.log('View item:', item);

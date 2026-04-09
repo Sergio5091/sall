@@ -7,8 +7,18 @@ import AlertModal from '../../Components/AlertModal.vue';
 import { useAlert } from '../../Composables/useAlert.js';
 
 const props = defineProps({
-  reservations: Array,
+  reservations: [Array, Object],
   user: Object
+});
+
+const reservationsArray = computed(() => {
+  if (Array.isArray(props.reservations)) {
+    return props.reservations;
+  }
+  if (props.reservations && Array.isArray(props.reservations.data)) {
+    return props.reservations.data;
+  }
+  return [];
 });
 
 // Alert composable
@@ -73,7 +83,7 @@ const formatPrice = (price) => {
 
 // Filtrer les réservations
 const filteredReservations = computed(() => {
-  let filtered = Array.isArray(props.reservations) ? props.reservations : [];
+  let filtered = reservationsArray.value;
 
   // Filtrer par statut
   if (selectedStatus.value !== 'all') {
@@ -165,7 +175,7 @@ const closeDetailsModal = () => {
 
 // Calculer les statistiques
 const stats = computed(() => {
-  const reservations = Array.isArray(props.reservations) ? props.reservations : [];
+  const reservations = reservationsArray.value;
   return {
     total: reservations.length,
     en_attente: reservations.filter(r => r.statut === 'en_attente').length,
@@ -181,7 +191,7 @@ const stats = computed(() => {
   
   <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light font-display">
     <!-- Navigation Component -->
-    <Navigation :user="user" current-page="reservations" />
+    <Navigation :user="$page.props.auth?.user" current-page="reservations" />
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Page Header -->
@@ -285,80 +295,131 @@ const stats = computed(() => {
 
       <!-- Liste des réservations -->
       <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-        <div v-if="filteredReservations.length > 0" class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Salle
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Durée
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Montant
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Statut
-                </th>
-                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="reservation in filteredReservations" :key="reservation.id" class="hover:bg-gray-50 transition-colors">
-                <td class="px-6 py-4">
-                  <div class="flex items-center">
-                    <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
-                      <i class="fas fa-building text-gray-600"></i>
+        <div v-if="filteredReservations.length > 0">
+          <div class="hidden md:block overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Salle
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Durée
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Montant
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Statut
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr v-for="reservation in filteredReservations" :key="reservation.id" class="hover:bg-gray-50 transition-colors">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center">
+                      <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-building text-gray-600"></i>
+                      </div>
+                      <div>
+                        <div class="font-medium text-gray-900">{{ reservation.venue_name || 'N/A' }}</div>
+                        <div class="text-sm text-gray-500">Créée le {{ formatDateShort(reservation.created_at) }}</div>
+                      </div>
                     </div>
-                    <div>
-                      <div class="font-medium text-gray-900">{{ reservation.venue_name || 'N/A' }}</div>
-                      <div class="text-sm text-gray-500">Créée le {{ formatDateShort(reservation.created_at) }}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">{{ formatDate(reservation.date_heure) }}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-50 text-blue-700">
+                      {{ reservation.duree }} heure(s)
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="font-medium text-gray-900">{{ formatPrice(reservation.montant_total) }}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span :class="`inline-flex items-center px-3 py-1 rounded-full text-sm ${getStatusColor(reservation.statut)} border`">
+                      <i :class="`${getStatusIcon(reservation.statut)} mr-1.5`"></i>
+                      {{ getStatusLabel(reservation.statut) }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="flex items-center justify-end space-x-2">
+                      <button 
+                        @click="viewReservationDetails(reservation)"
+                        class="text-blue-600 hover:text-blue-900 p-2 hover:bg-blue-50 rounded"
+                      >
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <button 
+                        v-if="reservation.statut === 'confirmee'"
+                        @click="cancelReservation(reservation)"
+                        class="text-red-600 hover:text-red-900 p-2 hover:bg-red-50 rounded"
+                      >
+                        <i class="fas fa-times"></i>
+                      </button>
                     </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">{{ formatDate(reservation.date_heure) }}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-50 text-blue-700">
-                    {{ reservation.duree }} heure(s)
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="font-medium text-gray-900">{{ formatPrice(reservation.montant_total) }}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span :class="`inline-flex items-center px-3 py-1 rounded-full text-sm ${getStatusColor(reservation.statut)} border`">
-                    <i :class="`${getStatusIcon(reservation.statut)} mr-1.5`"></i>
-                    {{ getStatusLabel(reservation.statut) }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div class="flex items-center space-x-2">
-                    <button 
-                      @click="viewReservationDetails(reservation)"
-                      class="text-blue-600 hover:text-blue-900 p-2 hover:bg-blue-50 rounded"
-                    >
-                      <i class="fas fa-eye"></i>
-                    </button>
-                    <button 
-                      v-if="reservation.statut === 'confirmee'"
-                      @click="cancelReservation(reservation)"
-                      class="text-red-600 hover:text-red-900 p-2 hover:bg-red-50 rounded"
-                    >
-                      <i class="fas fa-times"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="space-y-4 p-4 md:hidden">
+            <div v-for="reservation in filteredReservations" :key="reservation.id" class="border border-gray-200 rounded-2xl bg-white p-4 shadow-sm">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <p class="text-sm text-gray-500">Salle</p>
+                  <p class="text-base font-semibold text-gray-900">{{ reservation.venue_name || 'N/A' }}</p>
+                </div>
+                <span :class="`inline-flex items-center px-3 py-1 rounded-full text-sm ${getStatusColor(reservation.statut)} border`">
+                  {{ getStatusLabel(reservation.statut) }}
+                </span>
+              </div>
+              <div class="mt-4 grid grid-cols-2 gap-3 text-sm text-gray-600">
+                <div>
+                  <p class="font-medium text-gray-900">Date</p>
+                  <p>{{ formatDate(reservation.date_heure) }}</p>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-900">Durée</p>
+                  <p>{{ reservation.duree }} heure(s)</p>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-900">Montant</p>
+                  <p>{{ formatPrice(reservation.montant_total) }}</p>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-900">Créée</p>
+                  <p>{{ formatDateShort(reservation.created_at) }}</p>
+                </div>
+              </div>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <button 
+                  @click="viewReservationDetails(reservation)"
+                  class="flex-1 min-w-[120px] justify-center inline-flex items-center px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+                >
+                  <i class="fas fa-eye mr-2"></i>
+                  Détails
+                </button>
+                <button 
+                  v-if="reservation.statut === 'confirmee'"
+                  @click="cancelReservation(reservation)"
+                  class="flex-1 min-w-[120px] justify-center inline-flex items-center px-3 py-2 rounded-lg bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors"
+                >
+                  <i class="fas fa-times mr-2"></i>
+                  Annuler
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
         
         <!-- Message si aucune réservation -->
