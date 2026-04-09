@@ -1,6 +1,6 @@
 <script setup>
 import { Link, usePage, router } from "@inertiajs/vue3";
-import { computed, ref, onMounted, onUnmounted } from "vue";
+import { computed, ref, onMounted, onUnmounted, watch } from "vue";
 
 const props = defineProps({
     currentRoute: {
@@ -11,7 +11,13 @@ const props = defineProps({
     allAccounts: Array,
     activeAccount: Object,
     isMainAccount: Boolean,
+    isMobileOpen: {
+        type: Boolean,
+        default: false,
+    },
 });
+
+const emit = defineEmits(['close']);
 
 // determine current route using Ziggy if not provided
 const computedCurrent = computed(() => {
@@ -36,76 +42,57 @@ const user = computed(() => page.props.auth?.user);
 const fetchUnreadCount = async () => {
     try {
         // Vérifier si l'utilisateur est un promoteur avant de faire la requête
-        if (user.value?.role !== 'promoter') {
+        if (!user.value || user.value?.role !== 'promoter') {
             unreadCount.value = 0;
             return;
         }
         
+        // Éviter les appels multiples si déjà en cours
+        if (window.fetchInProgress) {
+            return;
+        }
+        
+        window.fetchInProgress = true;
         const response = await fetch('/promoter/api/unread-count');
         const data = await response.json();
         unreadCount.value = data.count;
+        window.fetchInProgress = false;
     } catch (error) {
+        window.fetchInProgress = false;
         // Fallback: utiliser les props si disponibles
         unreadCount.value = page.props.unreadCount || 0;
     }
 };
 
-const isSidebarOpen = ref(false);
+// Utiliser la prop isMobileOpen pour l'état mobile
 const isMobile = ref(false);
+let intervalId = null;
 
 const checkScreenSize = () => {
     isMobile.value = window.innerWidth < 1024;
-    if (!isMobile.value) {
-        isSidebarOpen.value = false;
-    }
-};
-
-const handleKeyDown = (e) => {
-    if (e.key === 'Escape') {
-        isSidebarOpen.value = false;
-    }
-};
-
-const closeSidebar = (e) => {
-    if (isMobile.value && !e.target.closest('aside')) {
-        isSidebarOpen.value = false;
-    }
 };
 
 onMounted(() => {
   try {
     fetchUnreadCount();
     // Rafraîchir toutes les 30 secondes
-    setInterval(fetchUnreadCount, 30000);
+    intervalId = setInterval(fetchUnreadCount, 30000);
     
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
-    document.addEventListener('click', closeSidebar);
-    document.addEventListener('keydown', handleKeyDown);
-    
-    // Exposer globalement pour le layout
-    window.toggleSidebar = toggleSidebar;
-    window.isSidebarOpen = isSidebarOpen;
-    
-    // Surveiller les changements et mettre à jour la variable globale
-    const updateGlobalState = () => {
-      window.isSidebarOpen = isSidebarOpen.value;
-    };
-    
-    // Créer un watcher pour synchroniser avec la variable globale
-    const unwatch = watch(isSidebarOpen, updateGlobalState);
-    
-    // Nettoyer au démontage
-    onUnmounted(() => {
-      unwatch();
-      window.removeEventListener("resize", checkScreenSize);
-      document.removeEventListener('click', closeSidebar);
-      document.removeEventListener('keydown', handleKeyDown);
-    });
     
   } catch (error) {
     console.error('Erreur lors du montage du composant:', error)
   }
+});
+
+onUnmounted(() => {
+  // Nettoyer l'intervalle pour éviter les fuites mémoire
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
+  window.removeEventListener("resize", checkScreenSize);
 });
 
 const menuItems = computed(() => [
@@ -156,21 +143,15 @@ const menuItems = computed(() => [
 
 const handleNavigation = () => {
     if (isMobile.value) {
-        isSidebarOpen.value = false;
+        emit('close');
     }
-};
-
-const toggleSidebar = () => {
-    isSidebarOpen.value = !isSidebarOpen.value;
 };
 </script>
 
 <template>
   <div class="flex h-screen">
-    <div class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden" v-if="isSidebarOpen" @click="toggleSidebar"></div>
-    
     <aside class="fixed top-0 left-0 w-64 h-screen bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 z-40 lg:translate-x-0"
-           :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+           :class="props.isMobileOpen ? 'translate-x-0' : '-translate-x-full'">
       
       <div class="p-6 flex items-center gap-3">
         <div class="bg-primary size-10 rounded-full flex items-center justify-center text-white">
@@ -211,13 +192,5 @@ const toggleSidebar = () => {
         </form>
       </div>
     </aside>
-    
-    <button v-if="!isSidebarOpen" 
-            class="lg:hidden fixed top-4 left-4 z-50 w-10 h-10 bg-white shadow-md flex flex-col items-center justify-center gap-1.5 transition-all duration-200 hover:shadow-lg active:scale-95" 
-            @click="toggleSidebar">
-      <span class="block w-6 h-0.5 bg-gray-700"></span>
-      <span class="block w-6 h-0.5 bg-gray-700"></span>
-      <span class="block w-6 h-0.5 bg-gray-700"></span>
-    </button>
   </div>
 </template>
