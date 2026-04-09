@@ -678,39 +678,39 @@ const getStepTitle = (step) => {
                 <p class="text-gray-700 leading-relaxed">{{ props.salle.description }}</p>
               </div>
               
-              <!-- Contact, Address and Hours in same row -->
-              <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              <!-- Contact, Address and Hours in responsive layout -->
+              <div class="space-y-4 sm:space-y-6 mb-8">
                 <!-- Contact -->
-                <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-6">
-                  <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                    <i class="fas fa-phone text-primary"></i>
-                    Contact
+                <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 sm:p-6">
+                  <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
+                    <i class="fas fa-phone text-primary text-sm sm:text-base"></i>
+                    <span class="truncate">Contact</span>
                   </h3>
-                  <div class="space-y-3">
-                    <div class="flex items-center gap-3 p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-                      <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                        <i class="fas fa-phone text-blue-600 dark:text-blue-400 text-sm"></i>
+                  <div class="space-y-2 sm:space-y-3">
+                    <div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                      <div class="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-phone text-blue-600 dark:text-blue-400 text-xs sm:text-sm"></i>
                       </div>
-                      <div class="flex-1">
-                        <p class="text-slate-900 dark:text-white font-medium text-sm">{{ props.salle.telephone || 'Non spécifié' }}</p>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-slate-900 dark:text-white font-medium text-xs sm:text-sm truncate">{{ props.salle.telephone || 'Non spécifié' }}</p>
                         <p class="text-xs text-slate-500 dark:text-slate-400">Téléphone</p>
                       </div>
                     </div>
-                    <div class="flex items-center gap-3 p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-                      <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                        <i class="fas fa-envelope text-green-600 dark:text-green-400 text-sm"></i>
+                    <div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                      <div class="w-6 h-6 sm:w-8 sm:h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-envelope text-green-600 dark:text-green-400 text-xs sm:text-sm"></i>
                       </div>
-                      <div class="flex-1">
-                        <p class="text-slate-900 dark:text-white font-medium text-sm">{{ props.salle.email || 'Non spécifié' }}</p>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-slate-900 dark:text-white font-medium text-xs sm:text-sm truncate">{{ props.salle.email || 'Non spécifié' }}</p>
                         <p class="text-xs text-slate-500 dark:text-slate-400">Email</p>
                       </div>
                     </div>
-                    <div v-if="props.salle.site_web" class="flex items-center gap-3 p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-                      <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
-                        <i class="fas fa-globe text-purple-600 dark:text-purple-400 text-sm"></i>
+                    <div v-if="props.salle.site_web" class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                      <div class="w-6 h-6 sm:w-8 sm:h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-globe text-purple-600 dark:text-purple-400 text-xs sm:text-sm"></i>
                       </div>
-                      <div class="flex-1">
-                        <a :href="props.salle.site_web" target="_blank" class="text-slate-900 dark:text-white font-medium text-sm hover:text-primary transition-colors">
+                      <div class="flex-1 min-w-0">
+                        <a :href="props.salle.site_web" target="_blank" class="text-slate-900 dark:text-white font-medium text-xs sm:text-sm hover:text-primary transition-colors truncate block">
                           {{ props.salle.site_web }}
                         </a>
                         <p class="text-xs text-slate-500 dark:text-slate-400">Site web</p>
@@ -720,18 +720,18 @@ const getStepTitle = (step) => {
                 </div>
                 
                 <!-- Address -->
-                <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-6">
-                  <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                    <i class="fas fa-map-marker-alt text-primary"></i>
-                    Adresse
+                <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 sm:p-6">
+                  <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
+                    <i class="fas fa-map-marker-alt text-primary text-sm sm:text-base"></i>
+                    <span class="truncate">Adresse</span>
                   </h3>
-                  <div class="space-y-3">
-                    <div class="flex items-start gap-3 p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-                      <div class="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <i class="fas fa-home text-red-600 dark:text-red-400 text-sm"></i>
+                  <div class="space-y-2 sm:space-y-3">
+                    <div class="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                      <div class="w-6 h-6 sm:w-8 sm:h-8 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <i class="fas fa-home text-red-600 dark:text-red-400 text-xs sm:text-sm"></i>
                       </div>
-                      <div class="flex-1">
-                        <p class="text-slate-900 dark:text-white font-medium text-sm">{{ props.salle.adresse || 'Adresse non spécifiée' }}</p>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-slate-900 dark:text-white font-medium text-xs sm:text-sm break-words">{{ props.salle.adresse || 'Adresse non spécifiée' }}</p>
                         <p class="text-xs text-slate-500 dark:text-slate-400">Adresse</p>
                       </div>
                     </div>
@@ -1001,7 +1001,7 @@ const getStepTitle = (step) => {
                     <span v-for="(service, key) in props.salle.services" :key="key" v-show="service === true"
                           class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border border-green-200 dark:border-green-800">
                       <i class="fas fa-check-circle mr-1.5 text-xs"></i>
-                      {{ key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) }}
+                      {{ (typeof key === 'string' ? key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : key) }}
                     </span>
                   </div>
                   <p v-else class="text-slate-500 dark:text-slate-400 text-sm">Aucun service spécifié</p>
@@ -1446,14 +1446,14 @@ const getStepTitle = (step) => {
             </div>
 
             <!-- Étape 4: Contact -->
-            <div v-show="currentStep === 4" class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-              <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                <span class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-sm font-bold">4</span>
-                Contact
+            <div v-show="currentStep === 4" class="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-sm">
+              <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
+                <span class="w-6 h-6 sm:w-8 sm:h-8 bg-blue-600 rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">4</span>
+                <span class="truncate">Contact</span>
               </h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
                     Numéro de téléphone <span class="text-red-500">*</span>
                   </label>
                   <input 
@@ -1461,12 +1461,12 @@ const getStepTitle = (step) => {
                     type="tel" 
                     name="telephone"
                     required
-                    class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    class="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base"
                     placeholder="+221 33 123 45 67"
                   >
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
                     Adresse email professionnelle <span class="text-red-500">*</span>
                   </label>
                   <input 
@@ -1474,51 +1474,52 @@ const getStepTitle = (step) => {
                     type="email" 
                     name="email"
                     required
-                    class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    class="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base"
                     placeholder="contact@gamingarena.com"
                   >
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
                     WhatsApp (optionnel)
                   </label>
                   <input 
                     v-model="newVenue.whatsapp" 
-                    type="tel"
-                    class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    type="tel" 
+                    name="whatsapp"
+                    class="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base"
                     placeholder="+221 77 123 45 67"
                   >
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
                     Page Facebook (optionnel)
                   </label>
                   <input 
                     v-model="newVenue.facebook" 
                     type="url"
-                    class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    class="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base"
                     placeholder="https://facebook.com/gamingarena"
                   >
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
                     Instagram (optionnel)
                   </label>
                   <input 
                     v-model="newVenue.instagram" 
                     type="url"
-                    class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    class="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base"
                     placeholder="https://instagram.com/gamingarena"
                   >
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
                     Site web (optionnel)
                   </label>
                   <input 
                     v-model="newVenue.site_web" 
                     type="url"
-                    class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    class="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base"
                     placeholder="https://gamingarena.com"
                   >
                 </div>

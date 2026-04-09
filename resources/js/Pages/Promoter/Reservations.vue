@@ -7,9 +7,13 @@ defineOptions({ layout: PromoterLayout });
 import NotificationModal from '../../Components/NotificationModal.vue';
 
 const props = defineProps({
-  reservations: Array,
-  venues: Array
+  reservations: Object,
+  venues: Array,
+  stats: Object
 });
+
+// Debug
+console.log('Reservations page - props:', props);
 
 // États pour les modaux
 const showNotificationModal = ref(false);
@@ -51,6 +55,12 @@ const formatPrice = (price) => {
 const filteredReservations = computed(() => {
   console.log('Props reservations:', props.reservations);
   let filtered = props.reservations?.data || [];
+  
+  // S'assurer que filtered est un tableau
+  if (!Array.isArray(filtered)) {
+    console.warn('filtered is not an array:', filtered);
+    filtered = [];
+  }
 
   // Filtrer par salle
   if (selectedVenue.value !== 'all') {
@@ -81,9 +91,9 @@ const filteredReservations = computed(() => {
 const getStatusColor = (status) => {
   const colors = {
     'en_attente': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    'confirmee': 'bg-green-100 text-green-800 border-green-200',
-    'annulee': 'bg-red-100 text-red-800 border-red-200',
-    'terminee': 'bg-gray-100 text-gray-800 border-gray-200'
+    'confirme': 'bg-green-100 text-green-800 border-green-200',
+    'annule': 'bg-red-100 text-red-800 border-red-200',
+    'termine': 'bg-gray-100 text-gray-800 border-gray-200'
   };
   return colors[status] || 'bg-gray-100 text-gray-800 border-gray-200';
 };
@@ -92,9 +102,9 @@ const getStatusColor = (status) => {
 const getStatusLabel = (status) => {
   const labels = {
     'en_attente': 'En attente',
-    'confirmee': 'Confirmée',
-    'annulee': 'Annulée',
-    'terminee': 'Terminée'
+    'confirme': 'Confirmée',
+    'annule': 'Annulée',
+    'termine': 'Terminée'
   };
   return labels[status] || status;
 };
@@ -166,51 +176,62 @@ const closeDetailsModal = () => {
       <!-- Conteneur principal responsive -->
       <div class="w-full sm:max-w-full md:max-w-4xl lg:max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-8">
         <!-- Header -->
-        <div class="sticky top-0 z-10 bg-white/80 backdrop-blur-md border border-gray-200 rounded-lg px-4 sm:px-6 py-4 mb-6">
-          <div class="flex flex-wrap items-center justify-between gap-4">
-            <div class="flex flex-col gap-1">
-              <p class="text-gray-900 text-xl sm:text-2xl font-bold leading-tight tracking-tight">Gestion des Réservations</p>
-              <p class="text-gray-600 text-sm font-normal leading-normal">Consultez et gérez les demandes de réservation</p>
+        <div class="sticky top-0 z-10 bg-white/80 backdrop-blur-md border border-gray-200 rounded-lg px-3 sm:px-4 md:px-6 py-3 sm:py-4 mb-4 sm:mb-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+            <div class="flex flex-col gap-1 min-w-0">
+              <p class="text-gray-900 text-lg sm:text-xl md:text-2xl font-bold leading-tight tracking-tight truncate">Gestion des Réservations</p>
+              <p class="text-gray-600 text-xs sm:text-sm font-normal leading-normal">Consultez et gérez les demandes de réservation</p>
+            </div>
+            <!-- Stats pour débogage -->
+            <div v-if="props.stats" class="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm">
+              <span class="px-1.5 sm:px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs sm:text-xs">
+                Total: {{ props.stats.total || 0 }}
+              </span>
+              <span class="px-1.5 sm:px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs sm:text-xs">
+                En attente: {{ props.stats.en_attente || 0 }}
+              </span>
             </div>
           </div>
         </div>
         <!-- Filtres -->
-        <div class="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 mb-6">
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 md:p-6 mb-4 sm:mb-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Recherche</label>
+              <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Recherche</label>
               <input 
                 v-model="searchQuery"
                 type="text" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                class="w-full px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg bg-white text-gray-900 text-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
                 placeholder="Nom, email, téléphone..."
               >
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Salle</label>
+              <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Salle</label>
               <select 
                 v-model="selectedVenue"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                class="w-full px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg bg-white text-gray-900 text-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
               >
                 <option value="all">Toutes les salles</option>
-                <option v-for="venue in venues" :key="venue.id" :value="venue.id">{{ venue.nom }}</option>
+                <option v-for="venue in props.venues" :key="venue.id" :value="venue.id">
+                  {{ venue.nom }}
+                </option>
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+              <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Statut</label>
               <select 
                 v-model="selectedStatus"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                class="w-full px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg bg-white text-gray-900 text-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
               >
                 <option value="all">Tous les statuts</option>
                 <option value="en_attente">En attente</option>
-                <option value="confirmee">Confirmée</option>
-                <option value="annulee">Annulée</option>
-                <option value="terminee">Terminée</option>
+                <option value="confirme">Confirmée</option>
+                <option value="annule">Annulée</option>
+                <option value="termine">Terminée</option>
               </select>
             </div>
             <div class="flex items-end">
-              <div class="text-sm text-gray-600">
+              <div class="text-xs sm:text-sm text-gray-600">
                 <span class="font-medium">{{ filteredReservations.length }}</span> réservation(s) trouvée(s)
               </div>
             </div>
@@ -220,75 +241,89 @@ const closeDetailsModal = () => {
         <!-- Liste des réservations -->
         <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
           <div class="overflow-x-auto">
-            <table class="w-full min-w-[600px]">
+            <table class="w-full min-w-[500px] sm:min-w-[600px] lg:min-w-[800px]">
               <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                  <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salle</th>
-                  <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date/Heure</th>
-                  <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durée</th>
-                  <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
-                  <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                  <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Client</th>
+                  <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap hidden sm:table-cell">Salle</th>
+                  <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Date/Heure</th>
+                  <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap hidden md:table-cell">Durée</th>
+                  <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Montant</th>
+                  <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Statut</th>
+                  <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200">
-                <tr v-for="reservation in filteredReservations" :key="reservation.id" class="hover:bg-gray-50 transition-colors">
-                  <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div class="text-sm font-medium text-gray-900">{{ reservation.client_name || 'N/A' }}</div>
-                      <div class="text-sm text-gray-500">{{ reservation.client_email || 'N/A' }}</div>
+                <tr v-if="filteredReservations.length === 0">
+                  <td colspan="7" class="px-3 sm:px-4 md:px-6 py-8 sm:py-12 text-center">
+                    <div class="flex flex-col items-center gap-3 sm:gap-4">
+                      <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-calendar-xmark text-gray-400 text-lg sm:text-2xl"></i>
+                      </div>
+                      <div class="max-w-sm">
+                        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-1">Aucune réservation trouvée</h3>
+                        <p class="text-xs sm:text-sm text-gray-500 break-words">
+                          {{ searchQuery || selectedVenue !== 'all' || selectedStatus !== 'all' 
+                            ? 'Essayez de modifier vos filtres' 
+                            : 'Vous n\'avez pas encore de réservations' }}
+                        </p>
+                      </div>
                     </div>
                   </td>
-                  <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">{{ reservation.venue_name || 'N/A' }}</div>
+                </tr>
+                      <div class="text-xs sm:text-sm font-medium text-gray-900 truncate">{{ reservation.client_name || 'N/A' }}</div>
+                      <div class="text-xs sm:text-sm text-gray-500 truncate hidden sm:block">{{ reservation.client_email || 'N/A' }}</div>
+                    </div>
                   </td>
-                  <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">{{ formatDate(reservation.date_heure) }}</div>
+                  <td class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 sm:py-4 whitespace-nowrap hidden sm:table-cell">
+                    <div class="text-xs sm:text-sm text-gray-900 truncate max-w-[120px] sm:max-w-full">{{ reservation.venue_name || 'N/A' }}</div>
                   </td>
-                  <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">{{ reservation.duree }} heure(s)</div>
+                  <td class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 sm:py-4 whitespace-nowrap">
+                    <div class="text-xs sm:text-sm text-gray-900">{{ formatDate(reservation.date_heure) }}</div>
                   </td>
-                  <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">{{ formatPrice(reservation.montant_total) }}</div>
+                  <td class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 sm:py-4 whitespace-nowrap hidden md:table-cell">
+                    <div class="text-xs sm:text-sm text-gray-900">{{ reservation.duree }}h</div>
                   </td>
-                  <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
-                    <span :class="`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(reservation.statut)}`">
+                  <td class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 sm:py-4 whitespace-nowrap">
+                    <div class="text-xs sm:text-sm font-medium text-gray-900">{{ formatPrice(reservation.montant_total) }}</div>
+                  </td>
+                  <td class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 sm:py-4 whitespace-nowrap">
+                    <span :class="`inline-flex px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-medium rounded-full border ${getStatusColor(reservation.statut)}`">
                       {{ getStatusLabel(reservation.statut) }}
                     </span>
                   </td>
-                  <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div class="flex gap-1 sm:gap-2">
+                  <td class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-medium">
+                    <div class="flex gap-0.5 sm:gap-1 md:gap-2">
                       <button 
                         @click="viewReservationDetails(reservation)"
-                        class="text-blue-600 hover:text-blue-900 p-1"
+                        class="text-blue-600 hover:text-blue-900 p-1 sm:p-1.5 md:p-2 rounded hover:bg-blue-50 transition-colors"
                         title="Voir les détails"
                       >
-                        <i class="fas fa-eye"></i>
+                        <i class="fas fa-eye text-xs sm:text-sm"></i>
                       </button>
                       <button 
                         v-if="reservation.statut === 'en_attente'"
                         @click="acceptReservation(reservation)"
-                        class="text-green-600 hover:text-green-900 p-1"
+                        class="text-green-600 hover:text-green-900 p-1 sm:p-1.5 md:p-2 rounded hover:bg-green-50 transition-colors"
                         title="Accepter"
                       >
-                        <i class="fas fa-check"></i>
+                        <i class="fas fa-check text-xs sm:text-sm"></i>
                       </button>
                       <button 
                         v-if="reservation.statut === 'en_attente'"
                         @click="rejectReservation(reservation)"
-                        class="text-red-600 hover:text-red-900 p-1"
+                        class="text-red-600 hover:text-red-900 p-1 sm:p-1.5 md:p-2 rounded hover:bg-red-50 transition-colors"
                         title="Refuser"
                       >
-                        <i class="fas fa-times"></i>
+                        <i class="fas fa-times text-xs sm:text-sm"></i>
                       </button>
                       <button 
                         v-if="reservation.has_conversation"
                         @click="goToConversation(reservation)"
-                        class="text-blue-600 hover:text-blue-900 p-1"
+                        class="text-blue-600 hover:text-blue-900 p-1 sm:p-1.5 md:p-2 rounded hover:bg-blue-50 transition-colors"
                         title="Discuter"
                       >
-                        <i class="fas fa-comments"></i>
+                        <i class="fas fa-comments text-xs sm:text-sm"></i>
                       </button>
                     </div>
                   </td>
@@ -297,14 +332,64 @@ const closeDetailsModal = () => {
             </table>
           </div>
           
-          <!-- Message si aucune réservation -->
-          <div v-if="filteredReservations.length === 0" class="text-center py-12">
-            <i class="fas fa-calendar-times text-4xl text-gray-300 dark:text-gray-600 mb-4"></i>
-            <p class="text-gray-500 dark:text-gray-400 text-lg">Aucune réservation trouvée</p>
-            <p class="text-gray-400 dark:text-gray-500 text-sm mt-2">Les réservations apparaîtront ici une fois que les clients commenceront à faire des demandes</p>
+          </div>
+
+        <!-- Vue mobile alternative (cartes) -->
+        <div class="lg:hidden mt-4 space-y-3">
+          <div v-for="reservation in filteredReservations" :key="reservation.id" 
+               class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+            <!-- En-tête de la carte -->
+            <div class="flex justify-between items-start mb-3">
+              <div class="flex-1 min-w-0">
+                <h3 class="text-sm font-semibold text-gray-900 truncate">{{ reservation.client_name || 'N/A' }}</h3>
+                <p class="text-xs text-gray-500 truncate">{{ reservation.client_email || 'N/A' }}</p>
+              </div>
+              <span :class="`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(reservation.statut)}`">
+                {{ getStatusLabel(reservation.statut) }}
+              </span>
+            </div>
+            
+            <!-- Détails principaux -->
+            <div class="grid grid-cols-2 gap-3 mb-3">
+              <div class="bg-gray-50 rounded p-2">
+                <p class="text-xs text-gray-500 mb-1">Date/Heure</p>
+                <p class="text-xs font-medium text-gray-900">{{ formatDate(reservation.date_heure) }}</p>
+              </div>
+              <div class="bg-gray-50 rounded p-2">
+                <p class="text-xs text-gray-500 mb-1">Montant</p>
+                <p class="text-xs font-medium text-gray-900">{{ formatPrice(reservation.montant_total) }}</p>
+              </div>
+            </div>
+            
+            <!-- Informations supplémentaires -->
+            <div class="space-y-2 mb-3">
+              <div class="flex items-center gap-2">
+                <i class="fas fa-store text-gray-400 text-xs"></i>
+                <p class="text-xs text-gray-700 truncate">{{ reservation.venue_name || 'N/A' }}</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <i class="fas fa-clock text-gray-400 text-xs"></i>
+                <p class="text-xs text-gray-700">{{ reservation.duree }} heure(s)</p>
+              </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex gap-2 pt-3 border-t border-gray-100">
+              <button @click="viewReservationDetails(reservation)"
+                      class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium py-2 px-3 rounded transition-colors">
+                <i class="fas fa-eye mr-1"></i> Détails
+              </button>
+              <button v-if="reservation.statut === 'en_attente'" @click="acceptReservation(reservation)"
+                      class="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium py-2 px-3 rounded transition-colors">
+                <i class="fas fa-check mr-1"></i> Accepter
+              </button>
+              <button v-if="reservation.statut === 'en_attente'" @click="rejectReservation(reservation)"
+                      class="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs font-medium py-2 px-3 rounded transition-colors">
+                <i class="fas fa-times mr-1"></i> Refuser
+              </button>
+            </div>
           </div>
         </div>
-      </div>
     </main>
   </div>
 

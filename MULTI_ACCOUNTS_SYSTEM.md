@@ -99,6 +99,43 @@ Route::get('/api/accounts', [AccountSwitchController::class, 'getAccounts'])->na
 
 <!-- Lien vers la page de gestion -->
 <Link :href="route('promoter.accounts.index')">Gérer mes comptes</Link>
+
+
+
+
+
+public class UniqueNumberFinder {
+    public static int findUnique(int[] arr) {
+        // Comme la longueur est impaire et qu'il n'y a qu'un seul nombre différent,
+        // on peut comparer les trois premiers éléments pour déterminer la valeur "commune".
+        int common;
+        if (arr[0] == arr[1] || arr[0] == arr[2]) {
+            common = arr[0];
+        } else {
+            // Si arr[0] est différent des deux autres, alors c'est le nombre unique
+            return arr[0];
+        }
+
+        // Parcourir le tableau pour trouver l'élément qui diffère
+        for (int num : arr) {
+            if (num != common) {
+                return num;
+            }
+        }
+
+        // Par sécurité, mais le tableau est garanti valide
+        throw new IllegalArgumentException("Tableau invalide");
+    }
+
+    public static void main(String[] args) {
+        int[] exemple1 = {1, 1, 2, 1, 1};
+        int[] exemple2 = {7, 7, 7, 3, 7, 7, 7};
+        System.out.println(findUnique(exemple1)); // Affiche 2
+        System.out.println(findUnique(exemple2)); // Affiche 3
+    }
+}
+
+
 ```
 
 #### Accès au compte actif dans les contrôleurs
