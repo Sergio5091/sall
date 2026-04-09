@@ -14,6 +14,11 @@ const props = defineProps({
   stats: Object
 })
 
+// Debug: Afficher les données des salles
+console.log('🔍 Données des salles reçues:', props.salles);
+console.log('🔍 Première salle:', props.salles?.data?.[0]);
+console.log('🔍 ID de la première salle:', props.salles?.data?.[0]?.id);
+
 const searchQuery = ref(props.filters?.search || '')
 const selectedStatus = ref(props.filters?.status || '')
 
@@ -226,6 +231,11 @@ watch(showDetailModal, (newValue) => {
 })
 
 const approveSalle = (salle) => {
+  console.log('🔍 Objet salle complet:', salle);
+  console.log('🔍 Propriétés de salle:', Object.keys(salle));
+  console.log('🔍 salle.id:', salle.id);
+  console.log('🔍 Type de salle.id:', typeof salle.id);
+  
   console.log('Bouton valider cliqué pour la salle:', salle);
   console.log('ID de la salle:', salle.id);
   console.log('Statut valide:', salle.valide);

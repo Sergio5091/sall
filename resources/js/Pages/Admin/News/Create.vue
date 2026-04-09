@@ -13,7 +13,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('admin.news.store'));
+    form.post(route('admin.news'));
 };
 
 const handleFileChange = (event) => {
