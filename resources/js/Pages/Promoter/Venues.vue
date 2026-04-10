@@ -568,38 +568,38 @@ const getStepTitle = (step) => {
 
     <!-- Main Content -->
     <main class="flex-1 overflow-y-auto transition-all duration-300">
-      <div class="p-8">
+      <div class="w-full max-w-[1400px] mx-auto px-4 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
         <!-- Header -->
-        <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 w-full">
           <div>
-            <p class="text-gray-900 text-4xl font-black leading-tight tracking-[-0.033em]">Ma Salle</p>
-            <p class="text-gray-600 mt-2">Gérez les informations de votre salle</p>
+            <p class="text-gray-900 text-2xl font-black leading-tight tracking-[-0.033em]">Ma Salle</p>
+            <p class="text-gray-600 mt-1.5 text-sm">Gérez les informations de votre salle</p>
           </div>
         </div>
 
         <!-- État : Pas de salle -->
-        <div v-if="!props.salle && !showCreateForm" class="flex flex-col items-center justify-center py-20">
-          <div class="text-center max-w-md mx-auto">
+        <div v-if="!props.salle && !showCreateForm" class="flex flex-col items-center justify-center py-16">
+          <div class="text-center max-w-sm mx-auto">
             <!-- Icône -->
-            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-5">
+              <svg class="w-10 h-10 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" clip-rule="evenodd"/>
                 <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/>
               </svg>
             </div>
             
             <!-- Message -->
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">
+            <h2 class="text-xl font-bold text-gray-900 mb-3">
               Vous n'avez pas encore de salle
             </h2>
-            <p class="text-gray-600 mb-8">
+            <p class="text-gray-600 mb-6 text-sm">
               Créez votre première salle pour commencer à attirer des clients dans votre espace de gaming.
             </p>
             
             <!-- Bouton d'action -->
             <button 
               @click="showCreateForm = true"
-              class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-500 text-white font-semibold rounded-lg hover:from-gray-500 hover:to-gray-400 transition-all duration-300 transform hover:scale-105"
+              class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-gray-600 to-gray-500 text-white text-sm font-semibold rounded-lg hover:from-gray-500 hover:to-gray-400 transition-all duration-300"
             >
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
@@ -614,7 +614,7 @@ const getStepTitle = (step) => {
           <!-- Header Section -->
           <div class="bg-white border border-gray-100 rounded-xl overflow-hidden">
             <!-- Hero Image Section -->
-            <div class="relative h-80 bg-gray-100">
+            <div class="relative h-48 bg-gray-100">
               <img 
                 v-if="props.salle.image_url" 
                 :src="props.salle.image_url.startsWith('salles/') ? `/uploads/${props.salle.image_url}` : props.salle.image_url" 
@@ -631,17 +631,17 @@ const getStepTitle = (step) => {
               </div>
               
               <!-- Overlay Actions -->
-              <div class="absolute top-6 right-6 flex gap-3">
+              <div class="absolute top-3 right-3 flex flex-wrap justify-end gap-2">
                 <button 
                   @click="editVenue" 
-                  class="bg-white/90 backdrop-blur-sm text-gray-700 px-4 py-2 rounded-lg shadow-lg hover:bg-white transition-all duration-200 flex items-center gap-2"
+                  class="bg-white/90 backdrop-blur-sm text-gray-700 px-3 py-1.5 rounded-lg shadow-sm hover:bg-white transition-colors duration-200 flex items-center gap-2 whitespace-nowrap text-sm"
                 >
                   <i class="fas fa-edit text-sm"></i>
                   <span class="font-medium">Modifier</span>
                 </button>
                 <button 
                   @click="confirmDeleteVenue"
-                  class="bg-white/90 backdrop-blur-sm text-red-600 px-4 py-2 rounded-lg shadow-lg hover:bg-white transition-all duration-200 flex items-center gap-2"
+                  class="bg-white/90 backdrop-blur-sm text-red-600 px-3 py-1.5 rounded-lg shadow-sm hover:bg-white transition-colors duration-200 flex items-center gap-2 text-sm"
                 >
                   <i class="fas fa-trash text-sm"></i>
                   <span class="font-medium">Supprimer</span>
@@ -658,10 +658,10 @@ const getStepTitle = (step) => {
             </div>
             
             <!-- Venue Info -->
-            <div class="p-8">
-              <div class="mb-8">
-                <h1 class="text-3xl font-light text-gray-900 mb-3">{{ props.salle.nom }}</h1>
-                <div class="flex items-center gap-6 text-sm text-gray-600">
+            <div class="p-4 sm:p-5">
+              <div class="mb-6">
+                <h1 class="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">{{ props.salle.nom }}</h1>
+                <div class="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-sm text-gray-600">
                   <span class="flex items-center gap-2">
                     <i class="fas fa-tag text-gray-400"></i>
                     {{ props.salle.categorie }}
@@ -990,9 +990,9 @@ const getStepTitle = (step) => {
               </div>
               
               <!-- Services et Équipements -->
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
                 <!-- Services -->
-                <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-6">
+                <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-5">
                   <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                     <i class="fas fa-concierge-bell text-primary"></i>
                     Services disponibles
@@ -1045,12 +1045,12 @@ const getStepTitle = (step) => {
           
           <!-- Gallery Section -->
           <div class="bg-white border border-gray-100 rounded-xl overflow-hidden">
-            <div class="p-8">
-              <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-light text-gray-900">Galerie</h2>
+            <div class="p-5 sm:p-6">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+                <h2 class="text-base sm:text-lg font-semibold text-gray-900">Galerie</h2>
                 <button 
                   @click="showImagesModal = true"
-                  class="text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2"
+                  class="text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2 whitespace-nowrap text-sm"
                 >
                   <i class="fas fa-expand"></i>
                   <span class="text-sm">Voir tout</span>
@@ -1092,7 +1092,7 @@ const getStepTitle = (step) => {
         </div>
 
         <!-- Formulaire de création -->
-        <div v-else class="max-w-4xl mx-auto">
+        <div v-else class="max-w-4xl mx-auto px-4 sm:px-6">
           <!-- Header du formulaire -->
           <div class="mb-8">
             <button 
@@ -1116,63 +1116,58 @@ const getStepTitle = (step) => {
           </div>
 
           <!-- Barre de progression -->
-          <div class="mb-8">
-            <div class="flex items-center justify-between mb-4">
-              <div class="flex items-center space-x-2">
-                <span class="text-sm font-medium text-gray-700">Étape {{ currentStep }} sur {{ totalSteps }}</span>
-                <span class="text-sm text-gray-500">({{ Math.round(getProgressPercentage()) }}%)</span>
+          <div class="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200 pb-4 mb-8">
+            <div class="flex flex-col gap-4">
+              <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center space-x-2">
+                  <span class="text-sm font-medium text-gray-700">Étape {{ currentStep }} sur {{ totalSteps }}</span>
+                  <span class="text-sm text-gray-500">({{ Math.round(getProgressPercentage()) }}%)</span>
+                </div>
               </div>
-            </div>
-            
-            <!-- Progress bar -->
-            <div class="w-full bg-gray-200 rounded-full h-3 mb-6">
-              <div 
-                class="bg-gradient-to-r from-blue-600 to-blue-500 h-3 rounded-full transition-all duration-500 ease-out"
-                :style="{ width: getProgressPercentage() + '%' }"
-              ></div>
-            </div>
 
-            <!-- Étapes -->
-            <div class="flex justify-between">
-              <button 
-                v-for="step in totalSteps" 
-                :key="step"
-                @click="goToStep(step)"
-                class="flex flex-col items-center cursor-pointer group"
-                :disabled="step > currentStep"
-              >
+              <!-- Progress bar -->
+              <div class="w-full bg-gray-200 rounded-full h-3 mb-4">
                 <div 
-                  class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 mb-2"
+                  class="bg-gradient-to-r from-blue-600 to-blue-500 h-3 rounded-full transition-all duration-500 ease-out"
+                  :style="{ width: getProgressPercentage() + '%' }"
+                ></div>
+              </div>
+
+              <!-- Étapes -->
+              <div class="grid grid-cols-4 gap-2">
+                <button 
+                  v-for="step in totalSteps" 
+                  :key="step"
+                  @click="goToStep(step)"
+                  class="flex flex-col items-center justify-center gap-1 py-1.5 rounded-lg transition-all duration-300 text-xs font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200"
                   :class="{
                     'bg-blue-600 text-white': step === currentStep,
                     'bg-green-600 text-white': isStepCompleted(step),
-                    'bg-gray-600 text-gray-400': step > currentStep,
-                    'hover:bg-blue-500': step === currentStep,
-                    'hover:bg-green-500': isStepCompleted(step)
+                    'cursor-not-allowed opacity-70': step > currentStep
                   }"
+                  :disabled="step > currentStep"
                 >
-                  <i v-if="isStepCompleted(step)" class="fas fa-check"></i>
-                  <span v-else>{{ step }}</span>
-                </div>
-                <span 
-                  class="text-xs font-medium transition-colors"
-                  :class="{
-                    'text-blue-400': step === currentStep,
-                    'text-green-400': isStepCompleted(step),
-                    'text-gray-500': step > currentStep
-                  }"
-                >
-                  {{ getStepTitle(step) }}
-                </span>
-              </button>
+                  <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs"
+                        :class="{
+                          'bg-white text-blue-600': step === currentStep,
+                          'bg-white text-green-600': isStepCompleted(step),
+                          'bg-gray-200 text-gray-500': step > currentStep
+                        }"
+                  >
+                    <i v-if="isStepCompleted(step)" class="fas fa-check"></i>
+                    <span v-else>{{ step }}</span>
+                  </span>
+                  <span>{{ getStepTitle(step) }}</span>
+                </button>
+              </div>
             </div>
           </div>
 
-          <form @submit.prevent="currentStep === totalSteps ? createVenue() : nextStep()" class="space-y-8" novalidate>
+          <form @submit.prevent="currentStep === totalSteps ? createVenue() : nextStep()" class="space-y-6 pb-36 sm:pb-0" novalidate>
             <!-- Étape 1: Informations générales -->
-            <div v-show="currentStep === 1" class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-              <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                <span class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-sm font-bold">1</span>
+            <div v-show="currentStep === 1" class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+              <h3 class="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <span class="w-6 h-6 bg-blue-600 rounded-lg flex items-center justify-center text-xs font-bold">1</span>
                 Informations générales
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1249,9 +1244,9 @@ const getStepTitle = (step) => {
             </div>
 
             <!-- Étape 2: Adresse complète -->
-            <div v-show="currentStep === 2" class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-              <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                <span class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-sm font-bold">2</span>
+            <div v-show="currentStep === 2" class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+              <h3 class="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <span class="w-6 h-6 bg-blue-600 rounded-lg flex items-center justify-center text-xs font-bold">2</span>
                 Adresse complète
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1385,9 +1380,9 @@ const getStepTitle = (step) => {
             </div>
 
             <!-- Étape 3: Horaires d'ouverture -->
-            <div v-show="currentStep === 3" class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-              <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                <span class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-sm font-bold">3</span>
+            <div v-show="currentStep === 3" class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+              <h3 class="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <span class="w-6 h-6 bg-blue-600 rounded-lg flex items-center justify-center text-xs font-bold">3</span>
                 Horaires d'ouverture
               </h3>
               
@@ -1446,8 +1441,8 @@ const getStepTitle = (step) => {
             </div>
 
             <!-- Étape 4: Contact -->
-            <div v-show="currentStep === 4" class="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-sm">
-              <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
+            <div v-show="currentStep === 4" class="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 shadow-sm">
+              <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <span class="w-6 h-6 sm:w-8 sm:h-8 bg-blue-600 rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">4</span>
                 <span class="truncate">Contact</span>
               </h3>
@@ -1527,9 +1522,9 @@ const getStepTitle = (step) => {
             </div>
 
             <!-- Étape 5: Tarification & Services -->
-            <div v-show="currentStep === 5" class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-              <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                <span class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-sm font-bold">5</span>
+            <div v-show="currentStep === 5" class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+              <h3 class="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <span class="w-6 h-6 bg-blue-600 rounded-lg flex items-center justify-center text-xs font-bold">5</span>
                 Tarification & Services
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -1709,9 +1704,9 @@ const getStepTitle = (step) => {
             </div>
 
             <!-- Étape 6: Images & Médias -->
-            <div v-show="currentStep === 6" class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-              <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                <span class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-sm font-bold">6</span>
+            <div v-show="currentStep === 6" class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+              <h3 class="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <span class="w-6 h-6 bg-blue-600 rounded-lg flex items-center justify-center text-xs font-bold">6</span>
                 Images & Médias
               </h3>
               <div class="space-y-6">
@@ -1720,146 +1715,172 @@ const getStepTitle = (step) => {
                   <label class="block text-sm font-medium text-gray-700 mb-2">
                     Bannière principale <span class="text-red-500">*</span>
                   </label>
-                  
-                  <!-- Afficher l'image existante si en mode édition -->
-                  <div v-if="isEditing && newVenue.banniere_url" class="mb-4">
-                    <img 
-                      :src="newVenue.banniere_url" 
-                      alt="Bannière actuelle" 
-                      class="w-full h-48 object-cover rounded-lg border border-gray-300"
-                    >
-                    <p class="text-sm text-gray-500 mt-2">Image actuelle</p>
-                  </div>
-                  
-                  <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                    <input 
-                      @change="handleBanniereUpload"
-                      type="file" 
-                      accept="image/*"
-                      name="banniere"
-                      :required="!isEditing"
-                      class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                    >
-                    <p class="text-sm text-gray-500 mt-2">
-                      {{ newVenue.banniere_file ? newVenue.banniere_file.name : (isEditing ? 'Changer l\'image (optionnel)' : 'Sélectionner une image') }}
-                    </p>
+
+                  <div class="grid grid-cols-1 gap-4">
+                    <div v-if="isEditing && newVenue.banniere_url" class="mb-4">
+                      <img
+                        :src="newVenue.banniere_url"
+                        alt="Bannière actuelle"
+                        class="w-full h-36 sm:h-40 object-cover rounded-xl border border-gray-300"
+                      >
+                      <p class="text-sm text-gray-500 mt-2">Image actuelle</p>
+                    </div>
+
+                    <label class="relative block rounded-xl border-2 border-dashed border-gray-300 p-4 text-center cursor-pointer hover:border-blue-400 transition-colors overflow-hidden">
+                      <input
+                        @change="handleBanniereUpload"
+                        type="file"
+                        accept="image/png, image/jpeg"
+                        name="banniere"
+                        :required="!isEditing"
+                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      >
+                      <div class="space-y-2">
+                        <span class="inline-flex items-center justify-center rounded-full bg-blue-50 text-blue-600 w-12 h-12 mx-auto">
+                          <i class="fas fa-image"></i>
+                        </span>
+                        <p class="text-sm font-medium text-gray-900">Choisir une image</p>
+                        <p class="text-sm text-gray-500">
+                          {{ newVenue.banniere_file ? newVenue.banniere_file.name : (isEditing ? 'Changer l\'image (optionnel)' : 'Sélectionner une image') }}
+                        </p>
+                        <p class="text-xs text-gray-400">PNG, JPG | Taille max 10MB</p>
+                      </div>
+                    </label>
                   </div>
                 </div>
-                
+
                 <!-- Galerie -->
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
                     Galerie d'images <span class="text-red-500">*</span>
                   </label>
-                  
-                  <!-- Afficher les images existantes si en mode édition -->
-                  <div v-if="isEditing && newVenue.galerie_urls && newVenue.galerie_urls.length > 0" class="mb-4 grid grid-cols-2 md:grid-cols-3 gap-2">
-                    <div v-for="(imageUrl, index) in newVenue.galerie_urls" :key="'existing-' + index" class="relative">
-                      <img 
-                        :src="imageUrl" 
-                        :alt="'Image ' + (index + 1)" 
-                        class="w-full h-24 object-cover rounded border border-gray-300"
+
+                  <div v-if="isEditing && newVenue.galerie_urls && newVenue.galerie_urls.length > 0" class="mb-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div v-for="(imageUrl, index) in newVenue.galerie_urls" :key="'existing-' + index" class="relative overflow-hidden rounded-xl border border-gray-200">
+                      <img
+                        :src="imageUrl"
+                        :alt="'Image ' + (index + 1)"
+                        class="w-full h-28 sm:h-32 object-cover"
                       >
-                      <p class="text-xs text-gray-500 mt-1 text-center">Image {{ index + 1 }}</p>
+                      <p class="text-xs text-gray-500 p-2 text-center">Image {{ index + 1 }}</p>
                     </div>
                   </div>
-                  
-                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div v-for="(file, index) in newVenue.galerie_files" :key="index">
-                      <input 
-                        @change="handleGalerieUpload(index, $event)"
-                        type="file" 
-                        accept="image/*"
-                        :name="'galerie_' + index"
-                        :required="!isEditing"
-                        class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                      >
-                      <p class="text-sm text-gray-500 mt-1">
-                        {{ file ? file.name : (isEditing ? 'Changer image ' + (index + 1) + ' (optionnel)' : 'Image ' + (index + 1)) }}
-                      </p>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div v-for="(file, index) in newVenue.galerie_files" :key="index" class="rounded-xl border border-gray-200 bg-gray-50 p-3">
+                      <label class="block text-sm font-medium text-gray-700 mb-2">Image {{ index + 1 }}</label>
+                      <label class="relative block rounded-xl border-2 border-dashed border-gray-300 p-3 text-center cursor-pointer hover:border-blue-400 transition-colors overflow-hidden">
+                        <input
+                          @change="handleGalerieUpload(index, $event)"
+                          type="file"
+                          accept="image/png, image/jpeg"
+                          :name="'galerie_' + index"
+                          :required="!isEditing"
+                          class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        >
+                        <div class="space-y-2">
+                          <span class="inline-flex items-center justify-center rounded-full bg-blue-50 text-blue-600 w-10 h-10 mx-auto">
+                            <i class="fas fa-image"></i>
+                          </span>
+                          <p class="text-sm font-medium text-gray-900">Choisir une image</p>
+                          <p class="text-sm text-gray-500">
+                            {{ file ? file.name : (isEditing ? 'Changer (optionnel)' : 'Ajouter une image') }}
+                          </p>
+                        </div>
+                      </label>
                     </div>
                   </div>
                 </div>
-                
+
                 <!-- Logo -->
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
                     Logo (optionnel)
                   </label>
-                  
-                  <!-- Afficher le logo existant si en mode édition -->
-                  <div v-if="isEditing && newVenue.logo_url" class="mb-4">
-                    <img 
-                      :src="newVenue.logo_url" 
-                      alt="Logo actuel" 
-                      class="w-32 h-32 object-contain rounded-lg border border-gray-300"
-                    >
-                    <p class="text-sm text-gray-500 mt-2">Logo actuel</p>
-                  </div>
-                  
-                  <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <input 
-                      @change="handleLogoUpload"
-                      type="file" 
-                      accept="image/*"
-                      name="logo"
-                      class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                    >
-                    <p class="text-sm text-gray-500 mt-2">
-                      {{ newVenue.logo_file ? newVenue.logo_file.name : (isEditing ? 'Changer le logo (optionnel)' : 'Sélectionner un logo') }}
-                    </p>
+
+                  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-center">
+                    <div v-if="isEditing && newVenue.logo_url" class="mx-auto sm:mx-0">
+                      <img
+                        :src="newVenue.logo_url"
+                        alt="Logo actuel"
+                        class="w-28 h-28 object-contain rounded-xl border border-gray-300"
+                      >
+                      <p class="text-sm text-gray-500 mt-2 text-center sm:text-left">Logo actuel</p>
+                    </div>
+
+                    <label class="relative block rounded-xl border-2 border-dashed border-gray-300 p-4 text-center cursor-pointer hover:border-blue-400 transition-colors overflow-hidden">
+                      <input
+                        @change="handleLogoUpload"
+                        type="file"
+                        accept="image/png, image/jpeg"
+                        name="logo"
+                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      >
+                      <div class="space-y-2">
+                        <span class="inline-flex items-center justify-center rounded-full bg-blue-50 text-blue-600 w-10 h-10 mx-auto">
+                          <i class="fas fa-image"></i>
+                        </span>
+                        <p class="text-sm font-medium text-gray-900">Sélectionner un logo</p>
+                        <p class="text-sm text-gray-500">
+                          {{ newVenue.logo_file ? newVenue.logo_file.name : (isEditing ? 'Changer le logo (optionnel)' : 'Sélectionner un logo') }}
+                        </p>
+                        <p class="text-xs text-gray-400">PNG, JPG | Taille max 10MB</p>
+                      </div>
+                    </label>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Actions -->
-            <div class="flex flex-col sm:flex-row gap-4 justify-between items-center">
-              <button 
-                type="button"
-                @click="showCreateForm = false"
-                class="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                Annuler
-              </button>
-              
-              <div class="flex gap-4">
+            <div class="fixed inset-x-0 bottom-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-200 p-2 sm:relative sm:inset-auto sm:bg-transparent sm:backdrop-blur-none sm:border-t-0 sm:p-0">
+              <div class="max-w-4xl mx-auto flex flex-col sm:flex-row gap-2 justify-between items-center">
                 <button 
-                  v-if="currentStep > 1"
                   type="button"
-                  @click="prevStep"
-                  class="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors"
+                  @click="showCreateForm = false"
+                  class="w-full sm:w-auto px-2 py-1.5 bg-gray-200 text-gray-700 font-semibold rounded-md hover:bg-gray-300 transition-colors text-sm"
                 >
-                  Précédent
+                  Annuler
                 </button>
                 
-                <button 
-                  v-if="currentStep < totalSteps"
-                  type="button"
-                  @click="nextStep"
-                  class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-lg hover:from-blue-500 hover:to-blue-400 transition-all duration-300 transform hover:scale-105"
-                >
-                  Suivant
-                </button>
-                
-                <button 
-                  v-if="currentStep === totalSteps"
-                  type="submit"
-                  class="group relative px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-lg hover:from-blue-500 hover:to-blue-400 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2"
-                >
-                  <svg v-if="!isEditing" class="w-4 h-4 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                  </svg>
-                  <svg v-else class="w-4 h-4 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                  </svg>
-                  <span>{{ isEditing ? 'Mettre à jour' : 'Créer' }}</span>
-                  <div class="absolute inset-0 rounded-lg bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-                </button>
-                <p v-if="currentStep === totalSteps" class="text-sm text-gray-500 mt-3">
-                  {{ isEditing ? 'Les modifications seront appliquées immédiatement' : 'Votre salle sera visible après validation' }}
-                </p>
+                <div class="flex w-full flex-col sm:flex-row gap-2 sm:gap-2 items-center sm:justify-end">
+                  <button 
+                    v-if="currentStep > 1"
+                    type="button"
+                    @click="prevStep"
+                    class="w-full sm:w-auto px-2 py-1.5 bg-gray-200 text-gray-700 font-semibold rounded-md hover:bg-gray-300 transition-colors text-sm"
+                  >
+                    Précédent
+                  </button>
+                  
+                  <button 
+                    v-if="currentStep < totalSteps"
+                    type="button"
+                    @click="nextStep"
+                    class="w-full sm:w-auto px-2 py-1.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-md hover:from-blue-500 hover:to-blue-400 transition-all duration-300 text-sm"
+                  >
+                    Suivant
+                  </button>
+                  
+                  <button 
+                    v-if="currentStep === totalSteps"
+                    type="submit"
+                    class="w-full sm:w-auto group relative px-2 py-1.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-md hover:from-blue-500 hover:to-blue-400 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-sm"
+                  >
+                    <svg v-if="!isEditing" class="w-4 h-4 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <svg v-else class="w-4 h-4 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    <span>{{ isEditing ? 'Mettre à jour' : 'Créer' }}</span>
+                    <div class="absolute inset-0 rounded-lg bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                  </button>
+                </div>
               </div>
+              <p v-if="currentStep === totalSteps" class="text-center text-sm text-gray-500 mt-3 sm:mt-4">
+                {{ isEditing ? 'Les modifications seront appliquées immédiatement' : 'Votre salle sera visible après validation' }}
+              </p>
             </div>
           </form>
         </div>
@@ -1868,10 +1889,10 @@ const getStepTitle = (step) => {
 
     <!-- Modal pour voir les images -->
     <div v-if="showImagesModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[9999] p-4">
-      <div class="bg-white rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden shadow-2xl" @click.stop>
+      <div class="bg-white rounded-xl max-w-5xl w-full max-h-[95vh] overflow-hidden shadow-2xl" @click.stop>
         <!-- Header -->
-        <div class="flex items-center justify-between p-6 border-b bg-white sticky top-0 z-10">
-          <h3 class="text-2xl font-bold text-gray-900">Images de la salle</h3>
+        <div class="flex items-center justify-between p-4 border-b bg-white sticky top-0 z-10">
+          <h3 class="text-xl font-bold text-gray-900">Images de la salle</h3>
           <button 
             @click="showImagesModal = false"
             class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
@@ -2026,7 +2047,7 @@ const getStepTitle = (step) => {
               <p class="text-gray-500 mb-6 max-w-md mx-auto">
                 Ajoutez des photos pour présenter votre salle et attirer plus de clients.
               </p>
-              <button class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              <button class="bg-blue-600 text-white px-4 py-2.5 rounded-md hover:bg-blue-700 transition-colors font-medium">
                 <svg class="w-5 h-5 inline-block mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
                 </svg>

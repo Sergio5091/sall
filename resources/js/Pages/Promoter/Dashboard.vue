@@ -146,48 +146,6 @@ const getBarHeight = (count) => {
 
         <!-- Conteneur principal avec grille unifiée -->
         <div class="grid grid-cols-12 gap-6">
-          <!-- KPI Cards -->
-          <div class="col-span-6 sm:col-span-6 md:col-span-6 lg:col-span-3 xl:col-span-3 bg-white dark:bg-slate-850 p-3 sm:p-4 md:p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:shadow-md transition-all">
-            <div class="flex-1 min-w-0">
-              <p class="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 mb-1 truncate">Événements totaux</p>
-              <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-white truncate">{{ stats?.total || 0 }}</h3>
-            </div>
-            <div class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
-              <i class="fas fa-calendar text-xs sm:text-sm md:text-base"></i>
-            </div>
-          </div>
-          
-          <div class="col-span-6 sm:col-span-6 md:col-span-6 lg:col-span-3 xl:col-span-3 bg-white dark:bg-slate-850 p-3 sm:p-4 md:p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:shadow-md transition-all">
-            <div class="flex-1 min-w-0">
-              <p class="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 mb-1 truncate">Événements publiés</p>
-              <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-white truncate">{{ stats?.publies || 0 }}</h3>
-            </div>
-            <div class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 flex items-center justify-center flex-shrink-0">
-              <i class="fas fa-check-circle text-xs sm:text-sm md:text-base"></i>
-            </div>
-          </div>
-          
-          <div class="col-span-6 sm:col-span-6 md:col-span-6 lg:col-span-3 xl:col-span-3 bg-white dark:bg-slate-850 p-3 sm:p-4 md:p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:shadow-md transition-all relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
-            <div class="pl-2 flex-1 min-w-0">
-              <p class="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 mb-1 truncate">Brouillons</p>
-              <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-white truncate">{{ stats?.brouillons || 0 }}</h3>
-            </div>
-            <div class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 flex items-center justify-center flex-shrink-0">
-              <i class="fas fa-file-alt text-xs sm:text-sm md:text-base"></i>
-            </div>
-          </div>
-          
-          <div class="col-span-6 sm:col-span-6 md:col-span-6 lg:col-span-3 xl:col-span-3 bg-white dark:bg-slate-850 p-3 sm:p-4 md:p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:shadow-md transition-all">
-            <div class="flex-1 min-w-0">
-              <p class="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 mb-1 truncate">Mes salles</p>
-              <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-white truncate">{{ stats?.total_salles || 0 }}</h3>
-            </div>
-            <div class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
-              <i class="fas fa-building text-xs sm:text-sm md:text-base"></i>
-            </div>
-          </div>
-
           <!-- Line chart for events evolution -->
           <div class="col-span-12 lg:col-span-7 bg-white dark:bg-slate-850 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
             <div class="flex items-center justify-between mb-6">

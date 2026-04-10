@@ -61,15 +61,8 @@ const closeMobileSidebar = () => {
 
 // Détecter si on est sur la page dashboard
 const isDashboardPage = computed(() => {
-  // Vérifier si les props de dashboard sont présentes
-  const hasDashboardProps = props.stats && props.events !== undefined;
-  
-  // Alternative: vérifier l'URL
-  const isDashboardUrl = window.location.pathname.includes('/promoter/dashboard');
-  
-  console.log('isDashboardPage - props:', hasDashboardProps, 'url:', isDashboardUrl);
-  
-  return hasDashboardProps || isDashboardUrl;
+  // Afficher les KPI cards UNIQUEMENT sur /promoter/dashboard
+  return window.location.pathname === '/promoter/dashboard' || window.location.pathname.endsWith('/promoter/dashboard');
 });
 </script>
 
