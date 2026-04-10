@@ -15,8 +15,8 @@ class IsClient
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check() || !auth()->user()->hasRole('client')) {
-            return redirect()->route('home');
+        if (!auth()->check() || auth()->user()->role !== 'client') {
+            return redirect()->route('welcome');
         }
         return $next($request);
     }

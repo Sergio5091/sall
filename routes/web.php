@@ -33,13 +33,13 @@ Route::get('/test-redirect', function () {
     return response()->json(['authenticated' => false]);
 })->name('test.redirect');
 
-// Routes protégées par rôle (temporairement sans middleware de rôle pour tester)
+// Routes protégées par rôle pour les utilisateurs admin, promoteur et client
 use App\Http\Controllers\Promoter\DashboardController;
 use App\Http\Controllers\Promoter\PromoterProfileController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\SalleController;
 
-Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\IsPromoter::class])->prefix('promoter')->name('promoter.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     // Routes pour la gestion du profil
@@ -123,7 +123,7 @@ Route::middleware(['auth'])->prefix('promoter')->name('promoter.')->group(functi
     })->withoutMiddleware(['inertia']);
 });
 
-Route::middleware(['auth'])->prefix('client')->name('client.')->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\IsClient::class])->prefix('client')->name('client.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Client\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/salles', [App\Http\Controllers\Client\SalleController::class, 'index'])->name('salles');
     Route::get('/salles/{salle}', [App\Http\Controllers\Client\SalleController::class, 'show'])->name('salles.show');
@@ -152,7 +152,7 @@ Route::middleware(['auth'])->prefix('client')->name('client.')->group(function (
     Route::delete('/profile', [App\Http\Controllers\Client\ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\IsAdmin::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
     
     // Routes pour la gestion des salles (admin)

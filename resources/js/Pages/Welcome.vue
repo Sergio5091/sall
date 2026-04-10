@@ -116,44 +116,42 @@
     </nav>
 
     <!-- Hero Section -->
-    <header class="relative w-full min-h-[85vh] flex flex-col items-center justify-center overflow-hidden">
-      <!-- Background Image with Overlay -->
-      <div class="absolute inset-0 z-0">
-        <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/60 z-10"></div>
-        <img 
-          alt="Modern esports arena with neon lighting and high end gaming setups" 
-          class="w-full h-full object-cover object-center" 
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDw-c047UTYC03aExwcs0RXeVsLIrlbZvCvnl7oGUhpO-iC8gvAcdmWLm32i0PUZZOzMPkFS81HLgahHcfc5pq9nc_NYyD44VzzFyNhu-gb_-YR5yDOhqWu__txe9Cv3iVX653wY8YCyfZ_kjWTN6gB0Wvaj_hyeoreJ710OnninuWad7J7t7a6PNjgKxVbL2fpNSSHNdyCuL_LaO61Gv3VmhCzCVayUqieVwu08p0JZfZmjGuESQWn8ujwNSKixSfZ7pxlukLevOY"
+    <header class="relative w-full min-h-[42vh] md:min-h-[48vh] lg:min-h-[52vh] max-h-[520px] overflow-hidden bg-black">
+      <div class="absolute inset-0 z-0 flex items-center justify-center overflow-hidden">
+        <img
+          :src="hero.image"
+          :alt="hero.tag"
+          class="max-w-full max-h-full object-contain object-center"
         />
       </div>
-      
-      <!-- Content -->
-      <div class="relative z-10 w-full max-w-[1320px] px-6 flex flex-col items-center text-center gap-8 mt-16">
-        <div class="flex flex-col gap-4 max-w-4xl">
-          <h1 class="text-white text-4xl sm:text-5xl md:text-7xl font-black tracking-tight leading-[1.1]">
-            Votre prochaine partie <br/>commence ici
-          </h1>
-          <p class="text-white/80 text-lg md:text-xl font-normal leading-relaxed max-w-2xl mx-auto">
-            Réservez les meilleures salles de gaming haute performance et participez à des événements exclusifs près de chez vous.
-          </p>
+      <div class="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-black/30 to-black/80"></div>
+
+      <div class="relative z-20 flex h-full items-center justify-center px-6">
+        <div class="w-full max-w-[1320px] text-center pb-[90px]">
+          <div class="mx-auto flex flex-col gap-4 max-w-[620px]">
+            <span class="inline-flex items-center justify-center px-4 py-2 rounded-full border border-white/30 bg-white/15 text-white uppercase tracking-[1.5px] text-[12px]">
+              {{ hero.tag }}
+            </span>
+            <h1 class="text-white text-[clamp(26px,4vw,54px)] font-medium leading-[1.18] tracking-tight max-w-[620px] mx-auto">
+              {{ hero.title }}
+            </h1>
+            <p class="mx-auto text-white/72 text-[clamp(13px,1vw,17px)] leading-[1.75] max-w-[500px] mt-4">
+              {{ hero.subtitle }}
+            </p>
+          </div>
+
+          <div class="mt-8 flex justify-center">
+            <button
+              @click="goToSearchRooms"
+              class="inline-flex items-center justify-center gap-3 rounded-full bg-white px-7 py-4 text-sm font-semibold text-[#111] transition-opacity duration-200 hover:opacity-90"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="shrink-0">
+                <path d="M11 4a7 7 0 1 0 4.95 11.95l4.55 4.55a1 1 0 0 0 1.42-1.42l-4.55-4.55A7 7 0 0 0 11 4Zm0 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10Z" fill="#111"/>
+              </svg>
+              Trouver une salle de loisirs
+            </button>
+          </div>
         </div>
-        
-        <!-- Search Button -->
-        <div class="w-full max-w-[640px] mt-4">
-          <button 
-            @click="goToSearchRooms"
-            class="w-full bg-white hover:bg-gray-50 text-soft-black p-4 rounded-full shadow-2xl flex items-center justify-center gap-3 transition-all hover:shadow-3xl group"
-          >
-            <i class="fas fa-search text-[24px] text-primary"></i>
-            <span class="text-base font-medium">Trouver une salle de loisirs</span>
-            <i class="fas fa-arrow-right text-[20px] text-primary group-hover:translate-x-1 transition-transform"></i>
-          </button>
-        </div>
-      </div>
-      
-      <!-- Scroll indicator -->
-      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce text-white/50">
-        <i class="fas fa-chevron-down text-[32px]"></i>
       </div>
     </header>
 
@@ -429,6 +427,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import MainFooter from '@/Components/MainFooter.vue';
+import heroImage from './Public/image-hero/sale-de-jeu.jpg';
 
 const props = defineProps({
     canLogin: Boolean,
@@ -443,6 +442,13 @@ const props = defineProps({
 
 const page = usePage();
 const isMobileMenuOpen = ref(false);
+
+const hero = {
+  image: heroImage,
+  tag: 'Gaming & E-sport',
+  title: 'Votre prochaine partie commence ici',
+  subtitle: 'Réservez les meilleures salles de gaming haute performance et participez à des événements exclusifs près de chez vous.',
+};
 
 // Vérifier si l'utilisateur est connecté
 const isLoggedIn = ref(!!page.props.auth?.user);

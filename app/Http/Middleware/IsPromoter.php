@@ -15,8 +15,8 @@ class IsPromoter
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check() || !auth()->user()->hasRole('promoter')) {
-            return redirect()->route('home');
+        if (!auth()->check() || auth()->user()->role !== 'promoter') {
+            return redirect()->route('welcome');
         }
         return $next($request);
     }
