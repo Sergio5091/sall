@@ -1,56 +1,67 @@
 <template>
   <div class="bg-white text-soft-black font-display antialiased selection:bg-primary/20 selection:text-primary">
     <!-- Navigation -->
-    <nav class="absolute top-0 left-0 w-full z-50 transition-all duration-300 bg-black/20 backdrop-blur-sm">
+    <nav class="absolute top-0 left-0 w-full z-50 transition-all duration-300 bg-gradient-to-b from-black/40 to-transparent backdrop-blur-xl hover:bg-black/30">
       <div class="max-w-[1320px] mx-auto px-6 h-20 flex items-center justify-between">
         <!-- Logo -->
-        <div class="flex items-center gap-2">
-          <div class="size-8 flex items-center justify-center bg-white rounded-lg text-primary">
-            <i class="fas fa-gamepad text-[24px]"></i>
+        <div class="flex items-center gap-3 hover:opacity-90 transition-opacity">
+          <div class="size-9 flex items-center justify-center bg-gradient-to-br from-primary to-blue-500 rounded-xl text-white shadow-lg shadow-primary/40">
+            <i class="fas fa-gamepad text-[20px]"></i>
           </div>
-          <h1 class="text-white text-xl font-bold tracking-tight">YOUPIHUB</h1>
+          <h1 class="text-white text-2xl font-extrabold tracking-tighter bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">YOUPIHUB</h1>
         </div>
         
         <!-- Desktop Menu -->
-        <div class="hidden md:flex items-center gap-10">
-          <a class="text-white/90 hover:text-white text-sm font-medium transition-colors" href="/">Accueil</a>
-          <a class="text-white/70 hover:text-white text-sm font-medium transition-colors" href="/search/rooms">Salles</a>
-          <a class="text-white/70 hover:text-white text-sm font-medium transition-colors" href="/events">Événements</a>
+        <div class="hidden md:flex items-center gap-12">
+          <a class="text-white/90 hover:text-white text-sm font-semibold transition-colors relative group" href="/">
+            Accueil
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-transparent group-hover:w-full transition-all duration-300"></span>
+          </a>
+          <a class="text-white/70 hover:text-white text-sm font-semibold transition-colors relative group" href="/search/rooms">
+            Salles
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-transparent group-hover:w-full transition-all duration-300"></span>
+          </a>
+          <a class="text-white/70 hover:text-white text-sm font-semibold transition-colors relative group" href="/events">
+            Événements
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-transparent group-hover:w-full transition-all duration-300"></span>
+          </a>
           <a 
             :class="[
-              'text-sm font-medium transition-colors',
+              'text-sm font-semibold transition-colors relative group',
               $page.url === '/products' ? 'text-white/90' : 'text-white/70 hover:text-white'
             ]" 
             href="/products"
           >
             Boutique
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-transparent group-hover:w-full transition-all duration-300"></span>
           </a>
           <a 
             :class="[
-              'text-sm font-medium transition-colors',
+              'text-sm font-semibold transition-colors relative group',
               $page.url === '/about' ? 'text-white/90' : 'text-white/70 hover:text-white'
             ]" 
             href="/about"
           >
             À propos
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-transparent group-hover:w-full transition-all duration-300"></span>
           </a>
         </div>
         
         <!-- Desktop Right Actions -->
-        <div class="hidden md:flex items-center gap-4">
+        <div class="hidden md:flex items-center gap-3">
           <Link 
             href="/login" 
             @click="handleAuthClick($event, 'login')"
-            class="text-white hover:text-white/80 text-sm font-semibold px-4 py-2 transition-colors"
+            class="text-white hover:text-white/80 text-sm font-semibold px-6 py-2.5 transition-all border border-white/20 rounded-full hover:border-white/40 backdrop-blur-sm"
           >
             Connexion
           </Link>
           <Link 
             href="/register" 
             @click="handleAuthClick($event, 'register')"
-            class="flex items-center justify-center rounded-full bg-primary hover:bg-blue-600 text-white text-sm font-bold px-6 py-2.5 transition-all shadow-lg shadow-primary/20"
+            class="flex items-center justify-center rounded-full bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-sm font-bold px-7 py-2.5 transition-all shadow-lg shadow-primary/40 hover:shadow-xl hover:shadow-primary/50 transform hover:scale-105"
           >
-            Inscription
+            S'inscrire
           </Link>
         </div>
 
@@ -116,74 +127,150 @@
     </nav>
 
     <!-- Hero Section -->
-    <header class="relative w-full min-h-[42vh] md:min-h-[48vh] lg:min-h-[52vh] max-h-[520px] overflow-hidden bg-black">
-      <div class="absolute inset-0 z-0 flex items-center justify-center overflow-hidden">
-        <img
-          :src="hero.image"
-          :alt="hero.tag"
-          class="max-w-full max-h-full object-contain object-center"
-        />
-      </div>
-      <div class="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-black/30 to-black/80"></div>
+   <!-- Hero Section - Carousel -->
+<header class="relative w-full overflow-hidden bg-black" style="height: clamp(600px, 90vh, 900px);">
 
-      <div class="relative z-20 flex h-full items-center justify-center px-6">
-        <div class="w-full max-w-[1320px] text-center pb-[90px]">
-          <div class="mx-auto flex flex-col gap-4 max-w-[620px]">
-            <span class="inline-flex items-center justify-center px-4 py-2 rounded-full border border-white/30 bg-white/15 text-white uppercase tracking-[1.5px] text-[12px]">
-              {{ hero.tag }}
-            </span>
-            <h1 class="text-white text-[clamp(26px,4vw,54px)] font-medium leading-[1.18] tracking-tight max-w-[620px] mx-auto">
-              {{ hero.title }}
-            </h1>
-            <p class="mx-auto text-white/72 text-[clamp(13px,1vw,17px)] leading-[1.75] max-w-[500px] mt-4">
-              {{ hero.subtitle }}
-            </p>
-          </div>
+  <!-- Slides wrapper -->
+  <div
+    class="flex h-full transition-all duration-1200 ease-[cubic-bezier(0.4,0,0.2,1)]"
+    :style="{ transform: `translateX(-${heroSlide * 100}%)` }"
+  >
+    <div
+      v-for="(slide, i) in heroSlides"
+      :key="i"
+      class="relative min-w-full h-full flex-shrink-0"
+    >
+      <!-- Background image avec zoom au slide actif -->
+      <div
+        class="absolute inset-0 bg-cover bg-center transition-all duration-[10000ms] ease-linear"
+        :style="{ 
+          backgroundImage: `url(${slide.image})`,
+          transform: heroSlide === i ? 'scale(1.08) translateY(-5px)' : 'scale(1.02) translateY(0px)'
+        }"
+      ></div>
+      <div class="absolute inset-0 bg-gradient-to-br from-black/80 via-black/40 to-black/70"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30"></div>
 
-          <div class="mt-8 flex justify-center">
+      <!-- Decorative elements -->
+      <div class="absolute top-20 left-20 w-32 h-32 bg-primary/20 rounded-full blur-3xl animate-float"></div>
+      <div class="absolute bottom-32 right-32 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl animate-float" style="animation-delay: 1s;"></div>
+      <div class="absolute top-1/2 left-1/3 w-24 h-24 bg-purple-500/15 rounded-full blur-2xl animate-float" style="animation-delay: 2s;"></div>
+      <!-- Contenu -->
+      <div class="relative z-20 flex h-full items-center px-6 md:px-20 lg:px-24 xl:px-32">
+        <div class="max-w-[720px] xl:max-w-[800px]">
+          <!-- Badge -->
+          <span class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/30 bg-white/12 text-white uppercase tracking-[1.5px] text-xs font-bold mb-6 backdrop-blur-md hover:bg-white/18 transition-all animate-slide-in-left" :class="{ 'opacity-0': !heroLoaded }">
+            <span class="size-2.5 rounded-full animate-pulse" :style="{ background: slide.dotColor }"></span>
+            {{ slide.tag }}
+          </span>
+
+          <!-- Titre -->
+          <h1 class="text-white text-[clamp(40px,6vw,72px)] font-black leading-[1.02] tracking-tighter mb-8 animate-slide-in-up" :class="{ 'opacity-0': !heroLoaded }" style="animation-delay: 0.1s">
+            <span v-html="slide.title"></span>
+          </h1>
+
+          <!-- Sous-titre -->
+          <p class="text-white/85 text-[clamp(16px,1.5vw,20px)] leading-[1.8] mb-12 max-w-[600px] font-medium animate-slide-in-up" :class="{ 'opacity-0': !heroLoaded }" style="animation-delay: 0.2s">
+            {{ slide.subtitle }}
+          </p>
+
+          <!-- CTA -->
+          <div class="flex items-center gap-5 flex-wrap animate-slide-in-up" :class="{ 'opacity-0': !heroLoaded }" style="animation-delay: 0.3s">
             <button
-              @click="goToSearchRooms"
-              class="inline-flex items-center justify-center gap-3 rounded-full bg-white px-7 py-4 text-sm font-semibold text-[#111] transition-opacity duration-200 hover:opacity-90"
+              @click="() => slide.primaryAction()"
+              class="inline-flex items-center justify-center gap-3 bg-white text-[#111] px-10 py-5 rounded-full text-base font-bold hover:shadow-2xl transition-all transform hover:scale-105 hover:bg-white/95 shadow-2xl hover:shadow-white/20 animate-pulse-glow relative overflow-hidden"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="shrink-0">
+              <div class="absolute inset-0 animate-shimmer"></div>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="relative z-10">
                 <path d="M11 4a7 7 0 1 0 4.95 11.95l4.55 4.55a1 1 0 0 0 1.42-1.42l-4.55-4.55A7 7 0 0 0 11 4Zm0 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10Z" fill="#111"/>
               </svg>
-              Trouver une salle de loisirs
+              <span class="relative z-10">{{ slide.primaryLabel }}</span>
+            </button>
+            <button
+              @click="() => slide.secondaryAction()"
+              class="flex items-center gap-3 text-white/90 text-base font-bold hover:text-white transition-all group px-8 py-5 rounded-full hover:bg-white/12 backdrop-blur-sm border border-white/20 hover:border-white/30 animate-slide-in-right"
+            >
+              {{ slide.secondaryLabel }}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="group-hover:translate-x-1 transition-transform">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
             </button>
           </div>
         </div>
       </div>
-    </header>
+    </div>
+  </div>
+
+  <!-- Compteur slide -->
+  <div class="absolute top-12 right-32 text-white/70 text-sm font-bold tracking-[3px] z-30 hidden lg:block animate-float">
+    {{ String(heroSlide + 1).padStart(2, '0') }} / {{ String(heroSlides.length).padStart(2, '0') }}
+  </div>
+
+  <!-- Flèches nav -->
+  <button
+    @click="prevHeroSlide"
+    class="absolute left-12 top-1/2 -translate-y-1/2 z-30 size-14 rounded-full bg-white/20 border border-white/30 text-white flex items-center justify-center hover:bg-white/30 transition-all backdrop-blur-md hover:scale-110 hover:shadow-lg"
+  >
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <button
+    @click="nextHeroSlide"
+    class="absolute right-12 top-1/2 -translate-y-1/2 z-30 size-14 rounded-full bg-white/20 border border-white/30 text-white flex items-center justify-center hover:bg-white/30 transition-all backdrop-blur-md hover:scale-110 hover:shadow-lg"
+  >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+
+  <!-- Dots + progress -->
+  <div class="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3">
+    <button
+      v-for="(_, i) in heroSlides"
+      :key="i"
+      @click="goToHeroSlide(i)"
+      class="h-3 rounded-full transition-all duration-300 hover:scale-125"
+      :class="heroSlide === i ? 'w-8 bg-white shadow-lg shadow-white/30 animate-pulse-glow' : 'w-3 bg-white/50 hover:bg-white/70'"
+    ></button>
+  </div>
+
+  <!-- Barre de progression -->
+  <div class="absolute bottom-0 left-0 w-full h-[4px] bg-white/30 z-30">
+    <div 
+      class="h-full bg-gradient-to-r from-primary to-blue-400 transition-none"
+      :style="{ width: heroProgress + '%', transition: heroProgressTransition }"
+    ></div>
+  </div>
+</header>
 
     <!-- Main Content -->
     <main class="flex flex-col w-full bg-white pb-20">
       <!-- Carousel / News Section -->
-      <section class="w-full max-w-[1320px] mx-auto px-6 py-20">
-        <div class="flex items-end justify-between mb-10">
+      <section class="w-full max-w-[1320px] mx-auto px-6 py-24">
+        <div class="flex items-end justify-between mb-14">
           <div>
-            <h2 class="text-soft-black text-3xl font-bold tracking-tight mb-2">À la une</h2>
-            <p class="text-medium-grey text-base">Les dernières ouvertures et événements majeurs.</p>
+            <span class="inline-block px-4 py-1.5 bg-primary/10 text-primary font-bold text-xs uppercase tracking-widest rounded-full mb-3">Featured</span>
+            <h2 class="text-soft-black text-4xl md:text-5xl font-black tracking-tighter mb-3">À la une</h2>
+            <p class="text-medium-grey text-lg font-medium">Les dernières ouvertures et événements majeurs.</p>
           </div>
         </div>
         
         <!-- Cards Container with Auto-scroll -->
         <div class="relative overflow-hidden">
           <!-- Slide Indicators -->
-          <div class="flex justify-center gap-2 mb-4">
+          <div class="flex justify-center gap-3 mb-8">
             <button
               v-for="(_, index) in Math.min(featuredItemsData.length, 6)"
               :key="index"
               @click="goToSlide(index)"
               :class="[
-                'w-2 h-2 rounded-full transition-colors',
-                currentSlide === index ? 'bg-primary' : 'bg-gray-300'
+                'transition-all duration-300 rounded-full',
+                currentSlide === index ? 'w-8 h-2.5 bg-primary shadow-lg shadow-primary/40' : 'w-2.5 h-2.5 bg-gray-300 hover:bg-gray-400'
               ]"
             />
           </div>
           
                   <div 
             ref="carouselContainer"
-            class="flex gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory touch-pan-x md:overflow-hidden"
+            class="flex gap-7 overflow-x-auto no-scrollbar snap-x snap-mandatory touch-pan-x md:overflow-hidden"
             :class="isAutoScrolling ? 'animate-scroll-left' : 'transition-transform duration-300 ease-in-out'"
             :style="carouselStyle"
           >
@@ -191,31 +278,31 @@
             <div 
               v-for="(item, index) in [...featuredItemsData, ...featuredItemsData]" 
               :key="`${index}-duplicate`"
-              class="group relative flex flex-col gap-4 cursor-pointer min-w-[280px] max-w-[280px] sm:min-w-[320px] sm:max-w-[320px] md:min-w-[400px] md:max-w-[400px] flex-shrink-0 snap-start"
+              class="group relative flex flex-col gap-4 cursor-pointer min-w-[280px] max-w-[280px] sm:min-w-[320px] sm:max-w-[320px] md:min-w-[400px] md:max-w-[400px] flex-shrink-0 snap-start transition-transform duration-300 hover:scale-105"
               @click="viewItem(item)"
             >
-              <div class="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-sm">
-                <div class="absolute top-4 left-4 z-10">
+              <div class="relative w-full aspect-[4/3] rounded-3xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-shadow">
+                <div class="absolute top-5 left-5 z-10">
                   <span 
                     :class="[
-                      'px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider',
-                      item.type === 'Nouveau' ? 'bg-white/90 backdrop-blur-sm text-soft-black' :
-                      item.type === 'Tournoi' ? 'bg-primary/90 backdrop-blur-sm text-white' :
-                      'bg-white/90 backdrop-blur-sm text-soft-black'
+                      'px-4 py-2 text-xs font-black rounded-full uppercase tracking-widest inline-block shadow-lg',
+                      item.type === 'Nouveau' ? 'bg-white text-soft-black' :
+                      item.type === 'Tournoi' ? 'bg-gradient-to-r from-primary to-blue-500 text-white' :
+                      'bg-white/95 text-soft-black'
                     ]"
                   >
                     {{ item.type }}
                   </span>
                 </div>
                 <img 
-                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
                   :src="item.image || 'https://picsum.photos/seed/featured-' + item.id + '/400/300.jpg'"
                   :alt="item.title"
                 />
               </div>
-              <div class="flex flex-col gap-2">
-                <h3 class="text-lg font-bold text-soft-black leading-tight">{{ item.title }}</h3>
-                <p class="text-medium-grey text-sm leading-relaxed">{{ item.description }}</p>
+              <div class="flex flex-col gap-3">
+                <h3 class="text-lg font-bold text-soft-black leading-tight line-clamp-2">{{ item.title }}</h3>
+                <p class="text-medium-grey text-sm leading-relaxed line-clamp-2">{{ item.description }}</p>
               </div>
             </div>
           </div>
@@ -223,19 +310,22 @@
         </section>
 
     <!-- Popular Rooms Section -->
-      <section class="w-full bg-[#f8f9fc] py-20">
+      <section class="w-full bg-gradient-to-b from-[#f8f9fc] to-white py-24">
         <div class="max-w-[1320px] mx-auto px-6">
           <!-- Header with Tabs -->
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-            <h2 class="text-soft-black text-3xl font-bold tracking-tight">Salles Populaires</h2>
-            <div class="flex bg-white p-1 rounded-full shadow-sm w-fit">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-16">
+            <div>
+              <span class="inline-block px-4 py-1.5 bg-primary/10 text-primary font-bold text-xs uppercase tracking-widest rounded-full mb-3">Popular</span>
+              <h2 class="text-soft-black text-4xl md:text-5xl font-black tracking-tighter">Salles Populaires</h2>
+            </div>
+            <div class="flex bg-white p-1 rounded-full shadow-lg w-fit border border-gray-100">
               <button 
                 v-for="tab in roomTabs"
                 :key="tab.id"
                 @click="activeTab = tab.id"
                 :class="[
-                  'px-6 py-2 rounded-full text-sm font-medium transition-all',
-                  activeTab === tab.id ? 'bg-primary text-white shadow-sm' : 'text-medium-grey hover:bg-gray-50'
+                  'px-7 py-2.5 rounded-full text-sm font-bold transition-all duration-300',
+                  activeTab === tab.id ? 'bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30' : 'text-medium-grey hover:text-soft-black'
                 ]"
               >
                 {{ tab.label }}
@@ -244,38 +334,42 @@
           </div>
           
           <!-- Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <article 
               v-for="(room, index) in filteredRooms" 
               :key="index"
-              class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.08)] transition-all duration-300 group"
+              class="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-500 group hover:border-primary/20 hover:scale-105"
             >
-              <div class="relative aspect-[3/2] overflow-hidden">
+              <div class="relative aspect-[3/2] overflow-hidden bg-gray-200">
                 <img 
-                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
                   :src="room.image || 'https://picsum.photos/seed/room-' + room.id + '/400/300.jpg'"
                   :alt="room.name"
                 />
-                <div class="absolute top-3 right-3 bg-white/90 backdropver-blur rounded-full px-2 py-1 flex items-center gap-1 shadow-sm">
-                  <i class="fas fa-star text-yellow-500 text-[16px]"></i>
-                  <span class="text-xs font-bold text-soft-black">{{ room.rating }}</span>
+                <div class="absolute top-4 right-4 bg-white/95 backdrop-blur rounded-full px-3 py-2 flex items-center gap-1.5 shadow-lg font-bold">
+                  <i class="fas fa-star text-yellow-400 text-[16px]"></i>
+                  <span class="text-xs font-black text-soft-black">{{ room.rating }}</span>
                 </div>
               </div>
-              <div class="p-5 flex flex-col gap-3">
+              <div class="p-6 flex flex-col gap-4">
                 <div>
-                  <h3 class="text-lg font-bold text-soft-black leading-tight">{{ room.name }}</h3>
-                  <div class="flex items-center gap-1 text-medium-grey mt-1">
-                    <i class="fas fa-map-marker-alt text-[16px]"></i>
-                    <span class="text-xs font-medium">{{ room.location }}</span>
+                  <h3 class="text-lg font-bold text-soft-black leading-tight line-clamp-2">{{ room.name }}</h3>
+                  <div class="flex items-center gap-2 text-medium-grey mt-2">
+                    <i class="fas fa-map-marker-alt text-[14px]"></i>
+                    <span class="text-xs font-semibold">{{ room.location }}</span>
                   </div>
                 </div>
-                <div class="w-full h-[1px] bg-gray-100"></div>
+                <div class="w-full h-[1px] bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100"></div>
                 <div class="flex items-center justify-between">
-                  <span class="text-primary font-bold">{{ room.price }}€ <span class="text-medium-grey font-normal text-xs">/ heure</span></span>
+                  <div>
+                    <span class="text-primary font-black text-lg">{{ room.price }}€</span>
+                    <span class="text-medium-grey font-medium text-xs ml-1">/ heure</span>
+                  </div>
                   <button 
                     @click="reserveRoom(room)"
-                    class="text-soft-black hover:text-primary text-sm font-semibold flex items-center gap-1 transition-colors"
+                    class="text-soft-black hover:text-white hover:bg-primary text-xs font-black px-4 py-2 rounded-full transition-all flex items-center gap-1.5 border border-gray-200 hover:border-primary"
                   >
+                    <i class="fas fa-calendar"></i>
                     Réserver
                   </button>
                 </div>
@@ -283,10 +377,10 @@
             </article>
           </div>
           
-          <div class="mt-12 text-center">
-            <a href="/search/rooms" class="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full border border-gray-200 text-soft-black font-semibold hover:border-primary hover:text-primary transition-all">
+          <div class="mt-16 text-center">
+            <a href="/search/rooms" class="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-full border-2 border-primary text-primary font-bold hover:bg-primary hover:text-white transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
               Voir toutes les salles
-              <i class="fas fa-arrow-right text-[20px]"></i>
+              <i class="fas fa-arrow-right text-[18px]"></i>
             </a>
           </div>
         </div>
@@ -351,68 +445,94 @@
     </section>
 
     <!-- How It Works Section -->
-    <section class="w-full bg-white py-20">
-      <div class="max-w-[1320px] mx-auto px-6">
+    <section class="w-full bg-white py-24 relative overflow-hidden">
+      <!-- Background decoration -->
+      <div class="absolute inset-0 opacity-5">
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-primary rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-400 rounded-full blur-3xl"></div>
+      </div>
+      
+      <div class="max-w-[1320px] mx-auto px-6 relative z-10">
         <!-- Header -->
-        <div class="text-center mb-16">
-          <h2 class="text-soft-black text-3xl md:text-4xl font-bold tracking-tight mb-4">Comment ça marche ?</h2>
-          <p class="text-medium-grey text-lg max-w-2xl mx-auto">
+        <div class="text-center mb-20">
+          <span class="inline-block px-4 py-1.5 bg-primary/10 text-primary font-bold text-xs uppercase tracking-widest rounded-full mb-4">Process</span>
+          <h2 class="text-soft-black text-4xl md:text-5xl font-black tracking-tighter mb-6">Comment ça marche ?</h2>
+          <p class="text-medium-grey text-lg max-w-2xl mx-auto font-medium leading-relaxed">
             Réservez votre salle de gaming en quelques clics et profitez d'une expérience unique
           </p>
         </div>
 
         <!-- Steps -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
           <!-- Step 1 -->
-          <div class="text-center group">
-            <div class="size-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors">
-              <i class="fas fa-search text-[40px] text-primary"></i>
+          <div class="text-center group relative">
+            <div class="size-24 bg-gradient-to-br from-primary/15 to-primary/5 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:from-primary/25 group-hover:to-primary/10 transition-all transform group-hover:scale-110 shadow-lg">
+              <i class="fas fa-search text-[48px] text-primary"></i>
             </div>
-            <div class="flex items-center justify-center gap-2 mb-4">
-              <div class="size-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
-              <h3 class="text-xl font-bold text-soft-black">Recherchez</h3>
+            <div class="flex items-center justify-center gap-3 mb-5">
+              <div class="size-10 bg-gradient-to-br from-primary to-blue-600 text-white rounded-full flex items-center justify-center font-black text-lg shadow-lg shadow-primary/40">1</div>
+              <h3 class="text-2xl font-black text-soft-black">Recherchez</h3>
             </div>
-            <p class="text-medium-grey leading-relaxed">
+            <p class="text-medium-grey leading-relaxed text-base font-medium">
               Trouvez la salle parfaite parmi notre sélection de salles de gaming équipées
             </p>
           </div>
 
+          <!-- Arrow decoration -->
+          <div class="hidden md:flex items-center justify-center -mx-8">
+            <div class="transform group-hover:translate-x-2 transition-transform">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" class="text-gray-200">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+
           <!-- Step 2 -->
           <div class="text-center group">
-            <div class="size-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors">
-              <i class="fas fa-calendar-alt text-[40px] text-primary"></i>
+            <div class="size-24 bg-gradient-to-br from-primary/15 to-primary/5 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:from-primary/25 group-hover:to-primary/10 transition-all transform group-hover:scale-110 shadow-lg">
+              <i class="fas fa-calendar-alt text-[48px] text-primary"></i>
             </div>
-            <div class="flex items-center justify-center gap-2 mb-4">
-              <div class="size-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">2</div>
-              <h3 class="text-xl font-bold text-soft-black">Réservez</h3>
+            <div class="flex items-center justify-center gap-3 mb-5">
+              <div class="size-10 bg-gradient-to-br from-primary to-blue-600 text-white rounded-full flex items-center justify-center font-black text-lg shadow-lg shadow-primary/40">2</div>
+              <h3 class="text-2xl font-black text-soft-black">Réservez</h3>
             </div>
-            <p class="text-medium-grey leading-relaxed">
+            <p class="text-medium-grey leading-relaxed text-base font-medium">
               Choisissez vos dates et réservez instantanément en ligne
             </p>
           </div>
 
+          <!-- Arrow decoration -->
+          <div class="hidden md:flex items-center justify-center -mx-8">
+            <div class="transform group-hover:translate-x-2 transition-transform">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" class="text-gray-200">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+
           <!-- Step 3 -->
           <div class="text-center group">
-            <div class="size-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors">
-              <i class="fas fa-gamepad text-[40px] text-primary"></i>
+            <div class="size-24 bg-gradient-to-br from-primary/15 to-primary/5 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:from-primary/25 group-hover:to-primary/10 transition-all transform group-hover:scale-110 shadow-lg">
+              <i class="fas fa-gamepad text-[48px] text-primary"></i>
             </div>
-            <div class="flex items-center justify-center gap-2 mb-4">
-              <div class="size-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">3</div>
-              <h3 class="text-xl font-bold text-soft-black">Jouez</h3>
+            <div class="flex items-center justify-center gap-3 mb-5">
+              <div class="size-10 bg-gradient-to-br from-primary to-blue-600 text-white rounded-full flex items-center justify-center font-black text-lg shadow-lg shadow-primary/40">3</div>
+              <h3 class="text-2xl font-black text-soft-black">Jouez</h3>
             </div>
-            <p class="text-medium-grey leading-relaxed">
+            <p class="text-medium-grey leading-relaxed text-base font-medium">
               Profitez de votre session gaming dans un environnement professionnel
             </p>
           </div>
         </div>
 
         <!-- CTA -->
-        <div class="text-center mt-16">
+        <div class="text-center mt-20">
           <button 
             @click="goToSearchRooms"
-            class="bg-primary hover:bg-blue-600 text-white px-8 py-4 rounded-full text-lg font-medium transition-all shadow-lg shadow-primary/20 hover:shadow-xl"
+            class="bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-12 py-5 rounded-full text-lg font-bold transition-all shadow-xl shadow-primary/40 hover:shadow-2xl hover:shadow-primary/50 transform hover:scale-105"
           >
             Commencer maintenant
+            <i class="fas fa-arrow-right ml-2"></i>
           </button>
         </div>
       </div>
@@ -427,7 +547,91 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import MainFooter from '@/Components/MainFooter.vue';
-import heroImage from './Public/image-hero/sale-de-jeu.jpg';
+import heroImg1 from './Public/image-hero/sale-de-jeu.jpg';
+import heroImg2 from './Public/image-hero/bolling.jpg';
+import heroImg3 from './Public/image-hero/hero-tech.jpg';
+import heroImg4 from './Public/image-hero/park-attraction.jpg';
+
+// Nouvelles images ajoutées
+import eventImg from '../../../public/IMAGES/evenements.jpg';
+import image11 from '../../../public/IMAGES/image11.jpg';
+import saleJeuxImg from '../../../public/IMAGES/sale de jeux.jpg';
+
+const heroSlides = [
+  {
+    image: heroImg1,
+    tag: 'Gaming & E-sport',
+    dotColor: '#4ade80',
+    title: 'Votre prochaine partie<br>commence <span style="color:#93c5fd">ici</span>',
+    subtitle: 'Réservez les meilleures salles de gaming haute performance et participez à des événements exclusifs près de chez vous.',
+    primaryLabel: 'Trouver une salle',
+    secondaryLabel: 'Voir les événements',
+    primaryAction: () => window.location.href = '/search/rooms',
+    secondaryAction: () => window.location.href = '/events',
+  },
+  {
+    image: eventImg,
+    tag: 'Événements',
+    dotColor: '#f59e0b',
+    title: 'Rejoignez nos <span style="color:#fcd34d">événements</span><br>exclusifs',
+    subtitle: 'Tournois, LAN parties, soirées gaming... Vivez des expériences uniques avec la communauté YOUPIHUB.',
+    primaryLabel: 'Voir les événements',
+    secondaryLabel: 'S\'inscrire',
+    primaryAction: () => window.location.href = '/events',
+    secondaryAction: () => window.location.href = '/register',
+  },
+  {
+    image: image11,
+    tag: 'Communauté',
+    dotColor: '#f87171',
+    title: 'Une communauté <span style="color:#f87171">passionnée</span><br>vous attend',
+    subtitle: 'Rejoignez des milliers de gamers passionnés et créez des souvenirs inoubliables ensemble.',
+    primaryLabel: 'Rejoindre',
+    secondaryLabel: 'En savoir plus',
+    primaryAction: () => window.location.href = '/register',
+    secondaryAction: () => window.location.href = '/about',
+  },
+  {
+    image: saleJeuxImg,
+    tag: 'Salle de Jeux',
+    dotColor: '#a855f7',
+    title: 'Votre salle de jeux <span style="color:#c084fc">idéale</span><br>à portée de main',
+    subtitle: 'Équipements haut de gamme, ambiance parfaite, et service premium pour vos sessions gaming.',
+    primaryLabel: 'Réserver maintenant',
+    secondaryLabel: 'Voir les salles',
+    primaryAction: () => window.location.href = '/search/rooms',
+    secondaryAction: () => window.location.href = '/search/rooms',
+  },
+];
+
+const heroSlide = ref(0);
+const heroProgress = ref(0);
+const heroProgressTransition = ref('none');
+let heroTimer = null;
+let heroProgressTimer = null;
+
+const goToHeroSlide = (n) => {
+  heroSlide.value = (n + heroSlides.length) % heroSlides.length;
+  startHeroProgress();
+};
+const nextHeroSlide = () => { clearInterval(heroTimer); goToHeroSlide(heroSlide.value + 1); startHeroAuto(); };
+const prevHeroSlide = () => { clearInterval(heroTimer); goToHeroSlide(heroSlide.value - 1); startHeroAuto(); };
+
+const startHeroProgress = () => {
+  clearInterval(heroProgressTimer);
+  heroProgress.value = 0;
+  heroProgressTransition.value = 'none';
+  setTimeout(() => {
+    heroProgressTransition.value = 'width 5000ms linear';
+    heroProgress.value = 100;
+  }, 50);
+};
+
+const startHeroAuto = () => {
+  clearInterval(heroTimer);
+  heroTimer = setInterval(() => goToHeroSlide(heroSlide.value + 1), 5000);
+  startHeroProgress();
+};
 
 const props = defineProps({
     canLogin: Boolean,
@@ -443,12 +647,7 @@ const props = defineProps({
 const page = usePage();
 const isMobileMenuOpen = ref(false);
 
-const hero = {
-  image: heroImage,
-  tag: 'Gaming & E-sport',
-  title: 'Votre prochaine partie commence ici',
-  subtitle: 'Réservez les meilleures salles de gaming haute performance et participez à des événements exclusifs près de chez vous.',
-};
+
 
 // Vérifier si l'utilisateur est connecté
 const isLoggedIn = ref(!!page.props.auth?.user);
@@ -500,6 +699,7 @@ const isAutoScrolling = ref(true);
 const isMobileView = ref(false);
 const searchQuery = ref('');
 const selectedLocation = ref('Paris');
+const heroLoaded = ref(false);
 
 const carouselStyle = computed(() => {
   if (isAutoScrolling.value || isMobileView.value) {
@@ -538,6 +738,11 @@ const goToSlide = (index) => {
 onMounted(() => {
   updateMobileView();
   window.addEventListener('resize', updateMobileView);
+
+  // Trigger hero entrance animation
+  setTimeout(() => {
+    heroLoaded.value = true;
+  }, 100);
 });
 
 onUnmounted(() => {
@@ -573,7 +778,7 @@ const goToSearchRooms = () => {
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 .font-display {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -621,6 +826,138 @@ const goToSearchRooms = () => {
   animation-play-state: paused;
 }
 
+/* Fade in up animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-up.delay-300 {
+  animation-delay: 0.3s;
+}
+
+.animate-fade-in-up.delay-600 {
+  animation-delay: 0.6s;
+}
+
+.delay-100 {
+  animation-delay: 0.1s !important;
+}
+
+.delay-300 {
+  animation-delay: 0.3s !important;
+}
+
+.delay-500 {
+  animation-delay: 0.5s !important;
+}
+
+.delay-700 {
+  animation-delay: 0.7s !important;
+}
+
+.delay-900 {
+  animation-delay: 0.9s !important;
+}
+
+/* Enhanced animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(60px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(19, 91, 188, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(19, 91, 188, 0.6);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.8s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.8s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.8s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
 /* Tailwind custom colors */
 :root {
   --primary: #135bec;
@@ -664,5 +1001,28 @@ const goToSearchRooms = () => {
     transform: translateY(0);
     animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
   }
+}
+
+/* Smooth transitions */
+* {
+  @apply transition-colors;
+}
+
+/* Hero gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #135bec 0%, #3b82f6 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Card hover effect */
+.card-hover {
+  @apply transition-all duration-300 hover:scale-105 hover:shadow-2xl;
+}
+
+/* Button hover glow */
+.btn-glow {
+  @apply shadow-lg shadow-primary/40 hover:shadow-xl hover:shadow-primary/60;
 }
 </style>
